@@ -22,7 +22,7 @@ const REASONS = [
   {
     icon: Wallet,
     title: "Transparent pricing",
-    description: "Fixed packages with no hidden fees — know exactly what you're paying for up front.",
+    description: "One flat price per service with no hidden fees — know exactly what you're paying for up front.",
   },
   {
     icon: LifeBuoy,

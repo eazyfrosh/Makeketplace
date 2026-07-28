@@ -78,7 +78,6 @@ export function SuccessClient() {
             >
               <div>
                 <div className="text-sm font-medium">{item.serviceName}</div>
-                <div className="text-xs text-muted-foreground">{item.packageName} package</div>
                 <div className="mt-1 font-mono text-xs text-primary">
                   {order.licenseKeys[item.packageId]}
                 </div>

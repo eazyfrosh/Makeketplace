@@ -5,16 +5,6 @@ export type ServiceCategory =
   | "templates"
   | "development";
 
-export interface PricingPackage {
-  id: string;
-  name: string;
-  tagline: string;
-  priceCents: number;
-  billing: "one-time" | "monthly";
-  featured?: boolean;
-  features: string[];
-}
-
 export interface FaqItem {
   question: string;
   answer: string;
@@ -41,7 +31,6 @@ export interface Service {
   startingPriceCents: number;
   rating: number;
   reviewCount: number;
-  packages: PricingPackage[];
   faq: FaqItem[];
   reviews: Review[];
 }

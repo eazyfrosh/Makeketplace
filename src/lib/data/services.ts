@@ -12,12 +12,12 @@ const standardFaq = (name: string) => [
   {
     question: `How long does it take to launch a ${name.toLowerCase()}?`,
     answer:
-      "Most engagements kick off within 48 hours of purchase. Timeline depends on the package: Starter builds ship in 1-2 weeks, Growth in 3-5 weeks, and Enterprise scopes are timelined during onboarding.",
+      "Most engagements kick off within 48 hours of purchase. Timeline is scoped during onboarding based on your requirements, typically 1-5 weeks depending on complexity.",
   },
   {
     question: "Do I own the source code?",
     answer:
-      "Yes. Every package includes full source code ownership and transferable IP once the final invoice is paid in full.",
+      "Yes. Every purchase includes full source code ownership and transferable IP once the final invoice is paid in full.",
   },
   {
     question: "What happens after purchase?",
@@ -25,9 +25,9 @@ const standardFaq = (name: string) => [
       "You'll get access to your Customer Dashboard immediately, a kickoff questionnaire, and a dedicated delivery timeline. Support tickets and updates are tracked in one place.",
   },
   {
-    question: "Can I upgrade my package later?",
+    question: "What's included in the price?",
     answer:
-      "Absolutely — you can upgrade to a higher tier at any time and we'll credit what you've already paid toward the difference.",
+      "The full build, source code, and onboarding support described above — one flat price with no hidden add-ons.",
   },
 ];
 
@@ -54,56 +54,6 @@ const standardReviews = [
     quote: "Exactly the premium feel we needed for launch. A couple of rounds of revisions and it was perfect.",
   },
 ];
-
-function buildPackages(base: number): Service["packages"] {
-  return [
-    {
-      id: "starter",
-      name: "Starter",
-      tagline: "For MVPs and quick launches",
-      priceCents: base,
-      billing: "one-time",
-      features: [
-        "Core feature set",
-        "Responsive design",
-        "Basic analytics",
-        "14 days of support",
-        "1 revision round",
-      ],
-    },
-    {
-      id: "growth",
-      name: "Growth",
-      tagline: "Most popular for scaling teams",
-      priceCents: base * 2.6,
-      billing: "one-time",
-      featured: true,
-      features: [
-        "Everything in Starter",
-        "Advanced integrations",
-        "Custom branding",
-        "60 days of priority support",
-        "3 revision rounds",
-        "Dedicated onboarding",
-      ],
-    },
-    {
-      id: "enterprise",
-      name: "Enterprise",
-      tagline: "For complex, high-scale needs",
-      priceCents: base * 5.5,
-      billing: "one-time",
-      features: [
-        "Everything in Growth",
-        "Dedicated engineering pod",
-        "SLA-backed support",
-        "Unlimited revisions",
-        "White-glove migration",
-        "Quarterly strategy reviews",
-      ],
-    },
-  ];
-}
 
 export const services: Service[] = [
   {
@@ -132,7 +82,6 @@ export const services: Service[] = [
     startingPriceCents: 899900,
     rating: 4.9,
     reviewCount: 128,
-    packages: buildPackages(899900),
     faq: standardFaq("Banking Platform"),
     reviews: standardReviews,
   },
@@ -162,7 +111,6 @@ export const services: Service[] = [
     startingPriceCents: 749900,
     rating: 4.8,
     reviewCount: 96,
-    packages: buildPackages(749900),
     faq: standardFaq("Airline Booking Platform"),
     reviews: standardReviews,
   },
@@ -192,7 +140,6 @@ export const services: Service[] = [
     startingPriceCents: 649900,
     rating: 4.7,
     reviewCount: 74,
-    packages: buildPackages(649900),
     faq: standardFaq("Logistics Platform"),
     reviews: standardReviews,
   },
@@ -222,7 +169,6 @@ export const services: Service[] = [
     startingPriceCents: 149900,
     rating: 4.9,
     reviewCount: 213,
-    packages: buildPackages(149900),
     faq: standardFaq("Website Design"),
     reviews: standardReviews,
   },
@@ -252,7 +198,6 @@ export const services: Service[] = [
     startingPriceCents: 199900,
     rating: 4.8,
     reviewCount: 152,
-    packages: buildPackages(199900),
     faq: standardFaq("AI Automation"),
     reviews: standardReviews,
   },
@@ -282,7 +227,6 @@ export const services: Service[] = [
     startingPriceCents: 89900,
     rating: 4.9,
     reviewCount: 301,
-    packages: buildPackages(89900),
     faq: standardFaq("Graphic Design"),
     reviews: standardReviews,
   },
@@ -312,7 +256,6 @@ export const services: Service[] = [
     startingPriceCents: 4900,
     rating: 4.8,
     reviewCount: 542,
-    packages: buildPackages(4900),
     faq: standardFaq("Premium Templates"),
     reviews: standardReviews,
   },
@@ -342,7 +285,6 @@ export const services: Service[] = [
     startingPriceCents: 1299900,
     rating: 5.0,
     reviewCount: 61,
-    packages: buildPackages(1299900),
     faq: standardFaq("Custom Software Development"),
     reviews: standardReviews,
   },

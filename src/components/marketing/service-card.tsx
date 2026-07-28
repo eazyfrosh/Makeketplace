@@ -9,6 +9,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ServiceVisual } from "@/components/marketing/service-visual";
+import { BuyNowButton } from "@/components/marketing/buy-now-button";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
 
 export function ServiceCard({ service, index = 0 }: { service: Service; index?: number }) {
@@ -61,7 +62,7 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
 
         <div className="mt-auto flex items-center justify-between gap-3 pt-2">
           <div>
-            <div className="text-xs text-muted-foreground">Starting at</div>
+            <div className="text-xs text-muted-foreground">Price</div>
             <div className="text-lg font-semibold">
               {formatPrice(service.startingPriceCents)}
             </div>
@@ -70,9 +71,12 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
             <Button variant="secondary" size="sm" asChild>
               <Link href={`/services/${service.slug}`}>Learn more</Link>
             </Button>
-            <Button size="sm" asChild>
-              <Link href={`/services/${service.slug}#pricing`}>Buy now</Link>
-            </Button>
+            <BuyNowButton
+              serviceSlug={service.slug}
+              serviceName={service.name}
+              priceCents={service.startingPriceCents}
+              size="sm"
+            />
           </div>
         </div>
       </div>

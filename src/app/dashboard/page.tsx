@@ -120,9 +120,6 @@ export default function DashboardPage() {
                     >
                       <div>
                         <div className="font-medium">{item.serviceName}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {item.packageName} package
-                        </div>
                         <button
                           onClick={() => copyKey(order.licenseKeys[item.packageId])}
                           className="mt-1 flex items-center gap-1.5 font-mono text-xs text-primary hover:underline"

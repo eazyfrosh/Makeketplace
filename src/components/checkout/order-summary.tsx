@@ -56,7 +56,7 @@ export function OrderSummary() {
                 <div>
                   <div className="text-sm font-medium">{item.serviceName}</div>
                   <div className="text-xs text-muted-foreground">
-                    {item.packageName} package · {item.billing === "monthly" ? "/mo" : "one-time"}
+                    {item.billing === "monthly" ? "Billed monthly" : "One-time purchase"}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

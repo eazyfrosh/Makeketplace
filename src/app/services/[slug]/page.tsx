@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowRight, Check, ChevronRight, Star } from "lucide-react";
+import { Check, ChevronRight, Star } from "lucide-react";
 
 import { services, getServiceBySlug } from "@/lib/data/services";
 import { formatPrice } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -15,7 +14,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ServiceVisual } from "@/components/marketing/service-visual";
-import { PricingPackages } from "@/components/marketing/pricing-packages";
+import { BuyNowButton } from "@/components/marketing/buy-now-button";
 import { WishlistButton } from "@/components/marketing/wishlist-button";
 import { ServiceCard } from "@/components/marketing/service-card";
 
@@ -82,7 +81,7 @@ export default async function ServiceDetailPage({
                 </div>
                 <div className="h-4 w-px bg-white/10" />
                 <div className="text-sm text-muted-foreground">
-                  Starting at{" "}
+                  Price{" "}
                   <span className="font-semibold text-foreground">
                     {formatPrice(service.startingPriceCents)}
                   </span>
@@ -90,12 +89,12 @@ export default async function ServiceDetailPage({
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button size="lg" asChild>
-                  <Link href="#pricing">
-                    Purchase now
-                    <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
+                <BuyNowButton
+                  serviceSlug={service.slug}
+                  serviceName={service.name}
+                  priceCents={service.startingPriceCents}
+                  size="lg"
+                />
                 <WishlistButton slug={service.slug} />
               </div>
             </div>
@@ -150,25 +149,6 @@ export default async function ServiceDetailPage({
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Simple, transparent pricing
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            Choose the package that fits your stage — upgrade any time.
-          </p>
-        </div>
-        <div className="mt-10">
-          <PricingPackages
-            serviceSlug={service.slug}
-            serviceName={service.name}
-            packages={service.packages}
-          />
         </div>
       </section>
 
