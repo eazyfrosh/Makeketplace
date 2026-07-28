@@ -120,7 +120,9 @@ export default async function ServiceDetailPage({
         <div
           className={cn(
             "mt-6 grid gap-6",
-            service.screenshots.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2",
+            service.screenshots.length === 1 && "sm:grid-cols-1 sm:max-w-2xl",
+            service.screenshots.length === 2 && "sm:grid-cols-2",
+            service.screenshots.length >= 3 && "sm:grid-cols-3",
           )}
         >
           {service.screenshots.map((shot) => (

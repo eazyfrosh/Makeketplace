@@ -92,8 +92,8 @@ export const services: Service[] = [
     tagline: "Search, book, and manage flights with a world-class UX.",
     description:
       "An end-to-end flight booking system — search, seat selection, passenger management, e-tickets, and an admin console — designed to feel like Expedia or Google Flights out of the box.",
-    heroImage: "airline",
-    screenshots: ["airline-search", "airline-seatmap", "airline-confirmation"],
+    heroImage: "/services/airline/booking-verified.png",
+    screenshots: ["/services/airline/email-confirmation.png"],
     features: [
       "Flight search with smart filters",
       "Interactive seat maps",
