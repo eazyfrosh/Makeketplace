@@ -5,8 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(cents: number, currency: string = "USD") {
-  return new Intl.NumberFormat("en-US", {
+export function formatPrice(cents: number, currency: string = "NGN") {
+  return new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency,
     maximumFractionDigits: 0,
