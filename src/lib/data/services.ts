@@ -63,8 +63,8 @@ export const services: Service[] = [
     tagline: "Full-stack digital banking, built for scale and compliance.",
     description:
       "A production-grade digital banking platform with accounts, cards, transfers, and compliance tooling baked in — the same foundation neobanks use to launch in weeks, not years.",
-    heroImage: "banking",
-    screenshots: ["banking-dashboard", "banking-cards", "banking-transfers"],
+    heroImage: "/services/banking/landing.png",
+    screenshots: ["/services/banking/overview.png", "/services/banking/transfer.png"],
     features: [
       "Multi-currency accounts & ledgers",
       "Virtual & physical card issuance",

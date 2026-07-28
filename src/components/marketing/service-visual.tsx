@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   Landmark,
   Plane,
@@ -41,7 +42,40 @@ interface ServiceVisualProps {
   label?: string;
 }
 
+function VisualChrome({ label }: { label?: string }) {
+  return (
+    <div className="relative z-10 flex shrink-0 items-center gap-1.5 border-b border-white/10 bg-black/20 px-4 py-2.5 backdrop-blur-sm">
+      <span className="size-2.5 rounded-full bg-red-400/70" />
+      <span className="size-2.5 rounded-full bg-yellow-400/70" />
+      <span className="size-2.5 rounded-full bg-green-400/70" />
+      {label && <span className="ml-3 truncate text-[11px] text-white/40">{label}</span>}
+    </div>
+  );
+}
+
 export function ServiceVisual({ variant, className, chrome = true, label }: ServiceVisualProps) {
+  if (variant.startsWith("/")) {
+    return (
+      <div
+        className={cn(
+          "relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0c0c14]",
+          className,
+        )}
+      >
+        {chrome && <VisualChrome label={label} />}
+        <div className="relative flex-1">
+          <Image
+            src={variant}
+            alt={label ?? "Service preview"}
+            fill
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="object-cover object-left-top"
+          />
+        </div>
+      </div>
+    );
+  }
+
   const key = variant.split("-")[0];
   const Icon = ICONS[key] ?? Sparkles;
   const gradient = GRADIENTS[key] ?? GRADIENTS.ai;
@@ -64,16 +98,7 @@ export function ServiceVisual({ variant, className, chrome = true, label }: Serv
       <div className="absolute -top-16 -right-16 size-56 rounded-full bg-white/10 blur-3xl animate-glow" />
       <div className="absolute -bottom-20 -left-10 size-64 rounded-full bg-white/5 blur-3xl" />
 
-      {chrome && (
-        <div className="relative flex items-center gap-1.5 border-b border-white/10 bg-black/20 px-4 py-2.5 backdrop-blur-sm">
-          <span className="size-2.5 rounded-full bg-red-400/70" />
-          <span className="size-2.5 rounded-full bg-yellow-400/70" />
-          <span className="size-2.5 rounded-full bg-green-400/70" />
-          {label && (
-            <span className="ml-3 truncate text-[11px] text-white/40">{label}</span>
-          )}
-        </div>
-      )}
+      {chrome && <VisualChrome label={label} />}
 
       <div className="relative flex flex-1 items-center justify-center p-10">
         <div className="flex size-20 items-center justify-center rounded-2xl bg-white/10 shadow-2xl backdrop-blur-md ring-1 ring-white/20">

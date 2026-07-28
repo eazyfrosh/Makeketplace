@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Check, ChevronRight, Star } from "lucide-react";
 
 import { services, getServiceBySlug } from "@/lib/data/services";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -17,6 +17,12 @@ import { ServiceVisual } from "@/components/marketing/service-visual";
 import { BuyNowButton } from "@/components/marketing/buy-now-button";
 import { WishlistButton } from "@/components/marketing/wishlist-button";
 import { ServiceCard } from "@/components/marketing/service-card";
+
+function screenshotLabel(shot: string) {
+  if (!shot.startsWith("/")) return shot;
+  const name = (shot.split("/").pop() ?? shot).replace(/\.[^.]+$/, "");
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
 
 export function generateStaticParams() {
   return services.map((s) => ({ slug: s.slug }));
@@ -111,9 +117,14 @@ export default async function ServiceDetailPage({
       {/* Screenshots */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="text-2xl font-semibold tracking-tight">Product screenshots</h2>
-        <div className="mt-6 grid gap-6 sm:grid-cols-3">
+        <div
+          className={cn(
+            "mt-6 grid gap-6",
+            service.screenshots.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2",
+          )}
+        >
           {service.screenshots.map((shot) => (
-            <ServiceVisual key={shot} variant={shot} className="aspect-video" label={shot} />
+            <ServiceVisual key={shot} variant={shot} className="aspect-video" label={screenshotLabel(shot)} />
           ))}
         </div>
       </section>
