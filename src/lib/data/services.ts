@@ -121,8 +121,8 @@ export const services: Service[] = [
     tagline: "Track shipments and optimize fleets in real time.",
     description:
       "A logistics and fleet management platform with live shipment tracking, route optimization, and warehouse tools — everything a modern logistics operator needs in one dashboard.",
-    heroImage: "logistics",
-    screenshots: ["logistics-tracking", "logistics-fleet", "logistics-warehouse"],
+    heroImage: "/services/logistics/hero.png",
+    screenshots: ["/services/logistics/track-shipment.png", "/services/logistics/shipment-detail.png"],
     features: [
       "Real-time shipment tracking",
       "Route optimization engine",
