@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
@@ -16,16 +17,19 @@ const STATS = [
 export function Hero() {
   return (
     <section className="relative overflow-hidden pt-20 pb-24 sm:pt-28 sm:pb-32">
-      <div className="pointer-events-none absolute inset-0 -z-10 grid-fade-mask">
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
+      <div className="pointer-events-none absolute inset-0 -z-20">
+        <Image
+          src="/hero/hero.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center opacity-40 dark:opacity-60"
         />
-        <div className="absolute left-1/2 top-0 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-brand opacity-20 blur-[120px]" />
+      </div>
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-background/40 via-background/85 to-background" />
+      <div className="pointer-events-none absolute inset-0 -z-10 grid-fade-mask">
+        <div className="absolute left-1/2 top-0 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-brand opacity-10 blur-[120px]" />
       </div>
 
       <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
