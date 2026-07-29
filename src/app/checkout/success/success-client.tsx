@@ -6,16 +6,16 @@ import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Copy, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { getOne } from "@/lib/services/store";
+import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import type { Order } from "@/types";
+import type { ConfirmCheckoutResult } from "@/lib/checkout/confirm";
 
 export function SuccessClient() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order");
-  const [order, setOrder] = React.useState<Order | null>(null);
+  const [result, setResult] = React.useState<ConfirmCheckoutResult | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -23,9 +23,19 @@ export function SuccessClient() {
       setLoading(false);
       return;
     }
-    getOne<Order>("orders", orderId).then((o) => {
-      setOrder(o);
+
+    const cached = sessionStorage.getItem(`nexova_order_${orderId}`);
+    if (cached) {
+      setResult(JSON.parse(cached));
       setLoading(false);
+      return;
+    }
+
+    getAuthHeaders().then((headers) => {
+      fetch(`/api/checkout/order/${orderId}`, { headers })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => setResult(data))
+        .finally(() => setLoading(false));
     });
   }, [orderId]);
 
@@ -42,7 +52,7 @@ export function SuccessClient() {
     );
   }
 
-  if (!order) {
+  if (!result) {
     return (
       <div className="mx-auto max-w-lg px-4 py-24 text-center">
         <h1 className="text-2xl font-semibold">We couldn&apos;t find that order</h1>
@@ -56,6 +66,8 @@ export function SuccessClient() {
     );
   }
 
+  const { order, licenses } = result;
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-20 sm:px-6">
       <div className="glass rounded-2xl p-8 text-center">
@@ -64,29 +76,26 @@ export function SuccessClient() {
         </div>
         <h1 className="mt-6 text-2xl font-semibold">Payment successful</h1>
         <p className="mt-2 text-muted-foreground">
-          Order <span className="font-mono text-foreground">{order.id}</span> is confirmed. A
-          receipt was sent to {order.email}.
+          Order <span className="font-mono text-foreground">{order.id}</span> is confirmed. Your
+          license key{licenses.length > 1 ? "s were" : " was"} emailed to you.
         </p>
 
         <Separator className="my-8" />
 
         <div className="space-y-4 text-left">
-          {order.items.map((item) => (
+          {licenses.map((license) => (
             <div
-              key={item.packageId}
+              key={license.serviceSlug}
               className="flex items-center justify-between rounded-xl border border-white/10 p-4"
             >
               <div>
-                <div className="text-sm font-medium">{item.serviceName}</div>
-                <div className="mt-1 font-mono text-xs text-primary">
-                  {order.licenseKeys[item.packageId]}
-                </div>
+                <div className="text-sm font-medium">{license.serviceName}</div>
+                <div className="mt-1 font-mono text-xs text-primary">{license.licenseKey}</div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium">{formatPrice(item.priceCents)}</span>
                 <button
                   aria-label="Copy license key"
-                  onClick={() => copyKey(order.licenseKeys[item.packageId])}
+                  onClick={() => copyKey(license.licenseKey)}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <Copy className="size-4" />
@@ -95,6 +104,8 @@ export function SuccessClient() {
             </div>
           ))}
         </div>
+
+        <p className="mt-6 text-sm text-muted-foreground">Total paid: {formatPrice(order.totalCents)}</p>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button asChild>

@@ -17,7 +17,7 @@ export function RedirectPaymentForm({
   label: string;
   amountCents: number;
   email: string;
-  onSuccess: () => void;
+  onSuccess: (paymentReference: string) => void;
 }) {
   const [loading, setLoading] = React.useState(false);
 
@@ -33,13 +33,15 @@ export function RedirectPaymentForm({
 
       const redirectUrl = data.authorizationUrl ?? data.paymentLink;
       if (!data.demo && redirectUrl) {
+        // Leaves the app; the provider redirects back to /checkout/callback,
+        // which recovers the (still-persisted) cart and finishes the flow.
         window.location.href = redirectUrl;
         return;
       }
 
       // Demo mode: simulate a successful redirect-based payment.
       await new Promise((resolve) => setTimeout(resolve, 900));
-      onSuccess();
+      onSuccess(`demo_${provider}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
     } finally {
       setLoading(false);
     }

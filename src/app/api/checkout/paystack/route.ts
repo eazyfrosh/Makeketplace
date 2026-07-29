@@ -33,6 +33,7 @@ export async function POST(request: Request) {
         email,
         amount: Math.round(amountCents),
         currency: "NGN",
+        callback_url: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/checkout/callback?provider=paystack`,
       }),
     });
     const data = await res.json();

@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         tx_ref: `nexova-${Date.now()}`,
         amount: (amountCents / 100).toFixed(2),
         currency: "USD",
-        redirect_url: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/checkout/success`,
+        redirect_url: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/checkout/callback?provider=flutterwave`,
         customer: { email },
       }),
     });

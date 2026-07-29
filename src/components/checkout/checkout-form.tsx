@@ -1,58 +1,74 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/context/auth-context";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useOrderTotals } from "@/lib/checkout/use-order-totals";
-import { createOrder } from "@/lib/services/orders";
+import { confirmCheckout } from "@/lib/checkout/confirm";
 import { StripePaymentForm } from "@/components/checkout/stripe-payment-form";
 import { RedirectPaymentForm } from "@/components/checkout/redirect-payment-form";
 import type { PaymentProvider } from "@/types";
 
 export function CheckoutForm() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const clear = useCartStore((s) => s.clear);
-  const { items, totalCents, discountCents, couponCode } = useOrderTotals();
-  const [email, setEmail] = React.useState(user?.email ?? "");
+  const { items, couponCode, totalCents } = useOrderTotals();
   const [provider, setProvider] = React.useState<PaymentProvider>("stripe");
   const [agreed, setAgreed] = React.useState(false);
   const [placing, setPlacing] = React.useState(false);
 
-  React.useEffect(() => {
-    if (user?.email) setEmail(user.email);
-  }, [user?.email]);
-
-  async function handleSuccess() {
+  async function handleSuccess(paymentReference: string) {
     if (placing) return;
     setPlacing(true);
     try {
-      const order = await createOrder({
-        userId: user?.id ?? null,
-        email,
-        items,
-        discountCents,
-        couponCode,
+      const result = await confirmCheckout({
         provider,
+        paymentReference,
+        items: items.map((item) => ({ serviceSlug: item.serviceSlug, billing: item.billing })),
+        couponCode,
       });
+      sessionStorage.setItem(`nexova_order_${result.order.id}`, JSON.stringify(result));
       clear();
-      toast.success("Payment successful — your order is ready.");
-      router.push(`/checkout/success?order=${order.id}`);
-    } catch {
-      toast.error("Something went wrong placing your order. Please try again.");
+      toast.success("Payment successful — your license is ready.");
+      router.push(`/checkout/success?order=${result.order.id}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong. Please try again.");
     } finally {
       setPlacing(false);
     }
   }
 
-  const disabled = items.length === 0 || !email || !agreed;
+  if (!authLoading && !user) {
+    return (
+      <div className="glass rounded-2xl p-6 text-center">
+        <h2 className="font-semibold">Sign in to check out</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Licenses are tied to your account so they show up in your dashboard. Sign in or create an
+          account to continue.
+        </p>
+        <div className="mt-6 flex justify-center gap-3">
+          <Button asChild>
+            <Link href="/auth/login?next=/checkout">Log in</Link>
+          </Button>
+          <Button variant="secondary" asChild>
+            <Link href="/auth/signup?next=/checkout">Create account</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const disabled = items.length === 0 || !agreed || authLoading;
 
   return (
     <div className="glass rounded-2xl p-6">
@@ -60,14 +76,7 @@ export function CheckoutForm() {
 
       <div className="mt-6 space-y-2">
         <Label htmlFor="email">Email address</Label>
-        <Input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@company.com"
-        />
+        <Input id="email" type="email" value={user?.email ?? ""} disabled />
         <p className="text-xs text-muted-foreground">
           Your license keys and invoice will be sent here.
         </p>
@@ -96,28 +105,32 @@ export function CheckoutForm() {
 
         <div className="mt-6">
           <TabsContent value="stripe">
-            <fieldset disabled={disabled} className="disabled:pointer-events-none disabled:opacity-50">
-              <StripePaymentForm amountCents={totalCents} email={email} onSuccess={handleSuccess} />
+            <fieldset disabled={disabled || placing} className="disabled:pointer-events-none disabled:opacity-50">
+              <StripePaymentForm
+                amountCents={totalCents}
+                email={user?.email ?? ""}
+                onSuccess={handleSuccess}
+              />
             </fieldset>
           </TabsContent>
           <TabsContent value="paystack">
-            <fieldset disabled={disabled} className="disabled:pointer-events-none disabled:opacity-50">
+            <fieldset disabled={disabled || placing} className="disabled:pointer-events-none disabled:opacity-50">
               <RedirectPaymentForm
                 provider="paystack"
                 label="Paystack"
                 amountCents={totalCents}
-                email={email}
+                email={user?.email ?? ""}
                 onSuccess={handleSuccess}
               />
             </fieldset>
           </TabsContent>
           <TabsContent value="flutterwave">
-            <fieldset disabled={disabled} className="disabled:pointer-events-none disabled:opacity-50">
+            <fieldset disabled={disabled || placing} className="disabled:pointer-events-none disabled:opacity-50">
               <RedirectPaymentForm
                 provider="flutterwave"
                 label="Flutterwave"
                 amountCents={totalCents}
-                email={email}
+                email={user?.email ?? ""}
                 onSuccess={handleSuccess}
               />
             </fieldset>

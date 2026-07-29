@@ -1,39 +1,34 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
-import { useAuth } from "@/context/auth-context";
-import { getAll } from "@/lib/services/store";
+import { useRequireAdmin } from "@/hooks/use-require-admin";
+import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { services } from "@/lib/data/services";
 import { formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Order } from "@/types";
 
 export default function AdminPage() {
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const { isAdmin, loading: authLoading } = useRequireAdmin();
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    if (authLoading) return;
-    if (!user || user.role !== "admin") {
-      router.push("/");
-    }
-  }, [authLoading, user, router]);
-
-  React.useEffect(() => {
-    if (!user || user.role !== "admin") return;
-    getAll<Order>("orders").then((data) => {
-      setOrders(data.sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
-      setLoading(false);
+    if (!isAdmin) return;
+    getAuthHeaders().then((headers) => {
+      fetch("/api/orders/admin-list", { headers })
+        .then((res) => (res.ok ? res.json() : { orders: [] }))
+        .then((data) => setOrders(data.orders ?? []))
+        .finally(() => setLoading(false));
     });
-  }, [user]);
+  }, [isAdmin]);
 
-  if (authLoading || !user || user.role !== "admin") {
+  if (authLoading || !isAdmin) {
     return (
       <div className="flex justify-center py-24">
         <Loader2 className="size-6 animate-spin text-muted-foreground" />
@@ -45,11 +40,18 @@ export default function AdminPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-semibold tracking-tight">Admin overview</h1>
-      <p className="mt-2 text-muted-foreground">
-        Sales analytics and order management. Service catalog editing, screenshot uploads,
-        and discount creation are on the roadmap for the next iteration.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">Admin overview</h1>
+          <p className="mt-2 text-muted-foreground">
+            Sales analytics and order management. Service catalog editing, screenshot uploads,
+            and discount creation are on the roadmap for the next iteration.
+          </p>
+        </div>
+        <Button variant="secondary" asChild>
+          <Link href="/admin/licenses">Manage licenses</Link>
+        </Button>
+      </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <div className="glass rounded-2xl p-5">

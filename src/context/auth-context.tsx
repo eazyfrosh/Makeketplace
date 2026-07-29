@@ -19,6 +19,7 @@ import {
 
 import { auth, isFirebaseConfigured } from "@/lib/firebase/client";
 import { getOne, upsert } from "@/lib/services/store";
+import { DEMO_ADMIN_UID } from "@/lib/licensing/demo-constants";
 
 export type UserRole = "customer" | "admin";
 
@@ -68,10 +69,17 @@ function makeProfile(uid: string, email: string, name: string, role: UserRole = 
 async function ensureDemoAdminSeed() {
   const users = readDemoUsers();
   if (users.some((u) => u.email === DEMO_ADMIN_EMAIL)) return;
-  const uid = "demo-admin-uid";
-  users.push({ uid, email: DEMO_ADMIN_EMAIL, password: DEMO_ADMIN_PASSWORD, name: "Nexova Admin" });
+  users.push({
+    uid: DEMO_ADMIN_UID,
+    email: DEMO_ADMIN_EMAIL,
+    password: DEMO_ADMIN_PASSWORD,
+    name: "Nexova Admin",
+  });
   writeDemoUsers(users);
-  await upsert<UserProfile>(USERS_COLLECTION, makeProfile(uid, DEMO_ADMIN_EMAIL, "Nexova Admin", "admin"));
+  await upsert<UserProfile>(
+    USERS_COLLECTION,
+    makeProfile(DEMO_ADMIN_UID, DEMO_ADMIN_EMAIL, "Nexova Admin", "admin"),
+  );
 }
 
 interface AuthContextValue {

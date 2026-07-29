@@ -58,6 +58,7 @@ const standardReviews = [
 export const services: Service[] = [
   {
     slug: "banking-platform",
+    accessUrl: "/access/banking-platform",
     name: "Banking Platform",
     category: "platforms",
     tagline: "Full-stack digital banking, built for scale and compliance.",
@@ -87,6 +88,7 @@ export const services: Service[] = [
   },
   {
     slug: "airline-booking-platform",
+    accessUrl: "/access/airline-booking-platform",
     name: "Airline Booking Platform",
     category: "platforms",
     tagline: "Search, book, and manage flights with a world-class UX.",
@@ -116,6 +118,7 @@ export const services: Service[] = [
   },
   {
     slug: "logistics-platform",
+    accessUrl: "/access/logistics-platform",
     name: "Logistics Platform",
     category: "platforms",
     tagline: "Track shipments and optimize fleets in real time.",
@@ -145,6 +148,7 @@ export const services: Service[] = [
   },
   {
     slug: "website-design",
+    accessUrl: "/access/website-design",
     name: "Website Design",
     category: "design",
     tagline: "Premium, conversion-focused websites crafted end-to-end.",
@@ -174,6 +178,7 @@ export const services: Service[] = [
   },
   {
     slug: "ai-automation",
+    accessUrl: "/access/ai-automation",
     name: "AI Automation",
     category: "ai",
     tagline: "Automate workflows with custom AI agents and pipelines.",
@@ -203,6 +208,7 @@ export const services: Service[] = [
   },
   {
     slug: "graphic-design",
+    accessUrl: "/access/graphic-design",
     name: "Graphic Design",
     category: "design",
     tagline: "Brand identity, marketing assets, and visual systems.",
@@ -232,6 +238,7 @@ export const services: Service[] = [
   },
   {
     slug: "premium-templates",
+    accessUrl: "/access/premium-templates",
     name: "Premium Templates",
     category: "templates",
     tagline: "Launch-ready templates for SaaS, portfolios, and stores.",
@@ -261,6 +268,7 @@ export const services: Service[] = [
   },
   {
     slug: "custom-software-development",
+    accessUrl: "/access/custom-software-development",
     name: "Custom Software Development",
     category: "development",
     tagline: "Bespoke software engineering for ambitious products.",

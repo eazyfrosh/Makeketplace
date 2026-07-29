@@ -33,6 +33,8 @@ export interface Service {
   reviewCount: number;
   faq: FaqItem[];
   reviews: Review[];
+  accessUrl: string;
+  downloadUrl?: string;
 }
 
 export interface Testimonial {
@@ -65,8 +67,9 @@ export interface Order {
   totalCents: number;
   couponCode: string | null;
   provider: PaymentProvider;
+  paymentReference: string;
   status: "paid" | "pending" | "failed";
-  licenseKeys: Record<string, string>;
+  licenseIds: string[];
   createdAt: string;
 }
 

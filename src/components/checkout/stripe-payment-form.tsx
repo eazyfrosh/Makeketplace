@@ -8,7 +8,13 @@ import { getStripe } from "@/lib/stripe/client";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
 
-function InnerForm({ onSuccess, disabled }: { onSuccess: () => void; disabled: boolean }) {
+function InnerForm({
+  onSuccess,
+  disabled,
+}: {
+  onSuccess: (paymentReference: string) => void;
+  disabled: boolean;
+}) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = React.useState(false);
@@ -19,16 +25,16 @@ function InnerForm({ onSuccess, disabled }: { onSuccess: () => void; disabled: b
     if (!stripe || !elements) return;
     setSubmitting(true);
     setError(null);
-    const { error: confirmError } = await stripe.confirmPayment({
+    const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
       elements,
       redirect: "if_required",
     });
     setSubmitting(false);
-    if (confirmError) {
-      setError(confirmError.message ?? "Payment failed. Please try again.");
+    if (confirmError || !paymentIntent) {
+      setError(confirmError?.message ?? "Payment failed. Please try again.");
       return;
     }
-    onSuccess();
+    onSuccess(paymentIntent.id);
   }
 
   return (
@@ -50,7 +56,7 @@ export function StripePaymentForm({
 }: {
   amountCents: number;
   email: string;
-  onSuccess: () => void;
+  onSuccess: (paymentReference: string) => void;
 }) {
   const [clientSecret, setClientSecret] = React.useState<string | null>(null);
   const [demoMode, setDemoMode] = React.useState(false);
@@ -88,7 +94,7 @@ export function StripePaymentForm({
     setSimulating(true);
     setTimeout(() => {
       setSimulating(false);
-      onSuccess();
+      onSuccess(`demo_stripe_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
     }, 900);
   }
 
