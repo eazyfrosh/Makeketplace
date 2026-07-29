@@ -209,31 +209,52 @@ export const services: Service[] = [
   {
     slug: "graphic-design",
     accessUrl: "/access/graphic-design",
-    name: "Graphic Design",
+    name: "Edit Image Text",
     category: "design",
-    tagline: "Brand identity, marketing assets, and visual systems.",
+    tagline: "Add, replace, or restyle text on any image — fast and on-brand.",
     description:
-      "Full-spectrum graphic design — logos, brand systems, social kits, and marketing collateral crafted to make your brand feel premium everywhere it shows up.",
+      "A focused image-text editing service — swap outdated copy, restyle captions, localize on-image text, or add new headlines to existing photos and graphics, matched to your brand's fonts and colors every time.",
     heroImage: "graphic",
     screenshots: ["graphic-brand", "graphic-social", "graphic-print"],
     features: [
-      "Logo & brand identity design",
-      "Brand guideline systems",
-      "Social media asset kits",
-      "Marketing & print collateral",
-      "Packaging design",
-      "Unlimited color/style variations",
+      "Add or replace text on existing images",
+      "Font, color, and style matching to your brand",
+      "Multi-language text swaps & localization",
+      "Bulk editing for product or social image sets",
+      "Text repositioning & resizing for any layout",
+      "Fast turnaround, unlimited revision rounds",
     ],
     benefits: [
-      "A cohesive brand across every touchpoint",
-      "Fast turnaround with senior designers",
-      "Source files delivered in every format",
-      "Built to scale with your brand",
+      "Update creative without a full re-shoot or redesign",
+      "Keep every image on-brand across markets and languages",
+      "Turn around large image batches quickly",
+      "No design software or skills required on your end",
     ],
     startingPriceCents: 89900,
     rating: 4.9,
     reviewCount: 301,
-    faq: standardFaq("Graphic Design"),
+    faq: [
+      {
+        question: "What kinds of images can you edit text on?",
+        answer:
+          "Product photos, social posts, ads, banners, screenshots, and marketing graphics — if it has text on it, we can add, replace, or restyle it.",
+      },
+      {
+        question: "Can you match my existing brand fonts and colors?",
+        answer:
+          "Yes. Send your brand guidelines or a sample image and every edit is matched to your existing style automatically.",
+      },
+      {
+        question: "How fast is turnaround?",
+        answer:
+          "Most single-image edits are delivered within 24 hours. Bulk batches are scoped and timelined when you submit them.",
+      },
+      {
+        question: "Do I own the edited files?",
+        answer:
+          "Yes. You receive full-resolution source files with complete usage rights as soon as the order is complete.",
+      },
+    ],
     reviews: standardReviews,
   },
   {
