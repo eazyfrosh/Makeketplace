@@ -112,6 +112,15 @@ export async function getBankingProfile(userId: string): Promise<BankingProfile 
   return demoStore().profiles.get(userId) ?? null;
 }
 
+/** Admin-only: every banking profile, for the support/admin user list. */
+export async function getAllBankingProfiles(): Promise<BankingProfile[]> {
+  if (adminDb) {
+    const snap = await adminDb.collection(PROFILES).get();
+    return snap.docs.map((d) => d.data() as BankingProfile);
+  }
+  return Array.from(demoStore().profiles.values());
+}
+
 export async function setBankingProfile(profile: BankingProfile): Promise<void> {
   if (adminDb) {
     await adminDb.collection(PROFILES).doc(profile.userId).set(profile);

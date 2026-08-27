@@ -48,9 +48,14 @@ export default function AdminPage() {
             and discount creation are on the roadmap for the next iteration.
           </p>
         </div>
-        <Button variant="secondary" asChild>
-          <Link href="/admin/licenses">Manage licenses</Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" asChild>
+            <Link href="/admin/licenses">Manage licenses</Link>
+          </Button>
+          <Button variant="secondary" asChild>
+            <Link href="/admin/banking">Banking users</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
