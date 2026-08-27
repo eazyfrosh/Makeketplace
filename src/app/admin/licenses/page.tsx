@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { License, LicenseValidationLog } from "@/types/licensing";
 
 const STATUS_VARIANT: Record<License["status"], "default" | "outline" | "destructive"> = {
@@ -33,6 +34,7 @@ export default function AdminLicensesPage() {
   const [historyLoading, setHistoryLoading] = React.useState(false);
   const [grantEmail, setGrantEmail] = React.useState("");
   const [grantServiceSlug, setGrantServiceSlug] = React.useState(services[0]?.slug ?? "");
+  const [grantAll, setGrantAll] = React.useState(false);
   const [granting, setGranting] = React.useState(false);
 
   const load = React.useCallback(async (q: string) => {
@@ -93,18 +95,20 @@ export default function AdminLicensesPage() {
 
   async function handleGrant() {
     const email = grantEmail.trim();
-    if (!email || !grantServiceSlug) return;
+    const serviceSlugs = grantAll ? services.map((s) => s.slug) : [grantServiceSlug].filter(Boolean);
+    if (!email || serviceSlugs.length === 0) return;
     setGranting(true);
     try {
       const headers = await getAuthHeaders();
       const res = await fetch("/api/licenses/grant", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...headers },
-        body: JSON.stringify({ email, serviceSlug: grantServiceSlug }),
+        body: JSON.stringify({ email, serviceSlugs }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Grant failed.");
-      toast.success(`Granted ${data.license.serviceName} to ${email}.`);
+      const names = (data.licenses as { serviceName: string }[]).map((l) => l.serviceName).join(", ");
+      toast.success(`Granted ${names} to ${email}.`);
       setGrantEmail("");
       await load(query);
     } catch (error) {
@@ -172,7 +176,7 @@ export default function AdminLicensesPage() {
             type="email"
             className="h-11 sm:max-w-xs"
           />
-          <Select value={grantServiceSlug} onValueChange={setGrantServiceSlug}>
+          <Select value={grantServiceSlug} onValueChange={setGrantServiceSlug} disabled={grantAll}>
             <SelectTrigger className="h-11 sm:w-64">
               <SelectValue placeholder="Select a service" />
             </SelectTrigger>
@@ -185,9 +189,13 @@ export default function AdminLicensesPage() {
             </SelectContent>
           </Select>
           <Button onClick={handleGrant} disabled={granting || !grantEmail.trim()} className="h-11">
-            {granting ? "Granting…" : "Grant free access"}
+            {granting ? "Granting…" : grantAll ? "Grant all services" : "Grant free access"}
           </Button>
         </div>
+        <label className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+          <Checkbox checked={grantAll} onCheckedChange={(checked) => setGrantAll(checked === true)} />
+          Grant every service instead of just the one selected above
+        </label>
       </div>
 
       <div className="relative mt-8 max-w-sm">

@@ -17,55 +17,19 @@ import type { License } from "@/types/licensing";
 
 interface GrantRequestBody {
   email: string;
-  serviceSlug: string;
+  serviceSlugs: string[];
   billing?: "one-time" | "monthly";
 }
 
-/**
- * Admin-only: issues a complimentary (no-payment) license for an existing
- * user, identified by email. Mirrors /api/checkout/confirm's order/license
- * construction exactly, just with totalCents forced to 0 and
- * provider: "admin_grant" instead of a real payment reference.
- */
-export async function POST(request: Request) {
-  const admin = await verifyAdminCaller(request);
-  if (!admin) {
-    return NextResponse.json({ error: "Admin access required." }, { status: 403 });
-  }
+async function grantOne(
+  targetUid: string,
+  email: string,
+  serviceSlug: string,
+  billing: "one-time" | "monthly",
+): Promise<License> {
+  const service = getServiceBySlug(serviceSlug);
+  if (!service) throw new Error(`Unknown service: ${serviceSlug}`);
 
-  const body = (await request.json().catch(() => null)) as GrantRequestBody | null;
-  const email = body?.email?.trim().toLowerCase();
-  if (!body || !email || !body.serviceSlug) {
-    return NextResponse.json({ error: "email and serviceSlug are required." }, { status: 400 });
-  }
-
-  const service = getServiceBySlug(body.serviceSlug);
-  if (!service) {
-    return NextResponse.json({ error: `Unknown service: ${body.serviceSlug}` }, { status: 400 });
-  }
-
-  if (!isAdminDbConfigured || !adminAuth) {
-    return NextResponse.json(
-      {
-        error:
-          "Granting access by email needs Firebase Admin credentials configured (this deployment is in demo mode, which has no server-side directory of registered emails). Set FIREBASE_ADMIN_PROJECT_ID / CLIENT_EMAIL / PRIVATE_KEY, or have the user sign in and grant it to themselves via checkout with a 100%-off coupon instead.",
-      },
-      { status: 400 },
-    );
-  }
-
-  let targetUid: string;
-  try {
-    const userRecord = await adminAuth.getUserByEmail(email);
-    targetUid = userRecord.uid;
-  } catch {
-    return NextResponse.json(
-      { error: `No account found for ${email}. Ask them to sign up first, then grant access again.` },
-      { status: 404 },
-    );
-  }
-
-  const billing = body.billing === "monthly" ? "monthly" : "one-time";
   const item: CartItem = {
     serviceSlug: service.slug,
     serviceName: service.name,
@@ -132,22 +96,76 @@ export async function POST(request: Request) {
 
   order.licenseIds = [license.id];
   await createOrderRecord(order);
+  return license;
+}
+
+/**
+ * Admin-only: issues complimentary (no-payment) licenses for one or more
+ * services to an existing user, identified by email. Mirrors
+ * /api/checkout/confirm's order/license construction exactly per service,
+ * just with totalCents forced to 0 and provider: "admin_grant" instead of a
+ * real payment reference.
+ */
+export async function POST(request: Request) {
+  const admin = await verifyAdminCaller(request);
+  if (!admin) {
+    return NextResponse.json({ error: "Admin access required." }, { status: 403 });
+  }
+
+  const body = (await request.json().catch(() => null)) as GrantRequestBody | null;
+  const email = body?.email?.trim().toLowerCase();
+  const serviceSlugs = body?.serviceSlugs?.filter(Boolean) ?? [];
+  if (!body || !email || serviceSlugs.length === 0) {
+    return NextResponse.json({ error: "email and at least one serviceSlug are required." }, { status: 400 });
+  }
+
+  const unknown = serviceSlugs.filter((slug) => !getServiceBySlug(slug));
+  if (unknown.length > 0) {
+    return NextResponse.json({ error: `Unknown service(s): ${unknown.join(", ")}` }, { status: 400 });
+  }
+
+  if (!isAdminDbConfigured || !adminAuth) {
+    return NextResponse.json(
+      {
+        error:
+          "Granting access by email needs Firebase Admin credentials configured (this deployment is in demo mode, which has no server-side directory of registered emails). Set FIREBASE_ADMIN_PROJECT_ID / CLIENT_EMAIL / PRIVATE_KEY, or have the user sign in and grant it to themselves via checkout with a 100%-off coupon instead.",
+      },
+      { status: 400 },
+    );
+  }
+
+  let targetUid: string;
+  try {
+    const userRecord = await adminAuth.getUserByEmail(email);
+    targetUid = userRecord.uid;
+  } catch {
+    return NextResponse.json(
+      { error: `No account found for ${email}. Ask them to sign up first, then grant access again.` },
+      { status: 404 },
+    );
+  }
+
+  const billing = body.billing === "monthly" ? "monthly" : "one-time";
+  const licenses: License[] = [];
+  for (const slug of serviceSlugs) {
+    licenses.push(await grantOne(targetUid, email, slug, billing));
+  }
 
   const email_ = licenseIssuedEmail({
     name: email.split("@")[0],
-    orderId: order.id,
+    orderId: `admin-grant-${Date.now()}`,
     totalCents: 0,
-    items: [{ serviceName: license.serviceName, licenseKey: license.licenseKey }],
+    items: licenses.map((l) => ({ serviceName: l.serviceName, licenseKey: l.licenseKey })),
   });
   await sendEmail({ to: email, subject: email_.subject, html: email_.html });
 
   return NextResponse.json({
-    license: {
-      serviceSlug: license.serviceSlug,
-      serviceName: license.serviceName,
-      licenseKey: license.licenseKey,
-      status: license.status,
-      expiresAt: license.expiresAt,
-    },
+    licenses: licenses.map((l) => ({
+      serviceSlug: l.serviceSlug,
+      serviceName: l.serviceName,
+      licenseKey: l.licenseKey,
+      status: l.status,
+      expiresAt: l.expiresAt,
+    })),
   });
 }
