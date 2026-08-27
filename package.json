@@ -46,6 +46,9 @@
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
+  "overrides": {
+    "jose": "^5.10.0"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
