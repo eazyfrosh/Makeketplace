@@ -9,7 +9,7 @@ import {
   getLicenseForUserAndService,
   updateLicense,
 } from "@/lib/licensing/store";
-import { verifyAdminCaller } from "@/lib/licensing/verify-auth";
+import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { sendEmail } from "@/lib/email/send";
 import { licenseIssuedEmail } from "@/lib/email/templates";
 import type { CartItem, Order } from "@/types";
@@ -107,9 +107,22 @@ async function grantOne(
  * real payment reference.
  */
 async function handlePost(request: Request) {
-  const admin = await verifyAdminCaller(request);
-  if (!admin) {
-    return NextResponse.json({ error: "Admin access required." }, { status: 403 });
+  // Split out from verifyAdminCaller so a role mismatch reports exactly what
+  // the server resolved instead of one opaque "access required" message —
+  // this endpoint's admin check is intentionally independent of the client
+  // SDK's view (see /admin/licenses page), so the two can legitimately
+  // disagree if e.g. the wrong Firestore doc got promoted to admin.
+  const caller = await verifyCaller(request);
+  if (!caller) {
+    return NextResponse.json({ error: "Sign in required — no valid session was found on this request." }, { status: 401 });
+  }
+  if (caller.role !== "admin") {
+    return NextResponse.json(
+      {
+        error: `Signed in as ${caller.email} (uid: ${caller.uid}), but the server resolved this account's role as "${caller.role}", not "admin". Check that the Firestore users/${caller.uid} document has role set to the exact string "admin", and that FIREBASE_ADMIN_PROJECT_ID points at the same Firebase project as NEXT_PUBLIC_FIREBASE_PROJECT_ID.`,
+      },
+      { status: 403 },
+    );
   }
 
   const body = (await request.json().catch(() => null)) as GrantRequestBody | null;
