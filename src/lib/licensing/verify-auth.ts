@@ -27,7 +27,13 @@ async function verifyFirebaseIdToken(idToken: string): Promise<{ uid: string; em
     try {
       const decoded = await adminAuth.verifyIdToken(idToken);
       return { uid: decoded.uid, email: decoded.email ?? "" };
-    } catch {
+    } catch (err) {
+      // Logged rather than swallowed: the single most common cause here is
+      // FIREBASE_ADMIN_PROJECT_ID not matching the project that actually
+      // issued the token (NEXT_PUBLIC_FIREBASE_PROJECT_ID) — Admin SDK
+      // rejects the token's audience/issuer claim in that case, and this
+      // message says so explicitly instead of just "invalid token".
+      console.error("[verify-auth] adminAuth.verifyIdToken failed:", err);
       return null;
     }
   }
