@@ -162,3 +162,54 @@
   transition-duration: 500ms;
   transition-timing-function: ease;
 }
+
+/*
+ * Novaofficial (banking-platform) — unlike SkyBook/TrackNova, this source
+ * app already uses the SAME semantic shadcn token names Nexova's own theme
+ * does (--background, --card, --primary, --success, ...), just with
+ * different values. So no @theme inline remapping is needed here at all —
+ * Nexova's own src/components/ui/* primitives are reused directly for this
+ * platform (see src/components/banking/*), and simply rendering them under
+ * this wrapper class, which overrides those same token values, is enough to
+ * pick up Novaofficial's own look. Values below are its dark-mode palette,
+ * since Nexova itself is always dark (ThemeProvider defaultTheme="dark",
+ * enableSystem={false}) — no separate light variant is needed.
+ */
+.banking-theme {
+  --background: oklch(0.14 0.02 260);
+  --foreground: oklch(0.96 0.01 260);
+  --card: oklch(0.18 0.025 260);
+  --card-foreground: oklch(0.96 0.01 260);
+  --popover: oklch(0.18 0.025 260);
+  --popover-foreground: oklch(0.96 0.01 260);
+  --primary: oklch(0.78 0.13 165);
+  --primary-foreground: oklch(0.12 0.02 260);
+  --secondary: oklch(0.24 0.03 260);
+  --secondary-foreground: oklch(0.95 0.01 260);
+  --muted: oklch(0.24 0.03 260);
+  --muted-foreground: oklch(0.65 0.03 260);
+  --accent: oklch(0.72 0.16 165);
+  --accent-foreground: oklch(0.12 0.02 260);
+  --destructive: oklch(0.64 0.22 27);
+  --success: oklch(0.68 0.15 155);
+  --success-foreground: oklch(0.12 0.02 260);
+  --warning: oklch(0.78 0.15 80);
+  --warning-foreground: oklch(0.15 0.02 260);
+  --border: oklch(0.3 0.03 260 / 0.6);
+  --input: oklch(0.3 0.03 260 / 0.6);
+  --ring: oklch(0.78 0.13 165 / 0.5);
+  --radius: 0.875rem;
+}
+
+.banking-theme .glass {
+  background: color-mix(in oklch, var(--card) 65%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid color-mix(in oklch, var(--foreground) 8%, transparent);
+}
+
+.banking-theme .bg-mesh {
+  background-image:
+    radial-gradient(at 15% 20%, color-mix(in oklch, var(--primary) 25%, transparent) 0px, transparent 50%),
+    radial-gradient(at 85% 10%, color-mix(in oklch, var(--accent) 25%, transparent) 0px, transparent 50%);
+}

@@ -52,6 +52,26 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Banking Platform accounts/cards/transactions/PIN profiles/rate limits —
+    // same server-mediated-only pattern, via the authenticated /api/banking
+    // endpoints (Admin SDK bypasses these rules). Balances and card secrets
+    // must never be directly readable or writable by the client.
+    match /bankingAccounts/{accountId} {
+      allow read, write: if false;
+    }
+    match /bankingCards/{cardId} {
+      allow read, write: if false;
+    }
+    match /bankingTransactions/{transactionId} {
+      allow read, write: if false;
+    }
+    match /bankingProfiles/{profileId} {
+      allow read, write: if false;
+    }
+    match /bankingRateLimits/{rateLimitId} {
+      allow read, write: if false;
+    }
+
     // Support tickets: owner or admin only.
     match /supportTickets/{ticketId} {
       allow read: if isOwner(resource.data.userId) || isAdmin();

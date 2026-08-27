@@ -58,7 +58,7 @@ const standardReviews = [
 export const services: Service[] = [
   {
     slug: "banking-platform",
-    accessUrl: "/access/banking-platform",
+    accessUrl: "/platform/banking-platform",
     name: "Banking Platform",
     category: "platforms",
     tagline: "Full-stack digital banking, built for scale and compliance.",
