@@ -6,10 +6,12 @@ import { toast } from "sonner";
 
 import { useRequireAdmin } from "@/hooks/use-require-admin";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
+import { services } from "@/lib/data/services";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { License, LicenseValidationLog } from "@/types/licensing";
 
 const STATUS_VARIANT: Record<License["status"], "default" | "outline" | "destructive"> = {
@@ -29,6 +31,9 @@ export default function AdminLicensesPage() {
   const [historyFor, setHistoryFor] = React.useState<string | null>(null);
   const [history, setHistory] = React.useState<LicenseValidationLog[]>([]);
   const [historyLoading, setHistoryLoading] = React.useState(false);
+  const [grantEmail, setGrantEmail] = React.useState("");
+  const [grantServiceSlug, setGrantServiceSlug] = React.useState(services[0]?.slug ?? "");
+  const [granting, setGranting] = React.useState(false);
 
   const load = React.useCallback(async (q: string) => {
     setLoading(true);
@@ -86,6 +91,29 @@ export default function AdminLicensesPage() {
     }
   }
 
+  async function handleGrant() {
+    const email = grantEmail.trim();
+    if (!email || !grantServiceSlug) return;
+    setGranting(true);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/licenses/grant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...headers },
+        body: JSON.stringify({ email, serviceSlug: grantServiceSlug }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Grant failed.");
+      toast.success(`Granted ${data.license.serviceName} to ${email}.`);
+      setGrantEmail("");
+      await load(query);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Grant failed.");
+    } finally {
+      setGranting(false);
+    }
+  }
+
   async function toggleHistory(license: License) {
     if (historyFor === license.id) {
       setHistoryFor(null);
@@ -129,6 +157,38 @@ export default function AdminLicensesPage() {
           </p>
         </div>
       )}
+
+      <div className="glass mt-8 rounded-2xl p-5">
+        <h2 className="font-semibold">Grant complimentary access</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Issue a free, active license to an existing account — no payment involved. The recipient
+          must already have signed up with this email.
+        </p>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Input
+            value={grantEmail}
+            onChange={(e) => setGrantEmail(e.target.value)}
+            placeholder="customer@example.com"
+            type="email"
+            className="h-11 sm:max-w-xs"
+          />
+          <Select value={grantServiceSlug} onValueChange={setGrantServiceSlug}>
+            <SelectTrigger className="h-11 sm:w-64">
+              <SelectValue placeholder="Select a service" />
+            </SelectTrigger>
+            <SelectContent>
+              {services.map((s) => (
+                <SelectItem key={s.slug} value={s.slug}>
+                  {s.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button onClick={handleGrant} disabled={granting || !grantEmail.trim()} className="h-11">
+            {granting ? "Granting…" : "Grant free access"}
+          </Button>
+        </div>
+      </div>
 
       <div className="relative mt-8 max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

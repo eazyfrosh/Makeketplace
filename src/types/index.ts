@@ -55,7 +55,7 @@ export interface CartItem {
   billing: "one-time" | "monthly";
 }
 
-export type PaymentProvider = "stripe" | "paystack" | "flutterwave";
+export type PaymentProvider = "stripe" | "paystack" | "flutterwave" | "admin_grant";
 
 export interface Order {
   id: string;
