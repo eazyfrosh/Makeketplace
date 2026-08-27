@@ -151,13 +151,20 @@ export async function POST(request: Request) {
     licenses.push(await grantOne(targetUid, email, slug, billing));
   }
 
-  const email_ = licenseIssuedEmail({
-    name: email.split("@")[0],
-    orderId: `admin-grant-${Date.now()}`,
-    totalCents: 0,
-    items: licenses.map((l) => ({ serviceName: l.serviceName, licenseKey: l.licenseKey })),
-  });
-  await sendEmail({ to: email, subject: email_.subject, html: email_.html });
+  // The licenses above are already granted at this point — a broken email
+  // provider (bad API key, unverified sender domain) must never fail the
+  // whole request and leave the admin thinking the grant itself failed.
+  try {
+    const email_ = licenseIssuedEmail({
+      name: email.split("@")[0],
+      orderId: `admin-grant-${Date.now()}`,
+      totalCents: 0,
+      items: licenses.map((l) => ({ serviceName: l.serviceName, licenseKey: l.licenseKey })),
+    });
+    await sendEmail({ to: email, subject: email_.subject, html: email_.html });
+  } catch (err) {
+    console.error("[licenses/grant] license(s) granted but notification email failed:", err);
+  }
 
   return NextResponse.json({
     licenses: licenses.map((l) => ({

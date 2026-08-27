@@ -184,13 +184,21 @@ export async function POST(request: Request) {
 
   await createOrderRecord(order);
 
-  const email = licenseIssuedEmail({
-    name: caller.email.split("@")[0],
-    orderId: order.id,
-    totalCents,
-    items: licenses.map((l) => ({ serviceName: l.serviceName, licenseKey: l.licenseKey })),
-  });
-  await sendEmail({ to: caller.email, subject: email.subject, html: email.html });
+  // The order/licenses above are already paid for and issued at this point —
+  // a broken email provider (bad API key, unverified sender domain) must
+  // never fail the whole checkout and leave the customer thinking they were
+  // charged but got nothing.
+  try {
+    const email = licenseIssuedEmail({
+      name: caller.email.split("@")[0],
+      orderId: order.id,
+      totalCents,
+      items: licenses.map((l) => ({ serviceName: l.serviceName, licenseKey: l.licenseKey })),
+    });
+    await sendEmail({ to: caller.email, subject: email.subject, html: email.html });
+  } catch (err) {
+    console.error("[checkout/confirm] order/license(s) issued but confirmation email failed:", err);
+  }
 
   return NextResponse.json({
     order: { id: order.id, totalCents: order.totalCents, createdAt: order.createdAt },
