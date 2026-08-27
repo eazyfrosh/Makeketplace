@@ -68,6 +68,11 @@ export interface BankCard {
 export interface BankingProfile {
   userId: string;
   transactionPin: string | null;
+  /** The banking-specific sign-in credential — set once at sign-up, distinct from the Nexova account's own login. Absent until the licensee signs up for banking access. */
+  email: string | null;
+  passwordHash: string | null;
+  firstName: string | null;
+  lastName: string | null;
   createdAt: string;
   updatedAt: string;
 }

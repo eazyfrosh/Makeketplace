@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { verifyCaller } from "@/lib/licensing/verify-auth";
+import { verifyBankingSession } from "@/lib/banking/session";
 import { verifySecret } from "@/lib/banking/crypto";
 import { generateReference } from "@/lib/banking/format";
 import {
@@ -28,6 +29,9 @@ interface TransferBody {
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  if (!(await verifyBankingSession(request, caller.uid))) {
+    return NextResponse.json({ error: "Banking sign-in required." }, { status: 401 });
+  }
 
   const body = (await request.json().catch(() => null)) as TransferBody | null;
   if (
