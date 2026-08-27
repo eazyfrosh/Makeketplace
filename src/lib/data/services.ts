@@ -88,7 +88,7 @@ export const services: Service[] = [
   },
   {
     slug: "airline-booking-platform",
-    accessUrl: "/access/airline-booking-platform",
+    accessUrl: "/platform/airline-booking-platform",
     name: "Airline Booking Platform",
     category: "platforms",
     tagline: "Search, book, and manage flights with a world-class UX.",
@@ -118,7 +118,7 @@ export const services: Service[] = [
   },
   {
     slug: "logistics-platform",
-    accessUrl: "/access/logistics-platform",
+    accessUrl: "/platform/logistics-platform",
     name: "Logistics Platform",
     category: "platforms",
     tagline: "Track shipments and optimize fleets in real time.",

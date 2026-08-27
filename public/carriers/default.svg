@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 56" role="img" aria-label="Carrier logo unavailable">
+  <rect width="160" height="56" rx="10" fill="#e5e7eb"/>
+  <g transform="translate(80 28)" fill="none" stroke="#9ca3af" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M-14 -8 L0 -15 L14 -8 L14 8 L0 15 L-14 8 Z"/>
+    <path d="M-14 -8 L0 -1 L14 -8 M0 -1 L0 15"/>
+  </g>
+</svg>

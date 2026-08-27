@@ -1,0 +1,164 @@
+/*
+ * Scoped theme tokens for ported platforms (SkyBook airline booking,
+ * TrackNova logistics). Only imported from src/app/platform/layout.tsx, so
+ * Next.js loads it solely for /platform/* routes.
+ *
+ * Both source apps define their own --color-brand-* / --color-gold-* theme
+ * tokens with the SAME Tailwind class names as each other (bg-brand-500,
+ * text-gold-400, ...) but different underlying colors, and neither matches
+ * Nexova's own OKLCH shadcn theme. Rather than renaming every Tailwind class
+ * across the ported components, we exploit how Tailwind v4's `@theme inline`
+ * works: a token like `--color-brand-500: var(--brand-500)` compiles the
+ * `bg-brand-500` utility down to `background-color: var(--brand-500)` — a
+ * live CSS variable reference. So the SAME compiled utility class can render
+ * differently in different subtrees just by giving --brand-500 a different
+ * value under each platform's wrapper class below. No ported component
+ * source needs to change.
+ */
+
+@theme inline {
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  --color-gold-400: var(--gold-400);
+  --color-gold-500: var(--gold-500);
+
+  --color-teal-accent-400: var(--teal-accent-400);
+  --color-teal-accent-500: var(--teal-accent-500);
+}
+
+:root {
+  /* Both source apps agree on these exact values, so no scoping needed. */
+  --gold-400: #f2c265;
+  --gold-500: #e2a836;
+  --teal-accent-400: #2dd4bf;
+  --teal-accent-500: #14b8a6;
+}
+
+/* SkyBook (airline-booking-platform) — ported from flightbook's palette. */
+.airline-theme {
+  --background: #f7f8fb;
+  --foreground: #0b1220;
+
+  --brand-50: #eef6ff;
+  --brand-100: #d9ecff;
+  --brand-200: #b8dcff;
+  --brand-300: #86c5ff;
+  --brand-400: #4ea6ff;
+  --brand-500: #1f83fb;
+  --brand-600: #0d63d6;
+  --brand-700: #0a4eac;
+  --brand-800: #0d418a;
+  --brand-900: #0f3770;
+}
+
+.dark .airline-theme {
+  --background: #06090f;
+  --foreground: #edf1f7;
+}
+
+/* TrackNova (logistics-platform) — ported from multipurposelogistics's palette. */
+.logistics-theme {
+  --background: #f6f7fb;
+  --foreground: #0b0f1a;
+
+  --brand-50: #eef1ff;
+  --brand-100: #e0e5ff;
+  --brand-200: #c6cdff;
+  --brand-300: #a3aeff;
+  --brand-400: #7c85fb;
+  --brand-500: #5b5df0;
+  --brand-600: #4740d9;
+  --brand-700: #3a34b3;
+  --brand-800: #302d8f;
+  --brand-900: #262472;
+
+  /* Default carrier theme (see src/lib/logistics/carrier-themes.ts) — the
+     app-wide brand look used when no per-shipment carrier theme applies. */
+  --carrier-primary: #5b5df0;
+  --carrier-secondary: #14b8a6;
+  --carrier-on-primary: #ffffff;
+  --carrier-on-secondary: #ffffff;
+  --carrier-primary-text: var(--carrier-primary);
+}
+
+.dark .logistics-theme {
+  --background: #05070d;
+  --foreground: #eef1f8;
+}
+.dark .logistics-theme.carrier-theme,
+.dark .logistics-theme .carrier-theme {
+  --carrier-primary-text: color-mix(in srgb, var(--carrier-primary) 70%, white);
+}
+
+/* Both ported apps define an identical .glass recipe that differs from
+   Nexova's own (--surface-glass-based) .glass. The extra class-selector
+   gives these higher specificity than the global .glass rule. */
+.airline-theme .glass,
+.logistics-theme .glass {
+  background: color-mix(in srgb, var(--background) 55%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: none;
+}
+
+/* Identical in both source apps; harmless to declare once globally since no
+   other Nexova animation uses this name. */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+
+/* TrackNova-only decorative animations/utilities. */
+.logistics-theme .bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--foreground) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 6%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@keyframes dash-move {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+.animate-dash {
+  stroke-dasharray: 6 6;
+  animation: dash-move 1.2s linear infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+.animate-pulse-ring {
+  animation: pulse-ring 1.8s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+
+.logistics-theme .carrier-theme * {
+  transition-property: background-color, background-image, border-color, color, box-shadow;
+  transition-duration: 500ms;
+  transition-timing-function: ease;
+}

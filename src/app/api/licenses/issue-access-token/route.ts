@@ -39,6 +39,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "License has expired." }, { status: 403 });
   }
 
+  // An absolute URL points at a separately-hosted service we don't control —
+  // it can't validate our JWT, so appending one would just leak an unusable
+  // token. Relative URLs (our own ported platforms) keep the token-append
+  // behavior for any future server-side validation that wants it, though the
+  // current platform route guards re-check license status directly instead.
+  if (/^https?:\/\//i.test(service.accessUrl)) {
+    return NextResponse.json({ redirectUrl: service.accessUrl });
+  }
+
   const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: license.id });
   const separator = service.accessUrl.includes("?") ? "&" : "?";
 
