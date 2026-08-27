@@ -106,7 +106,7 @@ async function grantOne(
  * just with totalCents forced to 0 and provider: "admin_grant" instead of a
  * real payment reference.
  */
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   const admin = await verifyAdminCaller(request);
   if (!admin) {
     return NextResponse.json({ error: "Admin access required." }, { status: 403 });
@@ -138,7 +138,8 @@ export async function POST(request: Request) {
   try {
     const userRecord = await adminAuth.getUserByEmail(email);
     targetUid = userRecord.uid;
-  } catch {
+  } catch (err) {
+    console.error("[licenses/grant] getUserByEmail failed:", err);
     return NextResponse.json(
       { error: `No account found for ${email}. Ask them to sign up first, then grant access again.` },
       { status: 404 },
@@ -175,4 +176,21 @@ export async function POST(request: Request) {
       expiresAt: l.expiresAt,
     })),
   });
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handlePost(request);
+  } catch (err) {
+    // Guarantees a JSON body even on an unexpected crash (e.g. a malformed
+    // FIREBASE_ADMIN_PRIVATE_KEY breaking a Firestore/Auth Admin SDK call) —
+    // without this, Next.js/Vercel returns an HTML error page instead, which
+    // shows up client-side as "Unexpected token '<' ... is not valid JSON"
+    // with no indication of what actually failed.
+    console.error("[licenses/grant] unhandled error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unexpected server error." },
+      { status: 500 },
+    );
+  }
 }
