@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { useRequireAdmin } from "@/hooks/use-require-admin";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
+import { auth, isFirebaseConfigured } from "@/lib/firebase/client";
 import { services } from "@/lib/data/services";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -100,6 +101,12 @@ export default function AdminLicensesPage() {
     setGranting(true);
     try {
       const headers = await getAuthHeaders();
+      if (!headers.Authorization) {
+        throw new Error(
+          `getAuthHeaders() built no session token client-side (isFirebaseConfigured=${isFirebaseConfigured}, ` +
+            `auth.currentUser=${auth?.currentUser ? auth.currentUser.email : "null"}) — the request was never sent to the server.`,
+        );
+      }
       const res = await fetch("/api/licenses/grant", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...headers },
