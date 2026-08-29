@@ -72,6 +72,12 @@ export default function BankingDashboardPage() {
                   </Link>
                 </Button>
               )}
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/platform/banking-platform/settings">
+                  <Settings className="size-3.5" />
+                  Settings
+                </Link>
+              </Button>
             </div>
           </div>
           {data && (
@@ -102,15 +108,17 @@ export default function BankingDashboardPage() {
             </span>
             <span className="text-xs font-medium">Transfer</span>
           </Link>
-          <Link
-            href="/platform/banking-platform/settings"
-            className="border-border/60 bg-card hover:border-primary/40 hover:shadow-md flex w-24 flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-all"
-          >
-            <span className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-xl">
-              <Settings className="size-5" />
-            </span>
-            <span className="text-xs font-medium">Settings</span>
-          </Link>
+          {user?.role === "admin" && (
+            <Link
+              href="/admin/banking"
+              className="border-border/60 bg-card hover:border-primary/40 hover:shadow-md flex w-24 flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-all"
+            >
+              <span className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-xl">
+                <ShieldCheck className="size-5" />
+              </span>
+              <span className="text-xs font-medium">Open Admin</span>
+            </Link>
+          )}
         </div>
 
         {loading ? (
