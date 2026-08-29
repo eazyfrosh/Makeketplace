@@ -1,7 +1,7 @@
 "use client";
 
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
-import type { Account, BankCard, Transaction } from "@/lib/banking/types";
+import type { Account, AccountStatus, BankCard, Transaction } from "@/lib/banking/types";
 
 const BANKING_SESSION_KEY = "nexova_banking_session";
 
@@ -71,8 +71,12 @@ export function getAccount(): Promise<{
   return api("/api/banking/account");
 }
 
-export function setPin(pin: string): Promise<{ ok: true }> {
-  return api("/api/banking/pin", { method: "POST", body: JSON.stringify({ pin }) });
+export function setPin(pin: string, currentPin?: string): Promise<{ ok: true }> {
+  return api("/api/banking/pin", { method: "POST", body: JSON.stringify({ pin, currentPin }) });
+}
+
+export function setAccountStatus(status: Extract<AccountStatus, "active" | "frozen">): Promise<{ status: string }> {
+  return api("/api/banking/account/status", { method: "PATCH", body: JSON.stringify({ status }) });
 }
 
 export function transfer(input: {

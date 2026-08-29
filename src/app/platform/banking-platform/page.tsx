@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeftRight, ArrowRight, ExternalLink, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, ExternalLink, Loader2, Settings, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/auth-context";
@@ -92,15 +92,26 @@ export default function BankingDashboardPage() {
           )}
         </div>
 
-        <Link
-          href="/platform/banking-platform/transfer"
-          className="border-border/60 bg-card hover:border-primary/40 hover:shadow-md flex w-fit flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-all"
-        >
-          <span className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-xl">
-            <ArrowLeftRight className="size-5" />
-          </span>
-          <span className="text-xs font-medium">Transfer</span>
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/platform/banking-platform/transfer"
+            className="border-border/60 bg-card hover:border-primary/40 hover:shadow-md flex w-24 flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-all"
+          >
+            <span className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-xl">
+              <ArrowLeftRight className="size-5" />
+            </span>
+            <span className="text-xs font-medium">Transfer</span>
+          </Link>
+          <Link
+            href="/platform/banking-platform/settings"
+            className="border-border/60 bg-card hover:border-primary/40 hover:shadow-md flex w-24 flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-all"
+          >
+            <span className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-xl">
+              <Settings className="size-5" />
+            </span>
+            <span className="text-xs font-medium">Settings</span>
+          </Link>
+        </div>
 
         {loading ? (
           <Skeleton className="h-40" />

@@ -45,6 +45,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid transfer request." }, { status: 400 });
   }
 
+  const account = await getAccountForUser(caller.uid);
+  if (!account) return NextResponse.json({ error: "Account not found." }, { status: 404 });
+  if (account.status !== "active") {
+    return NextResponse.json(
+      { error: `Your account is ${account.status}. Unfreeze it before transferring.` },
+      { status: 400 },
+    );
+  }
+
   const attemptKey = `pin:${caller.uid}`;
   const attempt = await checkAndRecordPinAttempt(attemptKey);
   if (!attempt.allowed) {
@@ -65,9 +74,6 @@ export async function POST(request: Request) {
     );
   }
   await resetPinAttempts(attemptKey);
-
-  const account = await getAccountForUser(caller.uid);
-  if (!account) return NextResponse.json({ error: "Account not found." }, { status: 404 });
 
   const fee = body.kind === "international" ? Math.max(5, body.amount * 0.01) : 0;
   const total = body.amount + fee;
