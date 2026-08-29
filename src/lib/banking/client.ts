@@ -102,6 +102,8 @@ export function editOwnTransaction(
     counterparty?: string;
     reference?: string;
     status?: Transaction["status"];
+    amount?: number;
+    direction?: "credit" | "debit";
   },
 ): Promise<{ transaction: Transaction }> {
   return api(`/api/banking/transactions/${txId}`, { method: "PATCH", body: JSON.stringify(updates) });

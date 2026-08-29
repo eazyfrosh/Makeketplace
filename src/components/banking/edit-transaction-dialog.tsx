@@ -25,6 +25,8 @@ interface EditableFields {
   counterparty: string;
   reference: string;
   status: TransactionStatus;
+  amount: number;
+  direction: "credit" | "debit";
 }
 
 export function EditTransactionDialog({
@@ -42,12 +44,19 @@ export function EditTransactionDialog({
   const [counterparty, setCounterparty] = React.useState(transaction.counterparty ?? "");
   const [reference, setReference] = React.useState(transaction.reference);
   const [status, setStatus] = React.useState<TransactionStatus>(transaction.status);
+  const [amount, setAmount] = React.useState(String(transaction.amount));
+  const [direction, setDirection] = React.useState<"credit" | "debit">(transaction.direction);
   const [saving, setSaving] = React.useState(false);
 
   async function handleSave() {
+    const parsedAmount = Number(amount);
+    if (!(parsedAmount > 0)) {
+      toast.error("Amount must be a positive number.");
+      return;
+    }
     setSaving(true);
     try {
-      const updated = await onSave({ description, counterparty, reference, status });
+      const updated = await onSave({ description, counterparty, reference, status, amount: parsedAmount, direction });
       toast.success("Transaction updated.");
       onSaved(updated);
       setOpen(false);
@@ -71,12 +80,37 @@ export function EditTransactionDialog({
         </DialogHeader>
         <div className="flex flex-col gap-3">
           <p className="text-muted-foreground text-xs">
-            Amount and direction can&apos;t be edited here, so the balance always matches an auditable
-            transaction — use a balance adjustment for that instead. This only edits how the receipt reads.
+            Changing the amount or direction updates the account balance to match — the difference is applied
+            immediately, so the balance always reflects this transaction&apos;s new value.
           </p>
           <div>
             <Label htmlFor="edit-tx-description">Description</Label>
             <Input id="edit-tx-description" value={description} onChange={(e) => setDescription(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="edit-tx-amount">Amount</Label>
+              <Input
+                id="edit-tx-amount"
+                type="number"
+                min="0"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-tx-direction">Direction</Label>
+              <Select value={direction} onValueChange={(v) => setDirection(v as "credit" | "debit")}>
+                <SelectTrigger className="w-full" id="edit-tx-direction">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="credit">Credit</SelectItem>
+                  <SelectItem value="debit">Debit</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div>
             <Label htmlFor="edit-tx-counterparty">Counterparty</Label>
@@ -89,7 +123,7 @@ export function EditTransactionDialog({
           <div>
             <Label htmlFor="edit-tx-status">Status</Label>
             <Select value={status} onValueChange={(v) => setStatus(v as TransactionStatus)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full" id="edit-tx-status">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { verifyAdminCaller } from "@/lib/licensing/verify-auth";
-import { getTransactionById, updateTransaction } from "@/lib/banking/store";
+import { getAccountForUser, getTransactionById, updateAccount, updateTransaction } from "@/lib/banking/store";
 import type { TransactionStatus } from "@/lib/banking/types";
 
 const VALID_STATUSES: TransactionStatus[] = ["pending", "completed", "failed", "cancelled"];
@@ -13,15 +13,15 @@ interface EditBody {
   recipientBank?: string;
   reference?: string;
   status?: TransactionStatus;
+  amount?: number;
+  direction?: "credit" | "debit";
 }
 
 /**
- * Edits a transaction's receipt-facing details only — description,
- * counterparty info, reference, status. Deliberately does NOT allow editing
- * amount/direction/accountId: those drive the account balance, and this
- * route never touches the balance. A correction that should actually move
- * money belongs in the adjust-balance action instead, which creates its own
- * auditable transaction rather than silently rewriting history.
+ * Edits a user's transaction. Editing the amount/direction reconciles the
+ * account balance by the exact delta so the balance always matches the sum
+ * of transactions, rather than either blocking the edit or letting the two
+ * silently drift apart.
  */
 export async function PATCH(
   request: Request,
@@ -36,10 +36,33 @@ export async function PATCH(
   if (body.status && !VALID_STATUSES.includes(body.status)) {
     return NextResponse.json({ error: "Invalid status." }, { status: 400 });
   }
+  if (body.amount !== undefined && !(body.amount > 0)) {
+    return NextResponse.json({ error: "Amount must be a positive number." }, { status: 400 });
+  }
+  if (body.direction && !["credit", "debit"].includes(body.direction)) {
+    return NextResponse.json({ error: "Invalid direction." }, { status: 400 });
+  }
 
   const tx = await getTransactionById(txId);
   if (!tx || tx.userId !== uid) {
     return NextResponse.json({ error: "Transaction not found." }, { status: 404 });
+  }
+
+  const newAmount = body.amount ?? tx.amount;
+  const newDirection = body.direction ?? tx.direction;
+  const amountOrDirectionChanged = newAmount !== tx.amount || newDirection !== tx.direction;
+
+  if (amountOrDirectionChanged) {
+    const account = await getAccountForUser(uid);
+    if (!account) return NextResponse.json({ error: "Account not found." }, { status: 404 });
+
+    const oldContribution = tx.direction === "credit" ? tx.amount : -tx.amount;
+    const newContribution = newDirection === "credit" ? newAmount : -newAmount;
+    const newBalance = Math.round((account.balance - oldContribution + newContribution) * 100) / 100;
+    if (newBalance < 0) {
+      return NextResponse.json({ error: "This change would take the account balance negative." }, { status: 400 });
+    }
+    await updateAccount({ ...account, balance: newBalance });
   }
 
   const updated = {
@@ -50,6 +73,8 @@ export async function PATCH(
     recipientBank: body.recipientBank?.trim() ?? tx.recipientBank,
     reference: body.reference?.trim() || tx.reference,
     status: body.status ?? tx.status,
+    amount: newAmount,
+    direction: newDirection,
   };
   await updateTransaction(updated);
 
