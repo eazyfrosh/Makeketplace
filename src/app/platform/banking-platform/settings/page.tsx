@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { KeyRound, Loader2, Snowflake, Sparkles, Sun } from "lucide-react";
+import { KeyRound, Loader2, Snowflake, Sparkles, Sun, User } from "lucide-react";
 import { toast } from "sonner";
 
 import { useBankingAccount } from "@/lib/banking/use-account";
-import { adjustOwnBalance, setAccountStatus, setPin } from "@/lib/banking/client";
+import { adjustOwnBalance, setAccountStatus, setPin, updateOwnProfile } from "@/lib/banking/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,19 @@ export default function BankingSettingsPage() {
   const { data, loading, error, reload } = useBankingAccount();
   const [togglingAccount, setTogglingAccount] = React.useState(false);
 
+  const [profileInitialized, setProfileInitialized] = React.useState(false);
+  const [firstName, setFirstName] = React.useState("");
+  const [lastName, setLastName] = React.useState("");
+  const [savingProfile, setSavingProfile] = React.useState(false);
+
+  React.useEffect(() => {
+    if (data?.profile && !profileInitialized) {
+      setFirstName(data.profile.firstName ?? "");
+      setLastName(data.profile.lastName ?? "");
+      setProfileInitialized(true);
+    }
+  }, [data, profileInitialized]);
+
   const [currentPin, setCurrentPin] = React.useState("");
   const [newPin, setNewPin] = React.useState("");
   const [confirmPin, setConfirmPin] = React.useState("");
@@ -28,6 +41,24 @@ export default function BankingSettingsPage() {
   const [demoAmount, setDemoAmount] = React.useState("");
   const [demoReason, setDemoReason] = React.useState("");
   const [applyingDemoFunds, setApplyingDemoFunds] = React.useState(false);
+
+  async function handleSaveProfile(e: React.FormEvent) {
+    e.preventDefault();
+    if (!firstName.trim() || !lastName.trim()) {
+      toast.error("Enter your first and last name.");
+      return;
+    }
+    setSavingProfile(true);
+    try {
+      await updateOwnProfile({ firstName: firstName.trim(), lastName: lastName.trim() });
+      toast.success("Profile updated.");
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update profile.");
+    } finally {
+      setSavingProfile(false);
+    }
+  }
 
   async function toggleAccount() {
     if (!data) return;
@@ -114,6 +145,37 @@ export default function BankingSettingsPage() {
         data && (
           <>
             <Card className="mt-8">
+              <CardHeader>
+                <CardTitle className="text-base">Profile</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSaveProfile} className="flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="settings-first-name">First name</Label>
+                      <Input id="settings-first-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label htmlFor="settings-last-name">Last name</Label>
+                      <Input id="settings-last-name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Email</Label>
+                    <Input value={data.profile.email ?? ""} disabled className="opacity-60" />
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      Your banking sign-in email can&apos;t be changed here.
+                    </p>
+                  </div>
+                  <Button type="submit" disabled={savingProfile} className="mt-1 w-fit">
+                    <User className="size-3.5" />
+                    {savingProfile ? "Saving…" : "Save profile"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card className="mt-6">
               <CardHeader>
                 <CardTitle className="text-base">Account status</CardTitle>
               </CardHeader>
@@ -249,7 +311,14 @@ export default function BankingSettingsPage() {
               <Link href="/platform/banking-platform/cards" className="text-primary underline-offset-4 hover:underline">
                 Cards page
               </Link>
-              .
+              . Want to edit a transaction&apos;s receipt (description, reference, status)? Each transaction on the{" "}
+              <Link
+                href="/platform/banking-platform/transactions"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                Transactions page
+              </Link>{" "}
+              has its own Edit button.
             </p>
           </>
         )

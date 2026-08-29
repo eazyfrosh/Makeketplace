@@ -67,8 +67,16 @@ export function getAccount(): Promise<{
   card: RedactedCard;
   transactions: Transaction[];
   hasPin: boolean;
+  profile: { email: string | null; firstName: string | null; lastName: string | null };
 }> {
   return api("/api/banking/account");
+}
+
+export function updateOwnProfile(input: {
+  firstName: string;
+  lastName: string;
+}): Promise<{ firstName: string; lastName: string }> {
+  return api("/api/banking/profile", { method: "PATCH", body: JSON.stringify(input) });
 }
 
 export function setPin(pin: string, currentPin?: string): Promise<{ ok: true }> {

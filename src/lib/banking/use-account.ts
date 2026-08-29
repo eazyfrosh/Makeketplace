@@ -10,6 +10,7 @@ interface AccountState {
   card: RedactedCard;
   transactions: Transaction[];
   hasPin: boolean;
+  profile: { email: string | null; firstName: string | null; lastName: string | null };
 }
 
 export function useBankingAccount() {

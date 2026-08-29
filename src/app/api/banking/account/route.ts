@@ -29,5 +29,6 @@ export async function GET(request: Request) {
     card: { ...card, cardNumber: undefined, cvv: undefined, pin: undefined },
     transactions: transactions.sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     hasPin: Boolean(profile?.transactionPin),
+    profile: { email: profile.email, firstName: profile.firstName, lastName: profile.lastName },
   });
 }
