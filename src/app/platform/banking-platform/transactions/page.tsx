@@ -4,11 +4,13 @@ import * as React from "react";
 import { ArrowDown, ArrowUp, Search } from "lucide-react";
 
 import { useBankingAccount } from "@/lib/banking/use-account";
+import { editOwnTransaction } from "@/lib/banking/client";
 import { transactionLabels, statusColors } from "@/lib/banking/transaction-meta";
 import { formatCurrency, formatDate } from "@/lib/banking/format";
 import type { Transaction, TransactionStatus } from "@/lib/banking/types";
 
 import { TransactionDetailDialog } from "@/components/banking/transaction-detail-dialog";
+import { EditTransactionDialog } from "@/components/banking/edit-transaction-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +22,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 const statusFilters: (TransactionStatus | "all")[] = ["all", "completed", "pending", "failed", "cancelled"];
 
 export default function TransactionsPage() {
-  const { data, loading, error } = useBankingAccount();
+  const { data, loading, error, reload } = useBankingAccount();
   const [query, setQuery] = React.useState("");
   const [status, setStatus] = React.useState<TransactionStatus | "all">("all");
   const [direction, setDirection] = React.useState<"all" | "credit" | "debit">("all");
@@ -119,6 +121,7 @@ export default function TransactionsPage() {
                 <TableHead>Amount</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Reference</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -137,6 +140,13 @@ export default function TransactionsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground font-mono text-xs">{tx.reference}</TableCell>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <EditTransactionDialog
+                      transaction={tx}
+                      onSave={(updates) => editOwnTransaction(tx.id, updates).then((res) => res.transaction)}
+                      onSaved={() => reload()}
+                    />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

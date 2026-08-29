@@ -4,7 +4,6 @@ import * as React from "react";
 import { Pencil } from "lucide-react";
 import { toast } from "sonner";
 
-import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,13 +20,21 @@ import type { Transaction, TransactionStatus } from "@/lib/banking/types";
 
 const statuses: TransactionStatus[] = ["pending", "completed", "failed", "cancelled"];
 
+interface EditableFields {
+  description: string;
+  counterparty: string;
+  reference: string;
+  status: TransactionStatus;
+}
+
 export function EditTransactionDialog({
-  uid,
   transaction,
+  onSave,
   onSaved,
 }: {
-  uid: string;
   transaction: Transaction;
+  /** Performs the actual update (admin route or self-service route) and returns the saved transaction. */
+  onSave: (updates: EditableFields) => Promise<Transaction>;
   onSaved: (updated: Transaction) => void;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -40,16 +47,9 @@ export function EditTransactionDialog({
   async function handleSave() {
     setSaving(true);
     try {
-      const headers = await getAuthHeaders();
-      const res = await fetch(`/api/banking/admin/users/${uid}/transactions/${transaction.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", ...headers },
-        body: JSON.stringify({ description, counterparty, reference, status }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Failed to update transaction.");
+      const updated = await onSave({ description, counterparty, reference, status });
       toast.success("Transaction updated.");
-      onSaved(data.transaction);
+      onSaved(updated);
       setOpen(false);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to update transaction.");
@@ -71,9 +71,8 @@ export function EditTransactionDialog({
         </DialogHeader>
         <div className="flex flex-col gap-3">
           <p className="text-muted-foreground text-xs">
-            Amount and direction can&apos;t be edited here — that&apos;s what the balance adjustment action is
-            for, so the account balance always matches an auditable transaction. This only edits how the
-            receipt reads.
+            Amount and direction can&apos;t be edited here, so the balance always matches an auditable
+            transaction — use a balance adjustment for that instead. This only edits how the receipt reads.
           </p>
           <div>
             <Label htmlFor="edit-tx-description">Description</Label>

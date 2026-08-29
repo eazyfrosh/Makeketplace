@@ -2,16 +2,17 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { KeyRound, Loader2, Snowflake, Sun } from "lucide-react";
+import { KeyRound, Loader2, Snowflake, Sparkles, Sun } from "lucide-react";
 import { toast } from "sonner";
 
 import { useBankingAccount } from "@/lib/banking/use-account";
-import { setAccountStatus, setPin } from "@/lib/banking/client";
+import { adjustOwnBalance, setAccountStatus, setPin } from "@/lib/banking/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BankingSettingsPage() {
@@ -22,6 +23,11 @@ export default function BankingSettingsPage() {
   const [newPin, setNewPin] = React.useState("");
   const [confirmPin, setConfirmPin] = React.useState("");
   const [savingPin, setSavingPin] = React.useState(false);
+
+  const [demoDirection, setDemoDirection] = React.useState<"credit" | "debit">("credit");
+  const [demoAmount, setDemoAmount] = React.useState("");
+  const [demoReason, setDemoReason] = React.useState("");
+  const [applyingDemoFunds, setApplyingDemoFunds] = React.useState(false);
 
   async function toggleAccount() {
     if (!data) return;
@@ -64,6 +70,26 @@ export default function BankingSettingsPage() {
       toast.error(err instanceof Error ? err.message : "Failed to update PIN.");
     } finally {
       setSavingPin(false);
+    }
+  }
+
+  async function handleAddDemoFunds() {
+    const amount = Number(demoAmount);
+    if (!(amount > 0) || !demoReason.trim()) {
+      toast.error("Enter a positive amount and a reason.");
+      return;
+    }
+    setApplyingDemoFunds(true);
+    try {
+      await adjustOwnBalance({ direction: demoDirection, amount, description: demoReason.trim() });
+      toast.success("Demo funds applied.");
+      setDemoAmount("");
+      setDemoReason("");
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to apply demo funds.");
+    } finally {
+      setApplyingDemoFunds(false);
     }
   }
 
@@ -166,6 +192,55 @@ export default function BankingSettingsPage() {
                     {savingPin ? "Saving…" : data.hasPin ? "Change PIN" : "Set PIN"}
                   </Button>
                 </form>
+              </CardContent>
+            </Card>
+
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="text-base">Demo funds</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">
+                  This is a demo account — add or remove funds from your own balance to explore transfers and
+                  transactions. This never affects anyone else&apos;s account.
+                </p>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <div className="w-32">
+                    <Label>Direction</Label>
+                    <Select value={demoDirection} onValueChange={(v) => setDemoDirection(v as "credit" | "debit")}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="credit">Add funds</SelectItem>
+                        <SelectItem value="debit">Remove funds</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="w-32">
+                    <Label>Amount</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={demoAmount}
+                      onChange={(e) => setDemoAmount(e.target.value)}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Label>Reason</Label>
+                    <Input
+                      value={demoReason}
+                      onChange={(e) => setDemoReason(e.target.value)}
+                      placeholder="e.g. Testing the transfer flow"
+                    />
+                  </div>
+                  <Button disabled={applyingDemoFunds} onClick={handleAddDemoFunds}>
+                    <Sparkles className="size-3.5" />
+                    Apply
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 

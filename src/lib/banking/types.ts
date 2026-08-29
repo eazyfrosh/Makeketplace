@@ -20,7 +20,8 @@ export type TransactionType =
   | "deposit"
   | "withdrawal"
   | "card_payment"
-  | "admin_adjustment";
+  | "admin_adjustment"
+  | "demo_adjustment";
 
 export type TransactionStatus = "pending" | "completed" | "failed" | "cancelled";
 

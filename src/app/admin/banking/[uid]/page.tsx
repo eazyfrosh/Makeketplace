@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
-import { EditTransactionDialog } from "@/components/admin/edit-transaction-dialog";
+import { EditTransactionDialog } from "@/components/banking/edit-transaction-dialog";
 import type { Account, AccountStatus, BankCard, CardStatus, Transaction } from "@/lib/banking/types";
 
 interface AdminBankingDetail {
@@ -327,7 +327,16 @@ export default function AdminBankingUserPage() {
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <EditTransactionDialog uid={uid} transaction={tx} onSaved={handleTransactionSaved} />
+                          <EditTransactionDialog
+                            transaction={tx}
+                            onSave={(updates) =>
+                              callAction(`/api/banking/admin/users/${uid}/transactions/${tx.id}`, {
+                                method: "PATCH",
+                                body: JSON.stringify(updates),
+                              }).then((body) => body.transaction)
+                            }
+                            onSaved={handleTransactionSaved}
+                          />
                         </td>
                       </tr>
                     ))}

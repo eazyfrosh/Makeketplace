@@ -79,6 +79,26 @@ export function setAccountStatus(status: Extract<AccountStatus, "active" | "froz
   return api("/api/banking/account/status", { method: "PATCH", body: JSON.stringify({ status }) });
 }
 
+export function adjustOwnBalance(input: {
+  direction: "credit" | "debit";
+  amount: number;
+  description: string;
+}): Promise<{ balance: number; transaction: Transaction }> {
+  return api("/api/banking/account/adjust-balance", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function editOwnTransaction(
+  txId: string,
+  updates: {
+    description?: string;
+    counterparty?: string;
+    reference?: string;
+    status?: Transaction["status"];
+  },
+): Promise<{ transaction: Transaction }> {
+  return api(`/api/banking/transactions/${txId}`, { method: "PATCH", body: JSON.stringify(updates) });
+}
+
 export function transfer(input: {
   kind: "internal" | "bank" | "international";
   amount: number;
