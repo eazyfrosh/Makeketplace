@@ -98,3 +98,7 @@ export function freezeCard(): Promise<{ status: string }> {
 export function replaceCard(): Promise<{ ok: true }> {
   return api("/api/banking/cards/replace", { method: "POST" });
 }
+
+export function getNovabankSsoUrl(): Promise<{ redirectUrl: string }> {
+  return api("/api/banking/sso/novabank");
+}

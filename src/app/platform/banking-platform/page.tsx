@@ -2,10 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeftRight, ArrowRight } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, ExternalLink, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { useBankingAccount } from "@/lib/banking/use-account";
 import { getCurrencyInfo } from "@/lib/banking/currencies";
+import { getNovabankSsoUrl } from "@/lib/banking/client";
 import type { Transaction } from "@/lib/banking/types";
 
 import { AccountCard } from "@/components/banking/account-card";
@@ -20,6 +22,19 @@ import { EmptyState } from "@/components/ui/empty-state";
 export default function BankingDashboardPage() {
   const { data, loading, error } = useBankingAccount();
   const [selectedTx, setSelectedTx] = React.useState<Transaction | null>(null);
+  const [openingNovabank, setOpeningNovabank] = React.useState(false);
+
+  async function handleOpenNovabank() {
+    setOpeningNovabank(true);
+    try {
+      const { redirectUrl } = await getNovabankSsoUrl();
+      window.open(redirectUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't open NovaBank.");
+    } finally {
+      setOpeningNovabank(false);
+    }
+  }
 
   if (error) {
     return (
@@ -38,6 +53,20 @@ export default function BankingDashboardPage() {
             <p className="text-muted-foreground mt-1 text-sm">
               Here&apos;s what&apos;s happening with your money today.
             </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              disabled={openingNovabank}
+              onClick={handleOpenNovabank}
+            >
+              {openingNovabank ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <ExternalLink className="size-3.5" />
+              )}
+              Open in NovaBank
+            </Button>
           </div>
           {data && (
             <Card className="border-primary/20 bg-primary/5 py-3">
