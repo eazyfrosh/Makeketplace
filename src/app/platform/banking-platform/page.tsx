@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeftRight, ArrowRight, ExternalLink, Loader2 } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, ExternalLink, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
+import { useAuth } from "@/context/auth-context";
 import { useBankingAccount } from "@/lib/banking/use-account";
 import { getCurrencyInfo } from "@/lib/banking/currencies";
 import { getNovabankSsoUrl } from "@/lib/banking/client";
@@ -20,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 
 export default function BankingDashboardPage() {
+  const { user } = useAuth();
   const { data, loading, error } = useBankingAccount();
   const [selectedTx, setSelectedTx] = React.useState<Transaction | null>(null);
   const [openingNovabank, setOpeningNovabank] = React.useState(false);
@@ -53,20 +55,24 @@ export default function BankingDashboardPage() {
             <p className="text-muted-foreground mt-1 text-sm">
               Here&apos;s what&apos;s happening with your money today.
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              disabled={openingNovabank}
-              onClick={handleOpenNovabank}
-            >
-              {openingNovabank ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <ExternalLink className="size-3.5" />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" disabled={openingNovabank} onClick={handleOpenNovabank}>
+                {openingNovabank ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <ExternalLink className="size-3.5" />
+                )}
+                Open in NovaBank
+              </Button>
+              {user?.role === "admin" && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/admin/banking">
+                    <ShieldCheck className="size-3.5" />
+                    Open Admin
+                  </Link>
+                </Button>
               )}
-              Open in NovaBank
-            </Button>
+            </div>
           </div>
           {data && (
             <Card className="border-primary/20 bg-primary/5 py-3">
