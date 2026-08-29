@@ -2,16 +2,23 @@
 
 import * as React from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Snowflake, Sun, KeyRound } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 import { useRequireAdmin } from "@/hooks/use-require-admin";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { formatCurrency, formatDate, maskAccountNumber } from "@/lib/banking/format";
 import { transactionLabels, statusColors } from "@/lib/banking/transaction-meta";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
-import type { Account, BankCard, Transaction } from "@/lib/banking/types";
+import { EditTransactionDialog } from "@/components/admin/edit-transaction-dialog";
+import type { Account, AccountStatus, BankCard, CardStatus, Transaction } from "@/lib/banking/types";
 
 interface AdminBankingDetail {
   profile: { email: string | null; firstName: string | null; lastName: string | null; createdAt: string };
@@ -23,25 +30,121 @@ interface AdminBankingDetail {
 export default function AdminBankingUserPage() {
   const { isAdmin, loading: authLoading } = useRequireAdmin();
   const params = useParams<{ uid: string }>();
+  const uid = params.uid;
   const [data, setData] = React.useState<AdminBankingDetail | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [busy, setBusy] = React.useState(false);
+
+  const [adjustDirection, setAdjustDirection] = React.useState<"credit" | "debit">("credit");
+  const [adjustAmount, setAdjustAmount] = React.useState("");
+  const [adjustReason, setAdjustReason] = React.useState("");
+
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    const headers = await getAuthHeaders();
+    const res = await fetch(`/api/banking/admin/users/${uid}`, { headers });
+    const body = await res.json();
+    if (!res.ok) {
+      setError(body?.error ?? "Failed to load this user.");
+    } else {
+      setData(body);
+      setError(null);
+    }
+    setLoading(false);
+  }, [uid]);
 
   React.useEffect(() => {
     if (!isAdmin) return;
-    (async () => {
-      setLoading(true);
-      const headers = await getAuthHeaders();
-      const res = await fetch(`/api/banking/admin/users/${params.uid}`, { headers });
-      const body = await res.json();
-      if (!res.ok) {
-        setError(body?.error ?? "Failed to load this user.");
-      } else {
-        setData(body);
-      }
-      setLoading(false);
-    })();
-  }, [isAdmin, params.uid]);
+    load();
+  }, [isAdmin, load]);
+
+  async function callAction(path: string, init: RequestInit) {
+    const headers = await getAuthHeaders();
+    const res = await fetch(path, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...headers, ...(init.headers ?? {}) },
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body?.error ?? "Action failed.");
+    return body;
+  }
+
+  async function toggleAccountStatus(next: AccountStatus) {
+    setBusy(true);
+    try {
+      await callAction(`/api/banking/admin/users/${uid}/account`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: next }),
+      });
+      toast.success(`Account ${next}.`);
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update account.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggleCardStatus(next: CardStatus) {
+    setBusy(true);
+    try {
+      await callAction(`/api/banking/admin/users/${uid}/card`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: next }),
+      });
+      toast.success(`Card ${next}.`);
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update card.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function resetPin() {
+    if (!window.confirm("Reset this user's transaction PIN? They'll be prompted to set a new one.")) return;
+    setBusy(true);
+    try {
+      await callAction(`/api/banking/admin/users/${uid}/pin`, { method: "DELETE" });
+      toast.success("PIN reset.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to reset PIN.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleAdjustBalance() {
+    const amount = Number(adjustAmount);
+    if (!(amount > 0) || !adjustReason.trim()) {
+      toast.error("Enter a positive amount and a reason.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await callAction(`/api/banking/admin/users/${uid}/adjust-balance`, {
+        method: "POST",
+        body: JSON.stringify({ direction: adjustDirection, amount, description: adjustReason.trim() }),
+      });
+      toast.success("Balance adjusted.");
+      setAdjustAmount("");
+      setAdjustReason("");
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to adjust balance.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function handleTransactionSaved(updated: Transaction) {
+    setData((prev) =>
+      prev
+        ? { ...prev, transactions: prev.transactions.map((t) => (t.id === updated.id ? updated : t)) }
+        : prev,
+    );
+  }
 
   if (authLoading || !isAdmin) {
     return (
@@ -102,6 +205,23 @@ export default function AdminBankingUserPage() {
             </div>
           </div>
 
+          {data.account && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {data.account.status === "active" ? (
+                <Button size="sm" variant="secondary" disabled={busy} onClick={() => toggleAccountStatus("frozen")}>
+                  <Snowflake className="size-3.5" /> Freeze account
+                </Button>
+              ) : (
+                <Button size="sm" variant="secondary" disabled={busy} onClick={() => toggleAccountStatus("active")}>
+                  <Sun className="size-3.5" /> Unfreeze account
+                </Button>
+              )}
+              <Button size="sm" variant="secondary" disabled={busy} onClick={resetPin}>
+                <KeyRound className="size-3.5" /> Reset transaction PIN
+              </Button>
+            </div>
+          )}
+
           {data.card && (
             <div className="glass mt-6 rounded-2xl p-5">
               <div className="text-sm text-muted-foreground">Card</div>
@@ -112,11 +232,64 @@ export default function AdminBankingUserPage() {
                 <Badge variant={data.card.status === "active" ? "default" : "outline"} className="capitalize">
                   {data.card.status}
                 </Badge>
-                <span className="text-muted-foreground">
-                  Card number, CVV, and PIN stay behind the customer&apos;s own PIN-verified reveal — not shown here.
-                </span>
+                {data.card.status === "active" ? (
+                  <Button size="sm" variant="secondary" disabled={busy} onClick={() => toggleCardStatus("frozen")}>
+                    <Snowflake className="size-3.5" /> Freeze card
+                  </Button>
+                ) : (
+                  <Button size="sm" variant="secondary" disabled={busy} onClick={() => toggleCardStatus("active")}>
+                    <Sun className="size-3.5" /> Unblock card
+                  </Button>
+                )}
               </div>
+              <p className="text-muted-foreground mt-2 text-xs">
+                Card number, CVV, and PIN stay behind the customer&apos;s own PIN-verified reveal — not shown here.
+              </p>
             </div>
+          )}
+
+          {data.account && (
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="text-base">Adjust balance</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <div className="w-32">
+                  <Label>Direction</Label>
+                  <Select value={adjustDirection} onValueChange={(v) => setAdjustDirection(v as "credit" | "debit")}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="credit">Credit</SelectItem>
+                      <SelectItem value="debit">Debit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-32">
+                  <Label>Amount</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={adjustAmount}
+                    onChange={(e) => setAdjustAmount(e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="flex-1">
+                  <Label>Reason</Label>
+                  <Input
+                    value={adjustReason}
+                    onChange={(e) => setAdjustReason(e.target.value)}
+                    placeholder="e.g. Refund for support ticket #482"
+                  />
+                </div>
+                <Button disabled={busy} onClick={handleAdjustBalance}>
+                  Apply
+                </Button>
+              </CardContent>
+            </Card>
           )}
 
           <div className="mt-8">
@@ -133,6 +306,7 @@ export default function AdminBankingUserPage() {
                       <th className="px-4 py-3 font-medium">Date</th>
                       <th className="px-4 py-3 font-medium">Amount</th>
                       <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -151,6 +325,9 @@ export default function AdminBankingUserPage() {
                           <Badge variant={statusColors[tx.status]} className="capitalize">
                             {tx.status}
                           </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <EditTransactionDialog uid={uid} transaction={tx} onSaved={handleTransactionSaved} />
                         </td>
                       </tr>
                     ))}

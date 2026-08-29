@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   Landmark,
   type LucideIcon,
+  ShieldCheck,
   Wallet,
 } from "lucide-react";
 
@@ -16,6 +17,7 @@ export const transactionIcons: Record<TransactionType, LucideIcon> = {
   deposit: ArrowDownLeft,
   withdrawal: ArrowUpRight,
   card_payment: Wallet,
+  admin_adjustment: ShieldCheck,
 };
 
 export const transactionLabels: Record<TransactionType, string> = {
@@ -25,6 +27,7 @@ export const transactionLabels: Record<TransactionType, string> = {
   deposit: "Deposit",
   withdrawal: "Withdrawal",
   card_payment: "Card payment",
+  admin_adjustment: "Admin adjustment",
 };
 
 export const statusColors: Record<

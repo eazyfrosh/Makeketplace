@@ -19,7 +19,8 @@ export type TransactionType =
   | "transfer_international"
   | "deposit"
   | "withdrawal"
-  | "card_payment";
+  | "card_payment"
+  | "admin_adjustment";
 
 export type TransactionStatus = "pending" | "completed" | "failed" | "cancelled";
 

@@ -104,6 +104,22 @@ export async function createTransaction(tx: Transaction): Promise<void> {
   demoStore().transactions.set(tx.id, tx);
 }
 
+export async function getTransactionById(transactionId: string): Promise<Transaction | null> {
+  if (adminDb) {
+    const snap = await adminDb.collection(TRANSACTIONS).doc(transactionId).get();
+    return snap.exists ? (snap.data() as Transaction) : null;
+  }
+  return demoStore().transactions.get(transactionId) ?? null;
+}
+
+export async function updateTransaction(tx: Transaction): Promise<void> {
+  if (adminDb) {
+    await adminDb.collection(TRANSACTIONS).doc(tx.id).set(tx);
+    return;
+  }
+  demoStore().transactions.set(tx.id, tx);
+}
+
 export async function getBankingProfile(userId: string): Promise<BankingProfile | null> {
   if (adminDb) {
     const snap = await adminDb.collection(PROFILES).doc(userId).get();
