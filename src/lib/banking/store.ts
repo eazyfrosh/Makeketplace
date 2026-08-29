@@ -96,9 +96,17 @@ export async function getTransactionsForUser(userId: string): Promise<Transactio
   return Array.from(demoStore().transactions.values()).filter((t) => t.userId === userId);
 }
 
+// Firestore's set()/update() throw on any field whose value is explicitly
+// undefined (as opposed to simply absent) — easy to produce by accident with
+// `value ?? existing.optionalField` when neither side was ever set. Strip
+// those before every write instead of relying on every caller to avoid it.
+function stripUndefined<T extends object>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
+}
+
 export async function createTransaction(tx: Transaction): Promise<void> {
   if (adminDb) {
-    await adminDb.collection(TRANSACTIONS).doc(tx.id).set(tx);
+    await adminDb.collection(TRANSACTIONS).doc(tx.id).set(stripUndefined(tx));
     return;
   }
   demoStore().transactions.set(tx.id, tx);
@@ -114,7 +122,7 @@ export async function getTransactionById(transactionId: string): Promise<Transac
 
 export async function updateTransaction(tx: Transaction): Promise<void> {
   if (adminDb) {
-    await adminDb.collection(TRANSACTIONS).doc(tx.id).set(tx);
+    await adminDb.collection(TRANSACTIONS).doc(tx.id).set(stripUndefined(tx));
     return;
   }
   demoStore().transactions.set(tx.id, tx);
