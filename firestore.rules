@@ -72,6 +72,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Website Design configs — same server-mediated-only pattern, via the
+    // authenticated /api/website endpoints (Admin SDK bypasses these rules).
+    match /websiteConfigs/{configId} {
+      allow read, write: if false;
+    }
+
     // Support tickets: owner or admin only.
     match /supportTickets/{ticketId} {
       allow read: if isOwner(resource.data.userId) || isAdmin();

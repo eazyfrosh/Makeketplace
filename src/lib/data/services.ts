@@ -148,7 +148,7 @@ export const services: Service[] = [
   },
   {
     slug: "website-design",
-    accessUrl: "/access/website-design",
+    accessUrl: "/platform/website-builder",
     name: "Website Design",
     category: "design",
     tagline: "Premium, conversion-focused websites crafted end-to-end.",
