@@ -38,16 +38,17 @@ const REASONS = [
 
 export function WhyChooseUs() {
   return (
-    <section className="relative border-y border-white/10 bg-white/[0.015] py-20">
+    <section className="relative overflow-hidden border-y border-white/10 bg-white/[0.018] py-24 lg:py-32">
+      <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(to_right,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_1px)] [background-size:56px_56px]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-medium text-primary">Why Nexova</span>
-          <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Built like a product studio, priced like a marketplace
+        <div className="relative mx-auto max-w-3xl text-center">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Why Nexova</span>
+          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
+            The speed of a marketplace.<br className="hidden sm:block" /> The care of a product studio.
           </h2>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="relative mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {REASONS.map((reason, i) => (
             <motion.div
               key={reason.title}
@@ -55,13 +56,13 @@ export function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-              className="glass rounded-2xl p-6"
+              className="glass group rounded-3xl p-7 transition-colors hover:bg-white/[0.07]"
             >
-              <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-brand-soft">
+              <div className="flex size-12 items-center justify-center rounded-2xl bg-gradient-brand-soft ring-1 ring-white/10 transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105">
                 <reason.icon className="size-5 text-primary" />
               </div>
-              <h3 className="mt-4 font-semibold">{reason.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{reason.description}</p>
+              <h3 className="mt-5 font-semibold">{reason.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{reason.description}</p>
             </motion.div>
           ))}
         </div>

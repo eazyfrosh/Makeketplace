@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 export function CTA() {
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-brand px-8 py-16 text-center sm:px-16">
+    <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
+      <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-gradient-brand px-8 py-16 shadow-[0_35px_100px_-45px_rgba(99,102,241,0.9)] sm:px-16 lg:py-20">
         <div
           className="absolute inset-0 opacity-20"
           style={{
@@ -15,18 +15,18 @@ export function CTA() {
             backgroundSize: "32px 32px",
           }}
         />
-        <div className="relative">
-          <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Ready to build something premium?
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-white/85">
-            Tell us what you&apos;re building and we&apos;ll match you to the right package —
-            or start exploring services right now.
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="relative grid items-center gap-10 lg:grid-cols-[1fr_auto]">
+          <div>
+            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/75"><CheckCircle2 className="size-4" /> Your next launch starts here</span>
+            <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
+              Bring your boldest idea.<br />We&apos;ll bring the build.
+            </h2>
+            <p className="mt-4 max-w-xl text-white/80">Choose a proven package or tell us what you need. Either way, you&apos;ll get clarity, senior talent, and a launch plan.</p>
+          </div>
+          <div className="flex flex-col items-stretch gap-3 sm:flex-row lg:flex-col">
             <Button size="lg" variant="secondary" className="bg-white text-black hover:bg-white/90" asChild>
               <Link href="/services">
-                Browse services
+                Explore the marketplace
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
@@ -36,7 +36,7 @@ export function CTA() {
               className="border-white/40 text-white hover:bg-white/10"
               asChild
             >
-              <Link href="/contact">Talk to sales</Link>
+              <Link href="/contact">Start a conversation</Link>
             </Button>
           </div>
         </div>

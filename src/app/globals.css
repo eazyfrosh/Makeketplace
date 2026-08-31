@@ -128,6 +128,10 @@
   body {
     background: var(--background);
     color: var(--foreground);
+    background-image:
+      radial-gradient(circle at 10% -10%, color-mix(in oklab, var(--primary) 9%, transparent), transparent 30%),
+      radial-gradient(circle at 95% 15%, color-mix(in oklab, #22d3ee 6%, transparent), transparent 25%);
+    background-attachment: fixed;
   }
 }
 
@@ -171,5 +175,20 @@
   }
   .scrollbar-none {
     scrollbar-width: none;
+  }
+
+  .hero-orb {
+    animation: hero-drift 9s ease-in-out infinite;
+  }
+
+  @keyframes hero-drift {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(-24px, 18px, 0) scale(1.06); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orb {
+    animation: none;
   }
 }
