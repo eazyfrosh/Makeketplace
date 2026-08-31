@@ -20,6 +20,8 @@ import {
 import { auth, isFirebaseConfigured } from "@/lib/firebase/client";
 import { getOne, upsert } from "@/lib/services/store";
 import { DEMO_ADMIN_UID } from "@/lib/licensing/demo-constants";
+import { getAuthHeaders } from "@/lib/licensing/client-auth";
+import { AFFILIATE_REF_KEY } from "@/components/affiliate/ref-capture";
 
 export type UserRole = "customer" | "admin";
 
@@ -64,6 +66,29 @@ function makeProfile(uid: string, email: string, name: string, role: UserRole = 
     role,
     createdAt: new Date().toISOString(),
   };
+}
+
+/**
+ * Called once right after a signup succeeds, if the browser captured a
+ * `?ref=CODE` before the account existed (see RefCapture). Consumes the
+ * stored code either way — a failed/duplicate/unknown-code attribution
+ * attempt shouldn't keep re-firing on every future page load.
+ */
+async function attributeReferralIfPresent() {
+  if (typeof window === "undefined") return;
+  const code = window.localStorage.getItem(AFFILIATE_REF_KEY);
+  if (!code) return;
+  window.localStorage.removeItem(AFFILIATE_REF_KEY);
+  try {
+    const headers = await getAuthHeaders();
+    await fetch("/api/affiliate/attribute-referral", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...headers },
+      body: JSON.stringify({ code }),
+    });
+  } catch {
+    // Best-effort — a missed attribution shouldn't surface as a signup error.
+  }
 }
 
 async function ensureDemoAdminSeed() {
@@ -145,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await upsert(USERS_COLLECTION, profile);
         window.localStorage.setItem(DEMO_SESSION_KEY, uid);
         setUser(profile);
+        await attributeReferralIfPresent();
         return;
       }
       if (!auth) throw new Error("Firebase is not configured.");
@@ -153,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const profile = makeProfile(cred.user.uid, email, name);
       await upsert(USERS_COLLECTION, profile);
       setUser(profile);
+      await attributeReferralIfPresent();
     },
     [isDemoMode],
   );

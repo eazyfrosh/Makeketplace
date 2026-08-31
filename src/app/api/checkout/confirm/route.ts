@@ -14,6 +14,8 @@ import {
 import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { sendEmail } from "@/lib/email/send";
 import { licenseIssuedEmail } from "@/lib/email/templates";
+import { createCommission, getAffiliateById, getReferralForUser } from "@/lib/affiliate/store";
+import type { AffiliateCommission } from "@/lib/affiliate/types";
 import type { CartItem, Order, PaymentProvider } from "@/types";
 import type { License } from "@/types/licensing";
 
@@ -183,6 +185,31 @@ export async function POST(request: Request) {
   order.licenseIds = licenses.map((l) => l.id);
 
   await createOrderRecord(order);
+
+  // Credit the referring affiliate, if any — never fails checkout itself,
+  // same reasoning as the email below: the order is already real by now.
+  try {
+    const referral = await getReferralForUser(caller.uid);
+    if (referral) {
+      const affiliate = await getAffiliateById(referral.affiliateId);
+      if (affiliate?.status === "active") {
+        const commission: AffiliateCommission = {
+          id: generateId("comm"),
+          affiliateId: affiliate.id,
+          orderId: order.id,
+          referredUserId: caller.uid,
+          orderTotalCents: totalCents,
+          commissionCents: Math.round((totalCents * affiliate.commissionRatePercent) / 100),
+          status: "pending",
+          payoutRequestId: null,
+          createdAt: new Date().toISOString(),
+        };
+        await createCommission(commission);
+      }
+    }
+  } catch (err) {
+    console.error("[checkout/confirm] order issued but affiliate commission failed:", err);
+  }
 
   // The order/licenses above are already paid for and issued at this point —
   // a broken email provider (bad API key, unverified sender domain) must

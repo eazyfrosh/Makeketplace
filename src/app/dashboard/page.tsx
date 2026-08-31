@@ -107,9 +107,14 @@ export default function DashboardPage() {
             Manage your purchased services, downloads, and license keys.
           </p>
         </div>
-        <Button variant="secondary" asChild>
-          <Link href="/dashboard/profile">Account settings</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" asChild>
+            <Link href="/dashboard/affiliate">Affiliate program</Link>
+          </Button>
+          <Button variant="secondary" asChild>
+            <Link href="/dashboard/profile">Account settings</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">

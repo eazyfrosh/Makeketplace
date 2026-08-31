@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/layout/theme-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { AuthProvider } from "@/context/auth-context";
+import { RefCapture } from "@/components/affiliate/ref-capture";
 
 import "./globals.css";
 
@@ -58,6 +59,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
+            <RefCapture />
             <div className="relative flex min-h-screen flex-col">
               <SiteHeader />
               <main className="flex-1">{children}</main>

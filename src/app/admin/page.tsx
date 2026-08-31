@@ -55,6 +55,9 @@ export default function AdminPage() {
           <Button variant="secondary" asChild>
             <Link href="/admin/banking">Banking users</Link>
           </Button>
+          <Button variant="secondary" asChild>
+            <Link href="/admin/affiliates">Affiliates</Link>
+          </Button>
         </div>
       </div>
 

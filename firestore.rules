@@ -78,6 +78,23 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Affiliate accounts/referrals/commissions/payout requests — same
+    // server-mediated-only pattern, via the authenticated /api/affiliate
+    // endpoints (Admin SDK bypasses these rules). Commission amounts and
+    // referral attribution must never be directly writable by the client.
+    match /affiliates/{affiliateId} {
+      allow read, write: if false;
+    }
+    match /affiliateReferrals/{referralId} {
+      allow read, write: if false;
+    }
+    match /affiliateCommissions/{commissionId} {
+      allow read, write: if false;
+    }
+    match /affiliatePayoutRequests/{payoutRequestId} {
+      allow read, write: if false;
+    }
+
     // Support tickets: owner or admin only.
     match /supportTickets/{ticketId} {
       allow read: if isOwner(resource.data.userId) || isAdmin();
