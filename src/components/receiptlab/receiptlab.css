@@ -562,7 +562,7 @@
   display: flex;
   gap: 9px;
 }
-.receiptlab-root.dark .notice {
+.receiptlab-root .dark .notice {
   background: #29273c;
   color: #c6c2ff;
   border-color: #3b385e;
@@ -690,9 +690,12 @@
   min-height: 720px;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   flex-direction: column;
+  width: 100%;
+  overflow: hidden;
 }
-.receiptlab-root.dark .stage {
+.receiptlab-root .dark .stage {
   background: #0e0f15;
 }
 .receiptlab-root .stage-label {
@@ -713,6 +716,9 @@
   overflow: hidden;
   box-shadow: 0 18px 55px #2020362e;
   animation: rise 0.3s;
+  container-type: inline-size;
+  flex: 0 0 auto;
+  margin-inline: auto;
 }
 .receiptlab-root .receipt > .bar {
   position: absolute;
@@ -839,7 +845,8 @@
 }
 .receiptlab-root .receipt.with-safety-footer {
   overflow: visible;
-  margin-bottom: 28px;
+  margin: 0 auto 28px;
+  isolation: isolate;
 }
 .receiptlab-root .receipt > .safety-footer {
   position: absolute;
@@ -1241,7 +1248,7 @@
 .receiptlab-root .receipt.studio {
   width: min(430px, 100%);
   min-height: 0;
-  aspect-ratio: 768/1332;
+  aspect-ratio: 736/1308;
   padding: 0;
   background: #14181b;
   border-radius: 0;
@@ -1269,14 +1276,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(8px, 2.5vw, 13px);
+  gap: clamp(7px, 2.5cqw, 13px);
   box-sizing: border-box;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   background: #00d95f;
   color: #fff;
-  font-size: clamp(16px, 4.4vw, 21px);
+  font-size: clamp(13px, 4.4cqw, 21px);
   line-height: 1;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
@@ -1304,27 +1311,27 @@
 .receiptlab-root .studio-name {
   top: 13.25%;
   color: #fff;
-  font-size: 18px;
+  font-size: clamp(13px, 4.2cqw, 18px);
   font-weight: 750;
   line-height: 1.25;
 }
 .receiptlab-root .studio-handle {
   top: 17.7%;
   color: #aeb0b4;
-  font-size: 16px;
+  font-size: clamp(12px, 3.72cqw, 16px);
   line-height: 1.35;
 }
 .receiptlab-root .studio-amount {
   top: 42.1%;
   color: #fff;
-  font-size: 49px;
+  font-size: clamp(33px, 11.4cqw, 49px);
   font-weight: 750;
   line-height: 1.2;
 }
 .receiptlab-root .studio-date {
   top: 51.45%;
   color: #aeb0b4;
-  font-size: 16px;
+  font-size: clamp(12px, 3.72cqw, 16px);
   line-height: 1.4;
 }
 .receiptlab-root .image-watermark {
@@ -1364,7 +1371,7 @@
 .receiptlab-root .receipt.mono {
   width: min(430px, 100%);
   min-height: 0;
-  aspect-ratio: 1170/1702;
+  aspect-ratio: 1170/1710;
   padding: 0;
   border-radius: 0;
   background: #f4f6fa;
@@ -1398,7 +1405,7 @@
   gap: 0.18em;
   padding: 7% 8%;
   text-align: center;
-  font-size: clamp(24px, 7.1vw, 38px);
+  font-size: clamp(20px, 7.1cqw, 38px);
   font-weight: 300;
   line-height: 1.42;
 }
@@ -1414,7 +1421,7 @@
   z-index: 3;
   color: #ff263a !important;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(34px, 10.5vw, 55px) !important;
+  font-size: clamp(30px, 10.5cqw, 55px) !important;
   font-weight: 950;
   letter-spacing: 0.035em;
   opacity: 0.78;
@@ -1478,7 +1485,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: clamp(21px, 5.8vw, 31px);
+  font-size: clamp(18px, 5.8cqw, 31px);
   line-height: 1;
 }
 .receiptlab-root .citrus-top-value span {
@@ -1487,7 +1494,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #696969;
-  font-size: clamp(14px, 3.7vw, 20px);
+  font-size: clamp(12px, 3.7cqw, 20px);
   line-height: 1;
 }
 .receiptlab-root .citrus-value {
@@ -1505,7 +1512,7 @@
   text-align: right;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: clamp(14px, 3.8vw, 20px);
+  font-size: clamp(12px, 3.8cqw, 20px);
 }
 .receiptlab-root .citrus-date {
   top: 29.5%;
@@ -1520,14 +1527,14 @@
   top: 48.4%;
   left: 38%;
   height: 5.8%;
-  font-size: clamp(13px, 3.55vw, 19px);
+  font-size: clamp(11px, 3.55cqw, 19px);
 }
 .receiptlab-root .citrus-watermark {
   top: 40.5%;
   z-index: 3;
   color: #ff263a !important;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(35px, 10.8vw, 58px) !important;
+  font-size: clamp(30px, 10.8cqw, 58px) !important;
   font-weight: 950;
   letter-spacing: 0.035em;
   opacity: 0.78;
@@ -1588,7 +1595,7 @@
   right: 20%;
   height: 4.2%;
   justify-content: center;
-  font-size: clamp(19px, 5.1vw, 28px);
+  font-size: clamp(16px, 5.1cqw, 28px);
 }
 .receiptlab-root .orbit-note {
   top: 27.45%;
@@ -1596,7 +1603,7 @@
   right: 16%;
   height: 4.2%;
   justify-content: center;
-  font-size: clamp(17px, 4.4vw, 24px);
+  font-size: clamp(14px, 4.4cqw, 24px);
 }
 .receiptlab-root .orbit-amount {
   top: 32.05%;
@@ -1605,7 +1612,7 @@
   height: 4.4%;
   justify-content: center;
   color: #c43c42;
-  font-size: clamp(24px, 6.4vw, 35px);
+  font-size: clamp(20px, 6.4cqw, 35px);
 }
 .receiptlab-root .orbit-likes,.receiptlab-root .orbit-comments {
   top: 43.55%;
@@ -1613,7 +1620,7 @@
   height: 3.5%;
   justify-content: center;
   color: #8c9095;
-  font-size: clamp(14px, 3.5vw, 19px);
+  font-size: clamp(11px, 3.5cqw, 19px);
 }
 .receiptlab-root .orbit-likes {
   left: 9.8%;
@@ -1626,35 +1633,35 @@
   left: 4.2%;
   width: 43%;
   height: 4.4%;
-  font-size: clamp(18px, 4.75vw, 26px);
+  font-size: clamp(15px, 4.75cqw, 26px);
 }
 .receiptlab-root .orbit-method {
   top: 68.15%;
   left: 11.6%;
   right: 18%;
   height: 4.8%;
-  font-size: clamp(18px, 4.7vw, 26px);
+  font-size: clamp(15px, 4.7cqw, 26px);
 }
 .receiptlab-root .orbit-date {
   top: 79.45%;
   left: 4.2%;
   right: 32.2%;
   height: 4.5%;
-  font-size: clamp(17px, 4.45vw, 24px);
+  font-size: clamp(14px, 4.45cqw, 24px);
 }
 .receiptlab-root .orbit-handle {
   top: 89.65%;
   left: 4.2%;
   right: 39%;
   height: 4.4%;
-  font-size: clamp(18px, 4.75vw, 26px);
+  font-size: clamp(15px, 4.75cqw, 26px);
 }
 .receiptlab-root .orbit-watermark {
   top: 46.5%;
   z-index: 3;
   color: #ff263a !important;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(35px, 10.8vw, 58px) !important;
+  font-size: clamp(30px, 10.8cqw, 58px) !important;
   font-weight: 950;
   letter-spacing: 0.035em;
   opacity: 0.78;
@@ -1714,7 +1721,7 @@
   left: 14%;
   right: 14%;
   height: 6.5%;
-  font-size: clamp(20px, 5vw, 27px);
+  font-size: clamp(16px, 5cqw, 27px);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1724,7 +1731,7 @@
   right: 14%;
   height: 7.2%;
   color: #466cc6;
-  font-size: clamp(28px, 7.2vw, 39px);
+  font-size: clamp(23px, 7.2cqw, 39px);
   font-weight: 800;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1735,7 +1742,7 @@
   right: 11%;
   height: 6.3%;
   color: #c6c7ca;
-  font-size: clamp(19px, 5vw, 27px);
+  font-size: clamp(16px, 5cqw, 27px);
   font-weight: 750;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1746,7 +1753,7 @@
   right: 5.5%;
   height: 9.4%;
   color: #b7b8bc;
-  font-size: clamp(17px, 4.35vw, 24px);
+  font-size: clamp(14px, 4.35cqw, 24px);
   line-height: 1.18;
   padding: 0 2%;
 }
@@ -1758,7 +1765,7 @@
   border-radius: 12px;
   background: #3975f6;
   color: #101433;
-  font-size: clamp(21px, 5.4vw, 29px);
+  font-size: clamp(17px, 5.4cqw, 29px);
   font-weight: 800;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1768,7 +1775,7 @@
   left: 17%;
   right: 17%;
   height: 5.85%;
-  font-size: clamp(21px, 5.5vw, 30px);
+  font-size: clamp(17px, 5.5cqw, 30px);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1777,7 +1784,7 @@
   z-index: 3;
   color: #ff263a !important;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(35px, 10.8vw, 58px) !important;
+  font-size: clamp(30px, 10.8cqw, 58px) !important;
   font-weight: 950;
   letter-spacing: 0.035em;
   opacity: 0.82;
@@ -1838,7 +1845,7 @@
   right: 5%;
   height: 6.6%;
   padding: 0 2%;
-  font-size: clamp(16px, 4.15vw, 23px);
+  font-size: clamp(13px, 4.15cqw, 23px);
   line-height: 1.24;
 }
 .receiptlab-root .indigo-amount {
@@ -1846,7 +1853,7 @@
   left: 24%;
   right: 24%;
   height: 7.2%;
-  font-size: clamp(36px, 9.2vw, 50px);
+  font-size: clamp(29px, 9.2cqw, 50px);
   font-weight: 300;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1856,7 +1863,7 @@
   left: 23%;
   right: 23%;
   height: 3.7%;
-  font-size: clamp(20px, 5vw, 28px);
+  font-size: clamp(16px, 5cqw, 28px);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1865,7 +1872,7 @@
   left: 18%;
   right: 18%;
   height: 2.8%;
-  font-size: clamp(14px, 3.4vw, 19px);
+  font-size: clamp(11px, 3.4cqw, 19px);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1874,7 +1881,7 @@
   left: 23%;
   right: 23%;
   height: 2.8%;
-  font-size: clamp(14px, 3.4vw, 19px);
+  font-size: clamp(11px, 3.4cqw, 19px);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1884,7 +1891,7 @@
   right: 3.5%;
   height: 6.9%;
   padding: 0 1%;
-  font-size: clamp(14px, 3.65vw, 20px);
+  font-size: clamp(12px, 3.65cqw, 20px);
   line-height: 1.25;
 }
 .receiptlab-root .indigo-siri-button {
@@ -1892,7 +1899,7 @@
   left: 43%;
   right: 26%;
   height: 4.1%;
-  font-size: clamp(17px, 4.3vw, 24px);
+  font-size: clamp(14px, 4.3cqw, 24px);
   font-weight: 700;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1905,7 +1912,7 @@
   border-radius: 5px;
   background: #2f66b8;
   color: #fff;
-  font-size: clamp(17px, 4.3vw, 24px);
+  font-size: clamp(14px, 4.3cqw, 24px);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1914,7 +1921,7 @@
   z-index: 3;
   color: #ff263a !important;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(35px, 10.8vw, 58px) !important;
+  font-size: clamp(30px, 10.8cqw, 58px) !important;
   font-weight: 950;
   letter-spacing: 0.035em;
   opacity: 0.82;
@@ -1941,7 +1948,7 @@
 .receiptlab-root .receipt.black {
   width: min(430px, 100%);
   min-height: 0;
-  aspect-ratio: 736/1472;
+  aspect-ratio: 736/1438;
   padding: 0;
   border-radius: 0;
   background: #000;
@@ -1975,7 +1982,7 @@
   right: 29%;
   height: 4%;
   background: #000;
-  font-size: clamp(16px, 4.1vw, 22px);
+  font-size: clamp(13px, 4.1cqw, 22px);
   font-weight: 750;
 }
 .receiptlab-root .black-status {
@@ -1984,7 +1991,7 @@
   right: 23%;
   height: 4.3%;
   background: #000;
-  font-size: clamp(17px, 4.45vw, 24px);
+  font-size: clamp(14px, 4.45cqw, 24px);
   font-weight: 750;
 }
 .receiptlab-root .black-amount {
@@ -1993,7 +2000,7 @@
   right: 27%;
   height: 5.2%;
   background: #000;
-  font-size: clamp(27px, 6.8vw, 37px);
+  font-size: clamp(22px, 6.8cqw, 37px);
 }
 .receiptlab-root .black-value {
   left: 38%;
@@ -2002,7 +2009,7 @@
   justify-content: flex-end;
   background: #101010;
   text-align: right;
-  font-size: clamp(14px, 3.55vw, 19px);
+  font-size: clamp(11px, 3.55cqw, 19px);
 }
 .receiptlab-root .black-pay-to {
   top: 31.1%;
@@ -2038,7 +2045,7 @@
   height: 4.4%;
   background: #ff9e2c;
   color: #151515;
-  font-size: clamp(18px, 4.6vw, 25px);
+  font-size: clamp(15px, 4.6cqw, 25px);
   font-weight: 800;
 }
 .receiptlab-root .black-done {
@@ -2047,7 +2054,7 @@
   right: 29%;
   height: 4.2%;
   background: #000;
-  font-size: clamp(18px, 4.6vw, 25px);
+  font-size: clamp(15px, 4.6cqw, 25px);
   font-weight: 750;
 }
 .receiptlab-root .black-watermark {
@@ -2055,7 +2062,7 @@
   z-index: 3;
   color: #ff263a !important;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(35px, 10.8vw, 58px) !important;
+  font-size: clamp(30px, 10.8cqw, 58px) !important;
   font-weight: 950;
   letter-spacing: 0.035em;
   opacity: 0.84;
@@ -2115,7 +2122,7 @@
   left: 18%;
   right: 18%;
   height: 6.8%;
-  font-size: clamp(29px, 7.3vw, 40px);
+  font-size: clamp(23px, 7.3cqw, 40px);
   font-weight: 800;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -2126,7 +2133,7 @@
   right: 28%;
   height: 4.6%;
   color: #29bd8b;
-  font-size: clamp(18px, 4.55vw, 25px);
+  font-size: clamp(15px, 4.55cqw, 25px);
   font-weight: 750;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -2137,7 +2144,7 @@
   right: 5%;
   height: 7.7%;
   color: #8c8e98;
-  font-size: clamp(14px, 3.55vw, 19px);
+  font-size: clamp(10px, 2.95cqw, 16px);
   line-height: 1.35;
   padding: 0 1%;
 }
@@ -2149,18 +2156,18 @@
   border-radius: 5px;
   background: #353527;
   color: #f0c844;
-  font-size: clamp(13px, 3.25vw, 18px);
+  font-size: clamp(11px, 3.25cqw, 18px);
   font-weight: 750;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .receiptlab-root .dark-blue-address,.receiptlab-root .dark-blue-txid,.receiptlab-root .dark-blue-wallet,.receiptlab-root .dark-blue-date {
-  left: 41%;
+  left: 32%;
   right: 4%;
   justify-content: flex-end;
   background: #222431;
   text-align: right;
-  font-size: clamp(14px, 3.55vw, 19px);
+  font-size: clamp(11px, 3.55cqw, 19px);
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
@@ -2189,7 +2196,18 @@
   z-index: 3;
   color: #ff263a !important;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(35px, 10.8vw, 58px) !important;
+  font-size: clamp(30px, 10.8cqw, 58px) !important;
+
+.studio-fragment,
+.mono-reference,
+.citrus-reference,
+.orbit-reference,
+.blue-reference,
+.indigo-reference,
+.black-reference,
+.dark-blue-reference {
+  object-fit: fill;
+}
   font-weight: 950;
   letter-spacing: 0.035em;
   opacity: 0.84;
