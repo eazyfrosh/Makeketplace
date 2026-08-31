@@ -178,7 +178,7 @@ export const services: Service[] = [
   },
   {
     slug: "ai-automation",
-    accessUrl: "/access/ai-automation",
+    accessUrl: "/platform/ai-automation",
     name: "AI Automation",
     category: "ai",
     tagline: "Automate workflows with custom AI agents and pipelines.",
