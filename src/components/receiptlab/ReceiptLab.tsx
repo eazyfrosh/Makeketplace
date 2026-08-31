@@ -7,6 +7,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
+  type Auth,
   type User,
 } from 'firebase/auth';
 import {
@@ -19,6 +20,7 @@ import {
   query as firestoreQuery,
   serverTimestamp,
   setDoc,
+  type Firestore,
 } from 'firebase/firestore';
 import {
   Archive,
@@ -42,7 +44,12 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { auth, db, isFirebaseConfigured as firebaseConfigured } from '@/lib/firebase/client';
+// ReceiptLab is embedded inside Nevora and uses Nevora's licensed route. Keep
+// Firebase out of this client bundle; the standalone Toolkit auth flow is not
+// needed here and can attempt to parse unset Firebase URLs in deployments.
+const auth = null as Auth | null;
+const db = null as Firestore | null;
+const firebaseConfigured = false;
 type View = 'dashboard' | 'templates' | 'editor' | 'history' | 'admin';
 type Template = {
   id: string;
