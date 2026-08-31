@@ -1,15 +1,58 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowUpRight, BadgeCheck, Box, Check, Clock3, Sparkles, Star } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowUpRight, BadgeCheck, Box, Check, ChevronLeft, ChevronRight, Clock3, Sparkles, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 const TRUST_POINTS = ["Source code included", "Launch support", "Secure checkout"];
 
+const SHOWCASE_SLIDES = [
+  {
+    src: "/hero/showcase-design.png",
+    alt: "A coordinated collection of premium web, mobile, and product design interfaces",
+    eyebrow: "Design that feels distinctive",
+    title: "Beautiful digital experiences",
+    accent: "bg-fuchsia-400 shadow-[0_0_12px_#e879f9]",
+  },
+  {
+    src: "/hero/showcase-automation.png",
+    alt: "Connected AI workflows automating documents, data, and business applications",
+    eyebrow: "Automation that saves time",
+    title: "Smarter systems, connected",
+    accent: "bg-cyan-400 shadow-[0_0_12px_#22d3ee]",
+  },
+  {
+    src: "/hero/showcase-launch.png",
+    alt: "A polished digital product launching across web and mobile experiences",
+    eyebrow: "From first idea to launch",
+    title: "Built for real momentum",
+    accent: "bg-orange-300 shadow-[0_0_12px_#fdba74]",
+  },
+];
+
 export function Hero() {
+  const [activeSlide, setActiveSlide] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+  const reduceMotion = useReducedMotion();
+
+  React.useEffect(() => {
+    if (paused || reduceMotion) return;
+    const interval = window.setInterval(
+      () => setActiveSlide((current) => (current + 1) % SHOWCASE_SLIDES.length),
+      5200,
+    );
+    return () => window.clearInterval(interval);
+  }, [paused, reduceMotion]);
+
+  const previousSlide = () =>
+    setActiveSlide((current) => (current - 1 + SHOWCASE_SLIDES.length) % SHOWCASE_SLIDES.length);
+  const nextSlide = () =>
+    setActiveSlide((current) => (current + 1) % SHOWCASE_SLIDES.length);
+
   return (
     <section className="relative isolate overflow-hidden border-b border-white/[0.06] pb-14 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
       <div className="pointer-events-none absolute inset-0 -z-20">
@@ -45,15 +88,58 @@ export function Hero() {
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.12 }} className="relative mx-auto w-full max-w-[660px] lg:mx-0">
+        <motion.div
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, delay: 0.12 }}
+          className="relative mx-auto w-full max-w-[660px] lg:mx-0"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocusCapture={() => setPaused(true)}
+          onBlurCapture={() => setPaused(false)}
+          aria-roledescription="carousel"
+          aria-label="Nexova product capabilities"
+        >
           <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-brand opacity-10 blur-3xl" />
           <div className="glass relative overflow-hidden rounded-[1.75rem] p-2 shadow-[0_30px_100px_-30px_rgba(45,25,90,0.6)] sm:p-3">
             <div className="relative aspect-[1.18/1] overflow-hidden rounded-[1.35rem] bg-[#090a12] sm:aspect-[1.32/1]">
-              <Image src="/services/banking/overview.png" alt="Nexova digital banking platform dashboard" fill priority sizes="(min-width: 1024px) 55vw, 100vw" className="object-cover object-left-top" />
+              <AnimatePresence initial={false} mode="wait">
+                <motion.div
+                  key={SHOWCASE_SLIDES[activeSlide].src}
+                  initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 1.04 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.985 }}
+                  transition={{ duration: reduceMotion ? 0.15 : 0.65, ease: "easeOut" }}
+                  className="absolute inset-0"
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label={`${activeSlide + 1} of ${SHOWCASE_SLIDES.length}`}
+                >
+                  <Image
+                    src={SHOWCASE_SLIDES[activeSlide].src}
+                    alt={SHOWCASE_SLIDES[activeSlide].alt}
+                    fill
+                    priority={activeSlide === 0}
+                    sizes="(min-width: 1024px) 55vw, 100vw"
+                    className="object-cover object-center"
+                  />
+                </motion.div>
+              </AnimatePresence>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 rounded-2xl border border-white/10 bg-black/45 p-4 text-white backdrop-blur-xl sm:inset-x-6 sm:bottom-6 sm:p-5">
-                <div><div className="flex items-center gap-2 text-xs text-white/60"><span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />Featured platform</div><p className="mt-1.5 font-semibold sm:text-lg">Digital Banking Suite</p></div>
-                <div className="text-right"><p className="text-[10px] uppercase tracking-[0.18em] text-white/50">From</p><p className="font-semibold">$8,999</p></div>
+                <div aria-live="polite">
+                  <div className="flex items-center gap-2 text-xs text-white/60"><span className={`size-2 rounded-full ${SHOWCASE_SLIDES[activeSlide].accent}`} />{SHOWCASE_SLIDES[activeSlide].eyebrow}</div>
+                  <p className="mt-1.5 font-semibold sm:text-lg">{SHOWCASE_SLIDES[activeSlide].title}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={previousSlide} className="flex size-9 items-center justify-center rounded-full border border-white/15 bg-white/5 transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white" aria-label="Previous showcase"><ChevronLeft className="size-4" /></button>
+                  <button type="button" onClick={nextSlide} className="flex size-9 items-center justify-center rounded-full border border-white/15 bg-white/5 transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white" aria-label="Next showcase"><ChevronRight className="size-4" /></button>
+                </div>
+              </div>
+              <div className="absolute left-1/2 top-4 flex -translate-x-1/2 gap-1.5 rounded-full border border-white/10 bg-black/30 px-2.5 py-2 backdrop-blur-md">
+                {SHOWCASE_SLIDES.map((slide, index) => (
+                  <button key={slide.src} type="button" onClick={() => setActiveSlide(index)} aria-label={`Show slide ${index + 1}: ${slide.title}`} aria-current={index === activeSlide ? "true" : undefined} className={`h-1.5 rounded-full transition-all ${index === activeSlide ? "w-6 bg-white" : "w-1.5 bg-white/35 hover:bg-white/60"}`} />
+                ))}
               </div>
             </div>
           </div>
