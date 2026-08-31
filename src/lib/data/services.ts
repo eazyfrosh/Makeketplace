@@ -64,7 +64,7 @@ export const services: Service[] = [
     tagline: "Full-stack digital banking, built for scale and compliance.",
     description:
       "A production-grade digital banking platform with accounts, cards, transfers, and compliance tooling baked in — the same foundation neobanks use to launch in weeks, not years.",
-    heroImage: "/services/banking/landing.png",
+    heroImage: "/service-previews/banking-platform.png",
     screenshots: ["/services/banking/overview.png", "/services/banking/transfer.png"],
     features: [
       "Multi-currency accounts & ledgers",
@@ -94,7 +94,7 @@ export const services: Service[] = [
     tagline: "Search, book, and manage flights with a world-class UX.",
     description:
       "An end-to-end flight booking system — search, seat selection, passenger management, e-tickets, and an admin console — designed to feel like Expedia or Google Flights out of the box.",
-    heroImage: "/services/airline/search-hero.png",
+    heroImage: "/service-previews/airline-booking-platform.png",
     screenshots: ["/services/airline/booking-verified.png", "/services/airline/email-confirmation.png"],
     features: [
       "Flight search with smart filters",
@@ -124,7 +124,7 @@ export const services: Service[] = [
     tagline: "Track shipments and optimize fleets in real time.",
     description:
       "A logistics and fleet management platform with live shipment tracking, route optimization, and warehouse tools — everything a modern logistics operator needs in one dashboard.",
-    heroImage: "/services/logistics/hero.png",
+    heroImage: "/service-previews/logistics-platform.png",
     screenshots: ["/services/logistics/track-shipment.png", "/services/logistics/shipment-detail.png"],
     features: [
       "Real-time shipment tracking",
@@ -154,7 +154,7 @@ export const services: Service[] = [
     tagline: "Premium, conversion-focused websites crafted end-to-end.",
     description:
       "Bespoke, high-conversion website design and build — from wireframes to a fully responsive, animated, SEO-optimized site ready to launch.",
-    heroImage: "website",
+    heroImage: "/service-previews/website-design.png",
     screenshots: ["website-home", "website-mobile", "website-cms"],
     features: [
       "Custom UI/UX design",
@@ -184,7 +184,7 @@ export const services: Service[] = [
     tagline: "Automate workflows with custom AI agents and pipelines.",
     description:
       "Custom AI automation — chatbots, document processing, workflow agents, and integrations that plug directly into your existing tools to save hours every week.",
-    heroImage: "ai",
+    heroImage: "/service-previews/ai-automation.png",
     screenshots: ["ai-agent", "ai-workflow", "ai-analytics"],
     features: [
       "Custom AI agents & chatbots",
@@ -214,7 +214,7 @@ export const services: Service[] = [
     tagline: "Add, replace, or restyle text on any image — fast and on-brand.",
     description:
       "A focused image-text editing service — swap outdated copy, restyle captions, localize on-image text, or add new headlines to existing photos and graphics, matched to your brand's fonts and colors every time.",
-    heroImage: "graphic",
+    heroImage: "/service-previews/image-text-editing.png",
     screenshots: ["graphic-brand", "graphic-social", "graphic-print"],
     features: [
       "Add or replace text on existing images",
@@ -265,7 +265,7 @@ export const services: Service[] = [
     tagline: "Launch-ready templates for SaaS, portfolios, and stores.",
     description:
       "A library of premium, production-ready templates — SaaS dashboards, portfolios, e-commerce storefronts — built with modern frameworks so you can launch in days.",
-    heroImage: "templates",
+    heroImage: "/service-previews/premium-templates.png",
     screenshots: ["templates-saas", "templates-portfolio", "templates-store"],
     features: [
       "Next.js & React based templates",
@@ -295,7 +295,7 @@ export const services: Service[] = [
     tagline: "Bespoke software engineering for ambitious products.",
     description:
       "Dedicated engineering for custom products — web apps, internal tools, APIs, and integrations — architected and built by senior engineers from spec to production.",
-    heroImage: "custom",
+    heroImage: "/service-previews/custom-software-development.png",
     screenshots: ["custom-planning", "custom-build", "custom-deploy"],
     features: [
       "Discovery & technical architecture",
