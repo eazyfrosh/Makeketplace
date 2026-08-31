@@ -6,7 +6,7 @@ const ReceiptLab = dynamic(() => import("@/components/receiptlab/ReceiptLab"), {
   ssr: false,
   loading: () => (
     <div className="flex min-h-[70vh] items-center justify-center text-muted-foreground">
-      Loading AI Automation workspace…
+      Loading Receipt Generator…
     </div>
   ),
 });

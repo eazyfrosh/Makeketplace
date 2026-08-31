@@ -61,7 +61,7 @@ export function SiteFooter() {
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               The central hub for premium digital products and services — platforms,
-              design, AI automation, and custom engineering, built to launch.
+              design, business tools, and custom engineering, built to launch.
             </p>
             <div className="mt-6 flex items-center gap-3">
               {[AtSign, Link2, MessageCircle].map((Icon, i) => (

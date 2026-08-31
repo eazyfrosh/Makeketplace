@@ -54,13 +54,13 @@ export function Hero() {
     setActiveSlide((current) => (current + 1) % SHOWCASE_SLIDES.length);
 
   return (
-    <section className="relative isolate overflow-hidden border-b border-white/[0.06] pb-14 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
+    <section className="hero-surface relative isolate overflow-hidden border-b border-border/70 pb-14 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-20">
       <div className="pointer-events-none absolute inset-0 -z-20">
-        <Image src="/hero/hero.png" alt="" fill priority sizes="100vw" className="object-cover object-center opacity-30 dark:opacity-45" />
+        <Image src="/hero/hero.png" alt="" fill priority sizes="100vw" className="object-cover object-center opacity-0 dark:opacity-45" />
       </div>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,var(--background)_0%,color-mix(in_oklab,var(--background)_92%,transparent)_52%,color-mix(in_oklab,var(--background)_72%,transparent)_100%)]" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-background to-transparent" />
-      <div className="hero-orb pointer-events-none absolute -right-32 top-8 -z-10 size-[34rem] rounded-full bg-violet-500/15 blur-[100px]" />
+      <div className="hero-orb pointer-events-none absolute -right-32 top-8 -z-10 size-[34rem] rounded-full bg-violet-400/20 blur-[100px] dark:bg-violet-500/15" />
 
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10 lg:px-8">
         <div className="max-w-2xl">
@@ -75,7 +75,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.12 }} className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-            Skip the blank canvas. Shop production-ready platforms, expert design, AI automation, and custom engineering—all built by a senior product team.
+            Skip the blank canvas. Shop production-ready platforms, expert design, practical business tools, and custom engineering—all built by a senior product team.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.18 }} className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -157,7 +157,7 @@ export function Hero() {
       </div>
 
       <div className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.08] sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-px overflow-hidden rounded-2xl border border-border/70 bg-foreground/[0.06] sm:grid-cols-3 lg:grid-cols-4">
           {[
             { icon: Box, value: "8", label: "Specialist product lines" },
             { icon: Clock3, value: "48h", label: "Average project kickoff" },

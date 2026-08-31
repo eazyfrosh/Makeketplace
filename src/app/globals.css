@@ -5,7 +5,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: oklch(0.99 0.002 260);
+  --background: oklch(0.985 0.008 275);
   --foreground: oklch(0.16 0.02 260);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.16 0.02 260);
@@ -13,26 +13,26 @@
   --popover-foreground: oklch(0.16 0.02 260);
   --primary: oklch(0.58 0.22 280);
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.95 0.01 260);
+  --secondary: oklch(0.955 0.018 275);
   --secondary-foreground: oklch(0.2 0.02 260);
-  --muted: oklch(0.95 0.01 260);
+  --muted: oklch(0.955 0.014 275);
   --muted-foreground: oklch(0.48 0.02 260);
-  --accent: oklch(0.95 0.03 260);
+  --accent: oklch(0.95 0.035 275);
   --accent-foreground: oklch(0.2 0.02 260);
   --destructive: oklch(0.58 0.24 27);
   --success: oklch(0.65 0.15 155);
   --success-foreground: oklch(0.12 0.02 260);
   --warning: oklch(0.75 0.15 80);
   --warning-foreground: oklch(0.15 0.02 260);
-  --border: oklch(0.9 0.01 260);
-  --input: oklch(0.9 0.01 260);
+  --border: oklch(0.89 0.025 275);
+  --input: oklch(0.89 0.025 275);
   --ring: oklch(0.58 0.22 280);
   --radius: 1rem;
 
   --gradient-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 45%, #22d3ee 100%);
   --gradient-brand-soft: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(139,92,246,0.12) 45%, rgba(34,211,238,0.12) 100%);
-  --surface-glass: rgba(255, 255, 255, 0.55);
-  --surface-glass-border: rgba(15, 15, 25, 0.08);
+  --surface-glass: rgba(255, 255, 255, 0.72);
+  --surface-glass-border: rgba(74, 58, 120, 0.12);
 }
 
 .dark {
@@ -61,6 +61,7 @@
 
   --surface-glass: rgba(20, 20, 30, 0.45);
   --surface-glass-border: rgba(255, 255, 255, 0.08);
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -124,15 +125,21 @@
     border-color: var(--border);
   }
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
   body {
     background: var(--background);
     color: var(--foreground);
     background-image:
+      radial-gradient(circle at 8% -8%, color-mix(in oklab, #8b5cf6 12%, transparent), transparent 32%),
+      radial-gradient(circle at 94% 12%, color-mix(in oklab, #22d3ee 9%, transparent), transparent 28%),
+      linear-gradient(180deg, color-mix(in oklab, #ffffff 82%, #f1ecff), var(--background) 34rem);
+    background-attachment: fixed;
+  }
+  .dark body {
+    background-image:
       radial-gradient(circle at 10% -10%, color-mix(in oklab, var(--primary) 9%, transparent), transparent 30%),
       radial-gradient(circle at 95% 15%, color-mix(in oklab, #22d3ee 6%, transparent), transparent 25%);
-    background-attachment: fixed;
   }
 }
 
@@ -180,6 +187,17 @@
 
   .hero-orb {
     animation: hero-drift 9s ease-in-out infinite;
+  }
+
+  .hero-surface {
+    background:
+      radial-gradient(circle at 78% 18%, rgba(139, 92, 246, 0.2), transparent 30%),
+      radial-gradient(circle at 58% 58%, rgba(34, 211, 238, 0.12), transparent 32%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(247, 244, 255, 0.86) 48%, rgba(237, 249, 255, 0.72) 100%);
+  }
+
+  .dark .hero-surface {
+    background: transparent;
   }
 
   @keyframes hero-drift {

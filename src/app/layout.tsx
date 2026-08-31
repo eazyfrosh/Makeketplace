@@ -25,13 +25,13 @@ export const metadata: Metadata = {
     template: "%s · Nexova",
   },
   description:
-    "Nexova is the central hub for premium digital products and services — banking platforms, airline booking systems, logistics software, websites, AI automation, and custom development, built to launch.",
+    "Nexova is the central hub for premium digital products and services — banking platforms, airline booking systems, logistics software, websites, business tools, and custom development, built to launch.",
   keywords: [
     "digital services marketplace",
     "custom software development",
     "SaaS platforms",
     "website design",
-    "AI automation",
+    "receipt generator",
   ],
   openGraph: {
     title: "Nexova — Premium Digital Products & Services",

@@ -37,7 +37,7 @@ export function ServicesClient() {
           Every product line, one marketplace
         </h1>
         <p className="mt-4 text-muted-foreground">
-          Platforms, design, AI automation, templates, and custom development — pick
+          Platforms, design, business tools, templates, and custom development — pick
           what you need and launch with a senior team behind it.
         </p>
       </div>
