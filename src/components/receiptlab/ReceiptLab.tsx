@@ -1597,7 +1597,7 @@ function Editor({
               <>
                 <img
                   className="studio-fragment studio-avatar"
-                  src="/studio-reference.jpg"
+                  src="/receiptlab/studio-reference.jpg"
                   alt="CashApp receipt avatar"
                 />
                 <div className="studio-completed" aria-label="Completed">
@@ -1626,7 +1626,7 @@ function Editor({
               <>
                 <img
                   className="mono-reference"
-                  src="/mono-reference.jpg"
+                  src="/receiptlab/mono-reference.jpg"
                   alt="Paypal receipt reference"
                 />
                 <div className="mono-message">
@@ -1649,7 +1649,7 @@ function Editor({
               <>
                 <img
                   className="citrus-reference"
-                  src="/citrus-reference.jpg"
+                  src="/receiptlab/citrus-reference.jpg"
                   alt="Trust Wallet transfer reference"
                 />
                 <div className="citrus-top-value">
@@ -1680,7 +1680,7 @@ function Editor({
               <>
                 <img
                   className="orbit-reference"
-                  src="/orbit-reference.jpg"
+                  src="/receiptlab/orbit-reference.jpg"
                   alt="Venmo payment reference"
                 />
                 <span className="orbit-copy orbit-name">
@@ -1720,7 +1720,7 @@ function Editor({
               <>
                 <img
                   className="blue-reference"
-                  src="/blue-reference.jpg"
+                  src="/receiptlab/blue-reference.jpg"
                   alt="CoinBase transfer reference"
                 />
                 <span className="blue-copy blue-title">
@@ -1751,7 +1751,7 @@ function Editor({
               <>
                 <img
                   className="indigo-reference"
-                  src="/indigo-reference.jpg"
+                  src="/receiptlab/indigo-reference.jpg"
                   alt="Zelle confirmation reference"
                 />
                 <span className="indigo-copy indigo-message">
@@ -1788,7 +1788,7 @@ function Editor({
               <>
                 <img
                   className="black-reference"
-                  src="/black-reference.jpg"
+                  src="/receiptlab/black-reference.jpg"
                   alt="Bybit payment reference"
                 />
                 <span className="black-copy black-header">
@@ -1831,7 +1831,7 @@ function Editor({
               <>
                 <img
                   className="dark-blue-reference"
-                  src="/dark-blue-reference.jpg"
+                  src="/receiptlab/dark-blue-reference.jpg"
                   alt="Binance deposit reference"
                 />
                 <span className="dark-blue-copy dark-blue-amount">
