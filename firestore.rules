@@ -51,6 +51,9 @@ service cloud.firestore {
     match /logisticsTrackingEvents/{eventId} {
       allow read, write: if false;
     }
+    match /logisticsMessages/{messageId} {
+      allow read, write: if false;
+    }
 
     // Banking Platform accounts/cards/transactions/PIN profiles/rate limits —
     // same server-mediated-only pattern, via the authenticated /api/banking

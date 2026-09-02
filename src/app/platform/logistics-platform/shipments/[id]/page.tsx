@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { ArrowLeft, PlusCircle } from "lucide-react";
-import { getShipment, addTrackingEvent } from "@/lib/logistics/client";
+import { ArrowLeft, MessageCircle, PlusCircle, Send } from "lucide-react";
+import { getShipment, addTrackingEvent, getShipmentMessages, sendShipmentMessage } from "@/lib/logistics/client";
+import { cn } from "@/lib/utils";
 import { CarrierThemeScope } from "@/components/logistics/carrier-theme-scope";
 import { CarrierLogo } from "@/components/logistics/carrier-logo";
 import { StatusBadge } from "@/components/logistics/status-badge";
@@ -19,13 +20,112 @@ import { LoadingState } from "@/components/logistics/ui/loading-state";
 import { getCarrier } from "@/lib/logistics/data/carriers";
 import { SERVICE_LABELS, SHIPMENT_STATUSES, STATUS_LABELS } from "@/lib/logistics/types";
 import { formatCurrency, formatDateLong } from "@/lib/logistics/format";
-import type { Shipment, ShipmentStatus, TrackingEvent } from "@/lib/logistics/types";
+import type { Shipment, ShipmentMessage, ShipmentStatus, TrackingEvent } from "@/lib/logistics/types";
 
 interface EventFormValues {
   status: ShipmentStatus;
   location: string;
   description: string;
   notes?: string;
+}
+
+const MESSAGE_POLL_MS = 4000;
+
+function formatMessageTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+function ShipmentChatCard({ shipmentId }: { shipmentId: string }) {
+  const [messages, setMessages] = useState<ShipmentMessage[]>([]);
+  const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function poll() {
+      try {
+        const data = await getShipmentMessages(shipmentId);
+        if (!cancelled) setMessages(data.messages);
+      } catch {
+        // Keep last known messages on a transient failure; polling retries.
+      }
+    }
+    poll();
+    const interval = setInterval(poll, MESSAGE_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [shipmentId]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  async function handleSend() {
+    if (!text.trim() || sending) return;
+    setSending(true);
+    const toSend = text.trim();
+    setText("");
+    try {
+      const { message } = await sendShipmentMessage(shipmentId, toSend);
+      setMessages((m) => [...m, message]);
+    } catch (err) {
+      setText(toSend);
+      toast.error(err instanceof Error ? err.message : "Failed to send message");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <MessageCircle size={16} /> Message support about this shipment
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div ref={scrollRef} className="max-h-80 space-y-3 overflow-y-auto rounded-xl bg-black/[0.03] p-4 dark:bg-white/5">
+          {messages.length === 0 ? (
+            <p className="py-6 text-center text-sm text-foreground/40">
+              Ask a question about this shipment and our support team will reply here.
+            </p>
+          ) : (
+            messages.map((m) => (
+              <div key={m.id} className={cn("flex", m.senderRole === "customer" ? "justify-end" : "justify-start")}>
+                <div
+                  className={cn(
+                    "max-w-[80%] rounded-2xl px-3.5 py-2 text-sm",
+                    m.senderRole === "customer" ? "bg-brand-600 text-white" : "bg-white text-foreground dark:bg-white/10"
+                  )}
+                >
+                  <p className="whitespace-pre-wrap break-words">{m.text}</p>
+                  <p className={cn("mt-1 text-[10px]", m.senderRole === "customer" ? "text-white/60" : "text-foreground/40")}>
+                    {m.senderRole === "admin" ? `${m.senderName} · ` : ""}
+                    {formatMessageTime(m.createdAt)}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSend();
+          }}
+          className="mt-3 flex items-center gap-2"
+        >
+          <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a message…" />
+          <Button type="submit" variant="carrier" size="icon" disabled={sending || !text.trim()} aria-label="Send message">
+            <Send size={15} />
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function ShipmentDetailPage() {
@@ -181,6 +281,8 @@ export default function ShipmentDetailPage() {
           </form>
         </CardContent>
       </Card>
+
+      <ShipmentChatCard shipmentId={shipment.id} />
     </CarrierThemeScope>
   );
 }

@@ -92,6 +92,9 @@ export interface Shipment {
   userId: string;
   createdAt: string;
   updatedAt: string;
+  /** Whether either side has an unread chat message for this shipment. */
+  unreadForAdmin?: boolean;
+  unreadForCustomer?: boolean;
 }
 
 export interface TrackingEvent {
@@ -103,4 +106,15 @@ export interface TrackingEvent {
   notes?: string;
   timestamp: string;
   createdBy?: string;
+}
+
+export type ShipmentMessageSenderRole = "customer" | "admin";
+
+export interface ShipmentMessage {
+  id: string;
+  shipmentId: string;
+  senderRole: ShipmentMessageSenderRole;
+  senderName: string;
+  text: string;
+  createdAt: string;
 }
