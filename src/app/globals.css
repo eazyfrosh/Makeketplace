@@ -211,3 +211,41 @@
     animation: none;
   }
 }
+
+/* Homepage-specific art direction: editorial contrast over the shared system. */
+.home-display {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: -0.06em;
+}
+
+.home-catalog {
+  isolation: isolate;
+}
+
+.home-catalog::before {
+  position: absolute;
+  inset: 2rem 1rem auto;
+  z-index: -1;
+  height: 22rem;
+  border-radius: 999px;
+  background: radial-gradient(ellipse, color-mix(in oklab, var(--primary) 7%, transparent), transparent 68%);
+  content: "";
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+.home-catalog .glass {
+  box-shadow: 0 18px 50px -32px color-mix(in oklab, var(--foreground) 45%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-catalog .glass {
+    transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 220ms ease;
+  }
+
+  .home-catalog .glass:hover {
+    box-shadow: 0 24px 60px -34px color-mix(in oklab, var(--primary) 50%, transparent);
+  }
+}

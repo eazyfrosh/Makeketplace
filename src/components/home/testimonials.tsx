@@ -10,9 +10,9 @@ export function Testimonials() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-2xl text-center">
-        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Client stories</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Notes from the field</span>
         <h2 className="mt-3 text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
-          Good work travels by word of mouth.
+          The part clients remember.
         </h2>
       </div>
 

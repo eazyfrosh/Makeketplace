@@ -8,16 +8,16 @@ export function FeaturedServices() {
   const featured = services.slice(0, 6);
 
   return (
-    <section className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+    <section className="home-catalog relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
       <div className="pointer-events-none absolute -left-40 top-20 -z-10 size-80 rounded-full bg-cyan-400/[0.06] blur-3xl" />
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">The marketplace</span>
+          <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary"><span className="h-px w-8 bg-primary/60" />The marketplace</div>
           <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
-            Start with something proven.
+            Buy the head start.
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground">
-            Explore complete platforms and specialist services designed to shorten the distance from idea to launch.
+            A focused catalog of things that already work—so your next launch has somewhere solid to begin.
           </p>
         </div>
         <Link

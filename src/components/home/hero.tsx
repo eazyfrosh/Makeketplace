@@ -66,16 +66,16 @@ export function Hero() {
         <div className="max-w-2xl">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium text-muted-foreground shadow-lg shadow-black/5">
             <Sparkles className="size-3.5 text-primary" />
-            <span>Curated digital products for ambitious teams</span>
+            <span>Nexova / Curated digital work</span>
           </motion.div>
 
           <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }} className="mt-7 text-balance text-[clamp(3rem,7vw,5.8rem)] font-semibold leading-[0.95] tracking-[-0.055em]">
-            Great products,
-            <span className="mt-2 block text-gradient-brand">ready when you are.</span>
+            Software that starts ahead.
+            <span className="home-display mt-3 block text-gradient-brand">Made for the next move.</span>
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.12 }} className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-            Skip the blank canvas. Shop production-ready platforms, expert design, practical business tools, and custom engineering—all built by a senior product team.
+            Skip the blank canvas. Start with production-ready platforms, sharp design, and practical business tools—then bring in a senior team when the brief gets interesting.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.18 }} className="mt-8 flex flex-col gap-3 sm:flex-row">
