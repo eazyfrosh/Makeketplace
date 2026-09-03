@@ -4,11 +4,13 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, BadgeCheck, Box, Check, ChevronLeft, ChevronRight, Clock3, Sparkles, Star, TriangleAlert } from "lucide-react";
+import { ArrowUpRight, BadgeCheck, Box, Check, ChevronLeft, ChevronRight, Clock3, Star, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 const TRUST_POINTS = ["Source code included", "Launch support", "Secure checkout"];
+const HERO_HEADLINE = "Sharp Tools & Templates\nAvailable for Your Hustle";
+const HERO_HEADLINE_BREAK = HERO_HEADLINE.indexOf("\n");
 
 const SHOWCASE_SLIDES = [
   {
@@ -37,7 +39,21 @@ const SHOWCASE_SLIDES = [
 export function Hero() {
   const [activeSlide, setActiveSlide] = React.useState(0);
   const [paused, setPaused] = React.useState(false);
+  const [typedHeadline, setTypedHeadline] = React.useState("");
   const reduceMotion = useReducedMotion();
+
+  React.useEffect(() => {
+    if (reduceMotion) {
+      setTypedHeadline(HERO_HEADLINE);
+      return;
+    }
+    if (typedHeadline.length >= HERO_HEADLINE.length) return;
+    const timeout = window.setTimeout(
+      () => setTypedHeadline(HERO_HEADLINE.slice(0, typedHeadline.length + 1)),
+      48,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [reduceMotion, typedHeadline]);
 
   React.useEffect(() => {
     if (paused || reduceMotion) return;
@@ -64,14 +80,13 @@ export function Hero() {
 
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10 lg:px-8">
         <div className="max-w-2xl">
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium text-muted-foreground shadow-lg shadow-black/5">
-            <Sparkles className="size-3.5 text-primary" />
-            <span>Nexova / Curated digital work</span>
-          </motion.div>
-
           <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }} className="mt-7 text-balance text-[clamp(3rem,7vw,5.8rem)] font-semibold leading-[0.95] tracking-[-0.055em]">
-            Sharp Tools &amp; Templates
-            <span className="home-display mt-3 block text-gradient-brand">Available for Your Hustle</span>
+            <span className="sr-only">Sharp Tools &amp; Templates Available for Your Hustle</span>
+            <span aria-hidden="true">
+              {typedHeadline.slice(0, HERO_HEADLINE_BREAK)}
+              <span className="home-display mt-3 block text-gradient-brand">{typedHeadline.slice(HERO_HEADLINE_BREAK + 1)}</span>
+              <span className="home-headline-cursor" />
+            </span>
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.12 }} className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
