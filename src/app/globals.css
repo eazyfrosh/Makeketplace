@@ -220,20 +220,6 @@
   letter-spacing: -0.06em;
 }
 
-.home-headline-cursor {
-  display: inline-block;
-  width: 0.08em;
-  height: 0.82em;
-  margin-left: 0.08em;
-  vertical-align: -0.08em;
-  background: currentColor;
-  animation: headline-cursor 0.85s steps(1) infinite;
-}
-
-@keyframes headline-cursor {
-  50% { opacity: 0; }
-}
-
 .home-catalog {
   isolation: isolate;
 }
@@ -261,11 +247,5 @@
 
   .home-catalog .glass:hover {
     box-shadow: 0 24px 60px -34px color-mix(in oklab, var(--primary) 50%, transparent);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-headline-cursor {
-    animation: none;
   }
 }

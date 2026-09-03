@@ -85,7 +85,6 @@ export function Hero() {
             <span aria-hidden="true">
               {typedHeadline.slice(0, HERO_HEADLINE_BREAK)}
               <span className="home-display mt-3 block text-gradient-brand">{typedHeadline.slice(HERO_HEADLINE_BREAK + 1)}</span>
-              <span className="home-headline-cursor" />
             </span>
           </motion.h1>
 
