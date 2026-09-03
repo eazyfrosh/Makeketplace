@@ -34,6 +34,10 @@ export function addTrackingEvent(
   return api(`/api/logistics/shipments/${id}/events`, { method: "POST", body: JSON.stringify(event) });
 }
 
+export function getTracknovaSsoUrl(): Promise<{ redirectUrl: string }> {
+  return api("/api/logistics/sso/tracknova");
+}
+
 export function trackPublic(
   trackingNumber: string
 ): Promise<{ shipment: Pick<Shipment, "trackingNumber" | "carrierCode" | "status" | "serviceType" | "estimatedDeliveryDate" | "createdAt"> & { sender: { city: string; country: string }; receiver: { city: string; country: string } }; events: TrackingEvent[] }> {
