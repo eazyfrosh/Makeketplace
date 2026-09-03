@@ -70,8 +70,8 @@ export function Hero() {
           </motion.div>
 
           <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }} className="mt-7 text-balance text-[clamp(3rem,7vw,5.8rem)] font-semibold leading-[0.95] tracking-[-0.055em]">
-            Software that starts ahead.
-            <span className="home-display mt-3 block text-gradient-brand">Made for the next move.</span>
+            Sharp Tools &amp; Templates
+            <span className="home-display mt-3 block text-gradient-brand">Available for Your Hustle</span>
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.12 }} className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
