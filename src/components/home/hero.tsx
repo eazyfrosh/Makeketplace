@@ -75,7 +75,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.12 }} className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-            Skip the blank canvas. Start with production-ready platforms, sharp design, and practical business tools—then bring in a senior team when the brief gets interesting.
+            Generate Custom Transaction Receipts, Websites, Template, Websites Tools And Many More
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.18 }} className="mt-8 flex flex-col gap-3 sm:flex-row">
