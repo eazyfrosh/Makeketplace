@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, BadgeCheck, Box, Check, ChevronLeft, ChevronRight, Clock3, Sparkles, Star } from "lucide-react";
+import { ArrowUpRight, BadgeCheck, Box, Check, ChevronLeft, ChevronRight, Clock3, Sparkles, Star, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -86,6 +86,12 @@ export function Hero() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-8 flex flex-wrap gap-x-5 gap-y-2">
             {TRUST_POINTS.map((point) => <span key={point} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><Check className="size-3.5 text-emerald-400" />{point}</span>)}
           </motion.div>
+
+          <div className="mt-6 inline-flex max-w-full items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-400/10 px-3 py-2 text-xs text-amber-900 dark:text-amber-200/90">
+            <TriangleAlert className="size-3.5 shrink-0 text-amber-600 dark:text-amber-300" />
+            <span>Eazytools is for demo and educational purposes.</span>
+            <Link href="/legal/terms" className="shrink-0 font-semibold text-amber-950 underline decoration-amber-950/40 underline-offset-2 hover:text-black dark:text-amber-100 dark:decoration-amber-100/40 dark:hover:text-white">Read more</Link>
+          </div>
         </div>
 
         <motion.div
