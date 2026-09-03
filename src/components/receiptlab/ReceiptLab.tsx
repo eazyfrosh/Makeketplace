@@ -1,5 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { coinbaseAmountFont } from './receipt-font';
+import { bybitRows, BYBIT_SAMPLE_NOTICE, drawBybitReceipt } from './bybit-template';
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -24,6 +26,8 @@ import {
 } from 'firebase/firestore';
 import {
   Archive,
+  Check,
+  Copy,
   ChevronDown,
   CreditCard,
   Download,
@@ -114,7 +118,7 @@ const templates: Template[] = [
     name: 'Bybit',
     category: 'Crypto',
     accent: '#ff9e2c',
-    description: 'Dark payment success',
+    description: 'Light payment confirmation',
   },
   {
     id: 'dark-blue',
@@ -181,19 +185,20 @@ export default function ReceiptLab() {
     indigoSiriButton: 'Add to Siri',
     indigoDone: 'Done',
     blackHeader: 'Payment',
-    blackStatus: 'Payment Successful',
-    blackAmount: '100 USDT',
-    blackPayTo: 'TrXp...z8w3',
+    blackStatus: 'Success',
+    blackAmount: '10.00 USDT',
+    blackPayTo: '(jdoe7***@protonmail.com)',
+    blackBybitId: '76891234',
     blackMethod: 'Send',
     blackFee: '0.5 USDT',
     blackTransactionFee: '1 USDT',
     blackPayWith: '1,045.45 USDT',
-    blackMemo: 'Service payment for Q4 project',
-    blackTime: '2024-12-31 10:35:44',
+    blackMemo: '--',
+    blackTime: '2025-04-29 11:41:43',
     blackTxid: '0x...8a...5c...2f',
-    blackOrder: 'ORDER_ID_880314',
-    blackShare: 'Share and Earn',
-    blackDone: 'Done',
+    blackOrder: '9102837465',
+    blackShare: 'Download Bybit App',
+    blackDone: 'View details',
     darkBlueAmount: '+200 USDT',
     darkBlueStatus: 'Completed',
     darkBlueMessage:
@@ -531,6 +536,17 @@ export default function ReceiptLab() {
       x.font = '39px Arial';
       x.fillText(form.orbitHandle || '@SampleUser', 40, 1484);
     } else if (template.id === 'blue') {
+      const amountFamily = coinbaseAmountFont.style.fontFamily;
+      try {
+        const loaded = await document.fonts.load(
+          `800 62px ${amountFamily}`,
+          `${form.blueFiat || '$0.00'} ${form.blueCrypto || '0 USDT'}`,
+        );
+        if (!loaded.length) throw new Error('Amount font unavailable');
+      } catch {
+        notify('The amount font could not load. Please retry the download.');
+        return;
+      }
       const img = new Image();
       img.src = '/receiptlab/blue-reference.jpg';
       await new Promise<void>((resolve, reject) => {
@@ -548,10 +564,10 @@ export default function ReceiptLab() {
       x.font = '48px Arial';
       x.fillText(form.blueTitle || 'Successfully sent', 450, 739);
       x.fillStyle = '#466cc6';
-      x.font = 'bold 62px Arial';
+      x.font = `800 62px ${amountFamily}`;
       x.fillText(form.blueFiat || '$0.00', 450, 875);
       x.fillStyle = '#c6c7ca';
-      x.font = 'bold 43px Arial';
+      x.font = `800 43px ${amountFamily}`;
       x.fillText(form.blueCrypto || '0 USDT', 450, 977);
       x.fillStyle = '#b7b8bc';
       x.font = '39px Arial';
@@ -654,55 +670,7 @@ export default function ReceiptLab() {
       x.font = '36px Arial';
       x.fillText(form.indigoDone || 'Done', 450, 1856);
     } else if (template.id === 'black') {
-      const img = new Image();
-      img.src = '/receiptlab/black-reference.jpg';
-      await new Promise<void>((resolve, reject) => {
-        img.onload = () => resolve();
-        img.onerror = () => reject();
-      });
-      x.drawImage(img, 0, 0, 900, 1800);
-      x.textAlign = 'center';
-      x.fillStyle = '#000';
-      x.fillRect(265, 15, 370, 65);
-      x.fillRect(220, 335, 460, 65);
-      x.fillRect(255, 415, 390, 75);
-      x.fillStyle = '#f2f2f2';
-      x.font = 'bold 35px Arial';
-      x.fillText(form.blackHeader || 'Payment', 450, 63);
-      x.fillText(form.blackStatus || 'Payment Successful', 450, 380);
-      x.font = '54px Arial';
-      x.fillText(form.blackAmount || '0 USDT', 450, 474);
-      const blackRows = [
-        form.blackPayTo || 'Sample recipient',
-        form.blackMethod || 'Send',
-        form.blackFee || '0 USDT',
-        form.blackTransactionFee || '0 USDT',
-        form.blackPayWith || '0 USDT',
-        form.blackMemo || 'Sample payment',
-        form.blackTime || 'Demo date',
-        form.blackTxid || '0x...sample',
-        form.blackOrder || 'SAMPLE_ORDER',
-      ];
-      const blackBaselines = [608, 687, 765, 843, 921, 999, 1077, 1155, 1233];
-      x.textAlign = 'right';
-      x.font = '31px Arial';
-      blackRows.forEach((value, index) => {
-        x.fillStyle = '#101010';
-        x.fillRect(325, blackBaselines[index] - 45, 520, 58);
-        x.fillStyle = '#f2f2f2';
-        x.fillText(value, 825, blackBaselines[index]);
-      });
-      x.fillStyle = '#ff9e2c';
-      x.fillRect(335, 1512, 455, 90);
-      x.textAlign = 'center';
-      x.fillStyle = '#151515';
-      x.font = 'bold 37px Arial';
-      x.fillText(form.blackShare || 'Share and Earn', 560, 1572);
-      x.fillStyle = '#000';
-      x.fillRect(255, 1665, 390, 78);
-      x.fillStyle = '#f2f2f2';
-      x.font = 'bold 36px Arial';
-      x.fillText(form.blackDone || 'Done', 450, 1720);
+      drawBybitReceipt(c, form);
     } else if (template.id === 'dark-blue') {
       const img = new Image();
       img.src = '/receiptlab/dark-blue-reference.jpg';
@@ -791,7 +759,7 @@ export default function ReceiptLab() {
       x.textAlign = 'right';
       x.fillText(`$${total}`, 825, 520);
     }
-    if (watermarkEnabled) {
+    if (watermarkEnabled && template.id !== 'black') {
       x.save();
       x.globalAlpha = 1;
       x.fillStyle = '#fff3cd';
@@ -856,7 +824,7 @@ export default function ReceiptLab() {
     ['admin', 'Admin', ShieldCheck],
   ] as const;
   return (
-    <div className={`receiptlab-root ${dark ? 'dark' : ''}`}>
+    <div className={`receiptlab-root ${coinbaseAmountFont.variable} ${dark ? 'dark' : ''}`}>
       <div className="shell">
         <aside className={`sidebar ${mobile ? 'open' : ''}`}>
           <div className="brand">
@@ -1011,7 +979,7 @@ function Auth({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   return (
-    <div className={`receiptlab-root ${dark ? 'dark' : ''}`}>
+    <div className={`receiptlab-root ${coinbaseAmountFont.variable} ${dark ? 'dark' : ''}`}>
       <div className="auth">
         <section className="auth-art">
           <div className="logo">
@@ -1408,8 +1376,8 @@ function Editor({
           <div className="notice">
             <ShieldCheck />
             <span>
-              <b>Safety watermark</b>
-              <p>Keep the sample notice on for safer sharing.</p>
+              <b>{template.id === 'black' ? 'Sample notice is locked' : 'Safety watermark'}</b>
+              <p>{template.id === 'black' ? 'This template always includes a sample notice in previews and exports.' : 'Keep the sample notice on for safer sharing.'}</p>
             </span>
           </div>
           <label className="watermark-toggle">
@@ -1420,7 +1388,8 @@ function Editor({
             <input
               type="checkbox"
               role="switch"
-              checked={watermarkEnabled}
+              checked={template.id === 'black' || watermarkEnabled}
+              disabled={template.id === 'black'}
               onChange={(e) => setWatermarkEnabled(e.target.checked)}
               aria-label="Show watermark"
             />
@@ -1520,29 +1489,16 @@ function Editor({
             </>
           ) : template.id === 'black' ? (
             <>
-              <div className="row">
-                {field('blackHeader', 'Header')}
-                {field('blackStatus', 'Status heading')}
-              </div>
+              {field('blackStatus', 'Status heading')}
               {field('blackAmount', 'Amount')}
+              {field('blackPayTo', 'Receiver')}
+              {field('blackBybitId', 'Bybit ID')}
+              {field('blackMemo', 'Note')}
+              {field('blackTime', 'Payment date')}
+              {field('blackOrder', 'Order ID')}
               <div className="row">
-                {field('blackPayTo', 'Pay to')}
-                {field('blackMethod', 'Payment method')}
-              </div>
-              <div className="row">
-                {field('blackFee', 'Fee')}
-                {field('blackTransactionFee', 'Transaction fee')}
-              </div>
-              {field('blackPayWith', 'Pay with')}
-              {field('blackMemo', 'Memo')}
-              {field('blackTime', 'Payment time')}
-              <div className="row">
-                {field('blackTxid', 'TXID')}
-                {field('blackOrder', 'Order ID')}
-              </div>
-              <div className="row">
-                {field('blackShare', 'Share button')}
-                {field('blackDone', 'Done button')}
+                {field('blackShare', 'App button label')}
+                {field('blackDone', 'Details button label')}
               </div>
             </>
           ) : template.id === 'dark-blue' ? (
@@ -1590,7 +1546,7 @@ function Editor({
           </div>
           <div
             ref={receiptRef}
-            className={`receipt ${template.id} ${watermarkEnabled ? 'with-safety-footer' : ''}`}
+            className={`receipt ${template.id} ${template.id === 'black' ? 'bybit-light' : watermarkEnabled ? 'with-safety-footer' : ''}`}
             style={{ '--accent': template.accent } as React.CSSProperties}
           >
             {template.id === 'studio' ? (
@@ -1786,46 +1742,24 @@ function Editor({
               </>
             ) : template.id === 'black' ? (
               <>
-                <img
-                  className="black-reference"
-                  src="/receiptlab/black-reference.jpg"
-                  alt="Bybit payment reference"
-                />
-                <span className="black-copy black-header">
-                  {form.blackHeader || 'Payment'}
-                </span>
-                <span className="black-copy black-status">
-                  {form.blackStatus || 'Payment Successful'}
-                </span>
-                <span className="black-copy black-amount">
-                  {form.blackAmount || '0 USDT'}
-                </span>
-                {[
-                  ['black-pay-to', form.blackPayTo || 'Sample recipient'],
-                  ['black-method', form.blackMethod || 'Send'],
-                  ['black-fee', form.blackFee || '0 USDT'],
-                  ['black-transaction-fee', form.blackTransactionFee || '0 USDT'],
-                  ['black-pay-with', form.blackPayWith || '0 USDT'],
-                  ['black-memo', form.blackMemo || 'Sample payment'],
-                  ['black-time', form.blackTime || 'Demo date'],
-                  ['black-txid', form.blackTxid || '0x...sample'],
-                  ['black-order', form.blackOrder || 'SAMPLE_ORDER'],
-                ].map(([className, value]) => (
-                  <span className={`black-copy black-value ${className}`} key={className}>
-                    {value}
-                  </span>
-                ))}
-                <span className="black-copy black-share">
-                  {form.blackShare || 'Share and Earn'}
-                </span>
-                <span className="black-copy black-done">
-                  {form.blackDone || 'Done'}
-                </span>
-                {watermarkEnabled && (
-                  <div className="watermark safety-footer">
-                    DEMO • NOT A REAL TRANSACTION
+                <div className="bybit-content">
+                  <div className="bybit-check" aria-hidden="true"><Check /></div>
+                  <div className="bybit-status">{form.blackStatus || 'Success'}</div>
+                  <div className="bybit-amount">{form.blackAmount || '0.00 USDT'}</div>
+                  <dl className="bybit-details">
+                    {bybitRows(form).map(({ label, value }) => (
+                      <div className="bybit-row" key={label}>
+                        <dt>{label}</dt>
+                        <dd><span>{value}</span>{label === 'Order ID' && <Copy aria-hidden="true" />}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="bybit-actions" aria-label="Illustrative receipt actions">
+                    <span><Download aria-hidden="true" />{form.blackShare || 'Download Bybit App'}</span>
+                    <span>{form.blackDone || 'View details'}</span>
                   </div>
-                )}
+                </div>
+                <div className="bybit-sample-notice">{BYBIT_SAMPLE_NOTICE}</div>
               </>
             ) : template.id === 'dark-blue' ? (
               <>

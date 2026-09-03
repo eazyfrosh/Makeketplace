@@ -1732,6 +1732,7 @@
   height: 7.2%;
   color: #466cc6;
   font-size: clamp(23px, 7.2cqw, 39px);
+  font-family: var(--font-coinbase-amount), sans-serif;
   font-weight: 800;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1743,7 +1744,8 @@
   height: 6.3%;
   color: #c6c7ca;
   font-size: clamp(16px, 5cqw, 27px);
-  font-weight: 750;
+  font-family: var(--font-coinbase-amount), sans-serif;
+  font-weight: 800;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -2068,6 +2070,107 @@
   opacity: 0.84;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
   transform: translate(-50%, -50%) rotate(-18deg);
+}
+.receiptlab-root .receipt.black.bybit-light {
+  aspect-ratio: auto;
+  min-height: 0;
+  padding: 0;
+  background: #fff;
+  color: #18181b;
+  color-scheme: light;
+}
+.receiptlab-root .bybit-content {
+  padding: 9cqw 10cqw 5cqw;
+  text-align: center;
+}
+.receiptlab-root .bybit-check {
+  width: 12cqw;
+  height: 12cqw;
+  border: 1cqw solid #c8e5d4;
+  border-radius: 50%;
+  background: #e3f3e9;
+  color: #31a578;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+}
+.receiptlab-root .bybit-check svg { width: 7cqw; height: 7cqw; stroke-width: 3.5; }
+.receiptlab-root .bybit-status {
+  margin-top: 3.8cqw;
+  font-size: 3.8cqw;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.receiptlab-root .bybit-amount {
+  margin-top: 2cqw;
+  font-size: 5.8cqw;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.receiptlab-root .bybit-details {
+  margin: 6cqw 0 0;
+  padding: 1.8cqw 2.8cqw;
+  border-radius: 1.9cqw;
+  background: #f5f5f9;
+  text-align: left;
+}
+.receiptlab-root .bybit-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.34fr) minmax(0, 0.66fr);
+  align-items: center;
+  gap: 2cqw;
+  min-height: 8.33cqw;
+  padding-block: 1cqw;
+  font-size: 2.78cqw;
+  line-height: 1.24;
+}
+.receiptlab-root .bybit-row:nth-child(-n + 2) { min-height: 5.56cqw; }
+.receiptlab-root .bybit-row dt { color: #77777d; }
+.receiptlab-root .bybit-row dd {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1cqw;
+  margin: 0;
+  min-width: 0;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.receiptlab-root .bybit-row dd > span { min-width: 0; }
+.receiptlab-root .bybit-row dd > svg { width: 2.6cqw; height: 2.6cqw; flex-shrink: 0; }
+.receiptlab-root .bybit-actions {
+  display: grid;
+  grid-template-columns: 1.16fr 1fr;
+  gap: 4.2cqw;
+  margin-top: 7.3cqw;
+  font-size: 3cqw;
+  font-weight: 600;
+}
+.receiptlab-root .bybit-actions > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1cqw;
+  padding: 1.5cqw;
+  min-height: 8.44cqw;
+  border: 1px solid #d6d6da;
+  border-radius: 1.45cqw;
+  overflow-wrap: anywhere;
+}
+.receiptlab-root .bybit-actions svg { width: 2.8cqw; height: 2.8cqw; flex-shrink: 0; }
+.receiptlab-root .bybit-actions > span:first-child { background: #f4ad00; }
+.receiptlab-root .bybit-sample-notice {
+  padding: 12px 6px;
+  background: #fff3cd;
+  color: #9f1239;
+  text-align: center;
+  font-size: max(9px, 2.22cqw);
+  font-weight: 800;
+  line-height: 1.4;
 }
 .receiptlab-root .mini-dark-blue {
   background: #222431;
