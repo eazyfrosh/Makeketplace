@@ -89,7 +89,7 @@ export default async function ServiceDetailPage({
                 <div className="text-sm text-muted-foreground">
                   Price{" "}
                   <span className="font-semibold text-foreground">
-                    {formatPrice(service.startingPriceCents)}
+                    {formatPrice(service.startingPriceCents)}{service.priceUnit && <span className="ml-1 text-xs font-normal text-muted-foreground">{service.priceUnit}</span>}
                   </span>
                 </div>
               </div>

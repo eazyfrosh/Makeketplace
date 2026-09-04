@@ -63,8 +63,9 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
         <div className="mt-auto flex items-center justify-between gap-3 pt-2">
           <div>
             <div className="text-xs text-muted-foreground">Price</div>
-            <div className="text-lg font-semibold">
-              {formatPrice(service.startingPriceCents)}
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-lg font-semibold">{formatPrice(service.startingPriceCents)}</span>
+              {service.priceUnit && <span className="text-xs text-muted-foreground">{service.priceUnit}</span>}
             </div>
           </div>
           <div className="flex gap-2">

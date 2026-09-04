@@ -29,6 +29,7 @@ export interface Service {
   features: string[];
   benefits: string[];
   startingPriceCents: number;
+  priceUnit?: string;
   rating: number;
   reviewCount: number;
   faq: FaqItem[];
