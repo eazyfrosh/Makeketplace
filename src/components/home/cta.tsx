@@ -29,9 +29,9 @@ const FEATURES = [
 export function CTA() {
   return (
     <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
-      <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-gradient-brand px-7 py-12 shadow-[0_35px_100px_-45px_rgba(99,102,241,0.9)] sm:px-12 sm:py-16 lg:px-16 lg:py-20">
+      <div className="home-cta-surface relative overflow-hidden rounded-[2rem] border border-white/15 px-7 py-12 shadow-[0_35px_100px_-45px_rgba(9,20,38,0.9)] sm:px-12 sm:py-16 lg:px-16 lg:py-20">
         <div className="absolute inset-0 opacity-15 [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:32px_32px]" />
-        <div className="absolute -right-24 -top-28 size-80 rounded-full bg-cyan-300/20 blur-3xl" />
+        <div className="absolute -right-24 -top-28 size-80 rounded-full bg-cyan-300/15 blur-3xl" />
 
         <div className="relative grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-20">
           <div>

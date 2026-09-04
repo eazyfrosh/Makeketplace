@@ -224,6 +224,22 @@
   isolation: isolate;
 }
 
+.home-cta-surface {
+  background:
+    radial-gradient(circle at 86% 12%, rgba(34, 211, 238, 0.18), transparent 28%),
+    radial-gradient(circle at 8% 92%, rgba(245, 158, 11, 0.13), transparent 30%),
+    linear-gradient(135deg, #07111f 0%, #0b1d31 48%, #0d1728 100%);
+}
+
+.home-cta-surface::after {
+  position: absolute;
+  inset: 1px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
 .home-catalog::before {
   position: absolute;
   inset: 2rem 1rem auto;
