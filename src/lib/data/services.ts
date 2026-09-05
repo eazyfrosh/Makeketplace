@@ -319,6 +319,7 @@ export const services: Service[] = [
       "From spec to production, fully managed",
     ],
     startingPriceCents: 1299900,
+    comingSoon: true,
     rating: 5.0,
     reviewCount: 61,
     faq: standardFaq("Custom Software Development"),
