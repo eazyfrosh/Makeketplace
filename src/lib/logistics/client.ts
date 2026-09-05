@@ -27,6 +27,10 @@ export function getShipment(id: string): Promise<{ shipment: Shipment; events: T
   return api(`/api/logistics/shipments/${id}`);
 }
 
+export function updateShipment(id: string, values: ShipmentFormValues): Promise<{ shipment: Shipment }> {
+  return api(`/api/logistics/shipments/${id}`, { method: "PATCH", body: JSON.stringify(values) });
+}
+
 export function addTrackingEvent(
   id: string,
   event: { status: string; location: string; description: string; notes?: string }

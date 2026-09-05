@@ -12,12 +12,19 @@ import { Button } from "@/components/logistics/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/logistics/ui/card";
 import { FieldError, Input, Label, Select, Textarea } from "@/components/logistics/ui/input";
 import { ALL_CARRIERS } from "@/lib/logistics/data/carriers";
-import { createShipment } from "@/lib/logistics/client";
+import { createShipment, updateShipment } from "@/lib/logistics/client";
 import { shipmentSchema, type ShipmentFormInput, type ShipmentFormValues } from "@/lib/logistics/validation";
 import { PACKAGE_TYPES, SERVICE_TYPES, SERVICE_LABELS } from "@/lib/logistics/types";
 
-export function ShipmentForm() {
+interface ShipmentFormProps {
+  /** Editing an existing shipment instead of creating a new one. */
+  shipmentId?: string;
+  defaultValues?: Partial<ShipmentFormInput>;
+}
+
+export function ShipmentForm({ shipmentId, defaultValues }: ShipmentFormProps) {
   const router = useRouter();
+  const isEdit = Boolean(shipmentId);
   const [submitting, setSubmitting] = useState(false);
 
   const {
@@ -33,6 +40,7 @@ export function ShipmentForm() {
       packageType: "box",
       insured: false,
       shippingCost: 0,
+      ...defaultValues,
     },
   });
 
@@ -42,9 +50,15 @@ export function ShipmentForm() {
   async function onSubmit(values: ShipmentFormValues) {
     setSubmitting(true);
     try {
-      const { shipment } = await createShipment(values);
-      toast.success(`Shipment ${shipment.trackingNumber} created`);
-      router.push(`/platform/logistics-platform/shipments/${shipment.id}`);
+      if (isEdit && shipmentId) {
+        await updateShipment(shipmentId, values);
+        toast.success("Shipment updated");
+        router.push(`/platform/logistics-platform/shipments/${shipmentId}`);
+      } else {
+        const { shipment } = await createShipment(values);
+        toast.success(`Shipment ${shipment.trackingNumber} created`);
+        router.push(`/platform/logistics-platform/shipments/${shipment.id}`);
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save shipment");
     } finally {
@@ -59,8 +73,12 @@ export function ShipmentForm() {
           <PackagePlus size={20} />
         </span>
         <div>
-          <h1 className="text-2xl font-bold">Create a shipment</h1>
-          <p className="text-sm text-foreground/55">A tracking number will be generated automatically.</p>
+          <h1 className="text-2xl font-bold">{isEdit ? "Edit shipment" : "Create a shipment"}</h1>
+          <p className="text-sm text-foreground/55">
+            {isEdit
+              ? "Tracking number and status stay the same — update the shipment's own details below."
+              : "A tracking number will be generated automatically."}
+          </p>
         </div>
       </div>
 
@@ -197,7 +215,7 @@ export function ShipmentForm() {
             Cancel
           </Button>
           <Button type="submit" size="lg" disabled={submitting}>
-            {submitting ? "Saving…" : "Create shipment"}
+            {submitting ? "Saving…" : isEdit ? "Save changes" : "Create shipment"}
           </Button>
         </div>
       </form>

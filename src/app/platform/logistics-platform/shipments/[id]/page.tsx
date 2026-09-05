@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { ArrowLeft, MessageCircle, PlusCircle, Send } from "lucide-react";
+import { ArrowLeft, MessageCircle, Pencil, PlusCircle, Send } from "lucide-react";
 import { getShipment, addTrackingEvent, getShipmentMessages, sendShipmentMessage } from "@/lib/logistics/client";
 import { cn } from "@/lib/utils";
 import { CarrierThemeScope } from "@/components/logistics/carrier-theme-scope";
@@ -192,7 +192,15 @@ export default function ShipmentDetailPage() {
             <p className="text-sm text-foreground/55">{carrier.name} · {SERVICE_LABELS[shipment.serviceType]}</p>
           </div>
         </div>
-        <StatusBadge status={shipment.status} carrierAware />
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/platform/logistics-platform/shipments/${shipment.id}/edit`}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground/60 hover:text-foreground"
+          >
+            <Pencil size={14} /> Edit shipment
+          </Link>
+          <StatusBadge status={shipment.status} carrierAware />
+        </div>
       </div>
 
       <Card className="mb-6">
