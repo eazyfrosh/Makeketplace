@@ -30,6 +30,7 @@ export interface Service {
   benefits: string[];
   startingPriceCents: number;
   priceUnit?: string;
+  comingSoon?: boolean;
   rating: number;
   reviewCount: number;
   faq: FaqItem[];

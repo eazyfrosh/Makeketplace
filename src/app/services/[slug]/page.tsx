@@ -6,6 +6,7 @@ import { Check, ChevronRight, Star } from "lucide-react";
 import { services, getServiceBySlug } from "@/lib/data/services";
 import { cn, formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Accordion,
@@ -71,7 +72,10 @@ export default async function ServiceDetailPage({
 
           <div className="mt-8 grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
-              <Badge variant="soft">{service.category}</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="soft">{service.category}</Badge>
+                {service.comingSoon && <Badge className="border-amber-300/30 bg-amber-300/15 text-amber-700 dark:text-amber-200">Coming soon</Badge>}
+              </div>
               <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
                 {service.name}
               </h1>
@@ -95,12 +99,16 @@ export default async function ServiceDetailPage({
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <BuyNowButton
-                  serviceSlug={service.slug}
-                  serviceName={service.name}
-                  priceCents={service.startingPriceCents}
-                  size="lg"
-                />
+                {service.comingSoon ? (
+                  <Button size="lg" disabled>Coming soon</Button>
+                ) : (
+                  <BuyNowButton
+                    serviceSlug={service.slug}
+                    serviceName={service.name}
+                    priceCents={service.startingPriceCents}
+                    size="lg"
+                  />
+                )}
                 <WishlistButton slug={service.slug} />
               </div>
             </div>

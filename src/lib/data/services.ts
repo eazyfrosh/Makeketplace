@@ -174,6 +174,7 @@ export const services: Service[] = [
       "Built on modern, maintainable code",
     ],
     startingPriceCents: 149900,
+    comingSoon: true,
     rating: 4.9,
     reviewCount: 213,
     faq: standardFaq("Website Design"),
@@ -235,6 +236,7 @@ export const services: Service[] = [
       "No design software or skills required on your end",
     ],
     startingPriceCents: 89900,
+    comingSoon: true,
     rating: 4.9,
     reviewCount: 301,
     faq: [
@@ -286,6 +288,7 @@ export const services: Service[] = [
       "Great starting point for custom builds",
     ],
     startingPriceCents: 4900,
+    comingSoon: true,
     rating: 4.8,
     reviewCount: 542,
     faq: standardFaq("Premium Templates"),

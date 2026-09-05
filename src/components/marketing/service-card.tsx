@@ -26,6 +26,7 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
     >
       <Link href={`/services/${service.slug}`} className="relative block">
         <ServiceVisual variant={service.heroImage} className="aspect-[16/10] rounded-none border-0 border-b border-white/10" label={`nexova.io/${service.slug}`} />
+        {service.comingSoon && <span className="absolute left-3 top-3 rounded-full border border-amber-300/30 bg-amber-300/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-950 shadow-lg">Coming soon</span>}
       </Link>
 
       <button
@@ -72,12 +73,16 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
             <Button variant="secondary" size="sm" asChild>
               <Link href={`/services/${service.slug}`}>Learn more</Link>
             </Button>
-            <BuyNowButton
-              serviceSlug={service.slug}
-              serviceName={service.name}
-              priceCents={service.startingPriceCents}
-              size="sm"
-            />
+            {service.comingSoon ? (
+              <Button size="sm" disabled>Coming soon</Button>
+            ) : (
+              <BuyNowButton
+                serviceSlug={service.slug}
+                serviceName={service.name}
+                priceCents={service.startingPriceCents}
+                size="sm"
+              />
+            )}
           </div>
         </div>
       </div>
