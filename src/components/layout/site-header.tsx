@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Heart, Menu, Search, ShoppingCart, X } from "lucide-react";
@@ -56,10 +57,7 @@ export function SiteHeader() {
       <div className="glass border-b border-white/10">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-brand text-sm font-bold text-white">
-              E
-            </span>
-            <span className="text-lg font-semibold tracking-tight">EazyTool</span>
+            <Image src="/eazytools-logo.png" alt="EazyTools" width={1134} height={737} priority className="h-10 w-auto max-w-[132px] object-contain" />
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">
