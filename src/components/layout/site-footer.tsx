@@ -55,7 +55,8 @@ export function SiteFooter() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
           <div>
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/eazytools-logo.png" alt="EazyTools" width={1134} height={737} className="h-14 w-auto max-w-[184px] object-contain" />
+              <Image src="/eazytools-logo-light.png" alt="EazyTools" width={1134} height={737} className="h-14 w-auto max-w-[184px] object-contain dark:hidden" />
+              <Image src="/eazytools-logo-dark.png" alt="EazyTools" width={1134} height={737} className="hidden h-14 w-auto max-w-[184px] object-contain dark:block" />
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               Practical digital tools and services for professionals who value speed,
