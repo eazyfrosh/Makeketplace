@@ -25,7 +25,7 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
       className="glass group relative flex h-full flex-col overflow-hidden rounded-2xl transition-transform duration-300 hover:-translate-y-1"
     >
       <Link href={`/services/${service.slug}`} className="relative block">
-        <ServiceVisual variant={service.heroImage} className="aspect-[16/10] rounded-none border-0 border-b border-white/10" label={`nexova.io/${service.slug}`} />
+        <ServiceVisual variant={service.heroImage} className="aspect-[16/10] rounded-none border-0 border-b border-white/10" label={`eazytool / ${service.slug}`} />
         {service.comingSoon && <span className="absolute left-3 top-3 rounded-full border border-amber-300/30 bg-amber-300/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-950 shadow-lg">Coming soon</span>}
       </Link>
 

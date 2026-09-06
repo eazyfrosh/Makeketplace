@@ -57,9 +57,9 @@ export function SiteHeader() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-brand text-sm font-bold text-white">
-              N
+              E
             </span>
-            <span className="text-lg font-semibold tracking-tight">Nexova</span>
+            <span className="text-lg font-semibold tracking-tight">EazyTool</span>
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">

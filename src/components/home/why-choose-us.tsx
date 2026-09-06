@@ -42,7 +42,7 @@ export function WhyChooseUs() {
       <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(to_right,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_1px)] [background-size:56px_56px]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative mx-auto max-w-3xl text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">The Nexova standard</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">The EazyTool standard</span>
           <h2 className="mt-3 text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
             No theatre. Just good work.<br className="hidden sm:block" /> The speed of a marketplace, the care of a product studio.
           </h2>

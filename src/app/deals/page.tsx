@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 
 export const metadata = {
   title: "Deals",
-  description: "Active coupon codes and top-rated services on Nexova.",
+  description: "Active coupon codes and top-rated services on EazyTool.",
 };
 
 export default function DealsPage() {

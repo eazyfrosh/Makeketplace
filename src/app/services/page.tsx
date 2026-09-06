@@ -5,7 +5,7 @@ import { ServicesClient } from "./services-client";
 
 export const metadata: Metadata = {
   title: "Services",
-  description: "Browse every premium digital product and service Nexova offers.",
+  description: "Browse EazyTool's digital products and professional services.",
 };
 
 export default function ServicesPage() {

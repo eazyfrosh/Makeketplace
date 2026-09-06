@@ -55,13 +55,13 @@ export function SiteFooter() {
           <div>
             <Link href="/" className="flex items-center gap-2">
               <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-brand text-sm font-bold text-white">
-                N
+                E
               </span>
-              <span className="text-lg font-semibold tracking-tight">Nexova</span>
+              <span className="text-lg font-semibold tracking-tight">EazyTool</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-              The central hub for premium digital products and services — platforms,
-              design, business tools, and custom engineering, built to launch.
+              Practical digital tools and services for professionals who value speed,
+              accuracy, and control.
             </p>
             <div className="mt-6 flex items-center gap-3">
               {[AtSign, Link2, MessageCircle].map((Icon, i) => (
@@ -136,7 +136,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} Nexova. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} EazyTool. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/legal/terms" className="hover:text-foreground">
               Terms

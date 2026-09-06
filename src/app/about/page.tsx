@@ -25,14 +25,13 @@ export default function AboutPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
       <div className="text-center">
-        <span className="text-sm font-medium text-primary">About Nexova</span>
+        <span className="text-sm font-medium text-primary">About EazyTool</span>
         <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
           The studio behind your next launch
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-          Nexova is a marketplace of premium digital products and services — built by a
-          product studio that has shipped banking platforms, travel systems, and
-          AI-driven tools for startups and enterprises alike.
+          EazyTool is a practical digital tools platform for professionals who need fast,
+          dependable ways to create, test, and move their work forward.
         </p>
       </div>
 

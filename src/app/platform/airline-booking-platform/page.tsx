@@ -10,7 +10,7 @@ export default function AirlineBookingPlatformHome() {
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/60">SkyBook</p>
         <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Book flights worldwide</h1>
         <p className="mx-auto mt-3 max-w-xl text-white/70">
-          Search, compare, and book flights across 100+ airlines — all without leaving Nexova.
+          Search, compare, and book flights across 100+ airlines — all without leaving EazyTool.
         </p>
         <div className="mt-4 flex justify-center">
           <Link

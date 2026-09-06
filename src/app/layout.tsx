@@ -22,11 +22,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Nexova — Premium Digital Products & Services",
-    template: "%s · Nexova",
+    default: "EazyTool — Practical Digital Tools for Professionals",
+    template: "%s · EazyTool",
   },
   description:
-    "Nexova is the central hub for premium digital products and services — banking platforms, airline booking systems, logistics software, websites, business tools, and custom development, built to launch.",
+    "EazyTool gives professionals fast, dependable digital tools for receipts, platforms, websites, templates, and everyday business work.",
   keywords: [
     "digital services marketplace",
     "custom software development",
@@ -35,9 +35,9 @@ export const metadata: Metadata = {
     "receipt generator",
   ],
   openGraph: {
-    title: "Nexova — Premium Digital Products & Services",
+    title: "EazyTool — Practical Digital Tools for Professionals",
     description:
-      "The central hub for premium digital products and services — built to launch.",
+      "Fast, dependable digital tools for receipts, platforms, websites, and professional workflows.",
     type: "website",
   },
 };

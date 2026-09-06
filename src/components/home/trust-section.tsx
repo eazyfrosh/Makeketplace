@@ -25,7 +25,7 @@ export function TrustSection() {
               More than 300 people worldwide trust us.
             </h2>
             <p className="mt-5 max-w-lg text-base leading-7 text-muted-foreground">
-              For professionals who require quick, dependable, and covert tools and receipt generation services, EazyTool is the platform of choice.
+              For professionals who need quick, dependable, and discreet tools and receipt-generation services, EazyTool is built to keep work moving.
             </p>
           </div>
 

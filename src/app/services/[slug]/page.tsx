@@ -116,7 +116,7 @@ export default async function ServiceDetailPage({
             <ServiceVisual
               variant={service.heroImage}
               className="aspect-[4/3]"
-              label={`nexova.io/${service.slug}`}
+              label={`eazytool / ${service.slug}`}
             />
           </div>
         </div>

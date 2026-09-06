@@ -50,7 +50,7 @@ export function Hero() {
     if (typedHeadline.length >= HERO_HEADLINE.length) return;
     const timeout = window.setTimeout(
       () => setTypedHeadline(HERO_HEADLINE.slice(0, typedHeadline.length + 1)),
-      48,
+      32,
     );
     return () => window.clearTimeout(timeout);
   }, [reduceMotion, typedHeadline]);
@@ -89,7 +89,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.12 }} className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-            Generate Custom Transaction Receipts, Websites, Template, Websites Tools And Many More
+            Generate custom transaction receipts, websites, templates, website tools, and more.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.18 }} className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -103,7 +103,7 @@ export function Hero() {
 
           <div className="mt-6 inline-flex max-w-full items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-400/10 px-3 py-2 text-xs text-amber-900 dark:text-amber-200/90">
             <TriangleAlert className="size-3.5 shrink-0 text-amber-600 dark:text-amber-300" />
-            <span>Eazytools is for demo and educational purposes.</span>
+            <span>EazyTool is for demo and educational purposes.</span>
             <Link href="/legal/terms" className="shrink-0 font-semibold text-amber-950 underline decoration-amber-950/40 underline-offset-2 hover:text-black dark:text-amber-100 dark:decoration-amber-100/40 dark:hover:text-white">Read more</Link>
           </div>
         </div>
@@ -118,7 +118,7 @@ export function Hero() {
           onFocusCapture={() => setPaused(true)}
           onBlurCapture={() => setPaused(false)}
           aria-roledescription="carousel"
-          aria-label="Nexova product capabilities"
+          aria-label="EazyTool product capabilities"
         >
           <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-brand opacity-10 blur-3xl" />
           <div className="glass relative overflow-hidden rounded-[1.75rem] p-2 shadow-[0_30px_100px_-30px_rgba(45,25,90,0.6)] sm:p-3">
