@@ -5,7 +5,7 @@ import { services } from "@/lib/data/services";
 import { ServiceCard } from "@/components/marketing/service-card";
 
 export function FeaturedServices() {
-  const featured = services.filter((service) => !service.comingSoon).slice(0, 4);
+  const featured = services.slice(0, 6);
 
   return (
     <section className="home-catalog relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
@@ -29,19 +29,7 @@ export function FeaturedServices() {
         </Link>
       </div>
 
-      <div className="mt-10 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {featured.map((service) => (
-          <Link
-            key={`quick-${service.slug}`}
-            href={`/services/${service.slug}`}
-            className="group flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border/70 bg-background/55 px-4 py-3 text-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/[0.06]"
-          >
-            <span className="min-w-0 break-words font-medium">{service.name}</span>
-            <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
-          </Link>
-        ))}
-      </div>
-      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {featured.map((service, i) => (
           <ServiceCard key={service.slug} service={service} index={i} />
         ))}

@@ -50,11 +50,12 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
               {service.rating}
             </div>
           </div>
-          <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{service.tagline}</p>
+          <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{service.tagline}</p>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground/80">{service.description}</p>
         </div>
 
         <div className="flex flex-wrap gap-1.5">
-          {service.features.slice(0, 3).map((f) => (
+          {service.features.map((f) => (
             <Badge key={f} variant="soft" className="font-normal">
               {f}
             </Badge>
