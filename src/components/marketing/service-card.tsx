@@ -37,11 +37,11 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
         <Heart className={cn("size-4", wishlisted && "fill-rose-500 text-rose-500")} />
       </button>
 
-      <div className="flex flex-1 flex-col gap-4 p-6">
+      <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:p-6">
         <div>
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-start justify-between gap-2">
             <Link href={`/services/${service.slug}`}>
-              <h3 className="font-semibold leading-tight transition-colors group-hover:text-gradient-brand">
+              <h3 className="break-words font-semibold leading-tight transition-colors group-hover:text-gradient-brand">
                 {service.name}
               </h3>
             </Link>
@@ -61,26 +61,27 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
           ))}
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+        <div className="mt-auto flex flex-col gap-4 border-t border-border/60 pt-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="text-xs text-muted-foreground">Price</div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-lg font-semibold">{formatPrice(service.startingPriceCents)}</span>
+            <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+              <span className="text-lg font-semibold leading-tight">{formatPrice(service.startingPriceCents)}</span>
               {service.priceUnit && <span className="text-xs text-muted-foreground">{service.priceUnit}</span>}
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" asChild>
+          <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:min-w-[190px]">
+            <Button variant="secondary" size="sm" className="w-full px-2" asChild>
               <Link href={`/services/${service.slug}`}>Learn more</Link>
             </Button>
             {service.comingSoon ? (
-              <Button size="sm" disabled>Coming soon</Button>
+              <Button size="sm" className="w-full px-2" disabled>Coming soon</Button>
             ) : (
               <BuyNowButton
                 serviceSlug={service.slug}
                 serviceName={service.name}
                 priceCents={service.startingPriceCents}
                 size="sm"
+                className="w-full px-2"
               />
             )}
           </div>
