@@ -53,6 +53,7 @@ export default async function ServiceDetailPage({
   if (!service) notFound();
 
   const related = services.filter((s) => s.slug !== service.slug && s.category === service.category).slice(0, 3);
+  const isSupportTemplates = service.slug === "support-website-templates";
 
   return (
     <div>
@@ -99,7 +100,11 @@ export default async function ServiceDetailPage({
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                {service.comingSoon ? (
+                {isSupportTemplates ? (
+                  <Button size="lg" asChild>
+                    <Link href="/support-templates">Browse Templates</Link>
+                  </Button>
+                ) : service.comingSoon ? (
                   <Button size="lg" disabled>Coming soon</Button>
                 ) : (
                   <BuyNowButton

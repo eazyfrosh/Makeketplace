@@ -15,6 +15,8 @@ import { useWishlistStore } from "@/lib/store/wishlist-store";
 export function ServiceCard({ service, index = 0 }: { service: Service; index?: number }) {
   const wishlisted = useWishlistStore((s) => s.has(service.slug));
   const toggle = useWishlistStore((s) => s.toggle);
+  const isSupportTemplates = service.slug === "support-website-templates";
+  const primaryHref = isSupportTemplates ? "/support-templates" : `/services/${service.slug}`;
 
   return (
     <motion.div
@@ -24,7 +26,7 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
       transition={{ duration: 0.5, delay: (index % 6) * 0.06 }}
       className="glass group relative flex h-full flex-col overflow-hidden rounded-2xl transition-transform duration-300 hover:-translate-y-1"
     >
-      <Link href={`/services/${service.slug}`} className="relative block">
+      <Link href={primaryHref} className="relative block">
         <ServiceVisual variant={service.heroImage} className="aspect-[16/10] rounded-none border-0 border-b border-white/10" label={`eazytool / ${service.slug}`} />
         {service.comingSoon && <span className="absolute left-3 top-3 rounded-full border border-amber-300/30 bg-amber-300/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-950 shadow-lg">Coming soon</span>}
       </Link>
@@ -40,7 +42,7 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
       <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:p-6">
         <div>
           <div className="flex min-w-0 items-start justify-between gap-2">
-            <Link href={`/services/${service.slug}`}>
+            <Link href={primaryHref}>
               <h3 className="break-words font-semibold leading-tight transition-colors group-hover:text-gradient-brand">
                 {service.name}
               </h3>
@@ -72,9 +74,13 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
           </div>
           <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:min-w-[190px]">
             <Button variant="secondary" size="sm" className="w-full px-2" asChild>
-              <Link href={`/services/${service.slug}`}>Learn more</Link>
+              <Link href={primaryHref}>{isSupportTemplates ? "Preview gallery" : "Learn more"}</Link>
             </Button>
-            {service.comingSoon ? (
+            {isSupportTemplates ? (
+              <Button size="sm" className="w-full px-2" asChild>
+                <Link href="/support-templates">Browse Templates</Link>
+              </Button>
+            ) : service.comingSoon ? (
               <Button size="sm" className="w-full px-2" disabled>Coming soon</Button>
             ) : (
               <BuyNowButton
