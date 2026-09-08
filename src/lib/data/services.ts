@@ -325,6 +325,23 @@ export const services: Service[] = [
     faq: standardFaq("Custom Software Development"),
     reviews: standardReviews,
   },
+  {
+    slug: "support-website-templates",
+    accessUrl: "/support-templates",
+    name: "Support Website Templates",
+    category: "templates",
+    tagline: "Create a polished help center for your business in minutes.",
+    description: "Choose an original support portal, customize its branding and knowledge base, then publish a customer-ready help center without touching code.",
+    heroImage: "support-studio",
+    screenshots: ["support-search", "support-knowledge", "support-editor"],
+    features: ["Eight original responsive designs", "Live visual editor", "Knowledge base and FAQ tools", "Instant support search", "Contact and ticket options", "Hosted publishing URL"],
+    benefits: ["Launch a professional help center quickly", "Keep every page on-brand", "Give customers answers around the clock", "No sensitive credentials are ever collected"],
+    startingPriceCents: 0,
+    rating: 4.9,
+    reviewCount: 28,
+    faq: standardFaq("Support Website Template"),
+    reviews: standardReviews,
+  },
 ];
 
 export function getServiceBySlug(slug: string) {

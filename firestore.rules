@@ -104,5 +104,24 @@ service cloud.firestore {
       allow create: if isOwner(request.resource.data.userId);
       allow update, delete: if isOwner(resource.data.userId) || isAdmin();
     }
+
+    match /supportSites/{siteId} {
+      allow read: if resource.data.status == "published" || isOwner(resource.data.userId) || isAdmin();
+      allow create: if isOwner(request.resource.data.userId);
+      allow update, delete: if isOwner(resource.data.userId) && request.resource.data.userId == resource.data.userId || isAdmin();
+    }
+
+    match /supportSiteTickets/{ticketId} {
+      allow read, update, delete: if isOwner(resource.data.ownerId) || isAdmin();
+      allow create: if request.resource.data.keys().hasOnly(['id','siteId','ownerId','name','email','subject','category','message','status','createdAt'])
+        && exists(/databases/$(database)/documents/supportSites/$(request.resource.data.siteId))
+        && get(/databases/$(database)/documents/supportSites/$(request.resource.data.siteId)).data.status == 'published'
+        && get(/databases/$(database)/documents/supportSites/$(request.resource.data.siteId)).data.userId == request.resource.data.ownerId
+        && request.resource.data.status == 'open'
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.subject.size() <= 200
+        && request.resource.data.message.size() <= 5000;
+    }
   }
 }
