@@ -8,7 +8,16 @@ const MAX_BYTES = 2 * 1024 * 1024;
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json({ error: "Vercel Blob is not connected to this project." }, { status: 503 });
+  const hasBlobCredentials = Boolean(
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    (process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN),
+  );
+  if (!hasBlobCredentials) {
+    return NextResponse.json(
+      { error: "Vercel Blob is not connected to this deployment. Connect the store and redeploy." },
+      { status: 503 },
+    );
+  }
 
   const form = await request.formData().catch(() => null);
   const file = form?.get("file");
