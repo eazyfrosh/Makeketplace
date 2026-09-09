@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SupportSitePreview } from "./support-site-preview";
 import { createSupportSite } from "@/lib/support-sites/templates";
-import { getSupportSite, saveSupportSite } from "@/lib/support-sites/store";
+import { getSupportSite, getSupportTemplate, saveSupportSite } from "@/lib/support-sites/store";
 import type { SupportSite } from "@/lib/support-sites/types";
 
 const tabs = ["Branding","Content","Sections","FAQs","Contact","SEO"] as const;
@@ -16,11 +16,11 @@ export function SupportEditor({ templateId, siteId }: { templateId: string; site
   const [site,setSite]=useState<SupportSite>(()=>createSupportSite(templateId,"guest"));
   const [tab,setTab]=useState<(typeof tabs)[number]>("Branding"); const [saved,setSaved]=useState(false);
   useEffect(()=>{ if(!loading&&!user) router.replace(`/auth/login?next=/support-templates/${templateId}/editor`); },[loading,user,router,templateId]);
-  useEffect(()=>{ if(user) { if(siteId) getSupportSite(siteId).then(found=>{if(found?.userId===user.uid)setSite(found)}); else setSite(createSupportSite(templateId,user.uid)); } },[user,siteId,templateId]);
+  useEffect(()=>{ if(user) { if(siteId) getSupportSite(siteId).then(found=>{if(found&&(found.userId===user.uid||user.role==="admin"))setSite(found)}); else getSupportTemplate(templateId).then(template=>setSite(createSupportSite(templateId,user.uid,template?[template]:undefined))); } },[user,siteId,templateId]);
   const update=(patch:Partial<SupportSite>)=>{setSite(s=>({...s,...patch}));setSaved(false)};
   const branding=(key:keyof SupportSite["branding"],value:string|number)=>update({branding:{...site.branding,[key]:value}});
   const contact=(key:keyof SupportSite["contact"],value:unknown)=>update({contact:{...site.contact,[key]:value}});
-  const save=async()=>{if(!user)return; const next={...site,userId:user.uid};await saveSupportSite(next);setSite(next);setSaved(true);router.replace(`/support-templates/${templateId}/editor?site=${next.id}`)};
+  const save=async()=>{if(!user)return; const next={...site,userId:siteId?site.userId:user.uid};await saveSupportSite(next);setSite(next);setSaved(true);router.replace(`/support-templates/${templateId}/editor?site=${next.id}`)};
   const panel=(()=>{
     if(tab==="Branding") return <><Field label="Business name" value={site.branding.businessName} onChange={v=>branding("businessName",v)}/><Field label="Logo URL" value={site.branding.logoUrl} onChange={v=>branding("logoUrl",v)}/><Field label="Primary color" type="color" value={site.branding.primary} onChange={v=>branding("primary",v)}/><Field label="Background" type="color" value={site.branding.background} onChange={v=>branding("background",v)}/><Field label="Text color" type="color" value={site.branding.text} onChange={v=>branding("text",v)}/><Field label="Font" value={site.branding.font} onChange={v=>branding("font",v)}/><Field label="Border radius" type="number" value={String(site.branding.radius)} onChange={v=>branding("radius",Number(v))}/></>;
     if(tab==="Content") return <><Field label="Site name" value={site.name} onChange={v=>update({name:v})}/><Field label="Public slug" value={site.slug} onChange={v=>update({slug:v.toLowerCase().replace(/[^a-z0-9-]/g,"-")})}/><Field label="Hero title" value={site.heroTitle} onChange={v=>update({heroTitle:v})}/><Field label="Hero subtitle" value={site.heroSubtitle} onChange={v=>update({heroSubtitle:v})}/><Field label="Search placeholder" value={site.searchPlaceholder} onChange={v=>update({searchPlaceholder:v})}/></>;

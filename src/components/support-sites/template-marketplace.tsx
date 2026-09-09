@@ -5,13 +5,18 @@ import { ArrowRight, Eye, Search, ShieldCheck, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { supportTemplates, createSupportSite, formatNaira } from "@/lib/support-sites/templates";
+import { supportTemplates as builtInTemplates, createSupportSite as buildSupportSite, formatNaira } from "@/lib/support-sites/templates";
+import { getSupportTemplates } from "@/lib/support-sites/store";
+import type { SupportTemplate } from "@/lib/support-sites/types";
 import { SupportSitePreview } from "./support-site-preview";
 
 const FILTERS = ["All", "Fintech", "SaaS", "Ecommerce", "Logistics", "Technology", "Corporate", "Dark Mode"];
 export function SupportTemplateMarketplace() {
   const [query, setQuery] = React.useState(""); const [filter, setFilter] = React.useState("All");
-  const templates = supportTemplates.filter(t => t.enabled && (filter === "All" || t.category === filter) && `${t.name} ${t.description} ${t.category}`.toLowerCase().includes(query.toLowerCase()));
+  const [catalog, setCatalog] = React.useState<SupportTemplate[]>(builtInTemplates);
+  React.useEffect(() => { getSupportTemplates().then(setCatalog); }, []);
+  const createSupportSite = (templateId: string, userId: string) => buildSupportSite(templateId, userId, catalog);
+  const templates = catalog.filter(t => t.enabled && (filter === "All" || t.category === filter) && `${t.name} ${t.description} ${t.category}`.toLowerCase().includes(query.toLowerCase()));
   return <div className="min-h-screen">
     <section className="border-b border-border/70 bg-gradient-to-br from-primary/10 via-background to-cyan-400/10"><div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"><Badge variant="soft"><Sparkles className="size-3" /> New service</Badge><h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.04em] sm:text-6xl">Support websites that feel like your brand.</h1><p className="mt-5 max-w-2xl text-lg text-muted-foreground">Choose an original, professional help center. Customize every detail, publish it, and give customers a safer place to find answers.</p><div className="mt-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-700 dark:text-emerald-300"><ShieldCheck className="size-4" /> For brands you own or are authorized to represent.</div></div></section>
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div className="relative w-full max-w-md"><Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search templates..." className="h-11 pl-10" /></div><div className="flex flex-wrap gap-2">{FILTERS.map(item => <button key={item} onClick={()=>setFilter(item)}><Badge variant={filter===item?"default":"outline"} className="cursor-pointer px-3 py-1.5">{item}</Badge></button>)}</div></div>
