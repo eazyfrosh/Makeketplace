@@ -8,17 +8,6 @@ const MAX_BYTES = 2 * 1024 * 1024;
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-  const hasBlobCredentials = Boolean(
-    process.env.BLOB_READ_WRITE_TOKEN ||
-    (process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN),
-  );
-  if (!hasBlobCredentials) {
-    return NextResponse.json(
-      { error: "Vercel Blob is not connected to this deployment. Connect the store and redeploy." },
-      { status: 503 },
-    );
-  }
-
   const form = await request.formData().catch(() => null);
   const file = form?.get("file");
   const siteId = String(form?.get("siteId") || "site").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80);
@@ -31,6 +20,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: blob.url });
   } catch (error) {
     console.error("[support-sites/logo-upload] upload failed", error);
-    return NextResponse.json({ error: "The logo upload failed. Please try again." }, { status: 500 });
+    const message = error instanceof Error ? error.message.toLowerCase() : "";
+    const credentialsMissing = message.includes("token") || message.includes("credential") || message.includes("store id");
+    return NextResponse.json(
+      {
+        error: credentialsMissing
+          ? "Vercel rejected the Blob credentials. Reconnect the Blob store to this project and redeploy."
+          : "The logo upload failed. Please try again.",
+      },
+      { status: credentialsMissing ? 503 : 500 },
+    );
   }
 }
