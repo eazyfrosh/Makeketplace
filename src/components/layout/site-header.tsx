@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const NAV_LINKS = [
   { href: "/services", label: "Services" },
+  { href: "/domains", label: "Domains" },
   { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },

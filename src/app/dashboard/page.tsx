@@ -119,6 +119,9 @@ export default function DashboardPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" asChild>
+            <Link href="/dashboard/domains">My domains</Link>
+          </Button>
+          <Button variant="secondary" asChild>
             <Link href="/dashboard/affiliate">Affiliate program</Link>
           </Button>
           <Button variant="secondary" asChild>

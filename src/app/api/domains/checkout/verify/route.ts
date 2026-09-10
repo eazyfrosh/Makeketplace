@@ -1,0 +1,6 @@
+import { NextResponse } from "next/server";
+import { verifyCaller } from "@/lib/licensing/verify-auth";
+import { registerPaidDomain } from "@/lib/domains/service";
+import { sanitizeRegistrant } from "@/types/domains";
+const secret = process.env.PAYSTACK_SECRET_KEY;
+export async function POST(request: Request) { const caller = await verifyCaller(request); if (!caller) return NextResponse.json({ error: "Authentication required." }, { status: 401 }); const body = await request.json().catch(() => ({})); const reference = String(body.reference ?? ""); if (!reference) return NextResponse.json({ error: "Payment reference is required." }, { status: 400 }); if (secret) { const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, { headers: { Authorization: `Bearer ${secret}` }, cache: "no-store" }); const data = await response.json().catch(() => null); if (!response.ok || data?.data?.status !== "success") return NextResponse.json({ error: "Payment could not be verified." }, { status: 402 }); } const order = await registerPaidDomain(reference, caller.uid, sanitizeRegistrant(body.registrant ?? { name: caller.email, email: caller.email })); return NextResponse.json({ order }); }
