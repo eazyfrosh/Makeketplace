@@ -24,10 +24,21 @@ export async function getPublishedSupportSite(slug: string) {
 }
 export const saveSupportTicket = (ticket: SupportSiteTicket) => upsert(SUPPORT_TICKETS, ticket);
 export const getOwnerSupportTickets = (ownerId: string) => getWhere<SupportSiteTicket>(SUPPORT_TICKETS, "ownerId", ownerId);
-export const getAllSupportTickets = () => getAll<SupportSiteTicket>(SUPPORT_TICKETS);
+export async function getAllSupportTickets(): Promise<SupportSiteTicket[]> {
+  try {
+    return await getAll<SupportSiteTicket>(SUPPORT_TICKETS);
+  } catch {
+    return [];
+  }
+}
 
 export async function getSupportTemplates(): Promise<SupportTemplate[]> {
-  const saved = await getAll<SupportTemplate>(SUPPORT_TEMPLATES);
+  let saved: SupportTemplate[] = [];
+  try {
+    saved = await getAll<SupportTemplate>(SUPPORT_TEMPLATES);
+  } catch {
+    return builtInTemplates;
+  }
   if (!saved.length) return builtInTemplates;
   const savedById = new Map(saved.map((template) => [template.id, template]));
   return [
@@ -37,8 +48,12 @@ export async function getSupportTemplates(): Promise<SupportTemplate[]> {
 }
 
 export async function getSupportTemplate(id: string): Promise<SupportTemplate | null> {
-  const saved = await getOne<SupportTemplate>(SUPPORT_TEMPLATES, id);
-  return saved ?? builtInTemplates.find((template) => template.id === id) ?? null;
+  try {
+    const saved = await getOne<SupportTemplate>(SUPPORT_TEMPLATES, id);
+    return saved ?? builtInTemplates.find((template) => template.id === id) ?? null;
+  } catch {
+    return builtInTemplates.find((template) => template.id === id) ?? null;
+  }
 }
 
 export const saveSupportTemplate = (template: SupportTemplate) => upsert(SUPPORT_TEMPLATES, template);
