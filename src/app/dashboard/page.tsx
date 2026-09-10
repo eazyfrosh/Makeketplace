@@ -12,6 +12,8 @@ import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Progress } from "@/components/ui/progress";
+import type { Subscription, SubscriptionPlan } from "@/types/subscriptions";
 
 interface MyLicense {
   id: string;
@@ -46,6 +48,8 @@ export default function DashboardPage() {
   const [licenses, setLicenses] = React.useState<MyLicense[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [accessingSlug, setAccessingSlug] = React.useState<string | null>(null);
+  const [subscription, setSubscription] = React.useState<Subscription | null>(null);
+  const [subscriptionPlan, setSubscriptionPlan] = React.useState<SubscriptionPlan | null>(null);
 
   React.useEffect(() => {
     if (!authLoading && !user) {
@@ -56,9 +60,15 @@ export default function DashboardPage() {
   React.useEffect(() => {
     if (!user) return;
     getAuthHeaders().then((headers) => {
-      fetch("/api/licenses/mine", { headers })
-        .then((res) => (res.ok ? res.json() : { licenses: [] }))
-        .then((data) => setLicenses(data.licenses ?? []))
+      Promise.all([
+        fetch("/api/licenses/mine", { headers }).then((res) => (res.ok ? res.json() : { licenses: [] })),
+        fetch("/api/subscriptions/me", { headers }).then((res) => (res.ok ? res.json() : { subscription: null, plan: null })),
+      ])
+        .then(([licenseData, subscriptionData]) => {
+          setLicenses(licenseData.licenses ?? []);
+          setSubscription(subscriptionData.subscription ?? null);
+          setSubscriptionPlan(subscriptionData.plan ?? null);
+        })
         .finally(() => setLoading(false));
     });
   }, [user]);
@@ -134,6 +144,24 @@ export default function DashboardPage() {
           <div className="text-sm text-muted-foreground">Total spent</div>
         </div>
       </div>
+
+      <section className="mt-8 rounded-3xl border border-primary/20 bg-primary/[0.06] p-6 sm:p-8">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Your subscription</p>
+            <h2 className="mt-2 text-2xl font-semibold">Current plan: {subscriptionPlan?.name ?? "Free"}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Status: <span className="font-medium capitalize text-foreground">{subscription?.status ?? "free"}</span>{subscription?.nextBillingAt ? ` · Next billing ${new Date(subscription.nextBillingAt).toLocaleDateString()}` : ""}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" asChild><Link href="/dashboard/billing">Manage subscription</Link></Button>
+            <Button asChild><Link href="/pricing">{subscription ? "Upgrade plan" : "Choose a plan"}</Link></Button>
+          </div>
+        </div>
+        <div className="mt-7 max-w-2xl">
+          <div className="flex items-center justify-between text-sm"><span>Monthly usage</span><span className="text-muted-foreground">{subscription?.usageThisMonth ?? 0} / {subscription?.usageLimit ?? 0} actions used</span></div>
+          <Progress className="mt-3" value={subscription?.usageLimit ? Math.min(100, ((subscription.usageThisMonth ?? 0) / subscription.usageLimit) * 100) : 0} />
+        </div>
+      </section>
 
       <div className="mt-12">
         <h2 className="text-xl font-semibold">Your purchases</h2>

@@ -5,18 +5,10 @@ import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/auth-context";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
-import type { LicenseStatus } from "@/types/licensing";
-
-interface LicenseSummary {
-  serviceSlug: string;
-  status: LicenseStatus;
-}
-
 /**
- * Client-side gate for the ported platform pages that live behind a
- * license's "Access" button. Mirrors useRequireAdmin's pattern: this is UX
- * only, not a security boundary — nothing sensitive is served by these
- * routes without its own server-side checks.
+ * Client-side UX gate backed by the server-side subscription access endpoint.
+ * The endpoint verifies the authenticated user, active subscription, expiry,
+ * and whether the selected tool is included in the current plan.
  */
 export function useRequireLicense(serviceSlug: string) {
   const { user, loading: authLoading } = useAuth();
@@ -35,13 +27,11 @@ export function useRequireLicense(serviceSlug: string) {
     (async () => {
       try {
         const headers = await getAuthHeaders();
-        const res = await fetch("/api/licenses/mine", { headers });
-        const data = res.ok ? await res.json() : { licenses: [] };
-        const licenses: LicenseSummary[] = data.licenses ?? [];
-        const active = licenses.some((l) => l.serviceSlug === serviceSlug && l.status === "active");
+        const res = await fetch(`/api/subscriptions/access?serviceSlug=${encodeURIComponent(serviceSlug)}`, { headers });
+        const data = res.ok ? await res.json() : { allowed: false };
         if (cancelled) return;
-        if (!active) {
-          router.push("/dashboard?error=license-required");
+        if (!data.allowed) {
+          router.push("/dashboard?error=subscription-required");
           return;
         }
         setHasAccess(true);

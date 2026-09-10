@@ -50,6 +50,9 @@ export default function AdminPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="secondary" asChild>
+            <Link href="/admin/subscriptions">Subscriptions</Link>
+          </Button>
+          <Button variant="secondary" asChild>
             <Link href="/admin/licenses">Manage licenses</Link>
           </Button>
           <Button variant="secondary" asChild>

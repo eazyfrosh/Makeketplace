@@ -5,14 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Heart, Menu, Search, ShoppingCart, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { useCartStore } from "@/lib/store/cart-store";
-import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { useAuth } from "@/context/auth-context";
 import {
   DropdownMenu,
@@ -25,7 +23,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const NAV_LINKS = [
   { href: "/services", label: "Services" },
-  { href: "/deals", label: "Deals" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -36,8 +34,6 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
-  const cartCount = useCartStore((s) => s.items.length);
-  const wishlistCount = useWishlistStore((s) => s.slugs.length);
   const { user, logout } = useAuth();
 
   React.useEffect(() => {
@@ -98,28 +94,6 @@ export function SiteHeader() {
             >
               <Search className="size-4" />
             </Button>
-
-            <Link href="/wishlist" className="relative">
-              <Button variant="ghost" size="icon" aria-label="Wishlist">
-                <Heart className="size-4" />
-              </Button>
-              {wishlistCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-gradient-brand text-[10px] font-semibold text-white">
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
-
-            <Link href="/checkout" className="relative">
-              <Button variant="ghost" size="icon" aria-label="Cart">
-                <ShoppingCart className="size-4" />
-              </Button>
-              {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-gradient-brand text-[10px] font-semibold text-white">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
 
             <ThemeToggle />
 
