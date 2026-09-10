@@ -79,10 +79,7 @@ export function SupportEditor({ templateId, siteId }: { templateId: string; site
       router.replace(`/support-templates/${templateId}/editor?site=${next.id}`, { scroll: false });
       toast.success("Support website saved");
     } catch (error) {
-      const permissionDenied = error instanceof Error && /permission|denied/i.test(error.message);
-      const message = permissionDenied
-        ? "Firebase denied the save. Sign in again and confirm the updated Firestore rules are deployed."
-        : "The project could not be saved. Check your connection and try again.";
+      const message = error instanceof Error ? error.message : "The project could not be saved. Check your connection and try again.";
       setSaveError(message);
       toast.error(message);
     } finally {
