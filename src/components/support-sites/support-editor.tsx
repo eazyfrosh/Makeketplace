@@ -109,7 +109,7 @@ export function SupportEditor({ templateId, siteId }: { templateId: string; site
   return <div className="flex min-h-screen flex-col bg-muted/40">
     <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b bg-background px-4 py-3">
       <div><p className="font-semibold">Support Website Studio</p><p className={saveError ? "max-w-xl text-xs text-destructive" : "text-xs text-muted-foreground"}>{saveError || (saved ? "All changes saved" : "Unsaved changes")}</p></div>
-      <div className="flex gap-2"><Button type="button" variant="secondary" asChild><a href={`/s/${site.slug}`} target="_blank"><Eye className="size-4"/>Preview</a></Button><Button type="button" disabled={saving} onClick={save}>{saving ? <Loader2 className="size-4 animate-spin"/> : <Save className="size-4"/>}{saving ? "Saving…" : "Save project"}</Button></div>
+      <div className="flex gap-2"><Button type="button" variant="secondary" asChild><a href={`/support-templates/${templateId}/preview${siteId || saved ? `?site=${encodeURIComponent(site.id)}` : ""}`} target="_blank"><Eye className="size-4"/>Preview</a></Button><Button type="button" disabled={saving} onClick={save}>{saving ? <Loader2 className="size-4 animate-spin"/> : <Save className="size-4"/>}{saving ? "Saving…" : "Save project"}</Button></div>
     </header>
     <div className="grid flex-1 lg:grid-cols-[180px_minmax(0,1fr)_330px]">
       <aside className="border-r bg-background p-3">{tabs.map((item) => <button key={item} onClick={() => setTab(item)} className={`mb-1 w-full rounded-lg px-3 py-2 text-left text-sm ${tab === item ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{item}</button>)}</aside>
