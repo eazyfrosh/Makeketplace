@@ -19,6 +19,13 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const slug = url.searchParams.get("slug")?.trim();
     if (slug) return NextResponse.json((await listSites()).find((site) => site.slug === slug && site.status === "published") ?? null);
+    const templateId = url.searchParams.get("templateId")?.trim();
+    if (templateId) {
+      const site = (await listSites())
+        .filter((item) => item.templateId === templateId && item.status === "published" && item.marketplacePreview)
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null;
+      return NextResponse.json(site);
+    }
     const caller = await verifyCaller(request);
     if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
     const id = url.searchParams.get("id");
@@ -38,7 +45,11 @@ export async function POST(request: Request) {
     const existing = await findSite(id);
     if (existing && caller.role !== "admin" && existing.userId !== caller.uid) return NextResponse.json({ error: "You do not have access to this project." }, { status: 403 });
     const now = new Date().toISOString();
-    const site: SupportSite = { ...input, id, userId: existing?.userId ?? (caller.role === "admin" && input.userId ? input.userId : caller.uid), name: input.name.trim(), slug: input.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").slice(0, 100), createdAt: existing?.createdAt ?? input.createdAt ?? now, updatedAt: now };
+    const site: SupportSite = { ...input, id, userId: existing?.userId ?? (caller.role === "admin" && input.userId ? input.userId : caller.uid), marketplacePreview: caller.role === "admin" ? Boolean(input.marketplacePreview) : Boolean(existing?.marketplacePreview), name: input.name.trim(), slug: input.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").slice(0, 100), createdAt: existing?.createdAt ?? input.createdAt ?? now, updatedAt: now };
+    if (site.marketplacePreview && caller.role === "admin") {
+      const otherPreviews = (await listSites()).filter((item) => item.id !== id && item.templateId === site.templateId && item.marketplacePreview);
+      await Promise.all(otherPreviews.map((item) => put(`${SITE_PREFIX}${safeId(item.id)}.json`, JSON.stringify({ ...item, marketplacePreview: false, updatedAt: now }), { access: "public", allowOverwrite: true, contentType: "application/json", cacheControlMaxAge: 60 })));
+    }
     await put(`${SITE_PREFIX}${id}.json`, JSON.stringify(site), { access: "public", allowOverwrite: true, contentType: "application/json", cacheControlMaxAge: 60 });
     return NextResponse.json(site);
   } catch (error) { console.error("[support-sites] save failed", error); return NextResponse.json({ error: "The support project could not be saved." }, { status: 503 }); }

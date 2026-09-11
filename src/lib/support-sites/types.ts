@@ -19,6 +19,7 @@ export interface SupportSeo { title: string; description: string; keywords: stri
 export type SupportSectionId = "hero" | "search" | "topics" | "categories" | "faq" | "knowledge" | "announcements" | "contact" | "hours" | "social" | "footer";
 export interface SupportSite {
   id: string; userId: string; name: string; slug: string; templateId: string; status: "draft" | "published";
+  marketplacePreview?: boolean;
   branding: SupportBranding; contact: SupportContact; seo: SupportSeo; sections: { id: SupportSectionId; enabled: boolean }[];
   heroTitle: string; heroSubtitle: string; searchPlaceholder: string; categories: string[]; articles: SupportArticle[]; faqs: SupportFaq[];
   createdAt: string; updatedAt: string;

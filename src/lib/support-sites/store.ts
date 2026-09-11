@@ -22,6 +22,10 @@ export async function getPublishedSupportSite(slug: string) {
   const response = await fetch(`/api/support-sites?slug=${encodeURIComponent(slug)}`, { cache: "no-store" });
   return response.ok ? await response.json() as SupportSite | null : null;
 }
+export async function getPublishedTemplateSite(templateId: string) {
+  const response = await fetch(`/api/support-sites?templateId=${encodeURIComponent(templateId)}`, { cache: "no-store" });
+  return response.ok ? await response.json() as SupportSite | null : null;
+}
 export const saveSupportTicket = (ticket: SupportSiteTicket) => upsert(SUPPORT_TICKETS, ticket);
 export const getOwnerSupportTickets = (ownerId: string) => getWhere<SupportSiteTicket>(SUPPORT_TICKETS, "ownerId", ownerId);
 export async function getAllSupportTickets(): Promise<SupportSiteTicket[]> {
