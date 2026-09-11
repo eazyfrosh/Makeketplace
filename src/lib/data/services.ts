@@ -265,7 +265,7 @@ export const services: Service[] = [
   },
   {
     slug: "premium-templates",
-    accessUrl: "/platform/premium-templates",
+    accessUrl: "https://tesla-blush-nine.vercel.app/api/eazytools/sso",
     name: "Premium Templates",
     category: "templates",
     tagline: "Hosted, editable websites with owner admin controls.",

@@ -72,6 +72,7 @@ export async function POST(request: Request) {
   await record("granted");
   return NextResponse.json({
     valid: true,
+    userId: payload.sub,
     license: {
       serviceSlug: license.serviceSlug,
       serviceName: license.serviceName,

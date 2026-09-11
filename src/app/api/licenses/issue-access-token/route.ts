@@ -39,16 +39,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "License has expired." }, { status: 403 });
   }
 
-  // An absolute URL points at a separately-hosted service we don't control —
-  // it can't validate our JWT, so appending one would just leak an unusable
-  // token. Relative URLs (our own ported platforms) keep the token-append
-  // behavior for any future server-side validation that wants it, though the
-  // current platform route guards re-check license status directly instead.
+  const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: license.id });
+
+  // Only the explicitly trusted Volterra deployment may receive marketplace
+  // access tokens. Other external service URLs keep their legacy direct-link
+  // behavior so a database value can never become a token exfiltration target.
   if (/^https?:\/\//i.test(service.accessUrl)) {
+    const accessUrl = new URL(service.accessUrl);
+    const configuredOrigin = process.env.VOLTERRA_APP_ORIGIN?.replace(/\/$/, "");
+    const trustedOrigins = new Set([
+      "https://tesla-blush-nine.vercel.app",
+      ...(configuredOrigin ? [configuredOrigin] : []),
+    ]);
+    if (serviceSlug === "premium-templates" && trustedOrigins.has(accessUrl.origin)) {
+      accessUrl.searchParams.set("token", token);
+      return NextResponse.json({ redirectUrl: accessUrl.toString() });
+    }
     return NextResponse.json({ redirectUrl: service.accessUrl });
   }
 
-  const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: license.id });
   const separator = service.accessUrl.includes("?") ? "&" : "?";
 
   return NextResponse.json({ redirectUrl: `${service.accessUrl}${separator}token=${token}` });
