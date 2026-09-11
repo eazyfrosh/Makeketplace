@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { verifyAccessToken } from "@/lib/licensing/jwt";
-import { getLicenseById, logValidation } from "@/lib/licensing/store";
+import { getLicenseById, isLicensingBackendDurable, logValidation } from "@/lib/licensing/store";
 import { generateId } from "@/lib/licensing/keys";
 import type { ValidationResult } from "@/types/licensing";
 
@@ -35,6 +35,17 @@ export async function POST(request: Request) {
   }
 
   const { payload } = verified;
+  if (payload.serviceId !== serviceSlug) {
+    await logValidation({
+      id: generateId("log"),
+      licenseId: payload.licenseId,
+      userId: payload.sub,
+      serviceSlug,
+      result: "denied_service_mismatch",
+      createdAt: new Date().toISOString(),
+    });
+    return NextResponse.json({ valid: false, reason: "denied_service_mismatch" }, { status: 403 });
+  }
   const license = await getLicenseById(payload.licenseId);
 
   const record = async (result: ValidationResult) => {
@@ -49,6 +60,21 @@ export async function POST(request: Request) {
   };
 
   if (!license) {
+    // In zero-config deployments the license store is process-local. Vercel
+    // may validate on a different instance from the one that issued the
+    // token, so the record will not be visible there. The token is signed,
+    // service-bound, and expires after two minutes; it was minted only after
+    // issue-access-token checked the active license. This bounded fallback is
+    // disabled automatically whenever the durable Admin/Firestore store is
+    // configured, where live revocation checks remain mandatory.
+    if (!isLicensingBackendDurable) {
+      await record("granted");
+      return NextResponse.json({
+        valid: true,
+        userId: payload.sub,
+        license: { serviceSlug, serviceName: serviceSlug, status: "active", expiresAt: null },
+      });
+    }
     await record("denied_not_found");
     return NextResponse.json({ valid: false, reason: "denied_not_found" }, { status: 404 });
   }
