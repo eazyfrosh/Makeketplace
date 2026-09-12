@@ -384,7 +384,8 @@ export default function ReceiptLab() {
                   : template.id === 'dark-blue'
                     ? 1600
                     : 1200;
-    const safetyFooterHeight = watermarkEnabled ? 52 : 0;
+    const requiresSampleNotice = template.id === 'indigo';
+    const safetyFooterHeight = watermarkEnabled || requiresSampleNotice ? 52 : 0;
     c.height = contentHeight + safetyFooterHeight;
     const x = c.getContext('2d');
     if (!x) return;
@@ -601,74 +602,106 @@ export default function ReceiptLab() {
       x.font = '49px Arial';
       x.fillText(form.blueLink || 'View transaction', 450, 1573);
     } else if (template.id === 'indigo') {
-      const img = new Image();
-      img.src = '/receiptlab/indigo-reference.jpg';
-      await new Promise<void>((resolve, reject) => {
-        img.onload = () => resolve();
-        img.onerror = () => reject();
-      });
-      x.drawImage(img, 0, 0, 900, 1947);
-      x.textAlign = 'center';
+      const centeredLines = (text: string, maxWidth: number, maxLines = 3) => {
+        const words = text.split(/\s+/).filter(Boolean);
+        const lines: string[] = [];
+        let line = '';
+        for (const word of words) {
+          const candidate = line ? `${line} ${word}` : word;
+          if (line && x.measureText(candidate).width > maxWidth) {
+            lines.push(line);
+            line = word;
+          } else line = candidate;
+        }
+        if (line) lines.push(line);
+        return lines.slice(0, maxLines);
+      };
       x.fillStyle = '#fff';
-      x.fillRect(45, 405, 810, 130);
-      x.fillRect(220, 535, 460, 135);
-      x.fillRect(210, 842, 480, 70);
-      x.fillRect(180, 900, 540, 56);
-      x.fillRect(220, 945, 460, 55);
-      x.fillRect(35, 1015, 830, 140);
-      x.fillRect(390, 1155, 260, 80);
-      x.fillStyle = '#151515';
-      x.font = '34px Arial';
-      const indigoMessage = form.indigoMessage || 'Sample confirmation message';
-      const indigoWords = indigoMessage.split(' ');
-      const indigoLines: string[] = [];
-      let indigoLine = '';
-      for (const word of indigoWords) {
-        const candidate = indigoLine ? `${indigoLine} ${word}` : word;
-        if (x.measureText(candidate).width > 790 && indigoLine) {
-          indigoLines.push(indigoLine);
-          indigoLine = word;
-        } else {
-          indigoLine = candidate;
-        }
-      }
-      if (indigoLine) indigoLines.push(indigoLine);
-      indigoLines.slice(0, 2).forEach((entry, index) =>
-        x.fillText(entry, 450, 462 + index * 45),
+      x.fillRect(0, 0, 900, 1947);
+      x.fillStyle = '#08090b';
+      x.textAlign = 'left';
+      x.font = '700 27px Arial';
+      x.fillText('4:19', 56, 54);
+      x.textAlign = 'right';
+      x.font = '22px Arial';
+      x.fillText('▮▮▮  ◉  ▰', 842, 54);
+      x.fillStyle = '#f7f8fa';
+      x.fillRect(0, 82, 900, 100);
+      x.strokeStyle = '#edf0f4';
+      x.beginPath();
+      x.moveTo(0, 182);
+      x.lineTo(900, 182);
+      x.stroke();
+      x.fillStyle = '#111318';
+      x.textAlign = 'center';
+      x.font = '600 32px Arial';
+      x.fillText('Confirmation', 450, 145);
+      x.fillStyle = '#55ad67';
+      x.beginPath();
+      x.arc(450, 292, 58, 0, Math.PI * 2);
+      x.fill();
+      x.strokeStyle = '#fff';
+      x.lineWidth = 12;
+      x.lineCap = 'round';
+      x.beginPath();
+      x.moveTo(420, 292);
+      x.lineTo(442, 316);
+      x.lineTo(486, 264);
+      x.stroke();
+      x.fillStyle = '#15171c';
+      x.font = '32px Arial';
+      centeredLines(form.indigoMessage || 'Sample confirmation message', 760, 3).forEach((entry, index) =>
+        x.fillText(entry, 450, 438 + index * 43),
       );
-      x.font = '68px Arial';
-      x.fillText(form.indigoAmount || '$0.00', 450, 625);
+      x.font = '300 72px Arial';
+      x.fillText(form.indigoAmount || '$0.00', 450, 635);
+      x.fillStyle = '#9c9fa4';
+      x.beginPath();
+      x.arc(450, 770, 58, 0, Math.PI * 2);
+      x.fill();
+      x.fillStyle = '#fff';
+      x.font = '300 49px Arial';
+      x.fillText((form.indigoName || 'D').trim().charAt(0).toUpperCase(), 450, 787);
+      x.fillStyle = '#6d1cc5';
+      x.font = '900 34px Arial';
+      x.fillText('z', 500, 817);
+      x.fillStyle = '#17191e';
       x.font = '39px Arial';
-      x.fillText(form.indigoName || 'Demo recipient', 450, 895);
-      x.font = '28px Arial';
-      x.fillText(form.indigoRegistered || 'Registered as sample', 450, 941);
-      x.fillText(form.indigoPhone || '(000) 000-0000', 450, 984);
-      x.font = '31px Arial';
-      const siriWords = (form.indigoSiri || 'Sample shortcut message').split(' ');
-      const siriLines: string[] = [];
-      let siriLine = '';
-      for (const word of siriWords) {
-        const candidate = siriLine ? `${siriLine} ${word}` : word;
-        if (x.measureText(candidate).width > 820 && siriLine) {
-          siriLines.push(siriLine);
-          siriLine = word;
-        } else {
-          siriLine = candidate;
-        }
-      }
-      if (siriLine) siriLines.push(siriLine);
-      siriLines.slice(0, 2).forEach((entry, index) =>
-        x.fillText(entry, 450, 1071 + index * 41),
+      x.fillText(form.indigoName || 'Demo recipient', 450, 886);
+      x.font = '26px Arial';
+      x.fillText(form.indigoRegistered || 'Registered as sample', 450, 932);
+      x.fillText(form.indigoPhone || '(000) 000-0000', 450, 969);
+      x.font = '30px Arial';
+      centeredLines(form.indigoSiri || 'Sample shortcut message', 790, 3).forEach((entry, index) =>
+        x.fillText(entry, 450, 1092 + index * 40),
       );
-      x.font = 'bold 34px Arial';
-      x.fillText(form.indigoSiriButton || 'Add to Siri', 520, 1208);
+      x.strokeStyle = '#aeb3b9';
+      x.lineWidth = 2;
+      x.beginPath();
+      x.roundRect(280, 1208, 340, 104, 8);
+      x.stroke();
+      const siriGradient = x.createLinearGradient(310, 1235, 366, 1290);
+      siriGradient.addColorStop(0, '#55b9ff');
+      siriGradient.addColorStop(.45, '#9b50c9');
+      siriGradient.addColorStop(1, '#ec5d93');
+      x.fillStyle = siriGradient;
+      x.beginPath();
+      x.arc(342, 1260, 31, 0, Math.PI * 2);
+      x.fill();
+      x.fillStyle = '#15171c';
+      x.font = 'bold 31px Arial';
+      x.fillText(form.indigoSiriButton || 'Add to Siri', 492, 1272);
       x.fillStyle = '#2f66b8';
       x.beginPath();
-      x.roundRect(42, 1795, 816, 95, 7);
+      x.roundRect(42, 1770, 816, 95, 7);
       x.fill();
       x.fillStyle = '#fff';
       x.font = '36px Arial';
-      x.fillText(form.indigoDone || 'Done', 450, 1856);
+      x.fillText(form.indigoDone || 'Done', 450, 1831);
+      x.fillStyle = '#07080a';
+      x.beginPath();
+      x.roundRect(305, 1918, 290, 9, 8);
+      x.fill();
     } else if (template.id === 'black') {
       drawBybitReceipt(c, form);
     } else if (template.id === 'dark-blue') {
@@ -759,7 +792,7 @@ export default function ReceiptLab() {
       x.textAlign = 'right';
       x.fillText(`$${total}`, 825, 520);
     }
-    if (watermarkEnabled && template.id !== 'black') {
+    if ((watermarkEnabled || requiresSampleNotice) && template.id !== 'black') {
       x.save();
       x.globalAlpha = 1;
       x.fillStyle = '#fff3cd';
@@ -1546,7 +1579,7 @@ function Editor({
           </div>
           <div
             ref={receiptRef}
-            className={`receipt ${template.id} ${template.id === 'black' ? 'bybit-light' : watermarkEnabled ? 'with-safety-footer' : ''}`}
+            className={`receipt ${template.id} ${template.id === 'black' ? 'bybit-light' : watermarkEnabled || template.id === 'indigo' ? 'with-safety-footer' : ''}`}
             style={{ '--accent': template.accent } as React.CSSProperties}
           >
             {template.id === 'studio' ? (
@@ -1705,40 +1738,25 @@ function Editor({
               </>
             ) : template.id === 'indigo' ? (
               <>
-                <img
-                  className="indigo-reference"
-                  src="/receiptlab/indigo-reference.jpg"
-                  alt="Zelle confirmation reference"
-                />
-                <span className="indigo-copy indigo-message">
-                  {form.indigoMessage || 'Sample confirmation message'}
-                </span>
-                <span className="indigo-copy indigo-amount">
-                  {form.indigoAmount || '$0.00'}
-                </span>
-                <span className="indigo-copy indigo-name">
-                  {form.indigoName || 'Demo recipient'}
-                </span>
-                <span className="indigo-copy indigo-registered">
-                  {form.indigoRegistered || 'Registered as sample'}
-                </span>
-                <span className="indigo-copy indigo-phone">
-                  {form.indigoPhone || '(000) 000-0000'}
-                </span>
-                <span className="indigo-copy indigo-siri-message">
-                  {form.indigoSiri || 'Sample shortcut message'}
-                </span>
-                <span className="indigo-copy indigo-siri-button">
-                  {form.indigoSiriButton || 'Add to Siri'}
-                </span>
-                <span className="indigo-copy indigo-done">
-                  {form.indigoDone || 'Done'}
-                </span>
-                {watermarkEnabled && (
-                  <div className="watermark safety-footer">
-                    DEMO • NOT A REAL TRANSACTION
+                <article className="zelle-screen">
+                  <div className="zelle-statusbar" aria-hidden="true">
+                    <b>4:19</b><span><i /><i /><i /><i /></span><em>⌁</em><strong>▰</strong>
                   </div>
-                )}
+                  <header className="zelle-header">Confirmation</header>
+                  <main className="zelle-content">
+                    <div className="zelle-check" aria-label="Payment confirmation">✓</div>
+                    <p className="zelle-message">{form.indigoMessage || 'Sample confirmation message'}</p>
+                    <strong className="zelle-amount">{form.indigoAmount || '$0.00'}</strong>
+                    <div className="zelle-recipient-mark" aria-hidden="true"><span>{(form.indigoName || 'D').trim().charAt(0).toUpperCase()}</span><i>z</i></div>
+                    <h3>{form.indigoName || 'Demo recipient'}</h3>
+                    <p className="zelle-registered">{form.indigoRegistered || 'Registered as sample'}<span>{form.indigoPhone || '(000) 000-0000'}</span></p>
+                    <p className="zelle-siri-copy">{form.indigoSiri || 'Sample shortcut message'}</p>
+                    <div className="zelle-siri-action"><i aria-hidden="true" /><b>{form.indigoSiriButton || 'Add to Siri'}</b></div>
+                  </main>
+                  <div className="zelle-done">{form.indigoDone || 'Done'}</div>
+                  <div className="zelle-homebar" aria-hidden="true" />
+                </article>
+                <div className="watermark safety-footer">SAMPLE ONLY • NOT A REAL TRANSACTION</div>
               </>
             ) : template.id === 'black' ? (
               <>
