@@ -13,11 +13,11 @@ const companyLogoPaths: Record<string, string> = {
   "aura-fintech": "/support-templates/logos/apple.svg",
   "orbit-crypto-saas": "/support-templates/logos/binance.svg",
   cartwise: "/support-templates/logos/bitcoin.svg",
-  routecare: "/support-templates/logos/byd.svg",
+  routecare: "/support-templates/logos/byd.webp",
   "clarity-docs": "/support-templates/logos/bitso.svg",
   "summit-corporate": "/support-templates/logos/changelly.svg",
   plainhelp: "/support-templates/logos/cashapp.svg",
-  nightshift: "/support-templates/logos/blockchain.svg",
+  nightshift: "/support-templates/logos/blockchain.png",
 };
 
 function Header({ site, dark = false, corporate = false, apple = false, binance = false }: { site: SupportSite; dark?: boolean; corporate?: boolean; apple?: boolean; binance?: boolean }) {
