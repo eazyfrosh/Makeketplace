@@ -17,7 +17,7 @@ export function FeaturedServices() {
             Choose a tool and get moving.
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground">
-            Pick the service that matches your next task. Clear pricing, straightforward access, and no unnecessary steps.
+            Pick the service that matches your next task. One subscription unlocks the full EazyTools collection.
           </p>
         </div>
         <Link

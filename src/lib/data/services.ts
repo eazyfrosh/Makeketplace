@@ -25,9 +25,9 @@ const standardFaq = (name: string) => [
       "You'll get access to your Customer Dashboard immediately, a kickoff questionnaire, and a dedicated delivery timeline. Support tickets and updates are tracked in one place.",
   },
   {
-    question: "What's included in the price?",
+    question: "What's included with my subscription?",
     answer:
-      "The full build, source code, and onboarding support described above — one flat price with no hidden add-ons.",
+      "The complete service experience described above is included while your EazyTools All Access subscription is active.",
   },
 ];
 

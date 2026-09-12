@@ -1,4 +1,4 @@
-export type SubscriptionPlanId = "starter" | "pro" | "business";
+export type SubscriptionPlanId = "all-access";
 export type SubscriptionBillingCycle = "monthly" | "yearly";
 export type SubscriptionStatus = "free" | "active" | "past_due" | "cancelled" | "expired";
 

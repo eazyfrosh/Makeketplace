@@ -25,16 +25,14 @@ function demoStore() {
 }
 
 export async function listPlans(): Promise<SubscriptionPlan[]> {
-  const db = adminDb;
-  if (db) {
-    const snap = await db.collection(PLANS).where("active", "==", true).get();
-    if (!snap.empty) return snap.docs.map((doc) => doc.data() as SubscriptionPlan);
-    await Promise.all(DEFAULT_SUBSCRIPTION_PLANS.map((plan) => db.collection(PLANS).doc(plan.id).set(plan, { merge: true })));
-  }
-  return adminDb ? DEFAULT_SUBSCRIPTION_PLANS : Array.from(demoStore().plans.values()).filter((plan) => plan.active);
+  return DEFAULT_SUBSCRIPTION_PLANS;
 }
 
 export async function getPlan(id: string): Promise<SubscriptionPlan | null> {
+  const defaultPlan = DEFAULT_SUBSCRIPTION_PLANS[0];
+  // Existing subscribers on the retired Starter, Pro, or Business plans are
+  // grandfathered into All Access so the pricing migration does not lock them out.
+  if (["all-access", "starter", "pro", "business"].includes(id)) return defaultPlan;
   if (adminDb) {
     const snap = await adminDb.collection(PLANS).doc(id).get();
     if (snap.exists) return snap.data() as SubscriptionPlan;

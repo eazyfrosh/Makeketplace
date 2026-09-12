@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 
 import { getServiceBySlug } from "@/lib/data/services";
 import { signAccessToken } from "@/lib/licensing/jwt";
-import { getLicenseForUserAndService } from "@/lib/licensing/store";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
+import { getPlan, getSubscriptionForUser } from "@/lib/subscriptions/store";
 
 /**
  * Called when a customer clicks "Access" in their dashboard. Confirms they
- * hold an active, unexpired license for the service, then mints a short-lived
+ * hold an active, unexpired subscription for the service, then mints a short-lived
  * signed token the external service will independently validate — the
  * marketplace UI is never trusted on its own.
  */
@@ -28,18 +28,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unknown service." }, { status: 404 });
   }
 
-  const license = await getLicenseForUserAndService(caller.uid, serviceSlug);
-  if (!license) {
-    return NextResponse.json({ error: "You don't own a license for this service." }, { status: 403 });
-  }
-  if (license.status !== "active") {
-    return NextResponse.json({ error: `License is ${license.status}.` }, { status: 403 });
-  }
-  if (license.expiresAt && new Date(license.expiresAt).getTime() < Date.now()) {
-    return NextResponse.json({ error: "License has expired." }, { status: 403 });
-  }
+  const subscription = await getSubscriptionForUser(caller.uid);
+  if (!subscription || subscription.status !== "active") return NextResponse.json({ error: "An active EazyTools subscription is required." }, { status: 403 });
+  if (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now()) return NextResponse.json({ error: "Your subscription has expired." }, { status: 403 });
+  const plan = await getPlan(subscription.planId);
+  if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes(serviceSlug))) return NextResponse.json({ error: "This service is not included in your subscription." }, { status: 403 });
 
-  const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: license.id });
+  const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: subscription.id });
 
   // Only the explicitly trusted Volterra deployment may receive marketplace
   // access tokens. Other external service URLs keep their legacy direct-link

@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Check, ChevronRight, Star } from "lucide-react";
 
 import { services, getServiceBySlug } from "@/lib/data/services";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -91,12 +91,7 @@ export default async function ServiceDetailPage({
                   </span>
                 </div>
                 <div className="h-4 w-px bg-white/10" />
-                <div className="text-sm text-muted-foreground">
-                  Price{" "}
-                  <span className="font-semibold text-foreground">
-                    {formatPrice(service.startingPriceCents)}{service.priceUnit && <span className="ml-1 text-xs font-normal text-muted-foreground">{service.priceUnit}</span>}
-                  </span>
-                </div>
+                <div className="text-sm font-medium text-primary">Included with EazyTools All Access</div>
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -110,7 +105,6 @@ export default async function ServiceDetailPage({
                   <BuyNowButton
                     serviceSlug={service.slug}
                     serviceName={service.name}
-                    priceCents={service.startingPriceCents}
                     size="lg"
                   />
                 )}

@@ -27,19 +27,9 @@ export function useRequireLicense(serviceSlug: string) {
     (async () => {
       try {
         const headers = await getAuthHeaders();
-        const [subscriptionRes, licensesRes] = await Promise.all([
-          fetch(`/api/subscriptions/access?serviceSlug=${encodeURIComponent(serviceSlug)}`, { headers }),
-          fetch("/api/licenses/mine", { headers }),
-        ]);
+        const subscriptionRes = await fetch(`/api/subscriptions/access?serviceSlug=${encodeURIComponent(serviceSlug)}`, { headers });
         const subscriptionData = subscriptionRes.ok ? await subscriptionRes.json() : { allowed: false };
-        const licenseData = licensesRes.ok ? await licensesRes.json() : { licenses: [] };
-        const now = Date.now();
-        const ownsActiveLicense = (licenseData.licenses ?? []).some((license: { serviceSlug: string; status: string; expiresAt?: string | null }) =>
-          license.serviceSlug === serviceSlug &&
-          license.status === "active" &&
-          (!license.expiresAt || new Date(license.expiresAt).getTime() > now),
-        );
-        const allowed = Boolean(subscriptionData.allowed || ownsActiveLicense);
+        const allowed = Boolean(subscriptionData.allowed);
         if (cancelled) return;
         if (!allowed) {
           router.push("/dashboard?error=subscription-required");

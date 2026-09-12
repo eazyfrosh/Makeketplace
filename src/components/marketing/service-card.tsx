@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Heart, Star } from "lucide-react";
 
 import type { Service } from "@/types";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ServiceVisual } from "@/components/marketing/service-visual";
@@ -64,15 +64,8 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
           ))}
         </div>
 
-        <div className="mt-auto flex flex-col gap-4 border-t border-border/60 pt-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="text-xs text-muted-foreground">Price</div>
-            <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-              <span className="text-lg font-semibold leading-tight">{formatPrice(service.startingPriceCents)}</span>
-              {service.priceUnit && <span className="text-xs text-muted-foreground">{service.priceUnit}</span>}
-            </div>
-          </div>
-          <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:min-w-[190px]">
+        <div className="mt-auto border-t border-border/60 pt-4">
+          <div className="grid w-full grid-cols-2 gap-2">
             <Button variant="secondary" size="sm" className="w-full px-2" asChild>
               <Link href={primaryHref}>{isSupportTemplates ? "Preview gallery" : "Learn more"}</Link>
             </Button>
@@ -86,7 +79,6 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
               <BuyNowButton
                 serviceSlug={service.slug}
                 serviceName={service.name}
-                priceCents={service.startingPriceCents}
                 size="sm"
                 className="w-full px-2"
               />

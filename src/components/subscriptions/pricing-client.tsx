@@ -48,9 +48,9 @@ export function PricingClient() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
       <div className="mx-auto max-w-3xl text-center">
-        <Badge variant="soft"><Sparkles className="mr-1 size-3" /> EazyTools plans</Badge>
+        <Badge variant="soft"><Sparkles className="mr-1 size-3" /> EazyTools All Access</Badge>
         <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">Simple Pricing. One Subscription. All Your Tools.</h1>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">Choose the EazyTools plan that fits your workflow and get access to a growing collection of creative and productivity tools.</p>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">One subscription unlocks every EazyTools service, template, and new tool we add.</p>
         <div className="mt-8 inline-flex rounded-full border border-border bg-card p-1">
           {(["monthly", "yearly"] as const).map((value) => (
             <button key={value} type="button" onClick={() => setCycle(value)} className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${cycle === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
@@ -61,7 +61,7 @@ export function PricingClient() {
       </div>
 
       {loading ? <div className="flex justify-center py-20"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div> : (
-        <div className="mt-14 grid gap-5 lg:grid-cols-3">
+        <div className="mx-auto mt-14 grid max-w-xl gap-5">
           {plans.map((plan) => {
             const price = cycle === "yearly" ? plan.yearlyPriceCents : plan.monthlyPriceCents;
             return (
@@ -70,7 +70,7 @@ export function PricingClient() {
                 <h2 className="text-xl font-semibold">{plan.name}</h2>
                 <p className="mt-2 min-h-12 text-sm leading-6 text-muted-foreground">{plan.description}</p>
                 <div className="mt-7 flex items-baseline gap-2"><span className="text-4xl font-semibold tracking-tight">{formatPrice(price)}</span><span className="text-sm text-muted-foreground">/{cycle === "yearly" ? "year" : "month"}</span></div>
-                <div className="mt-3 text-sm font-medium text-primary">{plan.monthlyUsageLimit} actions per month</div>
+                <div className="mt-3 text-sm font-medium text-primary">Full platform access</div>
                 <Button className="mt-7 w-full" variant={plan.popular ? "default" : "secondary"} disabled={!user || starting === plan.id} onClick={() => subscribe(plan)}>
                   {starting === plan.id ? <Loader2 className="size-4 animate-spin" /> : user ? `Subscribe to ${plan.name}` : "Sign in to subscribe"}
                 </Button>
