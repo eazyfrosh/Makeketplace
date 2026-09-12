@@ -1954,29 +1954,82 @@
   line-height: 1;
 }
 .receiptlab-root .zelle-statusbar > b { margin-right: auto; }
-.receiptlab-root .zelle-statusbar > span {
+.receiptlab-root .zelle-phone-status {
+  display: flex;
+  align-items: center;
+  gap: 1.15cqw;
+  font-size: 2.25cqw;
+  font-weight: 500;
+}
+.receiptlab-root .zelle-cell {
   height: 2cqw;
   display: flex;
   align-items: flex-end;
   gap: .42cqw;
 }
-.receiptlab-root .zelle-statusbar > span i {
+.receiptlab-root .zelle-cell i {
   width: .62cqw;
   border-radius: .25cqw;
   background: currentColor;
 }
-.receiptlab-root .zelle-statusbar > span i:nth-child(1) { height: .7cqw; }
-.receiptlab-root .zelle-statusbar > span i:nth-child(2) { height: 1.05cqw; }
-.receiptlab-root .zelle-statusbar > span i:nth-child(3) { height: 1.45cqw; }
-.receiptlab-root .zelle-statusbar > span i:nth-child(4) { height: 1.85cqw; opacity: .35; }
-.receiptlab-root .zelle-statusbar > em {
-  margin-left: 1.4cqw;
-  font-size: 2.6cqw;
-  font-style: normal;
-  font-weight: 900;
-  transform: rotate(-20deg);
+.receiptlab-root .zelle-cell i:nth-child(1) { height: .7cqw; }
+.receiptlab-root .zelle-cell i:nth-child(2) { height: 1.05cqw; }
+.receiptlab-root .zelle-cell i:nth-child(3) { height: 1.45cqw; }
+.receiptlab-root .zelle-cell i:nth-child(4) { height: 1.85cqw; opacity: .35; }
+.receiptlab-root .zelle-wifi {
+  position: relative;
+  width: 3.6cqw;
+  height: 2.25cqw;
+  overflow: hidden;
 }
-.receiptlab-root .zelle-statusbar > strong { margin-left: 1.3cqw; font-size: 2.2cqw; }
+.receiptlab-root .zelle-wifi i {
+  position: absolute;
+  left: 50%;
+  border: .5cqw solid #050608;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+.receiptlab-root .zelle-wifi i:nth-child(1) { top: 0; width: 3.5cqw; height: 3.5cqw; }
+.receiptlab-root .zelle-wifi i:nth-child(2) { top: .85cqw; width: 2cqw; height: 2cqw; }
+.receiptlab-root .zelle-wifi i:nth-child(3) {
+  top: 1.75cqw;
+  width: .55cqw;
+  height: .55cqw;
+  border: 0;
+  border-radius: 50%;
+  background: #050608;
+}
+.receiptlab-root .zelle-alarm { font-size: 2cqw; font-weight: 800; line-height: 1; }
+.receiptlab-root .zelle-battery-percent { min-width: 4.8cqw; text-align: right; }
+.receiptlab-root .zelle-battery {
+  position: relative;
+  width: 4.8cqw;
+  height: 2.25cqw;
+  box-sizing: border-box;
+  padding: .28cqw;
+  border: .3cqw solid #555b63;
+  border-radius: .65cqw;
+}
+.receiptlab-root .zelle-battery::after {
+  content: "";
+  position: absolute;
+  top: .55cqw;
+  right: -.72cqw;
+  width: .42cqw;
+  height: .8cqw;
+  border-radius: 0 .25cqw .25cqw 0;
+  background: #555b63;
+}
+.receiptlab-root .zelle-battery i {
+  display: block;
+  width: 33%;
+  height: 100%;
+  border-radius: .2cqw;
+  background: #050608;
+}
 .receiptlab-root .zelle-header {
   height: 12cqw;
   border-bottom: 1px solid #edf0f4;

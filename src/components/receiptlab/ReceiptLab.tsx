@@ -622,9 +622,33 @@ export default function ReceiptLab() {
       x.textAlign = 'left';
       x.font = '700 27px Arial';
       x.fillText('4:19', 56, 54);
+      [8, 13, 18, 23].forEach((height, index) => {
+        x.fillRect(636 + index * 10, 55 - height, 7, height);
+      });
+      x.strokeStyle = '#08090b';
+      x.lineWidth = 4;
+      x.lineCap = 'round';
+      [22, 14].forEach((radius) => {
+        x.beginPath();
+        x.arc(704, 51, radius, Math.PI * 1.18, Math.PI * 1.82);
+        x.stroke();
+      });
+      x.beginPath();
+      x.arc(704, 52, 3, 0, Math.PI * 2);
+      x.fill();
+      x.textAlign = 'center';
+      x.font = '700 19px Arial';
+      x.fillText('◴', 750, 54);
       x.textAlign = 'right';
       x.font = '22px Arial';
-      x.fillText('▮▮▮  ◉  ▰', 842, 54);
+      x.fillText('33%', 813, 54);
+      x.strokeStyle = '#555b63';
+      x.lineWidth = 2.5;
+      x.strokeRect(824, 32, 48, 25);
+      x.fillStyle = '#555b63';
+      x.fillRect(873, 39, 4, 11);
+      x.fillStyle = '#08090b';
+      x.fillRect(828, 36, 13, 17);
       x.fillStyle = '#f7f8fa';
       x.fillRect(0, 82, 900, 100);
       x.strokeStyle = '#edf0f4';
@@ -1740,7 +1764,14 @@ function Editor({
               <>
                 <article className="zelle-screen">
                   <div className="zelle-statusbar" aria-hidden="true">
-                    <b>4:19</b><span><i /><i /><i /><i /></span><em>⌁</em><strong>▰</strong>
+                    <b>4:19</b>
+                    <div className="zelle-phone-status">
+                      <span className="zelle-cell"><i /><i /><i /><i /></span>
+                      <span className="zelle-wifi"><i /><i /><i /></span>
+                      <span className="zelle-alarm">◴</span>
+                      <span className="zelle-battery-percent">33%</span>
+                      <span className="zelle-battery"><i /></span>
+                    </div>
                   </div>
                   <header className="zelle-header">Confirmation</header>
                   <main className="zelle-content">

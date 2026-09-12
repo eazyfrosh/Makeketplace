@@ -12,6 +12,9 @@ test('Zelle preview uses one structured layout instead of screenshot text overla
 
   assert.ok(previewStart > -1);
   assert.ok(preview.includes('zelle-content'));
+  assert.ok(preview.includes('zelle-battery-percent'));
+  assert.ok(preview.includes('33%'));
+  assert.ok(preview.includes('zelle-battery'));
   assert.ok(preview.includes('zelle-recipient-mark'));
   assert.ok(preview.includes('zelle-siri-action'));
   assert.ok(!preview.includes('indigo-reference.jpg'));
@@ -20,5 +23,6 @@ test('Zelle preview uses one structured layout instead of screenshot text overla
 test('Zelle layout stays centered and permanently identifies sample output', () => {
   assert.match(styles, /\.zelle-screen\s*\{[\s\S]*?display:\s*flex;/);
   assert.match(styles, /\.zelle-content\s*\{[\s\S]*?align-items:\s*center;/);
+  assert.match(styles, /\.zelle-battery\s*\{/);
   assert.ok(component.includes('SAMPLE ONLY • NOT A REAL TRANSACTION'));
 });
