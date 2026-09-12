@@ -54,7 +54,7 @@ export function PricingClient() {
         <div className="mt-8 inline-flex rounded-full border border-border bg-card p-1">
           {(["monthly", "yearly"] as const).map((value) => (
             <button key={value} type="button" onClick={() => setCycle(value)} className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${cycle === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-              {value === "monthly" ? "Monthly" : "Yearly · save 17%"}
+              {value === "monthly" ? "Monthly" : "Yearly · save 40%"}
             </button>
           ))}
         </div>
