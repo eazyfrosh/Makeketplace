@@ -9,6 +9,7 @@ import {
   PackageSearch,
   ShieldCheck,
   Truck,
+  MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -78,6 +79,7 @@ export default function LogisticsDashboardPage() {
                   Public tracking
                 </Link>
               </Button>
+              <Button variant="outline" size="sm" asChild><Link href="/platform/logistics-platform/chat-widgets"><MessageCircle className="size-3.5" />Edit chat widgets</Link></Button>
             </div>
           </div>
           {shipments && (

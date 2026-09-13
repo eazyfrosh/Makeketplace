@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Ticket } from "lucide-react";
+import { MessageCircle, Ticket } from "lucide-react";
 import { SearchWidget } from "@/components/airline/search/search-widget";
 
 export default function AirlineBookingPlatformHome() {
@@ -13,12 +13,15 @@ export default function AirlineBookingPlatformHome() {
           Search, compare, and book flights across 100+ airlines — all without leaving EazyTool.
         </p>
         <div className="mt-4 flex justify-center">
+          <div className="flex flex-wrap justify-center gap-4">
           <Link
             href="/platform/airline-booking-platform/trips"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white"
           >
             <Ticket size={14} /> View my trips
           </Link>
+          <Link href="/platform/airline-booking-platform/chat-widgets" className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white"><MessageCircle size={14} /> Edit chat widgets</Link>
+          </div>
         </div>
       </div>
 
