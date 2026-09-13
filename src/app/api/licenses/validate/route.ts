@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { verifyAccessToken } from "@/lib/licensing/jwt";
 import { getLicenseById, isLicensingBackendDurable, logValidation } from "@/lib/licensing/store";
 import { generateId } from "@/lib/licensing/keys";
+import { getPlan, getSubscriptionForUser } from "@/lib/subscriptions/store";
 import type { ValidationResult } from "@/types/licensing";
 
 /**
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ valid: false, reason: "denied_service_mismatch" }, { status: 403 });
   }
   const license = await getLicenseById(payload.licenseId);
+  const subscription = license ? null : await getSubscriptionForUser(payload.sub);
 
   const record = async (result: ValidationResult) => {
     await logValidation({
@@ -60,6 +62,30 @@ export async function POST(request: Request) {
   };
 
   if (!license) {
+    // All Access handoffs use the subscription id in the signed token. Keep
+    // accepting legacy licenses below while validating new subscriptions
+    // against their live server-side record and plan entitlements.
+    if (subscription?.id === payload.licenseId) {
+      if (subscription.status !== "active") {
+        await record("denied_suspended");
+        return NextResponse.json({ valid: false, reason: "denied_suspended" }, { status: 403 });
+      }
+      if (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now()) {
+        await record("denied_expired");
+        return NextResponse.json({ valid: false, reason: "denied_expired" }, { status: 403 });
+      }
+      const plan = await getPlan(subscription.planId);
+      if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes(serviceSlug))) {
+        await record("denied_service_mismatch");
+        return NextResponse.json({ valid: false, reason: "denied_service_mismatch" }, { status: 403 });
+      }
+      await record("granted");
+      return NextResponse.json({
+        valid: true,
+        userId: payload.sub,
+        license: { serviceSlug, serviceName: serviceSlug, status: "active", expiresAt: subscription.expiresAt },
+      });
+    }
     // In zero-config deployments the license store is process-local. Vercel
     // may validate on a different instance from the one that issued the
     // token, so the record will not be visible there. The token is signed,
