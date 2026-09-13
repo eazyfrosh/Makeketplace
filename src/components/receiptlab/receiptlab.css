@@ -2594,10 +2594,10 @@
 .receiptlab-root .gcash-screen { position: absolute; inset: 0; overflow: hidden; background: #0964e8; }
 .receiptlab-root .gcash-statusbar { height: 6.4cqw; padding: 2.25cqw 9.8cqw 0; display: flex; justify-content: space-between; align-items: flex-start; font-size: 3.65cqw; letter-spacing: -.04em; }
 .receiptlab-root .gcash-statusbar span { font-size: 2.7cqw; letter-spacing: .13em; }
-.receiptlab-root .gcash-screen > header { height: 9.8cqw; display: grid; place-items: center; font-size: 2.8cqw; }
+.receiptlab-root .gcash-screen > header { height: 20cqw; display: grid; place-items: start center; padding-top: 6.2cqw; box-sizing: border-box; font-size: 2.8cqw; }
 .receiptlab-root .gcash-screen > header i { position: absolute; top: 7.1cqw; right: 6.2cqw; font-size: 5.8cqw; font-style: normal; font-weight: 200; }
-.receiptlab-root .gcash-paper { position: absolute; top: 16.1cqw; left: 5.4cqw; right: 5.4cqw; bottom: 10.4cqw; padding: 8.2cqw 3.7cqw 0; background: #fff; color: #0d315f; text-align: center; clip-path: polygon(0 0,100% 0,100% 98.25%,98% 100%,96% 98.25%,94% 100%,92% 98.25%,90% 100%,88% 98.25%,86% 100%,84% 98.25%,82% 100%,80% 98.25%,78% 100%,76% 98.25%,74% 100%,72% 98.25%,70% 100%,68% 98.25%,66% 100%,64% 98.25%,62% 100%,60% 98.25%,58% 100%,56% 98.25%,54% 100%,52% 98.25%,50% 100%,48% 98.25%,46% 100%,44% 98.25%,42% 100%,40% 98.25%,38% 100%,36% 98.25%,34% 100%,32% 98.25%,30% 100%,28% 98.25%,26% 100%,24% 98.25%,22% 100%,20% 98.25%,18% 100%,16% 98.25%,14% 100%,12% 98.25%,10% 100%,8% 98.25%,6% 100%,4% 98.25%,2% 100%,0 98.25%); }
-.receiptlab-root .gcash-check { position: absolute; top: -5.1cqw; left: calc(50% - 5.1cqw); width: 10.2cqw; height: 10.2cqw; border-radius: 50%; background: #0964e8; color: #fff; font-size: 5.2cqw; display: grid; place-items: center; }
+.receiptlab-root .gcash-paper { position: absolute; top: 35.1cqw; left: 5.4cqw; right: 5.4cqw; bottom: 24.8cqw; padding: 8.2cqw 3.7cqw 0; background: linear-gradient(to bottom, #fff 0 44%, #f5f6fb 44% 100%); color: #0d315f; text-align: center; clip-path: polygon(0 0,100% 0,100% 98.25%,98% 100%,96% 98.25%,94% 100%,92% 98.25%,90% 100%,88% 98.25%,86% 100%,84% 98.25%,82% 100%,80% 98.25%,78% 100%,76% 98.25%,74% 100%,72% 98.25%,70% 100%,68% 98.25%,66% 100%,64% 98.25%,62% 100%,60% 98.25%,58% 100%,56% 98.25%,54% 100%,52% 98.25%,50% 100%,48% 98.25%,46% 100%,44% 98.25%,42% 100%,40% 98.25%,38% 100%,36% 98.25%,34% 100%,32% 98.25%,30% 100%,28% 98.25%,26% 100%,24% 98.25%,22% 100%,20% 98.25%,18% 100%,16% 98.25%,14% 100%,12% 98.25%,10% 100%,8% 98.25%,6% 100%,4% 98.25%,2% 100%,0 98.25%); }
+.receiptlab-root .gcash-check { position: absolute; z-index: 2; top: 29.8cqw; left: calc(50% - 5.1cqw); width: 10.2cqw; height: 10.2cqw; border: .55cqw solid #fff; border-radius: 50%; background: #0964e8; color: #fff; font-size: 5.2cqw; display: grid; place-items: center; }
 .receiptlab-root .gcash-paper h2 { margin: 0; color: #0d3d92; font-size: 4.15cqw; line-height: 1.1; }
 .receiptlab-root .gcash-phone { display: inline-block; margin-top: 1.8cqw; padding: .55cqw 2cqw; border-radius: 99px; background: #f1f4fb; color: #0d3d92; font-size: 3.55cqw; white-space: nowrap; }
 .receiptlab-root .gcash-via { margin: 4.2cqw 0 7.8cqw; color: #777b84; font-size: 2.75cqw; }
@@ -2613,7 +2613,7 @@
 .receiptlab-root .gcash-carbon strong { font-size: 3.2cqw; }
 .receiptlab-root .gcash-carbon small { font-size: 2cqw; }
 .receiptlab-root .gcash-carbon p { margin: 2.2cqw 0 0; font-size: 2.25cqw; line-height: 1.45; }
-.receiptlab-root .receipt.gcash .gcash-screen > footer { position: absolute; left: 9cqw; right: 9cqw; bottom: 2.35cqw; padding: 0; background: transparent; color: #fff; display: flex; justify-content: space-between; font-size: 3cqw; }
+.receiptlab-root .receipt.gcash .gcash-screen > footer { position: absolute; left: 9cqw; right: 9cqw; bottom: 6.1cqw; padding: 0; background: transparent; color: #fff; display: flex; justify-content: space-between; font-size: 3cqw; }
 
 /* OKX withdrawal-details receipt */
 .receiptlab-root .receipt.okx { width: min(430px, 100%); min-height: 0; aspect-ratio: 1 / 2; padding: 0; border-radius: 0; background: #101010; color: #f7f7f8; container-type: inline-size; font-family: Arial, Helvetica, sans-serif; }

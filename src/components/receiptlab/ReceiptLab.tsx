@@ -1447,8 +1447,8 @@ function GcashReceiptPreview({ form }: { form: Record<string, string> }) {
       <article className="gcash-screen">
         <div className="gcash-statusbar"><b>{form.gcashTime || '10:06'}</b><span>▮▮▮⌁▱</span></div>
         <header><b>Express Send</b><i>×</i></header>
+        <div className="gcash-check">✓</div>
         <main className="gcash-paper">
-          <div className="gcash-check">✓</div>
           <h2>{form.gcashRecipient || 'HA•••D D.'}</h2>
           <strong className="gcash-phone">{form.gcashPhone || '+63 915 750 3350'}</strong>
           <p className="gcash-via">Sent via GCash</p>

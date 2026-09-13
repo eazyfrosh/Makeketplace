@@ -12,6 +12,8 @@ test('Gcash is editable, exported, image-matched, and permanently sample labeled
   assert.ok(component.includes('<GcashReceiptPreview form={form} />'));
   assert.ok(component.includes('drawGcashReceipt(c, form)'));
   assert.match(styles, /\.receipt\.gcash\s*\{[\s\S]*?aspect-ratio:\s*947\s*\/\s*2048/);
+  assert.match(styles, /\.gcash-paper\s*\{[\s\S]*?top:\s*35\.1cqw[\s\S]*?bottom:\s*24\.8cqw/);
+  assert.match(styles, /\.gcash-check\s*\{[\s\S]*?z-index:\s*2/);
   assert.ok(exportsSource.includes('SAMPLE ONLY • NOT A REAL TRANSACTION'));
 });
 
