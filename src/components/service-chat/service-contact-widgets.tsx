@@ -8,6 +8,15 @@ import type { ChatEnabledService, ServiceChatSettings } from "@/lib/service-chat
 export function ServiceContactWidgets({ serviceSlug }: { serviceSlug: ChatEnabledService }) {
   const [settings, setSettings] = useState<ServiceChatSettings | null>(null);
   useEffect(() => { getAuthHeaders().then((headers) => fetch(`/api/service-chat-settings?serviceSlug=${serviceSlug}`, { headers }).then((response) => response.ok ? response.json() : null)).then((data) => setSettings(data?.settings ?? null)); }, [serviceSlug]);
+  useEffect(() => {
+    function receivePreview(event: MessageEvent) {
+      if (event.origin !== window.location.origin || event.data?.type !== "eazytools-service-chat-preview" || event.data?.serviceSlug !== serviceSlug) return;
+      const next = event.data.settings as ServiceChatSettings | undefined;
+      if (next) setSettings(next);
+    }
+    window.addEventListener("message", receivePreview);
+    return () => window.removeEventListener("message", receivePreview);
+  }, [serviceSlug]);
   if (!settings) return null;
   const number = settings.whatsappNumber.replace(/\D/g, "");
   const whatsapp = settings.whatsappEnabled && number.length >= 7;
