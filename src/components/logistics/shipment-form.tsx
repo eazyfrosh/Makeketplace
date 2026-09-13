@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { PackagePlus } from "lucide-react";
+import { MessageCircle, PackagePlus } from "lucide-react";
 import { ContactFields } from "@/components/logistics/contact-fields";
 import { CarrierLogo } from "@/components/logistics/carrier-logo";
 import { Button } from "@/components/logistics/ui/button";
@@ -68,18 +69,21 @@ export function ShipmentForm({ shipmentId, defaultValues }: ShipmentFormProps) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mb-8 flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-teal-accent-500 text-white shadow-lg shadow-brand-500/25">
-          <PackagePlus size={20} />
-        </span>
-        <div>
-          <h1 className="text-2xl font-bold">{isEdit ? "Edit shipment" : "Create a shipment"}</h1>
-          <p className="text-sm text-foreground/55">
-            {isEdit
-              ? "Tracking number and status stay the same — update the shipment's own details below."
-              : "A tracking number will be generated automatically."}
-          </p>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-teal-accent-500 text-white shadow-lg shadow-brand-500/25">
+            <PackagePlus size={20} />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold">{isEdit ? "Edit shipment" : "Create a shipment"}</h1>
+            <p className="text-sm text-foreground/55">
+              {isEdit
+                ? "Tracking number and status stay the same — update the shipment's own details below."
+                : "A tracking number will be generated automatically."}
+            </p>
+          </div>
         </div>
+        <Link href="/platform/logistics-platform/chat-widgets" className="inline-flex items-center justify-center gap-2 rounded-xl border border-black/15 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"><MessageCircle className="size-4" />WhatsApp &amp; chat settings</Link>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
