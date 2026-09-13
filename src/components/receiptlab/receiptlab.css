@@ -2557,6 +2557,89 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
   transform: translate(-50%, -50%) rotate(-18deg);
 }
+/* Gcash express-send receipt */
+.receiptlab-root .mini-gcash,
+.receiptlab-root .mini-okx { padding: 0; }
+.receiptlab-root .mini-gcash::before,
+.receiptlab-root .mini-okx::before { display: none; }
+.receiptlab-root .gcash-mini,
+.receiptlab-root .okx-mini { position: absolute; inset: 0; overflow: hidden; }
+.receiptlab-root .gcash-mini { padding-top: 18px; background: #0964e8; color: #fff; text-align: center; }
+.receiptlab-root .gcash-mini > b { font-size: 10px; }
+.receiptlab-root .gcash-mini > div { position: absolute; inset: 50px 15px 22px; padding: 30px 10px; border-radius: 5px 5px 0 0; background: #fff; color: #0d3d92; display: flex; flex-direction: column; gap: 8px; }
+.receiptlab-root .gcash-mini i { position: absolute; top: -17px; left: calc(50% - 17px); width: 34px; height: 34px; border-radius: 50%; background: #0964e8; color: #fff; font-style: normal; display: grid; place-items: center; }
+.receiptlab-root .gcash-mini strong { font-size: 15px; }
+.receiptlab-root .gcash-mini small { color: #7d8188; }
+.receiptlab-root .gcash-mini span { margin-top: 18px; padding-top: 12px; border-top: 1px solid #d9dce2; font-size: 17px; font-weight: 850; }
+.receiptlab-root .gcash-mini em,
+.receiptlab-root .okx-mini em { position: absolute; right: 9px; bottom: 6px; z-index: 2; color: #b42336; font-size: 7px; font-style: normal; font-weight: 900; }
+.receiptlab-root .okx-mini { padding: 20px; background: #101010; color: #f6f6f7; text-align: center; }
+.receiptlab-root .okx-mini > b { display: block; padding-bottom: 16px; border-bottom: 1px solid #292929; font-size: 13px; }
+.receiptlab-root .okx-mini > small { display: block; margin-top: 18px; color: #919197; }
+.receiptlab-root .okx-mini > strong { display: block; margin-top: 7px; font-size: 15px; }
+.receiptlab-root .okx-mini > i { display: block; margin: 8px 0 18px; color: #00c596; font-style: normal; }
+.receiptlab-root .okx-mini > span { display: block; height: 18px; margin-top: 5px; border-radius: 3px; background: #1b1b1b; }
+
+.receiptlab-root .receipt.gcash {
+  width: min(430px, 100%);
+  min-height: 0;
+  aspect-ratio: 947 / 2048;
+  padding: 0;
+  border-radius: 0;
+  background: #0964e8;
+  color: #fff;
+  container-type: inline-size;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.receiptlab-root .gcash-screen { position: absolute; inset: 0; overflow: hidden; background: #0964e8; }
+.receiptlab-root .gcash-statusbar { height: 6.4cqw; padding: 2.25cqw 9.8cqw 0; display: flex; justify-content: space-between; align-items: flex-start; font-size: 3.65cqw; letter-spacing: -.04em; }
+.receiptlab-root .gcash-statusbar span { font-size: 2.7cqw; letter-spacing: .13em; }
+.receiptlab-root .gcash-screen > header { height: 9.8cqw; display: grid; place-items: center; font-size: 2.8cqw; }
+.receiptlab-root .gcash-screen > header i { position: absolute; top: 7.1cqw; right: 6.2cqw; font-size: 5.8cqw; font-style: normal; font-weight: 200; }
+.receiptlab-root .gcash-paper { position: absolute; top: 16.1cqw; left: 5.4cqw; right: 5.4cqw; bottom: 10.4cqw; padding: 8.2cqw 3.7cqw 0; background: #fff; color: #0d315f; text-align: center; clip-path: polygon(0 0,100% 0,100% 98.25%,98% 100%,96% 98.25%,94% 100%,92% 98.25%,90% 100%,88% 98.25%,86% 100%,84% 98.25%,82% 100%,80% 98.25%,78% 100%,76% 98.25%,74% 100%,72% 98.25%,70% 100%,68% 98.25%,66% 100%,64% 98.25%,62% 100%,60% 98.25%,58% 100%,56% 98.25%,54% 100%,52% 98.25%,50% 100%,48% 98.25%,46% 100%,44% 98.25%,42% 100%,40% 98.25%,38% 100%,36% 98.25%,34% 100%,32% 98.25%,30% 100%,28% 98.25%,26% 100%,24% 98.25%,22% 100%,20% 98.25%,18% 100%,16% 98.25%,14% 100%,12% 98.25%,10% 100%,8% 98.25%,6% 100%,4% 98.25%,2% 100%,0 98.25%); }
+.receiptlab-root .gcash-check { position: absolute; top: -5.1cqw; left: calc(50% - 5.1cqw); width: 10.2cqw; height: 10.2cqw; border-radius: 50%; background: #0964e8; color: #fff; font-size: 5.2cqw; display: grid; place-items: center; }
+.receiptlab-root .gcash-paper h2 { margin: 0; color: #0d3d92; font-size: 4.15cqw; line-height: 1.1; }
+.receiptlab-root .gcash-phone { display: inline-block; margin-top: 1.8cqw; padding: .55cqw 2cqw; border-radius: 99px; background: #f1f4fb; color: #0d3d92; font-size: 3.55cqw; white-space: nowrap; }
+.receiptlab-root .gcash-via { margin: 4.2cqw 0 7.8cqw; color: #777b84; font-size: 2.75cqw; }
+.receiptlab-root .gcash-values { margin: 0; border-top: 1px solid #e1e2e6; }
+.receiptlab-root .gcash-values > div { min-height: 15.2cqw; padding: 0; border-bottom: 1px solid #cbd0d8; display: flex; align-items: center; justify-content: space-between; gap: 2cqw; font-size: 3.1cqw; font-weight: 750; }
+.receiptlab-root .gcash-values dt,.receiptlab-root .gcash-values dd { margin: 0; }
+.receiptlab-root .gcash-values > div:last-child { border: 0; }
+.receiptlab-root .gcash-values > div:last-child dd { font-size: 4.3cqw; font-weight: 850; }
+.receiptlab-root .gcash-meta { margin: 0 -3.7cqw; min-height: 12.8cqw; padding: 4.4cqw 3.7cqw 0; background: #f5f6fb; color: #60718d; display: flex; justify-content: space-between; gap: 2cqw; font-size: 2.35cqw; text-align: left; }
+.receiptlab-root .gcash-meta span b { color: #12345f; }
+.receiptlab-root .gcash-meta > b { color: #12345f; text-align: right; }
+.receiptlab-root .gcash-carbon { position: absolute; left: 3.7cqw; right: 3.7cqw; bottom: 11.3cqw; min-height: 17cqw; box-sizing: border-box; padding: 3cqw; border-left: 1.4cqw solid #18c892; border-radius: .8cqw; background: #94e5c6; color: #087e55; text-align: left; }
+.receiptlab-root .gcash-carbon strong { font-size: 3.2cqw; }
+.receiptlab-root .gcash-carbon small { font-size: 2cqw; }
+.receiptlab-root .gcash-carbon p { margin: 2.2cqw 0 0; font-size: 2.25cqw; line-height: 1.45; }
+.receiptlab-root .receipt.gcash .gcash-screen > footer { position: absolute; left: 9cqw; right: 9cqw; bottom: 2.35cqw; padding: 0; background: transparent; color: #fff; display: flex; justify-content: space-between; font-size: 3cqw; }
+
+/* OKX withdrawal-details receipt */
+.receiptlab-root .receipt.okx { width: min(430px, 100%); min-height: 0; aspect-ratio: 1 / 2; padding: 0; border-radius: 0; background: #101010; color: #f7f7f8; container-type: inline-size; font-family: Arial, Helvetica, sans-serif; }
+.receiptlab-root .okx-screen { position: absolute; inset: 0; overflow: hidden; background: #101010; }
+.receiptlab-root .okx-statusbar { height: 5.4cqw; padding: 1.2cqw 4.2cqw 0; display: flex; justify-content: space-between; font-size: 2.6cqw; }
+.receiptlab-root .okx-screen > header { height: 9.1cqw; border-bottom: 1px solid #292929; display: grid; place-items: center; font-size: 3.75cqw; }
+.receiptlab-root .okx-screen > header i { position: absolute; left: 3.5cqw; font-size: 6cqw; font-style: normal; font-weight: 200; }
+.receiptlab-root .okx-screen > main { padding: 6.3cqw 4cqw 0; text-align: center; }
+.receiptlab-root .okx-screen > main > small { color: #96969b; font-size: 2.75cqw; }
+.receiptlab-root .okx-screen h2 { margin: 2cqw 0 1.8cqw; font-size: 4.75cqw; line-height: 1.1; }
+.receiptlab-root .okx-sent { color: #00c596; font-size: 3.3cqw; }
+.receiptlab-root .okx-sent span { margin-left: 1.2cqw; color: #f7f7f8; font-weight: 500; }
+.receiptlab-root .okx-callout { min-height: 12.2cqw; margin: 6.4cqw 0 5.8cqw; padding: 2.6cqw 3cqw; border-radius: 1.3cqw; background: #1b1b1b; display: flex; align-items: center; gap: 2.5cqw; text-align: left; }
+.receiptlab-root .okx-callout > i { font-size: 5cqw; font-style: normal; }
+.receiptlab-root .okx-callout div { min-width: 0; }
+.receiptlab-root .okx-callout b,.receiptlab-root .okx-callout span { display: block; overflow-wrap: anywhere; }
+.receiptlab-root .okx-callout b { font-size: 2.55cqw; }
+.receiptlab-root .okx-callout span { margin-top: .8cqw; color: #3f7bf6; font-size: 2.35cqw; }
+.receiptlab-root .okx-details { margin: 0; }
+.receiptlab-root .okx-details > div { min-height: 7.6cqw; display: grid; grid-template-columns: 37% 63%; align-items: start; }
+.receiptlab-root .okx-details dt,.receiptlab-root .okx-details dd { min-width: 0; margin: 0; font-size: 2.75cqw; line-height: 1.28; }
+.receiptlab-root .okx-details dt { color: #8f8f95; text-align: left; }
+.receiptlab-root .okx-details dd { color: #f3f3f5; display: flex; align-items: flex-start; justify-content: flex-end; gap: 1cqw; text-align: right; }
+.receiptlab-root .okx-details dd span { min-width: 0; overflow-wrap: anywhere; }
+.receiptlab-root .okx-details svg { width: 3.1cqw; height: 3.1cqw; flex: 0 0 auto; }
+.receiptlab-root .okx-explorer { position: absolute; left: 4cqw; right: 4cqw; bottom: 3.7cqw; min-height: 10.5cqw; padding: 0 3cqw; border-radius: 99px; background: #fff; color: #111; font-size: 3.35cqw; font-weight: 750; display: flex; align-items: center; justify-content: center; text-align: center; }
 @media (max-width: 1000px) {
   .receiptlab-root .gallery {
     grid-template-columns: repeat(2, 1fr);

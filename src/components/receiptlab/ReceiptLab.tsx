@@ -3,6 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import { coinbaseAmountFont } from './receipt-font';
 import { bybitRows, BYBIT_SAMPLE_NOTICE, drawBybitReceipt } from './bybit-template';
 import {
+  drawGcashReceipt,
+  drawOkxReceipt,
+  MOBILE_SAMPLE_NOTICE,
+} from './mobile-receipt-templates';
+import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendPasswordResetEmail,
@@ -127,6 +132,20 @@ const templates: Template[] = [
     accent: '#28bf8b',
     description: 'Deposit confirmation',
   },
+  {
+    id: 'gcash',
+    name: 'Gcash',
+    category: 'Payments',
+    accent: '#0964e8',
+    description: 'Express send receipt',
+  },
+  {
+    id: 'okx',
+    name: 'OKX Wallet',
+    category: 'Crypto',
+    accent: '#111111',
+    description: 'Withdrawal details',
+  },
 ];
 export default function ReceiptLab() {
   const [user, setUser] = useState<User | null>({ displayName: 'Nevora Creator', email: 'creator@nevora.app' } as User),
@@ -208,6 +227,24 @@ export default function ReceiptLab() {
     darkBlueTxid: 'Off-chain transfer 172490923091',
     darkBlueWallet: 'Funding Wallet',
     darkBlueDate: '2024-05-10 10:51:01',
+    gcashTime: '10:06',
+    gcashRecipient: 'HA•••D D.',
+    gcashPhone: '+63 915 750 3350',
+    gcashAmount: '3,000.00',
+    gcashTotal: '₱3000.00',
+    gcashReference: '9040035185241',
+    gcashDate: 'Apr 22, 2026 10:06 AM',
+    okxAmount: '- 10.316428 USDT',
+    okxStatus: 'Sent',
+    okxHelp: "Why hasn’t my transaction arrived?",
+    okxBlockchain: 'TRC20',
+    okxType: 'On-chain withdrawal',
+    okxAddress: 'THujD8W62Jmhd5WCrlUEhG75K4UzY18tYuX',
+    okxTransaction: 'fdf84500a1f28e4c0ff88ee10de23df4e7c519379c91fd18c908cdc9789065df',
+    okxFee: '1 USDT',
+    okxTime: '02/09/2024, 19:23:29',
+    okxReference: '151708673',
+    okxButton: 'View on blockchain explorer',
   });
   const ref = useRef<HTMLDivElement>(null),
     total = (Number(form.amount || 0) + Number(form.tax || 0)).toFixed(2);
@@ -383,13 +420,21 @@ export default function ReceiptLab() {
                   ? 1800
                   : template.id === 'dark-blue'
                     ? 1600
-                    : 1200;
-    const requiresSampleNotice = template.id === 'indigo';
+                    : template.id === 'gcash'
+                      ? 1947
+                      : template.id === 'okx'
+                        ? 1800
+                        : 1200;
+    const requiresSampleNotice = template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx';
     const safetyFooterHeight = watermarkEnabled || requiresSampleNotice ? 52 : 0;
     c.height = contentHeight + safetyFooterHeight;
     const x = c.getContext('2d');
     if (!x) return;
-    if (template.id === 'studio') {
+    if (template.id === 'gcash') {
+      drawGcashReceipt(c, form);
+    } else if (template.id === 'okx') {
+      drawOkxReceipt(c, form);
+    } else if (template.id === 'studio') {
       const img = new Image();
       img.src = '/receiptlab/studio-reference.jpg';
       await new Promise<void>((resolve, reject) => {
@@ -1322,7 +1367,9 @@ function Gallery({
               className={`mini mini-${t.id}`}
               style={{ '--accent': t.accent } as React.CSSProperties}
             >
-              {t.id === 'studio' ||
+              {t.id === 'gcash' || t.id === 'okx' ? (
+                <MobileReceiptMini id={t.id} />
+              ) : t.id === 'studio' ||
               t.id === 'mono' ||
               t.id === 'citrus' ||
               t.id === 'orbit' ||
@@ -1377,6 +1424,78 @@ function Gallery({
     </div>
   );
 }
+function MobileReceiptMini({ id }: { id: 'gcash' | 'okx' }) {
+  return id === 'gcash' ? (
+    <div className="gcash-mini" aria-hidden="true">
+      <b>Express Send</b>
+      <div><i>✓</i><strong>HA•••D D.</strong><small>Sent via GCash</small><span>₱3000.00</span></div>
+      <em>SAMPLE ONLY</em>
+    </div>
+  ) : (
+    <div className="okx-mini" aria-hidden="true">
+      <b>Withdrawal details</b>
+      <small>Amount</small><strong>- 10.316428 USDT</strong><i>✓ Sent</i>
+      <span /><span /><span /><span />
+      <em>SAMPLE ONLY</em>
+    </div>
+  );
+}
+
+function GcashReceiptPreview({ form }: { form: Record<string, string> }) {
+  return (
+    <>
+      <article className="gcash-screen">
+        <div className="gcash-statusbar"><b>{form.gcashTime || '10:06'}</b><span>▮▮▮⌁▱</span></div>
+        <header><b>Express Send</b><i>×</i></header>
+        <main className="gcash-paper">
+          <div className="gcash-check">✓</div>
+          <h2>{form.gcashRecipient || 'HA•••D D.'}</h2>
+          <strong className="gcash-phone">{form.gcashPhone || '+63 915 750 3350'}</strong>
+          <p className="gcash-via">Sent via GCash</p>
+          <dl className="gcash-values">
+            <div><dt>Amount</dt><dd>{form.gcashAmount || '3,000.00'}</dd></div>
+            <div><dt>Total Amount Sent</dt><dd>{form.gcashTotal || '₱3000.00'}</dd></div>
+          </dl>
+          <div className="gcash-meta"><span>Ref No. <b>{form.gcashReference || '9040035185241'}</b></span><b>{form.gcashDate || 'Apr 22, 2026 10:06 AM'}</b></div>
+          <div className="gcash-carbon"><strong>♧ 279g <small>(gCO₂e)</small></strong><p>By going digital, you reduce your carbon footprint from transportation, paper, and plastic.</p></div>
+        </main>
+        <footer><span>⇩ <b>Download</b></span><span>⌯ <b>Share Receipt</b></span></footer>
+      </article>
+      <div className="watermark safety-footer">{MOBILE_SAMPLE_NOTICE}</div>
+    </>
+  );
+}
+
+function OkxReceiptPreview({ form }: { form: Record<string, string> }) {
+  const rows = [
+    ['Blockchain', form.okxBlockchain || 'TRC20'],
+    ['Type', form.okxType || 'On-chain withdrawal'],
+    ['Status', form.okxStatus || 'Sent'],
+    ['Address/domain', form.okxAddress || 'sample-address', 'copy'],
+    ['Transaction ID  ⓘ', form.okxTransaction || 'sample-transaction-id', 'copy'],
+    ['Fee', form.okxFee || '1 USDT'],
+    ['Time', form.okxTime || 'Demo date'],
+    ['Reference no.', form.okxReference || '000000000', 'copy'],
+  ];
+  return (
+    <>
+      <article className="okx-screen">
+        <div className="okx-statusbar"><b>19:23</b><span>▮▮▮⌁▱</span></div>
+        <header><i>‹</i><b>Withdrawal details</b></header>
+        <main>
+          <small>Amount</small>
+          <h2>{form.okxAmount || '- 10.316428 USDT'}</h2>
+          <strong className="okx-sent">✓ <span>{form.okxStatus || 'Sent'}</span></strong>
+          <section className="okx-callout"><i>◎</i><div><b>Crypto transferred out of OKX</b><span>{form.okxHelp || "Why hasn’t my transaction arrived?"}</span></div></section>
+          <dl className="okx-details">{rows.map(([label, value, copy]) => <div key={label}><dt>{label}</dt><dd><span>{value}</span>{copy && <Copy aria-hidden="true" />}</dd></div>)}</dl>
+        </main>
+        <div className="okx-explorer">{form.okxButton || 'View on blockchain explorer'}</div>
+      </article>
+      <div className="watermark safety-footer">{MOBILE_SAMPLE_NOTICE}</div>
+    </>
+  );
+}
+
 type EditorProps = {
   form: Record<string, string>;
   setForm: (value: Record<string, string>) => void;
@@ -1411,6 +1530,7 @@ function Editor({
       />
     </label>
   );
+  const lockedSample = template.id === 'black' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx';
   return (
     <div className="editor">
       <div className="editor-head">
@@ -1433,8 +1553,8 @@ function Editor({
           <div className="notice">
             <ShieldCheck />
             <span>
-              <b>{template.id === 'black' ? 'Sample notice is locked' : 'Safety watermark'}</b>
-              <p>{template.id === 'black' ? 'This template always includes a sample notice in previews and exports.' : 'Keep the sample notice on for safer sharing.'}</p>
+              <b>{lockedSample ? 'Sample notice is locked' : 'Safety watermark'}</b>
+              <p>{lockedSample ? 'This template always includes a sample notice in previews and exports.' : 'Keep the sample notice on for safer sharing.'}</p>
             </span>
           </div>
           <label className="watermark-toggle">
@@ -1445,8 +1565,8 @@ function Editor({
             <input
               type="checkbox"
               role="switch"
-              checked={template.id === 'black' || watermarkEnabled}
-              disabled={template.id === 'black'}
+              checked={lockedSample || watermarkEnabled}
+              disabled={lockedSample}
               onChange={(e) => setWatermarkEnabled(e.target.checked)}
               aria-label="Show watermark"
             />
@@ -1573,6 +1693,44 @@ function Editor({
               {field('darkBlueTxid', 'Transaction ID')}
               {field('darkBlueDate', 'Date')}
             </>
+          ) : template.id === 'gcash' ? (
+            <>
+              <div className="row">
+                {field('gcashTime', 'Phone time')}
+                {field('gcashRecipient', 'Recipient name')}
+              </div>
+              {field('gcashPhone', 'Recipient phone')}
+              <div className="row">
+                {field('gcashAmount', 'Amount')}
+                {field('gcashTotal', 'Total amount sent')}
+              </div>
+              <div className="row">
+                {field('gcashReference', 'Reference number')}
+                {field('gcashDate', 'Date and time')}
+              </div>
+            </>
+          ) : template.id === 'okx' ? (
+            <>
+              <div className="row">
+                {field('okxAmount', 'Amount')}
+                {field('okxStatus', 'Status')}
+              </div>
+              {field('okxHelp', 'Help message')}
+              <div className="row">
+                {field('okxBlockchain', 'Blockchain')}
+                {field('okxType', 'Withdrawal type')}
+              </div>
+              {field('okxAddress', 'Address or domain')}
+              {field('okxTransaction', 'Transaction ID')}
+              <div className="row">
+                {field('okxFee', 'Fee')}
+                {field('okxTime', 'Time')}
+              </div>
+              <div className="row">
+                {field('okxReference', 'Reference number')}
+                {field('okxButton', 'Explorer button')}
+              </div>
+            </>
           ) : (
             <>
               {field('merchant', 'Display name')}
@@ -1603,7 +1761,7 @@ function Editor({
           </div>
           <div
             ref={receiptRef}
-            className={`receipt ${template.id} ${template.id === 'black' ? 'bybit-light' : watermarkEnabled || template.id === 'indigo' ? 'with-safety-footer' : ''}`}
+            className={`receipt ${template.id} ${template.id === 'black' ? 'bybit-light' : lockedSample || watermarkEnabled ? 'with-safety-footer' : ''}`}
             style={{ '--accent': template.accent } as React.CSSProperties}
           >
             {template.id === 'studio' ? (
@@ -1847,6 +2005,10 @@ function Editor({
                   </div>
                 )}
               </>
+            ) : template.id === 'gcash' ? (
+              <GcashReceiptPreview form={form} />
+            ) : template.id === 'okx' ? (
+              <OkxReceiptPreview form={form} />
             ) : (
               <>
                 <i className="bar" />
@@ -2091,6 +2253,10 @@ function receiptAmount(
       return form.blackAmount;
     case 'dark-blue':
       return form.darkBlueAmount;
+    case 'gcash':
+      return form.gcashTotal;
+    case 'okx':
+      return form.okxAmount;
     default:
       return `$${total}`;
   }
