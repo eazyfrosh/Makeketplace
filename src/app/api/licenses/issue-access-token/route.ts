@@ -19,6 +19,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null);
   const serviceSlug = body?.serviceSlug as string | undefined;
+  const templateId = body?.templateId === "elite-broker" ? "elite-broker" : "volterra";
   if (!serviceSlug) {
     return NextResponse.json({ error: "Missing serviceSlug." }, { status: 400 });
   }
@@ -40,14 +41,19 @@ export async function POST(request: Request) {
   // access tokens. Other external service URLs keep their legacy direct-link
   // behavior so a database value can never become a token exfiltration target.
   if (/^https?:\/\//i.test(service.accessUrl)) {
-    const accessUrl = new URL(service.accessUrl);
+    const eliteOrigin = process.env.ELITE_BROKER_APP_ORIGIN?.replace(/\/$/, "") ?? "https://premium-broker-platform.vercel.app";
+    const targetUrl = serviceSlug === "premium-templates" && templateId === "elite-broker" ? `${eliteOrigin}/api/eazytools/sso` : service.accessUrl;
+    const accessUrl = new URL(targetUrl);
     const configuredOrigin = process.env.VOLTERRA_APP_ORIGIN?.replace(/\/$/, "");
     const trustedOrigins = new Set([
       "https://tesla-blush-nine.vercel.app",
+      "https://premium-broker-platform.vercel.app",
       ...(configuredOrigin ? [configuredOrigin] : []),
+      ...(process.env.ELITE_BROKER_APP_ORIGIN ? [eliteOrigin] : []),
     ]);
     if (serviceSlug === "premium-templates" && trustedOrigins.has(accessUrl.origin)) {
       accessUrl.searchParams.set("token", token);
+      accessUrl.searchParams.set("template", templateId);
       return NextResponse.json({ redirectUrl: accessUrl.toString() });
     }
     return NextResponse.json({ redirectUrl: service.accessUrl });

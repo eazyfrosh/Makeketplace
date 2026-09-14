@@ -1,48 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, Loader2 } from "lucide-react";
-
+import { ArrowUpRight, ExternalLink, Loader2 } from "lucide-react";
 import { LicenseGuard } from "@/components/platform/license-guard";
+import { getAuthHeaders } from "@/lib/licensing/client-auth";
+
+const templates = [
+  { id: "volterra", name: "Volterra", url: "https://tesla-blush-nine.vercel.app", accent: "text-rose-400", description: "A cinematic electric-vehicle and market-simulation experience with a private website editor." },
+  { id: "elite-broker", name: "ELITE BROKER", url: "https://premium-broker-platform.vercel.app", accent: "text-emerald-400", description: "A premium dark investment-dashboard design with customer-specific branding and a private template admin." },
+] as const;
 
 export default function PremiumTemplatesPage() {
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
-
-  async function openExternalEditor() {
-    setBusy(true);
-    setError("");
+  async function openExternalEditor(templateId: string) {
+    setBusy(templateId); setError("");
     try {
-      const response = await fetch("/api/licenses/issue-access-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ serviceSlug: "premium-templates" }),
-      });
+      const headers = await getAuthHeaders();
+      const response = await fetch("/api/licenses/issue-access-token", { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ serviceSlug: "premium-templates", templateId }) });
       const data = await response.json();
       if (!response.ok || !data.redirectUrl) throw new Error(data.error || "Unable to open the template.");
       window.location.assign(data.redirectUrl);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Unable to open the template.");
-      setBusy(false);
-    }
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to open the template."); setBusy(null); }
   }
-
-  return (
-    <LicenseGuard serviceSlug="premium-templates" themeClass="">
-      <main className="min-h-screen bg-slate-950 px-6 py-20 text-white">
-        <section className="mx-auto max-w-2xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-2xl sm:p-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-rose-400">Premium template</p>
-          <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Open your Volterra website</h1>
-          <p className="mx-auto mt-4 max-w-xl text-slate-300">
-            Continue to the hosted website to update its business name, logo, support email content, and phone number.
-          </p>
-          <button className="mt-8 inline-flex items-center gap-2 rounded-full bg-rose-500 px-6 py-3 font-semibold text-white hover:bg-rose-400 disabled:opacity-60" onClick={openExternalEditor} disabled={busy}>
-            {busy ? <Loader2 className="animate-spin" size={18} /> : <ArrowUpRight size={18} />}
-            {busy ? "Opening…" : "Open website editor"}
-          </button>
-          {error && <p className="mt-4 text-sm text-rose-300" role="alert">{error}</p>}
-        </section>
-      </main>
-    </LicenseGuard>
-  );
+  return <LicenseGuard serviceSlug="premium-templates" themeClass=""><main className="min-h-screen bg-slate-950 px-5 py-16 text-white sm:px-8"><div className="mx-auto max-w-7xl"><p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-400">Premium templates</p><h1 className="mt-3 text-4xl font-bold sm:text-5xl">Choose your website.</h1><p className="mt-4 max-w-2xl text-slate-300">Every template creates a private customer-specific website admin. Your editor changes never alter the original platform admin.</p>{error && <p className="mt-5 rounded-xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-200">{error}</p>}<div className="mt-10 grid gap-7 lg:grid-cols-2">{templates.map((template) => <article key={template.id} className="overflow-hidden rounded-3xl border border-white/10 bg-white/[.04] shadow-2xl"><div className="h-72 overflow-hidden border-b border-white/10 bg-white"><iframe className="pointer-events-none h-[620px] w-[170%] origin-top-left scale-[.48]" src={template.url} title={`${template.name} preview`} /></div><div className="p-7"><p className={`text-xs font-bold uppercase tracking-[.2em] ${template.accent}`}>Premium template</p><h2 className="mt-3 text-2xl font-bold">{template.name}</h2><p className="mt-3 min-h-12 text-sm leading-6 text-slate-300">{template.description}</p><div className="mt-6 flex flex-wrap gap-3"><button onClick={() => openExternalEditor(template.id)} disabled={Boolean(busy)} className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-slate-200 disabled:opacity-60">{busy === template.id ? <Loader2 className="size-4 animate-spin" /> : <ArrowUpRight className="size-4" />}{busy === template.id ? "Opening…" : "Open website admin"}</button><a href={template.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold hover:bg-white/10">Preview <ExternalLink className="size-4" /></a></div></div></article>)}</div></div></main></LicenseGuard>;
 }
