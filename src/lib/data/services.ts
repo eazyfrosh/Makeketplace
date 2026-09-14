@@ -270,10 +270,11 @@ export const services: Service[] = [
     category: "templates",
     tagline: "Hosted, editable websites with owner admin controls.",
     description:
-      "Launch a hosted Volterra-style EV marketplace, edit your branding and contact details from a private owner admin page, and publish it without touching code.",
+      "Launch ELITE BROKER or Volterra, edit your branding and contact details from a private owner admin page, and publish without touching code.",
     heroImage: "/service-previews/premium-templates.png",
     screenshots: ["templates-saas", "templates-portfolio", "templates-store"],
     features: [
+      "ELITE BROKER investment platform template",
       "Hosted Volterra EV marketplace template",
       "Fully responsive & accessible",
       "Dark/light mode built in",
