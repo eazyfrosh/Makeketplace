@@ -18,6 +18,7 @@ import { ServiceVisual } from "@/components/marketing/service-visual";
 import { BuyNowButton } from "@/components/marketing/buy-now-button";
 import { WishlistButton } from "@/components/marketing/wishlist-button";
 import { ServiceCard } from "@/components/marketing/service-card";
+import { PremiumTemplateCatalog } from "@/components/premium-templates/premium-template-catalog";
 
 function screenshotLabel(shot: string) {
   if (!shot.startsWith("/")) return shot;
@@ -54,6 +55,7 @@ export default async function ServiceDetailPage({
 
   const related = services.filter((s) => s.slug !== service.slug && s.category === service.category).slice(0, 3);
   const isSupportTemplates = service.slug === "support-website-templates";
+  const isPremiumTemplates = service.slug === "premium-templates";
 
   return (
     <div>
@@ -99,6 +101,10 @@ export default async function ServiceDetailPage({
                   <Button size="lg" asChild>
                     <Link href="/support-templates">Browse Templates</Link>
                   </Button>
+                ) : isPremiumTemplates ? (
+                  <Button size="lg" asChild>
+                    <Link href="#templates">Browse Premium Templates</Link>
+                  </Button>
                 ) : service.comingSoon ? (
                   <Button size="lg" disabled>Coming soon</Button>
                 ) : (
@@ -120,6 +126,8 @@ export default async function ServiceDetailPage({
           </div>
         </div>
       </section>
+
+      {isPremiumTemplates && <PremiumTemplateCatalog />}
 
       {/* Screenshots */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

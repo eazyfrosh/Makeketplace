@@ -20,6 +20,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const serviceSlug = body?.serviceSlug as string | undefined;
   const templateId = body?.templateId === "elite-broker" ? "elite-broker" : "volterra";
+  const destination = body?.destination === "editor" ? "editor" : "admin";
   if (!serviceSlug) {
     return NextResponse.json({ error: "Missing serviceSlug." }, { status: 400 });
   }
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
     if (serviceSlug === "premium-templates" && trustedOrigins.has(accessUrl.origin)) {
       accessUrl.searchParams.set("token", token);
       accessUrl.searchParams.set("template", templateId);
+      accessUrl.searchParams.set("destination", destination);
       return NextResponse.json({ redirectUrl: accessUrl.toString() });
     }
     return NextResponse.json({ redirectUrl: service.accessUrl });
