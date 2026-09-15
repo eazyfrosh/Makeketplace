@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Copy, Download, FileText, KeyRound, Loader2, Package, ShieldQuestion } from "lucide-react";
+import { ArrowRight, Copy, Download, FileText, KeyRound, Loader2, Package, ShieldQuestion } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/auth-context";
@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Progress } from "@/components/ui/progress";
 import type { Subscription, SubscriptionPlan } from "@/types/subscriptions";
+import type { Service } from "@/types";
+import { services } from "@/lib/data/services";
 
 interface MyLicense {
   id: string;
@@ -78,14 +80,22 @@ export default function DashboardPage() {
     toast.success("License key copied");
   }
 
-  async function handleAccess(license: MyLicense) {
-    setAccessingSlug(license.serviceSlug);
+  async function handleServiceAccess(service: Service) {
+    setAccessingSlug(service.slug);
     try {
+      if (service.slug === "support-website-templates") {
+        router.push("/support-templates");
+        return;
+      }
+      if (service.slug === "premium-templates") {
+        router.push("/services/premium-templates#templates");
+        return;
+      }
       const headers = await getAuthHeaders();
       const res = await fetch("/api/licenses/issue-access-token", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...headers },
-        body: JSON.stringify({ serviceSlug: license.serviceSlug }),
+        body: JSON.stringify({ serviceSlug: service.slug }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Access denied.");
@@ -105,6 +115,7 @@ export default function DashboardPage() {
     );
   }
 
+  const hasAllAccess = Boolean(subscription && subscription.status === "active" && (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= Date.now()) && subscriptionPlan?.includedTools.includes("*"));
   const totalSpent = licenses.reduce((sum, l) => sum + (l.orderTotalCents ?? 0), 0);
   const invoiceCount = new Set(licenses.map((l) => l.orderId)).size;
 
@@ -133,7 +144,7 @@ export default function DashboardPage() {
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <div className="glass rounded-2xl p-5">
           <Package className="size-5 text-primary" />
-          <div className="mt-3 text-2xl font-semibold">{licenses.length}</div>
+          <div className="mt-3 text-2xl font-semibold">{hasAllAccess ? services.length : licenses.length}</div>
           <div className="text-sm text-muted-foreground">Purchased services</div>
         </div>
         <div className="glass rounded-2xl p-5">
@@ -172,6 +183,33 @@ export default function DashboardPage() {
         {loading ? (
           <div className="mt-6 flex justify-center py-12">
             <Loader2 className="size-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : hasAllAccess ? (
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {services.map((service) => (
+              <article key={service.slug} className="glass flex flex-col justify-between gap-5 rounded-2xl p-6">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-semibold">{service.name}</h3>
+                    <Badge>{service.comingSoon ? "Coming soon" : "Included"}</Badge>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{service.tagline}</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    disabled={service.comingSoon || accessingSlug === service.slug}
+                    onClick={() => handleServiceAccess(service)}
+                  >
+                    {accessingSlug === service.slug ? <Loader2 className="size-4 animate-spin" /> : <ArrowRight className="size-4" />}
+                    {service.comingSoon ? "Coming soon" : "Open service"}
+                  </Button>
+                  <Button size="sm" variant="secondary" asChild>
+                    <Link href={`/services/${service.slug}`}>View details</Link>
+                  </Button>
+                </div>
+              </article>
+            ))}
           </div>
         ) : licenses.length === 0 ? (
           <EmptyState
@@ -223,7 +261,10 @@ export default function DashboardPage() {
                       <Button
                         size="sm"
                         disabled={!canAccess || accessingSlug === license.serviceSlug}
-                        onClick={() => handleAccess(license)}
+                        onClick={() => {
+                          const service = services.find((item) => item.slug === license.serviceSlug);
+                          if (service) void handleServiceAccess(service);
+                        }}
                         title={canAccess ? undefined : `License is ${status.toLowerCase()}`}
                       >
                         {accessingSlug === license.serviceSlug ? (

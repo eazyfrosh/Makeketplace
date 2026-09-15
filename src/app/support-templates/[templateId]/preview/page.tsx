@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { Monitor, Smartphone, Tablet } from "lucide-react";
+import { LockKeyhole, Monitor, Smartphone, Tablet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SupportSitePreview } from "@/components/support-sites/support-site-preview";
 import { createSupportSite, supportTemplates } from "@/lib/support-sites/templates";
 import { getPublishedTemplateSite, getSupportSite, getSupportTemplate } from "@/lib/support-sites/store";
 import type { SupportSite, SupportTemplate } from "@/lib/support-sites/types";
+import { getAuthHeaders } from "@/lib/licensing/client-auth";
 
 export default function TemplatePreviewPage() {
   const { templateId } = useParams<{ templateId: string }>();
@@ -17,6 +18,14 @@ export default function TemplatePreviewPage() {
   const [mode, setMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [template, setTemplate] = useState<SupportTemplate | undefined>(() => supportTemplates.find((item) => item.id === templateId));
   const [savedSite, setSavedSite] = useState<SupportSite | null>();
+  const [canCustomize, setCanCustomize] = useState(false);
+  useEffect(() => {
+    getAuthHeaders()
+      .then((headers) => fetch("/api/subscriptions/access?serviceSlug=support-website-templates", { headers }))
+      .then((response) => response.ok ? response.json() : { allowed: false })
+      .then((data) => setCanCustomize(Boolean(data.allowed)))
+      .catch(() => setCanCustomize(false));
+  }, []);
   useEffect(() => {
     if (siteId) {
       setSavedSite(undefined);
@@ -38,7 +47,7 @@ export default function TemplatePreviewPage() {
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-background px-4">
       <div><p className="font-semibold">{siteId ? savedSite?.name : template?.name}</p><p className="text-xs text-muted-foreground">{siteId ? "Saved website preview" : "Interactive template preview"}</p></div>
       <div className="flex gap-1 rounded-xl border p-1">{([['desktop',Monitor],['tablet',Tablet],['mobile',Smartphone]] as const).map(([id,Icon])=><Button key={id} size="icon" variant={mode===id?"default":"ghost"} onClick={()=>setMode(id)} aria-label={`${id} preview`}><Icon className="size-4" /></Button>)}</div>
-      <Button asChild><Link href={`/support-templates/${templateId}/editor${siteId && savedSite ? `?site=${encodeURIComponent(savedSite.id)}` : ""}`}>{siteId ? "Edit Website" : "Customize Template"}</Link></Button>
+      {canCustomize ? <Button asChild><Link href={`/support-templates/${templateId}/editor${siteId && savedSite ? `?site=${encodeURIComponent(savedSite.id)}` : ""}`}>{siteId ? "Edit Website" : "Customize Template"}</Link></Button> : <Button variant="outline" asChild><Link href="/pricing"><LockKeyhole className="size-4" /> Subscribe to customize</Link></Button>}
     </header>
     <div className={`mx-auto min-h-[calc(100vh-4rem)] bg-background shadow-xl transition-all ${widths[mode]}`}><SupportSitePreview site={previewSite} /></div>
   </div>;
