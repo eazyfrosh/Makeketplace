@@ -6,6 +6,7 @@ import { getPlan, getSubscriptionForUser } from "@/lib/subscriptions/store";
 export async function GET(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ allowed: false, reason: "sign_in_required" }, { status: 401 });
+  if (caller.role === "admin") return NextResponse.json({ allowed: true, reason: null, plan: "Administrator" });
   const slug = new URL(request.url).searchParams.get("serviceSlug");
   if (!slug) return NextResponse.json({ allowed: false, reason: "missing_tool" }, { status: 400 });
   const subscription = await getSubscriptionForUser(caller.uid);

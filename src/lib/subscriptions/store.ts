@@ -50,10 +50,32 @@ export async function savePlan(plan: SubscriptionPlan): Promise<void> {
 
 export async function getSubscriptionForUser(userId: string): Promise<Subscription | null> {
   if (adminDb) {
-    const snap = await adminDb.collection(SUBSCRIPTIONS).where("userId", "==", userId).limit(1).get();
-    return snap.empty ? null : (snap.docs[0].data() as Subscription);
+    // A customer can have historical subscription records after retrying or
+    // renewing checkout. Firestore does not guarantee which document a
+    // `limit(1)` query returns, so an old cancelled record could hide the new
+    // active subscription and send a paid customer back to pricing.
+    const snap = await adminDb.collection(SUBSCRIPTIONS).where("userId", "==", userId).get();
+    return selectCurrentSubscription(snap.docs.map((doc) => doc.data() as Subscription));
   }
-  return Array.from(demoStore().subscriptions.values()).find((item) => item.userId === userId) ?? null;
+  return selectCurrentSubscription(
+    Array.from(demoStore().subscriptions.values()).filter((item) => item.userId === userId),
+  );
+}
+
+function selectCurrentSubscription(subscriptions: Subscription[]): Subscription | null {
+  const now = Date.now();
+  const isUsable = (subscription: Subscription) =>
+    String(subscription.status).toLowerCase() === "active" &&
+    (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= now);
+  const timestamp = (subscription: Subscription) => {
+    const value = Date.parse(subscription.updatedAt || subscription.createdAt || subscription.startedAt);
+    return Number.isFinite(value) ? value : 0;
+  };
+
+  return [...subscriptions].sort((a, b) => {
+    const usableDifference = Number(isUsable(b)) - Number(isUsable(a));
+    return usableDifference || timestamp(b) - timestamp(a);
+  })[0] ?? null;
 }
 
 export async function saveSubscription(subscription: Subscription): Promise<void> {

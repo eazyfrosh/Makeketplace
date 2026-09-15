@@ -1,6 +1,7 @@
 import { del, list, put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
+import { getPlan, getSubscriptionForUser } from "@/lib/subscriptions/store";
 import type { SupportSite } from "@/lib/support-sites/types";
 
 const SITE_PREFIX = "support-data/sites/";
@@ -13,6 +14,13 @@ async function readSite(url: string): Promise<SupportSite | null> {
 
 async function findSite(id: string) { const result = await list({ prefix: `${SITE_PREFIX}${safeId(id)}.json`, limit: 1 }); return result.blobs[0] ? readSite(result.blobs[0].url) : null; }
 async function listSites() { const result = await list({ prefix: SITE_PREFIX, limit: 1000 }); const sites = await Promise.all(result.blobs.map((blob) => readSite(blob.url))); return sites.filter((site): site is SupportSite => Boolean(site)); }
+async function canCustomize(uid: string, role: string) {
+  if (role === "admin") return true;
+  const subscription = await getSubscriptionForUser(uid);
+  if (!subscription || subscription.status !== "active" || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) return false;
+  const plan = await getPlan(subscription.planId);
+  return Boolean(plan && (plan.includedTools.includes("*") || plan.includedTools.includes("support-website-templates")));
+}
 
 export async function GET(request: Request) {
   try {
@@ -28,6 +36,7 @@ export async function GET(request: Request) {
     }
     const caller = await verifyCaller(request);
     if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
+    if (!(await canCustomize(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTools subscription is required to customize support templates." }, { status: 403 });
     const id = url.searchParams.get("id");
     if (id) { const site = await findSite(id); if (!site) return NextResponse.json(null); if (caller.role !== "admin" && site.userId !== caller.uid) return NextResponse.json({ error: "You do not have access to this project." }, { status: 403 }); return NextResponse.json(site); }
     const sites = await listSites();
@@ -38,6 +47,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
+  if (!(await canCustomize(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTools subscription is required to customize support templates." }, { status: 403 });
   try {
     const input = await request.json() as SupportSite;
     const id = safeId(String(input.id || ""));
@@ -58,6 +68,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
+  if (!(await canCustomize(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTools subscription is required to customize support templates." }, { status: 403 });
   try {
     const id = safeId(new URL(request.url).searchParams.get("id") ?? "");
     if (!id) return NextResponse.json({ error: "Project ID is required." }, { status: 400 });
