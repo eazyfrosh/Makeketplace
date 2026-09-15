@@ -7,12 +7,12 @@ export interface DomainRecord {
   id: string; userId: string; domain: string; tld: string; registrar: "resellerclub";
   registrarOrderId: string | null; status: DomainStatus; registeredAt: string | null; expiresAt: string | null;
   autoRenew: boolean; nameservers: string[]; customerPriceCents: number; currency: "NGN";
-  registrant?: Registrant; createdAt: string; updatedAt: string;
+  registrant?: Registrant; templateId?: "elite-broker" | "volterra"; templateSiteId?: string; templateSiteUrl?: string; createdAt: string; updatedAt: string;
 }
 export interface DomainOrder {
   id: string; userId: string; domain: string; tld: string; amountCents: number; currency: "NGN";
   paystackReference: string; paymentStatus: DomainPaymentStatus; registrationStatus: DomainRegistrationStatus;
-  registrarOrderId: string | null; errorMessage?: string; createdAt: string; updatedAt: string;
+  registrarOrderId: string | null; templateId?: "elite-broker" | "volterra"; templateSiteId?: string; templateSiteUrl?: string; errorMessage?: string; createdAt: string; updatedAt: string;
 }
 export interface DomainAvailability { domain: string; tld: string; available: boolean; priceCents: number; currency: "NGN"; }
 export interface DnsRecord { host: string; type: DnsRecordType; value: string; ttl: number; priority?: number; }

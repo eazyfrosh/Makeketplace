@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const serviceSlug = body?.serviceSlug as string | undefined;
   const templateId = body?.templateId === "elite-broker" ? "elite-broker" : "volterra";
-  const destination = body?.destination === "editor" ? "editor" : "admin";
+  const destination = body?.destination === "editor" || body?.destination === "preview" ? body.destination : "admin";
   if (!serviceSlug) {
     return NextResponse.json({ error: "Missing serviceSlug." }, { status: 400 });
   }
