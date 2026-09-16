@@ -454,14 +454,16 @@ export default function ReceiptLab() {
     let byteOffset = encoder.encode('%PDF-1.4\n%\u00e2\u00e3\u00cf\u00d3\n').length;
     objects.forEach((object, index) => {
       offsets.push(byteOffset);
-      const header = `${index + 1} 0 obj\n${object}\nendobj\n`;
+      const header = index === 4
+        ? `${index + 1} 0 obj\n${object}\nstream\n`
+        : `${index + 1} 0 obj\n${object}\nendobj\n`;
       const headerBytes = encoder.encode(header);
       chunks.push(headerBytes);
       byteOffset += headerBytes.length;
       if (index === 4) {
         chunks.push(imageBytes);
         byteOffset += imageBytes.length;
-        const end = encoder.encode('\n');
+        const end = encoder.encode('\nendstream\nendobj\n');
         chunks.push(end);
         byteOffset += end.length;
       }
