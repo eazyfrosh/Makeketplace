@@ -17,7 +17,7 @@ export function PrintableItinerary({ booking }: { booking: Booking }) {
   const primaryFirst = primaryFlight.segments[0];
 
   return (
-    <div className="hidden print:block print:bg-white print:text-black">
+    <div className="printable-itinerary hidden print:block print:bg-white print:text-black">
       <div className="mx-auto max-w-[190mm]">
         <div className="flex items-center justify-between border-b-4 pb-4" style={{ borderColor: primaryFirst.airline.logoColor }}>
           <div className="flex items-center gap-2.5">
