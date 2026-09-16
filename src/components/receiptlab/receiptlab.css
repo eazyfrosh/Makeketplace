@@ -2767,3 +2767,20 @@
 .receiptlab-root .boa-preview .safety-footer { position: static; margin-top: 18px; width: 100%; height: 28px; transform: none; display: flex; align-items: center; justify-content: center; border-top: 1px solid #d69e00; background: #fff3cd; color: #9f1239; font-size: 9px; font-weight: 850; letter-spacing: .08em; white-space: nowrap; }
 
 .receiptlab-root .receipt.citi-bank{width:430px;min-height:612px;padding:0}.receiptlab-root .citi-bank-preview{width:430px;height:612px;padding:27px 36px 0;background:#fff;color:#101832;font-family:Arial,sans-serif;overflow:hidden}.receiptlab-root .citi-bank-preview header>span{font-size:18px;font-weight:700;letter-spacing:.035em;text-transform:uppercase}.receiptlab-root .citi-bank-preview header>b{margin-left:8px;font-size:18px;color:#4c5364}.receiptlab-root .citi-bank-preview h2{margin:39px 0 17px;font-size:26px;font-weight:400;line-height:1.05}.receiptlab-root .citi-confirmation{display:flex;align-items:center;gap:14px;padding:10px 11px;border-top:2px solid #14866d;border-bottom:2px solid #14866d;background:#e9f7f2}.receiptlab-root .citi-confirmation>strong{display:grid;width:18px;height:18px;place-items:center;border-radius:50%;background:#14866d;color:white;font-size:14px}.receiptlab-root .citi-confirmation small,.receiptlab-root .citi-details small{display:block;color:#263b3d;font-size:9px}.receiptlab-root .citi-confirmation b{display:block;font:13px monospace}.receiptlab-root .citi-message{margin:7px 0 4px;font-size:15px;line-height:1.42}.receiptlab-root .citi-another{margin:0 0 18px;font-size:15px;font-weight:700}.receiptlab-root .citi-details{border-top:2px solid #d8dce4}.receiptlab-root .citi-details>div{display:flex;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid #d8dce4}.receiptlab-root .citi-details>div>span{max-width:64%;text-align:right;font-size:15px}.receiptlab-root .citi-details em{display:block;color:#4c5364;font-size:11px;font-style:normal}.receiptlab-root .receipt.wells-fargo{width:430px;min-height:768px;padding:0}.receiptlab-root .wells-fargo-preview{width:430px;height:768px;overflow:hidden;background:#fff;color:#3f3f42;font-family:Arial,Helvetica,sans-serif}.receiptlab-root .wells-fargo-preview>header{height:45px;display:grid;place-items:center;background:#c6282d;border-bottom:5px solid #f6cc42;color:#fff}.receiptlab-root .wells-fargo-preview>header strong{font-family:Georgia,serif;font-size:26px}.receiptlab-root .wells-fargo-preview>h2{height:59px;margin:0;display:grid;place-items:center;border-bottom:1px solid #cfcfcf;color:#8f1d2b;font-family:Georgia,serif;font-size:25px;font-weight:400}.receiptlab-root .wells-details{padding:15px 18px 0}.receiptlab-root .wells-details>div{display:grid;grid-template-columns:130px 1fr;min-height:46px;padding:14px 0 13px;border-bottom:1px solid #d2d2d2}.receiptlab-root .wells-details b{font-size:22px;font-weight:700}.receiptlab-root .wells-details span{font-size:22px;line-height:1.22}.receiptlab-root .wells-details em{display:block;font-style:normal}
+
+.receiptlab-root .mini-boa,
+.receiptlab-root .mini-citi-bank,
+.receiptlab-root .mini-wells-fargo,
+.receiptlab-root .mini-okx { padding: 0; background: #fff; }
+.receiptlab-root .mini-boa::before,
+.receiptlab-root .mini-citi-bank::before,
+.receiptlab-root .mini-wells-fargo::before,
+.receiptlab-root .mini-okx::before { display: none; }
+.receiptlab-root .mini-boa > img,
+.receiptlab-root .mini-citi-bank > img,
+.receiptlab-root .mini-wells-fargo > img,
+.receiptlab-root .mini-okx > img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.receiptlab-root .mini-wells-fargo > img { object-fit: cover; }
+.receiptlab-root .mini-boa > img,
+.receiptlab-root .mini-citi-bank > img,
+.receiptlab-root .mini-okx > img { padding: 12px; }

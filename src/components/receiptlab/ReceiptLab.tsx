@@ -1464,7 +1464,7 @@ function Gallery({
               className={`mini mini-${t.id}`}
               style={{ '--accent': t.accent } as React.CSSProperties}
             >
-              {t.id === 'gcash' || t.id === 'okx' ? (
+              {t.id === 'gcash' ? (
                 <MobileReceiptMini id={t.id} />
               ) : t.id === 'studio' ||
               t.id === 'mono' ||
@@ -1473,7 +1473,11 @@ function Gallery({
               t.id === 'blue' ||
               t.id === 'indigo' ||
               t.id === 'black' ||
-              t.id === 'dark-blue' ? (
+              t.id === 'dark-blue' ||
+              t.id === 'boa' ||
+              t.id === 'citi-bank' ||
+              t.id === 'wells-fargo' ||
+              t.id === 'okx' ? (
                 <>
                   <img
                     src={
@@ -1491,7 +1495,15 @@ function Gallery({
                                   ? '/receiptlab/zelle-library-preview.png'
                                     : t.id === 'black'
                                       ? '/receiptlab/bybit-library-preview.jpg'
-                                      : '/receiptlab/binance-library-preview.png'
+                                      : t.id === 'dark-blue'
+                                        ? '/receiptlab/binance-library-preview.png'
+                                        : t.id === 'boa'
+                                          ? '/receiptlab/boa-library-preview.png'
+                                          : t.id === 'citi-bank'
+                                            ? '/receiptlab/citi-library-preview.png'
+                                            : t.id === 'wells-fargo'
+                                              ? '/receiptlab/wells-fargo-library-preview.jpg'
+                                              : '/receiptlab/okx-library-preview.png'
                     }
                     alt={`${t.name} receipt reference`}
                   />
