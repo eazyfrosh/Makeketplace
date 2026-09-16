@@ -9,6 +9,21 @@ import { Button } from "@/components/airline/ui/button";
 export function DownloadPdfButton({ label = "Download PDF" }: { label?: string }) {
   const [isDownloading, setIsDownloading] = useState(false);
 
+  function downloadTextFallback(itinerary: HTMLElement) {
+    const pdf = new jsPDF({ format: "a4", unit: "mm", orientation: "portrait" });
+    const lines = pdf.splitTextToSize(itinerary.innerText.replace(/\n{3,}/g, "\n\n"), 190);
+    let y = 15;
+    for (const line of lines) {
+      if (y > 282) {
+        pdf.addPage();
+        y = 15;
+      }
+      pdf.text(line, 10, y);
+      y += 5;
+    }
+    pdf.save("skybook-itinerary.pdf");
+  }
+
   async function downloadItinerary() {
     const itinerary = document.querySelector<HTMLElement>(".printable-itinerary");
     // Boarding-pass pages share this button but intentionally have no itinerary
@@ -31,12 +46,26 @@ export function DownloadPdfButton({ label = "Download PDF" }: { label?: string }
       itinerary.style.background = "#ffffff";
       itinerary.style.color = "#000000";
 
-      const canvas = await html2canvas(itinerary, {
-        backgroundColor: "#ffffff",
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
+      const canvas = await Promise.race([
+        html2canvas(itinerary, {
+          backgroundColor: "#ffffff",
+          scale: 2,
+          // External airline logos can keep a canvas capture waiting forever
+          // when their image host does not send CORS headers. Embedded QR codes
+          // still render, while non-embedded images are removed in the clone.
+          useCORS: false,
+          imageTimeout: 5000,
+          logging: false,
+          onclone: (clonedDocument) => {
+            clonedDocument.querySelectorAll<HTMLImageElement>("img").forEach((image) => {
+              if (!image.src.startsWith("data:")) image.remove();
+            });
+          },
+        }),
+        new Promise<never>((_, reject) => {
+          window.setTimeout(() => reject(new Error("Itinerary PDF capture timed out")), 10000);
+        }),
+      ]);
       const pdf = new jsPDF({ format: "a4", unit: "mm", orientation: "portrait" });
       const margin = 10;
       const contentWidth = 210 - margin * 2;
@@ -54,6 +83,10 @@ export function DownloadPdfButton({ label = "Download PDF" }: { label?: string }
       }
 
       pdf.save("skybook-itinerary.pdf");
+    } catch {
+      // Always complete the user action even if a browser blocks canvas
+      // rendering. The fallback is still a valid, itinerary-only PDF.
+      downloadTextFallback(itinerary);
     } finally {
       if (originalStyle === null) itinerary.removeAttribute("style");
       else itinerary.setAttribute("style", originalStyle);
