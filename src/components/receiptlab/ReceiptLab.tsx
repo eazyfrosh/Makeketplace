@@ -146,6 +146,27 @@ const templates: Template[] = [
     accent: '#111111',
     description: 'Withdrawal details',
   },
+  {
+    id: 'boa',
+    name: 'BOA',
+    category: 'Banking',
+    accent: '#173f91',
+    description: 'Scheduled payment confirmation',
+  },
+  {
+    id: 'citi-bank',
+    name: 'CiTi Bank',
+    category: 'Banking',
+    accent: '#14866d',
+    description: 'Formal payment confirmation',
+  },
+  {
+    id: 'wells-fargo',
+    name: 'Wells Fargo',
+    category: 'Banking',
+    accent: '#c6282d',
+    description: 'Wire money details statement',
+  },
 ];
 export default function ReceiptLab() {
   const [user, setUser] = useState<User | null>({ displayName: 'Nevora Creator', email: 'creator@nevora.app' } as User),
@@ -245,6 +266,17 @@ export default function ReceiptLab() {
     okxTime: '02/09/2024, 19:23:29',
     okxReference: '151708673',
     okxButton: 'View on blockchain explorer',
+    boaBankCard: 'BANK OF AMERICA - PERSONAL CARD-9654',
+    boaCardType: 'Financial Rewards Platinum Plus',
+    boaPayFrom: 'Adv Plus Banking - 8599',
+    boaAmount: '$4,955.99',
+    boaDeliverBy: 'Mar 03, 2021',
+    boaFrequency: 'One Time',
+    boaPaymentType: 'Electronic',
+    boaConfirmation: 'R9JFG-8F243',
+    boaFooter: 'Payments to this Bank of America Card/Small Business Loan account',
+    citiName: 'CINDY', citiConfirmation: '612060986782997', citiSource: 'Guarantee Bank and Trust Company', citiSourceEnding: '5901', citiAmount: '$1,500.00', citiDate: 'JUL 09, 2026', citiPayTo: 'CiTi ThankYou® Mastercard®', citiPayToEnding: '0930',
+    wellsRecipient: 'Dana Pease', wellsRecipientAccount: 'United States ...4204', wellsSource: 'EVERYDAY CHECKING ...8928', wellsAmount: '$23,073.67', wellsFees: '$30.00', wellsTotal: '$23,103.67', wellsSendDate: '02/23/2022', wellsDeliverDate: '02/23/2022', wellsMessage: 'Pay off on 2 Acres', wellsStatus: 'Completed', wellsConfirmation: 'OW00001992201633',
   });
   const ref = useRef<HTMLDivElement>(null),
     total = (Number(form.amount || 0) + Number(form.tax || 0)).toFixed(2);
@@ -424,13 +456,78 @@ export default function ReceiptLab() {
                       ? 1947
                       : template.id === 'okx'
                         ? 1800
-                        : 1200;
+                        : template.id === 'boa'
+                          ? 1878
+                          : template.id === 'citi-bank'
+                            ? 1500
+                            : template.id === 'wells-fargo'
+                              ? 1608
+                              : 1200;
     const requiresSampleNotice = template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx';
     const safetyFooterHeight = watermarkEnabled || requiresSampleNotice ? 52 : 0;
     c.height = contentHeight + safetyFooterHeight;
     const x = c.getContext('2d');
     if (!x) return;
-    if (template.id === 'gcash') {
+    if (template.id === 'boa') {
+      x.fillStyle = '#fff';
+      x.fillRect(0, 0, 900, 1878);
+      x.textAlign = 'center';
+      x.fillStyle = '#bd315c';
+      x.font = '32px Arial';
+      x.fillText('Success', 450, 76);
+      x.fillStyle = '#5a5a5d';
+      x.font = '39px Arial';
+      x.fillText("You've scheduled a payment.", 450, 224);
+      x.fillStyle = '#e8e9ed';
+      x.beginPath(); x.roundRect(250, 330, 216, 48, 24); x.fill();
+      x.beginPath(); x.roundRect(500, 330, 142, 48, 24); x.fill();
+      x.beginPath(); x.roundRect(677, 330, 145, 48, 24); x.fill();
+      x.fillStyle = '#16376e';
+      x.font = 'bold 20px Arial';
+      x.fillText('SAVE AS PDF', 358, 361);
+      x.fillText('PRINT', 571, 361);
+      x.fillText('EMAIL', 749, 361);
+      x.strokeStyle = '#d7d7d7';
+      x.lineWidth = 1;
+      x.beginPath(); x.arc(92, 610, 51, 0, Math.PI * 2); x.stroke();
+      x.fillStyle = '#b32845';
+      x.font = 'bold 34px Arial';
+      x.fillText('≋', 92, 605);
+      x.textAlign = 'left';
+      x.fillStyle = '#151515';
+      x.font = '24px Arial';
+      x.fillText(form.boaBankCard || 'BANK OF AMERICA - PERSONAL CARD-9654', 174, 552);
+      x.font = '19px Arial';
+      x.fillText(form.boaCardType || 'Financial Rewards Platinum Plus', 174, 666);
+      const boaRow = (label: string, value: string, y: number) => {
+        x.fillStyle = '#151515';
+        x.font = '23px Arial';
+        x.fillText(label, 44, y);
+        x.fillStyle = '#77777a';
+        x.textAlign = 'right';
+        x.fillText(value, 858, y);
+        x.textAlign = 'left';
+      };
+      boaRow('Pay From', form.boaPayFrom || 'Adv Plus Banking - 8599', 880);
+      boaRow('Amount', form.boaAmount || '$4,955.99', 1000);
+      boaRow('Deliver By', form.boaDeliverBy || 'Mar 03, 2021', 1120);
+      boaRow('Frequency', form.boaFrequency || 'One Time', 1240);
+      boaRow('Payment Type', form.boaPaymentType || 'Electronic', 1360);
+      boaRow('Confirmation', form.boaConfirmation || 'R9JFG-8F243', 1480);
+      x.fillStyle = '#77777a';
+      x.font = '16px Arial';
+      x.fillText(form.boaFooter || 'Payments to this Bank of America Card/Small Business Loan account', 22, 1672);
+      x.fillStyle = '#103d91';
+      x.beginPath(); x.roundRect(352, 1710, 196, 65, 33); x.fill();
+      x.fillStyle = '#fff';
+      x.textAlign = 'center';
+      x.font = 'bold 20px Arial';
+      x.fillText('DONE', 450, 1751);
+    } else if (template.id === 'citi-bank') {
+      x.fillStyle = '#fff'; x.fillRect(0, 0, 900, 1500); x.fillStyle = '#101832'; x.textAlign = 'left'; x.font = '600 28px Arial'; x.fillText('Make a Payment  ⓘ', 72, 78); x.font = '400 48px Arial'; x.fillText('Thanks for Your Payment,', 72, 188); x.fillText(form.citiName || 'CUSTOMER', 72, 246); x.fillStyle = '#e9f7f2'; x.fillRect(72, 304, 756, 112); x.fillStyle = '#14866d'; x.fillRect(72, 304, 756, 4); x.fillRect(72, 412, 756, 4); x.beginPath(); x.arc(112, 360, 25, 0, Math.PI * 2); x.fill(); x.fillStyle = '#fff'; x.font = 'bold 30px Arial'; x.textAlign = 'center'; x.fillText('✓', 112, 370); x.fillStyle = '#263b3d'; x.textAlign = 'left'; x.font = '500 22px Arial'; x.fillText('CONFIRMATION NUMBER', 158, 350); x.font = '24px monospace'; x.fillText(form.citiConfirmation || 'SAMPLE-CONFIRMATION', 158, 382); x.fillStyle = '#101832'; x.font = '24px Arial'; x.fillText('Your payment is scheduled. Look for a confirmation email in your inbox very soon.', 72, 468); x.font = 'bold 24px Arial'; x.fillText('Make Another Payment  ›', 72, 514); x.strokeStyle = '#d8dce4'; x.lineWidth = 2; x.beginPath(); x.moveTo(72, 570); x.lineTo(828, 570); x.stroke(); x.fillStyle = '#18213f'; x.font = '500 17px Arial'; x.fillText('PAYMENT SOURCE', 72, 630); x.textAlign = 'right'; x.font = '500 23px Arial'; x.fillText(form.citiSource || 'Bank account', 828, 630); x.fillText(form.citiAmount || '$0.00', 828, 742); x.fillText(form.citiDate || 'DEMO DATE', 828, 834); x.fillText(form.citiPayTo || 'Demo recipient', 828, 926); x.textAlign = 'left';
+    } else if (template.id === 'wells-fargo') {
+      x.fillStyle = '#fff'; x.fillRect(0, 0, 900, 1608); x.fillStyle = '#c6282d'; x.fillRect(0, 0, 900, 106); x.fillStyle = '#f6cc42'; x.fillRect(0, 106, 900, 10); x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = 'bold 49px Georgia, serif'; x.fillText('WELLS FARGO', 450, 73); x.fillStyle = '#8f1d2b'; x.font = '48px Georgia, serif'; x.fillText('Wire Money - Details', 450, 177); x.strokeStyle = '#cfcfcf'; x.beginPath(); x.moveTo(0, 218); x.lineTo(900, 218); x.stroke(); x.textAlign = 'left'; x.fillStyle = '#3f3f42'; x.font = 'bold 31px Arial'; x.fillText('To', 40, 285); x.font = '31px Arial'; x.fillText(form.wellsRecipient || 'Dana Pease', 337, 285); x.fillText(form.wellsRecipientAccount || 'United States ...4204', 337, 332); const wfRows = [['From', form.wellsSource || 'EVERYDAY CHECKING ...8928'], ['Amount', form.wellsAmount || '$23,073.67'], ['Fees', form.wellsFees || '$30.00'], ['Total from account', form.wellsTotal || '$23,103.67'], ['Send on', form.wellsSendDate || '02/23/2022'], ['Deliver by', form.wellsDeliverDate || '02/23/2022'], ["Message to recipient's bank", form.wellsMessage || 'Pay off on 2 Acres'], ['Status', form.wellsStatus || 'Completed'], ['Confirmation number', form.wellsConfirmation || 'OW00001992201633']]; wfRows.forEach(([label, value], index) => { const y = 466 + index * 118; x.font = 'bold 31px Arial'; x.fillText(label, 40, y); x.font = '31px Arial'; x.fillText(value, 337, y); x.strokeStyle = '#d2d2d2'; x.beginPath(); x.moveTo(318, y + 62); x.lineTo(862, y + 62); x.stroke(); });
+    } else if (template.id === 'gcash') {
       drawGcashReceipt(c, form);
     } else if (template.id === 'okx') {
       drawOkxReceipt(c, form);
@@ -1588,7 +1685,23 @@ function Editor({
               ))}
             </select>
           </label>
-          {template.id === 'studio' ? (
+          {template.id === 'citi-bank' ? (<><>{field('citiName', 'Customer name')}{field('citiConfirmation', 'Confirmation number')}{field('citiSource', 'Payment source')}<div className="row">{field('citiSourceEnding', 'Source account ending')}{field('citiAmount', 'Payment amount')}</div>{field('citiDate', 'Payment date')}<div className="row">{field('citiPayTo', 'Payment to')}{field('citiPayToEnding', 'Payee account ending')}</div></></>) : template.id === 'wells-fargo' ? (<><>{field('wellsRecipient', 'Recipient name')}{field('wellsRecipientAccount', 'Recipient account')}{field('wellsSource', 'Source account')}<div className="row">{field('wellsAmount', 'Amount')}{field('wellsFees', 'Fees')}</div>{field('wellsTotal', 'Total from account')}<div className="row">{field('wellsSendDate', 'Send on')}{field('wellsDeliverDate', 'Deliver by')}</div>{field('wellsMessage', "Message to recipient's bank")}<div className="row">{field('wellsStatus', 'Status')}{field('wellsConfirmation', 'Confirmation number')}</div></></>) : template.id === 'boa' ? (
+            <>
+              {field('boaBankCard', 'Bank and card label')}
+              {field('boaCardType', 'Card type')}
+              {field('boaPayFrom', 'Pay from')}
+              <div className="row">
+                {field('boaAmount', 'Amount')}
+                {field('boaDeliverBy', 'Deliver by')}
+              </div>
+              <div className="row">
+                {field('boaFrequency', 'Frequency')}
+                {field('boaPaymentType', 'Payment type')}
+              </div>
+              {field('boaConfirmation', 'Confirmation')}
+              {field('boaFooter', 'Footer message')}
+            </>
+          ) : template.id === 'studio' ? (
             <>
               {field('merchant', 'Recipient name')}
               {field('item', 'Payment handle')}
@@ -1764,7 +1877,28 @@ function Editor({
             className={`receipt ${template.id} ${template.id === 'black' ? 'bybit-light' : lockedSample || watermarkEnabled ? 'with-safety-footer' : ''}`}
             style={{ '--accent': template.accent } as React.CSSProperties}
           >
-            {template.id === 'studio' ? (
+            {template.id === 'citi-bank' ? (<article className="citi-bank-preview"><header><span>Make a Payment</span><b>ⓘ</b><h2>Thanks for Your Payment,<br />{form.citiName || 'CUSTOMER'}</h2></header><section className="citi-confirmation"><strong>✓</strong><div><small>CONFIRMATION NUMBER</small><b>{form.citiConfirmation || 'SAMPLE-CONFIRMATION'}</b></div></section><p className="citi-message">Your payment is scheduled. Look for a confirmation email in your inbox very soon.</p><p className="citi-another">Make Another Payment&nbsp; ›</p><div className="citi-details"><div><small>PAYMENT SOURCE</small><span>{form.citiSource || 'Bank account'}<em>Account ending in {form.citiSourceEnding || '0000'}</em></span></div><div><small>PAYMENT AMOUNT</small><span>{form.citiAmount || '$0.00'}</span></div><div><small>PAYMENT DATE</small><span>{form.citiDate || 'DEMO DATE'}</span></div><div><small>PAYMENT TO</small><span>{form.citiPayTo || 'Demo recipient'}<em>Account ending in {form.citiPayToEnding || '0000'}</em></span></div></div>{watermarkEnabled && <div className="watermark safety-footer">DEMO • NOT A REAL TRANSACTION</div>}</article>) : template.id === 'wells-fargo' ? (<article className="wells-fargo-preview"><header><strong>WELLS FARGO</strong></header><h2>Wire Money - Details</h2><div className="wells-details"><div><b>To</b><span>{form.wellsRecipient || 'Dana Pease'}<em>{form.wellsRecipientAccount || 'United States ...4204'}</em></span></div><div><b>From</b><span>{form.wellsSource || 'EVERYDAY CHECKING ...8928'}</span></div><div><b>Amount</b><span>{form.wellsAmount || '$23,073.67'}</span></div><div><b>Fees</b><span>{form.wellsFees || '$30.00'}</span></div><div><b>Total from<br />account</b><span>{form.wellsTotal || '$23,103.67'}</span></div><div><b>Send on</b><span>{form.wellsSendDate || '02/23/2022'}</span></div><div><b>Deliver by</b><span>{form.wellsDeliverDate || '02/23/2022'}</span></div><div><b>Message to<br />recipient&apos;s<br />bank</b><span>{form.wellsMessage || 'Pay off on 2 Acres'}</span></div><div><b>Status</b><span>{form.wellsStatus || 'Completed'}</span></div><div><b>Confirmation<br />number</b><span>{form.wellsConfirmation || 'OW00001992201633'}</span></div></div>{watermarkEnabled && <div className="watermark safety-footer">DEMO • NOT A REAL TRANSACTION</div>}</article>) : template.id === 'boa' ? (
+              <article className="boa-preview">
+                <div className="boa-success">Success</div>
+                <h2>You&apos;ve scheduled a payment.</h2>
+                <div className="boa-actions"><b>SAVE AS PDF</b><b>PRINT</b><b>EMAIL</b></div>
+                <div className="boa-card">
+                  <div className="boa-mark" aria-hidden="true">≋</div>
+                  <div><strong>{form.boaBankCard || 'BANK OF AMERICA - PERSONAL CARD-9654'}</strong><span>{form.boaCardType || 'Financial Rewards Platinum Plus'}</span></div>
+                </div>
+                <div className="boa-details">
+                  <div><b>Pay From</b><span>{form.boaPayFrom || 'Adv Plus Banking - 8599'}</span></div>
+                  <div><b>Amount</b><span>{form.boaAmount || '$4,955.99'}</span></div>
+                  <div><b>Deliver By</b><span>{form.boaDeliverBy || 'Mar 03, 2021'}</span></div>
+                  <div><b>Frequency</b><span>{form.boaFrequency || 'One Time'}</span></div>
+                  <div><b>Payment Type</b><span>{form.boaPaymentType || 'Electronic'}</span></div>
+                  <div><b>Confirmation</b><span>{form.boaConfirmation || 'R9JFG-8F243'}</span></div>
+                </div>
+                <p className="boa-footer-copy">{form.boaFooter || 'Payments to this Bank of America Card/Small Business Loan account'}</p>
+                <button className="boa-done" type="button">DONE</button>
+                {watermarkEnabled && <div className="watermark safety-footer">DEMO • NOT A REAL TRANSACTION</div>}
+              </article>
+            ) : template.id === 'studio' ? (
               <>
                 <img
                   className="studio-fragment studio-avatar"
