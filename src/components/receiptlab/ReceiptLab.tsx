@@ -433,6 +433,47 @@ export default function ReceiptLab() {
       notify(firebaseErrorMessage(error));
     }
   }
+  function canvasToPdfBlob(source: HTMLCanvasElement) {
+    const jpeg = source.toDataURL('image/jpeg', 0.94).split(',')[1];
+    const imageBytes = Uint8Array.from(atob(jpeg), (char) => char.charCodeAt(0));
+    const pageWidth = 612;
+    const pageHeight = pageWidth * (source.height / source.width);
+    const contentStream = `q\n${pageWidth} 0 0 ${pageHeight} 0 0 cm\n/Im0 Do\nQ\n`;
+    const objects = [
+      '<< /Type /Catalog /Pages 2 0 R >>',
+      '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /ProcSet [/PDF /ImageC] /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`,
+      `<< /Length ${new TextEncoder().encode(contentStream).length} >>\nstream\n${contentStream}endstream`,
+      `<< /Type /XObject /Subtype /Image /Width ${source.width} /Height ${source.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imageBytes.length} >>`,
+    ];
+    const chunks: Uint8Array[] = [];
+    const offsets = [0];
+    const encoder = new TextEncoder();
+    const pushText = (text: string) => chunks.push(encoder.encode(text));
+    pushText('%PDF-1.4\n%\u00e2\u00e3\u00cf\u00d3\n');
+    let byteOffset = encoder.encode('%PDF-1.4\n%\u00e2\u00e3\u00cf\u00d3\n').length;
+    objects.forEach((object, index) => {
+      offsets.push(byteOffset);
+      const header = `${index + 1} 0 obj\n${object}\nendobj\n`;
+      const headerBytes = encoder.encode(header);
+      chunks.push(headerBytes);
+      byteOffset += headerBytes.length;
+      if (index === 4) {
+        chunks.push(imageBytes);
+        byteOffset += imageBytes.length;
+        const end = encoder.encode('\n');
+        chunks.push(end);
+        byteOffset += end.length;
+      }
+    });
+    const xrefOffset = byteOffset;
+    let xref = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+    xref += offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n \n`).join('');
+    xref += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+    chunks.push(encoder.encode(xref));
+    return new Blob(chunks as unknown as BlobPart[], { type: 'application/pdf' });
+  }
+
   async function exportFile(type: 'png' | 'pdf') {
     notify(`Preparing ${type.toUpperCase()}…`);
     const c = document.createElement('canvas');
@@ -983,10 +1024,12 @@ export default function ReceiptLab() {
       a.href = url;
       a.click();
     } else {
-      const w = window.open();
-      w?.document.write(
-        `<title>ReceiptLab sample</title><img src="${url}" style="max-width:100%"><script>print()<\/script>`,
-      );
+      const pdfUrl = URL.createObjectURL(canvasToPdfBlob(c));
+      const a = document.createElement('a');
+      a.download = `receiptlab-${template.id}-sample.pdf`;
+      a.href = pdfUrl;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000);
     }
     await saveReceipt('Exported', true);
     notify(`${type.toUpperCase()} sample ready`);
