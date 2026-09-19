@@ -116,7 +116,11 @@ function detailRow(
   ctx.stroke();
 }
 
-export function drawChaseReceipt(canvas: HTMLCanvasElement, form: ReceiptForm) {
+export function drawChaseReceipt(
+  canvas: HTMLCanvasElement,
+  form: ReceiptForm,
+  logo?: HTMLImageElement,
+) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
   const status = getChaseStatusPresentation(form.chaseStatus);
@@ -130,14 +134,18 @@ export function drawChaseReceipt(canvas: HTMLCanvasElement, form: ReceiptForm) {
   ctx.textBaseline = 'top';
   ctx.font = '700 47px Arial';
   ctx.fillText('CHASE', 48, 31);
-  ctx.fillStyle = '#1787cf';
-  ctx.save();
-  ctx.translate(325, 59);
-  ctx.rotate(Math.PI / 4);
-  ctx.fillRect(-25, -25, 50, 50);
-  ctx.fillStyle = '#edf6ff';
-  ctx.fillRect(-12, -12, 24, 24);
-  ctx.restore();
+  if (logo) {
+    ctx.drawImage(logo, 280, 20, 78, 78);
+  } else {
+    ctx.fillStyle = '#1787cf';
+    ctx.save();
+    ctx.translate(325, 59);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-25, -25, 50, 50);
+    ctx.fillStyle = '#edf6ff';
+    ctx.fillRect(-12, -12, 24, 24);
+    ctx.restore();
+  }
   ctx.textAlign = 'right';
   ctx.fillStyle = '#343943';
   ctx.font = '24px Arial';

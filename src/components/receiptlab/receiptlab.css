@@ -3757,3 +3757,5 @@
 .receiptlab-root .mini-gcash { padding: 0; background: #fff; }
 .receiptlab-root .mini-gcash::before { display: none; }
 .receiptlab-root .mini-gcash > img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 12px; }
+
+.receiptlab-root .chase-brand img { width: 6.2cqw; height: 6.2cqw; object-fit: contain; display: block; }

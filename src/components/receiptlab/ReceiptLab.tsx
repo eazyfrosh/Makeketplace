@@ -651,7 +651,17 @@ export default function ReceiptLab() {
     } else if (template.id === 'okx') {
       drawOkxReceipt(c, form);
     } else if (template.id === 'chase') {
-      drawChaseReceipt(c, form);
+      const chaseLogo = new Image();
+      chaseLogo.src = '/receiptlab/chase-logo.png';
+      await new Promise<void>((resolve) => {
+        chaseLogo.onload = () => resolve();
+        chaseLogo.onerror = () => resolve();
+      });
+      if (chaseLogo.complete && chaseLogo.naturalWidth) {
+        drawChaseReceipt(c, form, chaseLogo);
+      } else {
+        drawChaseReceipt(c, form);
+      }
     } else if (isInvoiceTemplate(template.id)) {
       await drawInvoice(c, template.id, form, invoiceLogo);
     } else if (template.id === 'studio') {
@@ -1767,7 +1777,7 @@ function ChaseReceiptPreview({ form }: { form: Record<string, string> }) {
     <>
       <article className={`chase-screen chase-status-${status.key}`}>
         <header className="chase-header">
-          <div className="chase-brand"><b>CHASE</b><i aria-hidden="true" /></div>
+          <div className="chase-brand"><b>CHASE</b><img src="/receiptlab/chase-logo.png" alt="Chase logo" /></div>
           <div><span>Receipt</span><b>{form.chaseReceiptDate || 'Demo date'}</b></div>
         </header>
         <section className="chase-pending">
