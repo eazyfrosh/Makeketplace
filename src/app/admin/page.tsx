@@ -56,6 +56,9 @@ export default function AdminPage() {
             <Link href="/admin/domains">Domains</Link>
           </Button>
           <Button variant="secondary" asChild>
+            <Link href="/admin/wallets">Wallets</Link>
+          </Button>
+          <Button variant="secondary" asChild>
             <Link href="/admin/licenses">Manage licenses</Link>
           </Button>
           <Button variant="secondary" asChild>

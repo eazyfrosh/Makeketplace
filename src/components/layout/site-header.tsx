@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { WalletNavLink } from "@/components/wallet/wallet-nav-link";
 
 const NAV_LINKS = [
   { href: "/services", label: "Services" },
@@ -86,6 +87,7 @@ export function SiteHeader() {
           </div>
 
           <div className="flex items-center gap-1">
+            <div className="hidden xl:block"><WalletNavLink /></div>
             <Button
               variant="ghost"
               size="icon"
@@ -182,6 +184,7 @@ export function SiteHeader() {
             <DropdownMenuSeparator className="my-2" />
             {user ? (
               <>
+                <WalletNavLink mobile />
                 <Link href="/dashboard" className="rounded-lg px-3 py-2 text-sm font-medium">
                   Dashboard
                 </Link>

@@ -98,6 +98,15 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Wallet balances, funding intents, immutable ledger entries, and audit
+    // logs are server-mediated only. Authenticated owner/admin reads are also
+    // served through APIs so field-level financial data is never exposed by
+    // broad client SDK queries. Firebase Admin performs verified atomic writes.
+    match /wallets/{userId} { allow read, write: if false; }
+    match /wallet_transactions/{transactionId} { allow read, write: if false; }
+    match /wallet_funding_intents/{intentId} { allow read, write: if false; }
+    match /wallet_audit_logs/{logId} { allow read, write: if false; }
+
     // Support tickets: owner or admin only.
     match /supportTickets/{ticketId} {
       allow read: if isOwner(resource.data.userId) || isAdmin();

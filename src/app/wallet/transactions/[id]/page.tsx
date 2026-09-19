@@ -1,0 +1,9 @@
+"use client";
+import * as React from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { getAuthHeaders } from "@/lib/licensing/client-auth";
+import type { WalletTransaction } from "@/lib/wallet/types";
+const money=(n:number)=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(n/100);
+export default function TransactionPage(){const {id}=useParams<{id:string}>();const [tx,setTx]=React.useState<WalletTransaction|null>(null);const [failed,setFailed]=React.useState(false);React.useEffect(()=>{getAuthHeaders().then(h=>fetch(`/api/wallet/transactions/${encodeURIComponent(id)}`,{headers:h})).then(async r=>{if(!r.ok)throw new Error();setTx((await r.json()).transaction)}).catch(()=>setFailed(true))},[id]);if(failed)return <div className="mx-auto max-w-xl px-4 py-24 text-center">Transaction not found.</div>;if(!tx)return <div className="flex justify-center py-24"><Loader2 className="animate-spin"/></div>;return <main className="mx-auto max-w-xl px-4 py-12"><Link href="/wallet/transactions" className="text-sm text-primary">← Transaction history</Link><div className="mt-5 rounded-3xl border bg-card p-7 shadow-sm"><CheckCircle2 className="size-10 text-emerald-500"/><p className="mt-5 text-sm text-muted-foreground">Transaction Details</p><h1 className="mt-1 text-2xl font-semibold">{tx.description}</h1><div className="mt-7 divide-y">{[["Amount",`${tx.direction==="credit"?"+":"-"}${money(tx.amountMinor)}`],["Status",tx.status],["Reference",tx.reference],["Date",new Date(tx.createdAt).toLocaleString()],["Payment Method",tx.type==="deposit"?"Paystack":"EazyTools Wallet"]].map(([a,b])=><div key={a} className="flex justify-between gap-4 py-4"><span className="text-muted-foreground">{a}</span><span className="text-right font-medium capitalize">{b}</span></div>)}</div></div></main>}
