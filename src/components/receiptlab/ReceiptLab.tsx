@@ -7,6 +7,14 @@ import {
   drawOkxReceipt,
   MOBILE_SAMPLE_NOTICE,
 } from './mobile-receipt-templates';
+import { drawChaseReceipt } from './chase-template';
+import {
+  drawInvoice,
+  invoiceMoney,
+  invoiceTotals,
+  isInvoiceTemplate,
+  type InvoiceTemplateId,
+} from './invoice-template';
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -39,6 +47,7 @@ import {
   FileImage,
   FileText,
   History,
+  ImagePlus,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -50,6 +59,7 @@ import {
   ShieldCheck,
   Sparkles,
   Sun,
+  Trash2,
   Users,
   X,
 } from 'lucide-react';
@@ -167,6 +177,34 @@ const templates: Template[] = [
     accent: '#c6282d',
     description: 'Wire money details statement',
   },
+  {
+    id: 'chase',
+    name: 'Chase Bank',
+    category: 'Banking',
+    accent: '#126bc5',
+    description: 'Pending payment receipt',
+  },
+  {
+    id: 'invoice-aurora',
+    name: 'Aurora Invoice',
+    category: 'Invoice',
+    accent: '#2563eb',
+    description: 'Professional business invoice',
+  },
+  {
+    id: 'invoice-ledger',
+    name: 'Ledger Invoice',
+    category: 'Invoice',
+    accent: '#171717',
+    description: 'Refined monochrome layout',
+  },
+  {
+    id: 'invoice-nova',
+    name: 'Nova Invoice',
+    category: 'Invoice',
+    accent: '#087f5b',
+    description: 'Confident emerald statement',
+  },
 ];
 export default function ReceiptLab() {
   const [user, setUser] = useState<User | null>({ displayName: 'Nevora Creator', email: 'creator@nevora.app' } as User),
@@ -181,7 +219,8 @@ export default function ReceiptLab() {
     [query, setQuery] = useState(''),
     [toast, setToast] = useState(''),
     [watermarkEnabled, setWatermarkEnabled] = useState(true),
-    [historyRows, setHistoryRows] = useState<HistoryRow[]>([]);
+    [historyRows, setHistoryRows] = useState<HistoryRow[]>([]),
+    [invoiceLogo, setInvoiceLogo] = useState('');
   const [form, setForm] = useState<Record<string, string>>({
     merchant: 'Wright',
     item: '$Payday1080',
@@ -208,12 +247,13 @@ export default function ReceiptLab() {
     orbitMethod: 'Venmo balance',
     orbitDate: 'December 10, 2022, 12:46 PM',
     orbitHandle: '@SpaceUnicorn80',
-    blueTitle: 'Successfully sent',
-    blueFiat: '$10,000.26',
-    blueCrypto: '10,000.259635 USDT',
-    blueMessage: 'This transaction usually takes less than 10 minutes',
-    blueButton: 'Done',
-    blueLink: 'View transaction',
+    blueTitle: 'Payment to',
+    blueAddress: '0x331160f21825c2047c5528b0357b87c545ebf1dc',
+    blueFiat: '$10,636.33',
+    blueCrypto: '9.99993699 ETH',
+    blueFeeFiat: '$0.04',
+    blueFeeCrypto: '0.000042000000147 ETH',
+    blueConfirmed: 'Jun 15',
     indigoMessage:
       "We’re sending your money now. Kayla Zelle will get it in a few minutes.",
     indigoAmount: '$50.00',
@@ -277,6 +317,38 @@ export default function ReceiptLab() {
     boaFooter: 'Payments to this Bank of America Card/Small Business Loan account',
     citiName: 'CINDY', citiConfirmation: '612060986782997', citiSource: 'Guarantee Bank and Trust Company', citiSourceEnding: '5901', citiAmount: '$1,500.00', citiDate: 'JUL 09, 2026', citiPayTo: 'CiTi ThankYou® Mastercard®', citiPayToEnding: '0930',
     wellsRecipient: 'Dana Pease', wellsRecipientAccount: 'United States ...4204', wellsSource: 'EVERYDAY CHECKING ...8928', wellsAmount: '$23,073.67', wellsFees: '$30.00', wellsTotal: '$23,103.67', wellsSendDate: '02/23/2022', wellsDeliverDate: '02/23/2022', wellsMessage: 'Pay off on 2 Acres', wellsStatus: 'Completed', wellsConfirmation: 'OW00001992201633',
+    chaseReceiptDate: 'July 14, 2026',
+    chaseStatusTitle: 'Payment pending',
+    chaseStatusMessage: 'Your payment is being processed.',
+    chaseAmount: '$2,500,000.00',
+    chaseCurrency: 'USD',
+    chaseRecipient: 'Frank Lowe',
+    chaseEmail: 'FrankLowe2013@yahoo.com',
+    chaseTransactionId: '7b8e2d41c9',
+    chaseDate: 'July 14, 2026',
+    chaseTime: '3:25 AM UTC',
+    chaseMethod: 'Chase bank balance',
+    chaseStatus: 'Pending',
+    chaseFee: '$900.00',
+    chaseTotal: '$2,500,900.00',
+    invoiceBusiness: 'Nevora Creative Studio',
+    invoiceEmail: 'hello@nevora.example',
+    invoiceAddress: '223 Sample Street, New York, NY',
+    invoicePhone: '+1 (000) 123-4567',
+    invoicePaymentInfo: 'PayPal: billing@nevora.example',
+    invoiceSigner: 'Alex Morgan',
+    invoiceSignerTitle: 'Creative Director',
+    invoiceNumber: 'INV-2048',
+    invoiceClient: 'Sample Client Co.',
+    invoiceClientEmail: 'accounts@sample.example',
+    invoiceIssueDate: 'September 7, 2026',
+    invoiceDueDate: 'September 21, 2026',
+    invoiceDescription: 'Brand identity and product design services',
+    invoiceQuantity: '1',
+    invoiceUnitPrice: '1850',
+    invoiceTaxRate: '7.5',
+    invoiceCurrency: 'USD',
+    invoiceNotes: 'Thank you for your business. Payment is due within 14 days.',
   });
   const ref = useRef<HTMLDivElement>(null),
     total = (Number(form.amount || 0) + Number(form.tax || 0)).toFixed(2);
@@ -418,7 +490,7 @@ export default function ReceiptLab() {
     }
     try {
       await addDoc(collection(db, 'users', user.uid, 'receipts'), {
-        title: `${template.name} demo receipt`,
+        title: `${template.name} demo ${isInvoiceTemplate(template.id) ? 'invoice' : 'receipt'}`,
         templateId: template.id,
         template: template.name,
         amount: receiptAmount(template.id, form, total),
@@ -428,7 +500,7 @@ export default function ReceiptLab() {
         safetyNotice: 'DEMO • NOT A REAL TRANSACTION',
         createdAt: serverTimestamp(),
       });
-      if (!quiet) notify('Demo receipt saved to Firebase');
+      if (!quiet) notify(`Demo ${isInvoiceTemplate(template.id) ? 'invoice' : 'receipt'} saved`);
     } catch (error) {
       notify(firebaseErrorMessage(error));
     }
@@ -488,7 +560,7 @@ export default function ReceiptLab() {
           : template.id === 'orbit'
             ? 1601
             : template.id === 'blue'
-              ? 1600
+              ? 1740
               : template.id === 'indigo'
                 ? 1947
                 : template.id === 'black'
@@ -497,7 +569,7 @@ export default function ReceiptLab() {
                     ? 1600
                     : template.id === 'gcash'
                       ? 1947
-                      : template.id === 'okx'
+                    : template.id === 'okx'
                         ? 1800
                         : template.id === 'boa'
                           ? 1878
@@ -505,8 +577,12 @@ export default function ReceiptLab() {
                             ? 1500
                             : template.id === 'wells-fargo'
                               ? 1608
-                              : 1200;
-    const requiresSampleNotice = template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx';
+                              : template.id === 'chase'
+                                ? 1776
+                                : template.id === 'invoice-aurora'
+                                  ? 1260
+                                  : 1200;
+    const requiresSampleNotice = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || template.id === 'chase' || isInvoiceTemplate(template.id);
     const safetyFooterHeight = watermarkEnabled || requiresSampleNotice ? 52 : 0;
     c.height = contentHeight + safetyFooterHeight;
     const x = c.getContext('2d');
@@ -574,6 +650,10 @@ export default function ReceiptLab() {
       drawGcashReceipt(c, form);
     } else if (template.id === 'okx') {
       drawOkxReceipt(c, form);
+    } else if (template.id === 'chase') {
+      drawChaseReceipt(c, form);
+    } else if (isInvoiceTemplate(template.id)) {
+      await drawInvoice(c, template.id, form, invoiceLogo);
     } else if (template.id === 'studio') {
       const img = new Image();
       img.src = '/receiptlab/studio-reference.jpg';
@@ -733,59 +813,68 @@ export default function ReceiptLab() {
         notify('The amount font could not load. Please retry the download.');
         return;
       }
-      const img = new Image();
-      img.src = '/receiptlab/blue-reference.jpg';
-      await new Promise<void>((resolve, reject) => {
-        img.onload = () => resolve();
-        img.onerror = () => reject();
-      });
-      x.drawImage(img, 0, 0, 900, 1600);
+      x.fillStyle = '#ffffff';
+      x.fillRect(0, 0, 900, 1740);
       x.textAlign = 'center';
-      x.fillStyle = '#07090e';
-      x.fillRect(125, 670, 650, 110);
-      x.fillRect(135, 785, 630, 130);
-      x.fillRect(110, 905, 680, 120);
-      x.fillRect(45, 1080, 810, 150);
-      x.fillStyle = '#f5f5f7';
-      x.font = '48px Arial';
-      x.fillText(form.blueTitle || 'Successfully sent', 450, 739);
-      x.fillStyle = '#466cc6';
-      x.font = `800 62px ${amountFamily}`;
-      x.fillText(form.blueFiat || '$0.00', 450, 875);
-      x.fillStyle = '#c6c7ca';
-      x.font = `800 43px ${amountFamily}`;
-      x.fillText(form.blueCrypto || '0 USDT', 450, 977);
-      x.fillStyle = '#b7b8bc';
-      x.font = '39px Arial';
-      const message = form.blueMessage || 'Sample transfer message';
-      const words = message.split(' ');
-      const lines: string[] = [];
-      let line = '';
-      for (const word of words) {
-        const candidate = line ? `${line} ${word}` : word;
-        if (x.measureText(candidate).width > 790 && line) {
-          lines.push(line);
-          line = word;
-        } else {
-          line = candidate;
-        }
-      }
-      if (line) lines.push(line);
-      lines.slice(0, 2).forEach((entry, index) =>
-        x.fillText(entry, 450, 1150 + index * 48),
-      );
-      x.fillStyle = '#3975f6';
+      x.fillStyle = '#16191f';
+      x.font = '43px Arial';
+      x.fillText(form.blueTitle || 'Payment to', 450, 145);
+
+      x.strokeStyle = '#edf0f4';
+      x.lineWidth = 3;
       x.beginPath();
-      x.roundRect(58, 1295, 784, 146, 19);
+      x.arc(450, 330, 82, 0, Math.PI * 2);
+      x.stroke();
+      x.strokeStyle = '#155eef';
+      x.lineWidth = 9;
+      x.beginPath();
+      x.roundRect(405, 305, 92, 58, 8);
+      x.stroke();
+      x.beginPath();
+      x.moveTo(420, 305);
+      x.lineTo(420, 289);
+      x.lineTo(484, 289);
+      x.stroke();
+      x.fillStyle = '#155eef';
+      x.beginPath();
+      x.arc(478, 334, 5, 0, Math.PI * 2);
       x.fill();
-      x.fillStyle = '#101433';
-      x.font = 'bold 48px Arial';
-      x.fillText(form.blueButton || 'Done', 450, 1387);
-      x.fillStyle = '#07090e';
-      x.fillRect(160, 1505, 580, 95);
-      x.fillStyle = '#f5f5f7';
-      x.font = '49px Arial';
-      x.fillText(form.blueLink || 'View transaction', 450, 1573);
+
+      x.fillStyle = '#181b21';
+      x.font = '34px Arial';
+      const address = form.blueAddress || 'Sample wallet address';
+      const midpoint = Math.ceil(address.length / 2);
+      const splitAt = address.lastIndexOf('0', midpoint) > 12 ? address.lastIndexOf('0', midpoint) : midpoint;
+      x.fillText(address.slice(0, splitAt), 450, 500);
+      x.fillText(address.slice(splitAt), 450, 542);
+
+      x.font = `800 86px ${amountFamily}`;
+      x.fillText(form.blueFiat || '$0.00', 450, 885);
+      x.fillStyle = '#344054';
+      x.font = `700 40px ${amountFamily}`;
+      x.fillText(form.blueCrypto || '0 ETH', 450, 980);
+
+      x.textAlign = 'left';
+      x.fillStyle = '#344054';
+      x.font = '39px Arial';
+      x.fillText('Amount', 62, 1230);
+      x.fillText('Network Fee', 62, 1430);
+      x.fillText('Confirmed', 62, 1625);
+      x.textAlign = 'right';
+      x.fillStyle = '#111318';
+      x.font = `800 39px ${amountFamily}`;
+      x.fillText(form.blueFiat || '$0.00', 838, 1230);
+      x.fillText(form.blueFeeFiat || '$0.00', 838, 1430);
+      x.fillText(form.blueConfirmed || 'Demo date', 838, 1625);
+      x.fillStyle = '#344054';
+      x.font = `600 34px ${amountFamily}`;
+      x.fillText(form.blueCrypto || '0 ETH', 795, 1282);
+      x.fillText(form.blueFeeCrypto || '0 ETH', 795, 1482);
+      x.fillStyle = '#627eea';
+      x.beginPath();
+      x.arc(821, 1272, 19, 0, Math.PI * 2);
+      x.arc(821, 1472, 19, 0, Math.PI * 2);
+      x.fill();
     } else if (template.id === 'indigo') {
       const centeredLines = (text: string, maxWidth: number, maxLines = 3) => {
         const words = text.split(/\s+/).filter(Boolean);
@@ -1161,6 +1250,8 @@ export default function ReceiptLab() {
               receiptRef={ref}
               exp={exportFile}
               save={() => saveReceipt('Draft')}
+              invoiceLogo={invoiceLogo}
+              setInvoiceLogo={setInvoiceLogo}
             />
           )}{' '}
           {view === 'history' && (
@@ -1405,7 +1496,7 @@ function Dashboard({
           <Quick
             icon={<Sparkles />}
             title="Browse templates"
-            text="Explore four demo-safe looks"
+            text="Explore receipts and professional invoices"
             click={() => go('templates')}
           />
           <Quick
@@ -1509,7 +1600,13 @@ function Gallery({
               className={`mini mini-${t.id}`}
               style={{ '--accent': t.accent } as React.CSSProperties}
             >
-              {t.id === 'studio' ||
+              {isInvoiceTemplate(t.id) ? (
+                <InvoiceMini id={t.id} />
+              ) : t.id === 'gcash' || t.id === 'okx' ? (
+                <MobileReceiptMini id={t.id} />
+              ) : t.id === 'chase' ? (
+                <ChaseReceiptMini />
+              ) : t.id === 'studio' ||
               t.id === 'mono' ||
               t.id === 'citrus' ||
               t.id === 'orbit' ||
@@ -1579,6 +1676,7 @@ function Gallery({
     </div>
   );
 }
+
 function MobileReceiptMini({ id }: { id: 'gcash' | 'okx' }) {
   return id === 'gcash' ? (
     <div className="gcash-mini" aria-hidden="true">
@@ -1591,6 +1689,18 @@ function MobileReceiptMini({ id }: { id: 'gcash' | 'okx' }) {
       <b>Withdrawal details</b>
       <small>Amount</small><strong>- 10.316428 USDT</strong><i>✓ Sent</i>
       <span /><span /><span /><span />
+      <em>SAMPLE ONLY</em>
+    </div>
+  );
+}
+
+function ChaseReceiptMini() {
+  return (
+    <div className="chase-mini" aria-hidden="true">
+      <header><b>CHASE</b><i /></header>
+      <strong>Payment pending</strong>
+      <section><small>You sent</small><b>$2,500,000.00</b></section>
+      <span /><span /><span />
       <em>SAMPLE ONLY</em>
     </div>
   );
@@ -1651,6 +1761,209 @@ function OkxReceiptPreview({ form }: { form: Record<string, string> }) {
   );
 }
 
+function ChaseReceiptPreview({ form }: { form: Record<string, string> }) {
+  return (
+    <>
+      <article className="chase-screen">
+        <header className="chase-header">
+          <div className="chase-brand"><b>CHASE</b><i aria-hidden="true" /></div>
+          <div><span>Receipt</span><b>{form.chaseReceiptDate || 'Demo date'}</b></div>
+        </header>
+        <section className="chase-pending">
+          <i aria-hidden="true">◷</i>
+          <div><b>{form.chaseStatusTitle || 'Payment pending'}</b><span>{form.chaseStatusMessage || 'Your payment is being processed.'}</span></div>
+        </section>
+        <section className="chase-sent">
+          <span>You sent</span>
+          <div><strong>{form.chaseAmount || '$0.00'}</strong><b>{form.chaseCurrency || 'USD'}</b></div>
+        </section>
+        <main className="chase-transaction">
+          <h2>Transaction details</h2>
+          <dl>
+            <div className="chase-recipient-row"><dt>To</dt><dd><b>{form.chaseRecipient || 'Sample recipient'}</b><span>{form.chaseEmail || 'sample@example.com'}</span></dd></div>
+            <div><dt>Transaction ID</dt><dd><b>{form.chaseTransactionId || 'SAMPLE-ID'}</b></dd></div>
+            <div><dt>Date</dt><dd><b>{form.chaseDate || 'Demo date'}</b><span>{form.chaseTime || 'Demo time'}</span></dd></div>
+            <div><dt>Payment method</dt><dd><b>{form.chaseMethod || 'Sample balance'}</b></dd></div>
+            <div><dt>Status</dt><dd><mark><i>◷</i>{form.chaseStatus || 'Pending'}</mark></dd></div>
+          </dl>
+        </main>
+        <section className="chase-breakdown">
+          <h2>Amount breakdown</h2>
+          <dl>
+            <div><dt>Payment amount</dt><dd>{form.chaseAmount || '$0.00'} {form.chaseCurrency || 'USD'}</dd></div>
+            <div><dt>Fee</dt><dd>{form.chaseFee || '$0.00'} {form.chaseCurrency || 'USD'}</dd></div>
+            <div><dt>Total</dt><dd>{form.chaseTotal || '$0.00'} {form.chaseCurrency || 'USD'}</dd></div>
+          </dl>
+        </section>
+        <p className="chase-footnote">▣ &nbsp; This payment is pending and will be processed shortly.<br />Thank you for banking with Chase.</p>
+      </article>
+      <div className="watermark safety-footer">{MOBILE_SAMPLE_NOTICE}</div>
+    </>
+  );
+}
+
+function InvoiceMini({ id }: { id: InvoiceTemplateId }) {
+  if (id === 'invoice-aurora') {
+    return (
+      <div className="aurora-mini-sheet" aria-hidden="true">
+        <div><i>NV</i><b>INVOICE</b></div>
+        <span className="aurora-mini-client" />
+        <strong>ITEM DESCRIPTION</strong>
+        <span /><span /><span />
+        <small>SAMPLE INVOICE</small>
+      </div>
+    );
+  }
+  return (
+    <div className="invoice-mini-sheet" aria-hidden="true">
+      <div className="invoice-mini-top">
+        <i>NV</i>
+        <b>INVOICE</b>
+      </div>
+      <div className="invoice-mini-meta"><span /><span /></div>
+      <div className="invoice-mini-line invoice-mini-head" />
+      <div className="invoice-mini-line" />
+      <div className="invoice-mini-line short" />
+      <strong>{id === 'invoice-ledger' ? '$1,987.50' : id === 'invoice-nova' ? '$2,405.75' : '$1,998.75'}</strong>
+      <small>SAMPLE INVOICE</small>
+    </div>
+  );
+}
+
+function InvoicePreview({
+  id,
+  form,
+  logoUrl,
+}: {
+  id: InvoiceTemplateId;
+  form: Record<string, string>;
+  logoUrl: string;
+}) {
+  const totals = invoiceTotals(form);
+  const money = (value: number) => invoiceMoney(value, form.invoiceCurrency);
+  const initials = (form.invoiceBusiness || 'NV')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase();
+  if (id === 'invoice-aurora') {
+    return (
+      <>
+        <article className="aurora-invoice-document">
+          <header className="aurora-header">
+            <div className="aurora-brand">
+              {logoUrl ? <img src={logoUrl} alt="Business logo" /> : <i>{initials}</i>}
+              <span><b>{form.invoiceBusiness || 'Nevora Studio'}</b></span>
+            </div>
+            <h2>Invoice</h2>
+            <div className="aurora-client">
+              <small>Invoice to</small>
+              <b>{form.invoiceClient || 'Sample Client'}</b>
+              <span>{form.invoiceAddress || '223 Sample Street, New York, NY'}</span>
+              <span>P: {form.invoicePhone || '+1 (000) 123-4567'}</span>
+              <span>M: {form.invoiceClientEmail || 'client@example.com'}</span>
+            </div>
+            <dl className="aurora-meta">
+              <div><dt>Invoice</dt><dd>#{form.invoiceNumber || 'INV-001'}</dd></div>
+              <div><dt>Issued</dt><dd>{form.invoiceIssueDate || 'Sample date'}</dd></div>
+              <div><dt>Due</dt><dd>{form.invoiceDueDate || 'Sample date'}</dd></div>
+            </dl>
+          </header>
+          <div className="aurora-table" role="table" aria-label="Invoice line items">
+            <div className="aurora-table-head" role="row">
+              <span>SL</span><span>Item description</span><span>Price</span><span>Qty</span><span>Total</span>
+            </div>
+            <div className="aurora-table-row" role="row">
+              <span>1</span><b>{form.invoiceDescription || 'Professional services'}</b><span>{money(totals.unitPrice)}</span><span>{totals.quantity}</span><strong>{money(totals.subtotal)}</strong>
+            </div>
+            {[2, 3, 4].map((row) => <div className="aurora-table-row empty" role="row" aria-hidden="true" key={row}><span>{row}</span><b /><span /><span /><strong /></div>)}
+          </div>
+          <section className="aurora-lower">
+            <div className="aurora-payment"><h3>Payment info</h3><p>{form.invoicePaymentInfo || 'PayPal: billing@example.com'}</p><p>Account: {form.invoiceEmail || 'hello@example.com'}</p></div>
+            <dl className="aurora-summary">
+              <div><dt>Subtotal</dt><dd>{money(totals.subtotal)}</dd></div>
+              <div><dt>Tax {totals.taxRate}%</dt><dd>{money(totals.tax)}</dd></div>
+              <div><dt>Grand total</dt><dd>{money(totals.total)}</dd></div>
+            </dl>
+          </section>
+          <section className="aurora-closing">
+            <div className="aurora-terms"><h3>Terms &amp; conditions</h3><p>{form.invoiceNotes || 'Thank you for your business.'}</p></div>
+            <div className="aurora-signature"><strong>{form.invoiceSigner || 'Alex Morgan'}</strong><span>{form.invoiceSignerTitle || 'Creative Director'}</span></div>
+          </section>
+          <footer className="aurora-footer">
+            {logoUrl ? <img src={logoUrl} alt="Business logo" /> : <i>{initials}</i>}
+            <span><b>Location</b><small>{form.invoiceAddress || '223 Sample Street, New York, NY'}</small></span>
+            <span><b>Phone</b><small>{form.invoicePhone || '+1 (000) 123-4567'}</small></span>
+            <span><b>Email</b><small>{form.invoiceEmail || 'hello@example.com'}</small></span>
+          </footer>
+          <strong className="aurora-sample-mark">SAMPLE INVOICE • NOT A REAL TRANSACTION</strong>
+        </article>
+        <div className="watermark safety-footer">DEMO • NOT A REAL TRANSACTION</div>
+      </>
+    );
+  }
+  return (
+    <>
+      <article className="invoice-document" data-template={id}>
+        <header className="invoice-top">
+          <div className="invoice-brand">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Business logo" />
+            ) : (
+              <i aria-label="Default business logo">{initials}</i>
+            )}
+            <span>
+              <b>{form.invoiceBusiness || 'Nevora Studio'}</b>
+              <small>{form.invoiceEmail || 'hello@example.com'}</small>
+            </span>
+          </div>
+          <div className="invoice-heading">
+            <h2>Invoice</h2>
+            <p>#{form.invoiceNumber || 'INV-001'}</p>
+          </div>
+        </header>
+        <section className="invoice-meta">
+          <div>
+            <small>Bill to</small>
+            <b>{form.invoiceClient || 'Sample Client'}</b>
+            <span>{form.invoiceClientEmail || 'client@example.com'}</span>
+          </div>
+          <dl>
+            <div><dt>Issued</dt><dd>{form.invoiceIssueDate || 'Sample date'}</dd></div>
+            <div><dt>Due</dt><dd>{form.invoiceDueDate || 'Sample date'}</dd></div>
+          </dl>
+        </section>
+        <div className="invoice-items" role="table" aria-label="Invoice line items">
+          <div className="invoice-items-head" role="row">
+            <span>Description</span><span>Qty</span><span>Rate</span><span>Amount</span>
+          </div>
+          <div className="invoice-item" role="row">
+            <b>{form.invoiceDescription || 'Professional services'}</b>
+            <span>{totals.quantity}</span>
+            <span>{money(totals.unitPrice)}</span>
+            <strong>{money(totals.subtotal)}</strong>
+          </div>
+        </div>
+        <div className="invoice-summary">
+          <dl>
+            <div><dt>Subtotal</dt><dd>{money(totals.subtotal)}</dd></div>
+            <div><dt>Tax ({totals.taxRate}%)</dt><dd>{money(totals.tax)}</dd></div>
+            <div className="invoice-total"><dt>Total due</dt><dd>{money(totals.total)}</dd></div>
+          </dl>
+        </div>
+        <footer className="invoice-notes">
+          <small>Notes</small>
+          <p>{form.invoiceNotes || 'Thank you for your business.'}</p>
+        </footer>
+        <div className="invoice-sample">SAMPLE INVOICE • NOT A REAL TRANSACTION</div>
+      </article>
+      <div className="watermark safety-footer">DEMO • NOT A REAL TRANSACTION</div>
+    </>
+  );
+}
+
 type EditorProps = {
   form: Record<string, string>;
   setForm: (value: Record<string, string>) => void;
@@ -1662,6 +1975,8 @@ type EditorProps = {
   receiptRef: React.RefObject<HTMLDivElement | null>;
   exp: (type: 'png' | 'pdf') => Promise<void>;
   save: () => void;
+  invoiceLogo: string;
+  setInvoiceLogo: (value: string) => void;
 };
 
 function Editor({
@@ -1675,17 +1990,36 @@ function Editor({
   receiptRef,
   exp,
   save,
+  invoiceLogo,
+  setInvoiceLogo,
 }: EditorProps) {
+  const [logoError, setLogoError] = useState('');
   const field = (k: string, l: string) => (
     <label>
       {l}
       <input
-        value={form[k]}
+        value={form[k] ?? ''}
         onChange={(e) => setForm({ ...form, [k]: e.target.value })}
       />
     </label>
   );
-  const lockedSample = template.id === 'black' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx';
+  const invoice = isInvoiceTemplate(template.id);
+  const lockedSample = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || template.id === 'chase' || invoice;
+  const handleLogo = (file?: File) => {
+    if (!file) return;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+      setLogoError('Choose a PNG, JPG, or WebP image.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoError('Choose a logo smaller than 2 MB.');
+      return;
+    }
+    setLogoError('');
+    const reader = new FileReader();
+    reader.onload = () => setInvoiceLogo(typeof reader.result === 'string' ? reader.result : '');
+    reader.readAsDataURL(file);
+  };
   return (
     <div className="editor">
       <div className="editor-head">
@@ -1743,19 +2077,78 @@ function Editor({
               ))}
             </select>
           </label>
-          {template.id === 'citi-bank' ? (<><>{field('citiName', 'Customer name')}{field('citiConfirmation', 'Confirmation number')}{field('citiSource', 'Payment source')}<div className="row">{field('citiSourceEnding', 'Source account ending')}{field('citiAmount', 'Payment amount')}</div>{field('citiDate', 'Payment date')}<div className="row">{field('citiPayTo', 'Payment to')}{field('citiPayToEnding', 'Payee account ending')}</div></></>) : template.id === 'wells-fargo' ? (<><>{field('wellsRecipient', 'Recipient name')}{field('wellsRecipientAccount', 'Recipient account')}{field('wellsSource', 'Source account')}<div className="row">{field('wellsAmount', 'Amount')}{field('wellsFees', 'Fees')}</div>{field('wellsTotal', 'Total from account')}<div className="row">{field('wellsSendDate', 'Send on')}{field('wellsDeliverDate', 'Deliver by')}</div>{field('wellsMessage', "Message to recipient's bank")}<div className="row">{field('wellsStatus', 'Status')}{field('wellsConfirmation', 'Confirmation number')}</div></></>) : template.id === 'boa' ? (
+          {invoice ? (
+            <>
+              <div className="invoice-logo-control">
+                <div className="invoice-logo-control-head">
+                  <span>
+                    <b>Business logo</b>
+                    <small>PNG, JPG, or WebP · up to 2 MB</small>
+                  </span>
+                  {invoiceLogo && (
+                    <button type="button" onClick={() => setInvoiceLogo('')}>
+                      <Trash2 aria-hidden="true" /> Remove
+                    </button>
+                  )}
+                </div>
+                <label className="logo-upload">
+                  {invoiceLogo ? <img src={invoiceLogo} alt="Uploaded business logo" /> : <ImagePlus aria-hidden="true" />}
+                  <span>{invoiceLogo ? 'Replace logo' : 'Add your logo'}</span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={(event) => {
+                      handleLogo(event.target.files?.[0]);
+                      event.target.value = '';
+                    }}
+                  />
+                </label>
+                {logoError && <p className="logo-error" role="alert">{logoError}</p>}
+              </div>
+              <div className="row">
+                {field('invoiceBusiness', 'Business name')}
+                {field('invoiceEmail', 'Business email')}
+              </div>
+              {template.id === 'invoice-aurora' && (
+                <>
+                  {field('invoiceAddress', 'Business address')}
+                  <div className="row">
+                    {field('invoicePhone', 'Business phone')}
+                    {field('invoicePaymentInfo', 'Payment information')}
+                  </div>
+                  <div className="row">
+                    {field('invoiceSigner', 'Authorized signer')}
+                    {field('invoiceSignerTitle', 'Signer title')}
+                  </div>
+                </>
+              )}
+              <div className="row">
+                {field('invoiceNumber', 'Invoice number')}
+                {field('invoiceCurrency', 'Currency code')}
+              </div>
+              <div className="row">
+                {field('invoiceClient', 'Client name')}
+                {field('invoiceClientEmail', 'Client email')}
+              </div>
+              <div className="row">
+                {field('invoiceIssueDate', 'Issue date')}
+                {field('invoiceDueDate', 'Due date')}
+              </div>
+              {field('invoiceDescription', 'Service description')}
+              <div className="row three">
+                {field('invoiceQuantity', 'Quantity')}
+                {field('invoiceUnitPrice', 'Unit price')}
+                {field('invoiceTaxRate', 'Tax %')}
+              </div>
+              {field('invoiceNotes', 'Notes')}
+            </>
+          ) : template.id === 'citi-bank' ? (<><>{field('citiName', 'Customer name')}{field('citiConfirmation', 'Confirmation number')}{field('citiSource', 'Payment source')}<div className="row">{field('citiSourceEnding', 'Source account ending')}{field('citiAmount', 'Payment amount')}</div>{field('citiDate', 'Payment date')}<div className="row">{field('citiPayTo', 'Payment to')}{field('citiPayToEnding', 'Payee account ending')}</div></></>) : template.id === 'wells-fargo' ? (<><>{field('wellsRecipient', 'Recipient name')}{field('wellsRecipientAccount', 'Recipient account')}{field('wellsSource', 'Source account')}<div className="row">{field('wellsAmount', 'Amount')}{field('wellsFees', 'Fees')}</div>{field('wellsTotal', 'Total from account')}<div className="row">{field('wellsSendDate', 'Send on')}{field('wellsDeliverDate', 'Deliver by')}</div>{field('wellsMessage', "Message to recipient's bank")}<div className="row">{field('wellsStatus', 'Status')}{field('wellsConfirmation', 'Confirmation number')}</div></></>) : template.id === 'boa' ? (
             <>
               {field('boaBankCard', 'Bank and card label')}
               {field('boaCardType', 'Card type')}
               {field('boaPayFrom', 'Pay from')}
-              <div className="row">
-                {field('boaAmount', 'Amount')}
-                {field('boaDeliverBy', 'Deliver by')}
-              </div>
-              <div className="row">
-                {field('boaFrequency', 'Frequency')}
-                {field('boaPaymentType', 'Payment type')}
-              </div>
+              <div className="row">{field('boaAmount', 'Amount')}{field('boaDeliverBy', 'Deliver by')}</div>
+              <div className="row">{field('boaFrequency', 'Frequency')}{field('boaPaymentType', 'Payment type')}</div>
               {field('boaConfirmation', 'Confirmation')}
               {field('boaFooter', 'Footer message')}
             </>
@@ -1809,16 +2202,17 @@ function Editor({
             </>
           ) : template.id === 'blue' ? (
             <>
-              {field('blueTitle', 'Success message')}
+              {field('blueTitle', 'Heading')}
+              {field('blueAddress', 'Recipient wallet address')}
               <div className="row">
                 {field('blueFiat', 'Fiat amount')}
                 {field('blueCrypto', 'Crypto amount')}
               </div>
-              {field('blueMessage', 'Timing note')}
               <div className="row">
-                {field('blueButton', 'Button label')}
-                {field('blueLink', 'Transaction link')}
+                {field('blueFeeFiat', 'Network fee')}
+                {field('blueFeeCrypto', 'Fee in crypto')}
               </div>
+              {field('blueConfirmed', 'Confirmation date')}
             </>
           ) : template.id === 'indigo' ? (
             <>
@@ -1902,6 +2296,33 @@ function Editor({
                 {field('okxButton', 'Explorer button')}
               </div>
             </>
+          ) : template.id === 'chase' ? (
+            <>
+              <div className="row">
+                {field('chaseReceiptDate', 'Receipt date')}
+                {field('chaseStatus', 'Status')}
+              </div>
+              {field('chaseStatusTitle', 'Status heading')}
+              {field('chaseStatusMessage', 'Status message')}
+              <div className="row">
+                {field('chaseAmount', 'Amount')}
+                {field('chaseCurrency', 'Currency')}
+              </div>
+              <div className="row">
+                {field('chaseRecipient', 'Recipient name')}
+                {field('chaseEmail', 'Recipient email')}
+              </div>
+              {field('chaseTransactionId', 'Transaction ID')}
+              <div className="row">
+                {field('chaseDate', 'Transaction date')}
+                {field('chaseTime', 'Transaction time')}
+              </div>
+              {field('chaseMethod', 'Payment method')}
+              <div className="row">
+                {field('chaseFee', 'Fee')}
+                {field('chaseTotal', 'Total')}
+              </div>
+            </>
           ) : (
             <>
               {field('merchant', 'Display name')}
@@ -1956,6 +2377,8 @@ function Editor({
                 <button className="boa-done" type="button">DONE</button>
                 {watermarkEnabled && <div className="watermark safety-footer">DEMO • NOT A REAL TRANSACTION</div>}
               </article>
+            ) : invoice ? (
+              <InvoicePreview id={template.id as InvoiceTemplateId} form={form} logoUrl={invoiceLogo} />
             ) : template.id === 'studio' ? (
               <>
                 <img
@@ -2081,34 +2504,34 @@ function Editor({
               </>
             ) : template.id === 'blue' ? (
               <>
-                <img
-                  className="blue-reference"
-                  src="/receiptlab/blue-reference.jpg"
-                  alt="CoinBase transfer reference"
-                />
-                <span className="blue-copy blue-title">
-                  {form.blueTitle || 'Successfully sent'}
-                </span>
-                <span className="blue-copy blue-fiat">
-                  {form.blueFiat || '$0.00'}
-                </span>
-                <span className="blue-copy blue-crypto">
-                  {form.blueCrypto || '0 USDT'}
-                </span>
-                <span className="blue-copy blue-message">
-                  {form.blueMessage || 'Sample transfer message'}
-                </span>
-                <span className="blue-copy blue-button">
-                  {form.blueButton || 'Done'}
-                </span>
-                <span className="blue-copy blue-link">
-                  {form.blueLink || 'View transaction'}
-                </span>
-                {watermarkEnabled && (
-                  <div className="watermark safety-footer">
-                    DEMO • NOT A REAL TRANSACTION
+                <article className="coinbase-wallet-screen">
+                  <h2>{form.blueTitle || 'Payment to'}</h2>
+                  <div className="coinbase-wallet-icon" aria-hidden="true">
+                    <i><b /></i>
                   </div>
-                )}
+                  <p className="coinbase-address">{form.blueAddress || 'Sample wallet address'}</p>
+                  <div className="coinbase-primary-amount">
+                    <strong>{form.blueFiat || '$0.00'}</strong>
+                    <span>{form.blueCrypto || '0 ETH'}</span>
+                  </div>
+                  <dl className="coinbase-details">
+                    <div>
+                      <dt>Amount</dt>
+                      <dd><strong>{form.blueFiat || '$0.00'}</strong><span>{form.blueCrypto || '0 ETH'} <i>♦</i></span></dd>
+                    </div>
+                    <div>
+                      <dt>Network Fee</dt>
+                      <dd><strong>{form.blueFeeFiat || '$0.00'}</strong><span>{form.blueFeeCrypto || '0 ETH'} <i>♦</i></span></dd>
+                    </div>
+                    <div>
+                      <dt>Confirmed</dt>
+                      <dd><strong>{form.blueConfirmed || 'Demo date'}</strong></dd>
+                    </div>
+                  </dl>
+                </article>
+                <div className="watermark safety-footer">
+                  DEMO • NOT A REAL TRANSACTION
+                </div>
               </>
             ) : template.id === 'indigo' ? (
               <>
@@ -2201,6 +2624,8 @@ function Editor({
               <GcashReceiptPreview form={form} />
             ) : template.id === 'okx' ? (
               <OkxReceiptPreview form={form} />
+            ) : template.id === 'chase' ? (
+              <ChaseReceiptPreview form={form} />
             ) : (
               <>
                 <i className="bar" />
@@ -2449,6 +2874,14 @@ function receiptAmount(
       return form.gcashTotal;
     case 'okx':
       return form.okxAmount;
+    case 'chase':
+      return `${form.chaseAmount} ${form.chaseCurrency}`;
+    case 'invoice-aurora':
+    case 'invoice-ledger':
+    case 'invoice-nova': {
+      const invoice = invoiceTotals(form);
+      return invoiceMoney(invoice.total, form.invoiceCurrency);
+    }
     default:
       return `$${total}`;
   }
