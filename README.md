@@ -52,7 +52,7 @@ To enable real integrations, copy `.env.example` to `.env.local` and fill in:
 - **Home** — hero, featured services, why-choose-us, testimonials, CTA.
 - **Services** (`/services`) — searchable, filterable grid of all 8 product lines
   (Banking Platform, Airline Booking Platform, Logistics Platform, Website Design,
-  AI Automation, Graphic Design, Premium Templates, Custom Software Development).
+  AI Automation, Graphic Design, Premium Templates, QR Code Generator).
 - **Individual service page** (`/services/[slug]`) — hero, screenshots, features,
   benefits, 3-tier pricing, reviews, FAQ, related services.
 - **Checkout** (`/checkout`) — order summary, coupon codes (`LAUNCH10`, `NEXOVA20`),

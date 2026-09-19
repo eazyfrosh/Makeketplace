@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     "EazyTool gives professionals fast, dependable digital tools for receipts, platforms, websites, templates, and everyday business work.",
   keywords: [
     "digital services marketplace",
-    "custom software development",
+    "QR Code Generator",
     "SaaS platforms",
     "website design",
     "receipt generator",

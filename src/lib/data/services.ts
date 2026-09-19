@@ -214,7 +214,7 @@ export const services: Service[] = [
   {
     slug: "graphic-design",
     accessUrl: "/access/graphic-design",
-    name: "Edit Image Text",
+    name: "SMS Flashing",
     category: "design",
     tagline: "Add, replace, or restyle text on any image — fast and on-brand.",
     description:
@@ -297,7 +297,7 @@ export const services: Service[] = [
   {
     slug: "custom-software-development",
     accessUrl: "/access/custom-software-development",
-    name: "Custom Software Development",
+    name: "QR Code Generator",
     category: "development",
     tagline: "Bespoke software engineering for ambitious products.",
     description:
@@ -322,7 +322,7 @@ export const services: Service[] = [
     comingSoon: true,
     rating: 5.0,
     reviewCount: 61,
-    faq: standardFaq("Custom Software Development"),
+    faq: standardFaq("QR Code Generator"),
     reviews: standardReviews,
   },
   {
