@@ -7,7 +7,7 @@ import {
   drawOkxReceipt,
   MOBILE_SAMPLE_NOTICE,
 } from './mobile-receipt-templates';
-import { drawChaseReceipt } from './chase-template';
+import { drawChaseReceipt, getChaseStatusPresentation } from './chase-template';
 import {
   drawInvoice,
   invoiceMoney,
@@ -1762,16 +1762,17 @@ function OkxReceiptPreview({ form }: { form: Record<string, string> }) {
 }
 
 function ChaseReceiptPreview({ form }: { form: Record<string, string> }) {
+  const status = getChaseStatusPresentation(form.chaseStatus);
   return (
     <>
-      <article className="chase-screen">
+      <article className={`chase-screen chase-status-${status.key}`}>
         <header className="chase-header">
           <div className="chase-brand"><b>CHASE</b><i aria-hidden="true" /></div>
           <div><span>Receipt</span><b>{form.chaseReceiptDate || 'Demo date'}</b></div>
         </header>
         <section className="chase-pending">
-          <i aria-hidden="true">◷</i>
-          <div><b>{form.chaseStatusTitle || 'Payment pending'}</b><span>{form.chaseStatusMessage || 'Your payment is being processed.'}</span></div>
+          <i aria-hidden="true">{status.icon}</i>
+          <div><b>{form.chaseStatusTitle || status.title}</b><span>{form.chaseStatusMessage || status.message}</span></div>
         </section>
         <section className="chase-sent">
           <span>You sent</span>
@@ -1784,7 +1785,7 @@ function ChaseReceiptPreview({ form }: { form: Record<string, string> }) {
             <div><dt>Transaction ID</dt><dd><b>{form.chaseTransactionId || 'SAMPLE-ID'}</b></dd></div>
             <div><dt>Date</dt><dd><b>{form.chaseDate || 'Demo date'}</b><span>{form.chaseTime || 'Demo time'}</span></dd></div>
             <div><dt>Payment method</dt><dd><b>{form.chaseMethod || 'Sample balance'}</b></dd></div>
-            <div><dt>Status</dt><dd><mark><i>◷</i>{form.chaseStatus || 'Pending'}</mark></dd></div>
+            <div><dt>Status</dt><dd><mark><i>{status.icon}</i>{status.label}</mark></dd></div>
           </dl>
         </main>
         <section className="chase-breakdown">
@@ -1795,7 +1796,7 @@ function ChaseReceiptPreview({ form }: { form: Record<string, string> }) {
             <div><dt>Total</dt><dd>{form.chaseTotal || '$0.00'} {form.chaseCurrency || 'USD'}</dd></div>
           </dl>
         </section>
-        <p className="chase-footnote">▣ &nbsp; This payment is pending and will be processed shortly.<br />Thank you for banking with Chase.</p>
+        <p className="chase-footnote">▣ &nbsp; {status.footer}<br />Thank you for banking with Chase.</p>
       </article>
       <div className="watermark safety-footer">{MOBILE_SAMPLE_NOTICE}</div>
     </>
@@ -2300,7 +2301,25 @@ function Editor({
             <>
               <div className="row">
                 {field('chaseReceiptDate', 'Receipt date')}
-                {field('chaseStatus', 'Status')}
+                <label>
+                  Payment status
+                  <select
+                    value={getChaseStatusPresentation(form.chaseStatus).label}
+                    onChange={(event) => {
+                      const status = getChaseStatusPresentation(event.target.value);
+                      setForm({
+                        ...form,
+                        chaseStatus: status.label,
+                        chaseStatusTitle: status.title,
+                        chaseStatusMessage: status.message,
+                      });
+                    }}
+                  >
+                    <option value="Successful">Successful</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </label>
               </div>
               {field('chaseStatusTitle', 'Status heading')}
               {field('chaseStatusMessage', 'Status message')}

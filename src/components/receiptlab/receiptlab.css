@@ -3569,15 +3569,17 @@
   container-type: inline-size;
   font-family: Arial, Helvetica, sans-serif;
 }
-.receiptlab-root .chase-screen { position: absolute; inset: 0; overflow: hidden; background: #fbfcfe; }
+.receiptlab-root .chase-screen { --chase-status-accent: #896900; --chase-status-border: #f3c91b; --chase-status-bg: #fffdf6; --chase-status-badge: #fff4c2; position: absolute; inset: 0; overflow: hidden; background: #fbfcfe; }
+.receiptlab-root .chase-screen.chase-status-successful { --chase-status-accent: #168a52; --chase-status-border: #22a06b; --chase-status-bg: #eefbf3; --chase-status-badge: #dcfae6; }
+.receiptlab-root .chase-screen.chase-status-cancelled { --chase-status-accent: #b42318; --chase-status-border: #e5484d; --chase-status-bg: #fff1f0; --chase-status-badge: #fee4e2; }
 .receiptlab-root .chase-header { height: 14.6cqw; box-sizing: border-box; padding: 0 5.3cqw; border-bottom: .7cqw solid #126bc5; background: #edf6ff; display: flex; align-items: center; justify-content: space-between; }
 .receiptlab-root .chase-brand { display: flex; align-items: center; gap: 2cqw; }
 .receiptlab-root .chase-brand b { color: #0b0e14; font-size: 6.2cqw; letter-spacing: .045em; }
 .receiptlab-root .chase-brand i { width: 5.1cqw; height: 5.1cqw; box-sizing: border-box; transform: rotate(45deg); border: 1.35cqw solid #1787cf; }
 .receiptlab-root .chase-header > div:last-child { display: grid; justify-items: end; color: #343943; font-size: 2.7cqw; line-height: 1.28; }
 .receiptlab-root .chase-header > div:last-child b { font-weight: 500; }
-.receiptlab-root .chase-pending { height: 18.5cqw; box-sizing: border-box; padding: 4.3cqw 5.7cqw; border-left: 1.1cqw solid #f3c91b; background: #fffdf6; display: flex; align-items: flex-start; gap: 4cqw; }
-.receiptlab-root .chase-pending > i { display: grid; place-items: center; width: 7.2cqw; height: 7.2cqw; flex: 0 0 auto; border: .55cqw solid #d8b719; border-radius: 50%; color: #a98700; font-size: 4.2cqw; font-style: normal; }
+.receiptlab-root .chase-pending { height: 18.5cqw; box-sizing: border-box; padding: 4.3cqw 5.7cqw; border-left: 1.1cqw solid var(--chase-status-border); background: var(--chase-status-bg); display: flex; align-items: flex-start; gap: 4cqw; transition: border-color .2s ease, background .2s ease; }
+.receiptlab-root .chase-pending > i { display: grid; place-items: center; width: 7.2cqw; height: 7.2cqw; flex: 0 0 auto; border: .55cqw solid var(--chase-status-border); border-radius: 50%; color: var(--chase-status-accent); font-size: 4.2cqw; font-style: normal; transition: border-color .2s ease, color .2s ease; }
 .receiptlab-root .chase-pending > div { min-width: 0; display: grid; gap: 1.2cqw; }
 .receiptlab-root .chase-pending b,.receiptlab-root .chase-pending span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .receiptlab-root .chase-pending b { font-size: 4cqw; }
@@ -3596,7 +3598,7 @@
 .receiptlab-root .chase-transaction dd { display: grid; justify-items: end; gap: .65cqw; text-align: right; }
 .receiptlab-root .chase-transaction dd b,.receiptlab-root .chase-transaction dd span { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .receiptlab-root .chase-transaction dd span { color: #454b55; font-size: 2.7cqw; font-weight: 400; text-decoration: underline; }
-.receiptlab-root .chase-transaction mark { padding: 1.4cqw 2.7cqw; border-radius: 99px; background: #fff4c2; color: #896900; font-size: 2.7cqw; }
+.receiptlab-root .chase-transaction mark { padding: 1.4cqw 2.7cqw; border-radius: 99px; background: var(--chase-status-badge); color: var(--chase-status-accent); font-size: 2.7cqw; transition: background .2s ease, color .2s ease; }
 .receiptlab-root .chase-transaction mark i { margin-right: 1cqw; font-style: normal; }
 .receiptlab-root .chase-breakdown { position: absolute; top: 147cqw; left: 6cqw; right: 6cqw; height: 36.9cqw; box-sizing: border-box; padding: 4.4cqw 5.2cqw; border: 1px solid #c8d9e9; border-radius: 2cqw; background: #eef6ff; }
 .receiptlab-root .chase-breakdown h2 { margin: 0 0 3cqw; font-size: 3.4cqw; }

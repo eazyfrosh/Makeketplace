@@ -2,6 +2,54 @@ export const CHASE_SAMPLE_NOTICE = 'SAMPLE ONLY • NOT A REAL TRANSACTION';
 
 type ReceiptForm = Record<string, string>;
 
+export type ChasePaymentStatus = 'successful' | 'pending' | 'cancelled';
+
+const CHASE_STATUS = {
+  successful: {
+    key: 'successful',
+    label: 'Successful',
+    title: 'Payment successful',
+    message: 'Your payment has been completed.',
+    footer: 'This payment was completed successfully.',
+    icon: '✓',
+    accent: '#168a52',
+    border: '#22a06b',
+    background: '#eefbf3',
+    badge: '#dcfae6',
+  },
+  pending: {
+    key: 'pending',
+    label: 'Pending',
+    title: 'Payment pending',
+    message: 'Your payment is being processed.',
+    footer: 'This payment is pending and will be processed shortly.',
+    icon: '◷',
+    accent: '#896900',
+    border: '#f3c91b',
+    background: '#fffdf6',
+    badge: '#fff4c2',
+  },
+  cancelled: {
+    key: 'cancelled',
+    label: 'Cancelled',
+    title: 'Payment cancelled',
+    message: 'This payment has been cancelled.',
+    footer: 'This payment was cancelled and will not be processed.',
+    icon: '×',
+    accent: '#b42318',
+    border: '#e5484d',
+    background: '#fff1f0',
+    badge: '#fee4e2',
+  },
+} as const;
+
+export function getChaseStatusPresentation(value?: string) {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'successful' || normalized === 'success' || normalized === 'completed') return CHASE_STATUS.successful;
+  if (normalized === 'cancelled' || normalized === 'canceled' || normalized === 'failed') return CHASE_STATUS.cancelled;
+  return CHASE_STATUS.pending;
+}
+
 function rounded(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -71,6 +119,7 @@ function detailRow(
 export function drawChaseReceipt(canvas: HTMLCanvasElement, form: ReceiptForm) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
+  const status = getChaseStatusPresentation(form.chaseStatus);
 
   ctx.fillStyle = '#fbfcfe';
   ctx.fillRect(0, 0, 900, 1776);
@@ -97,24 +146,24 @@ export function drawChaseReceipt(canvas: HTMLCanvasElement, form: ReceiptForm) {
   ctx.fillStyle = '#126bc5';
   ctx.fillRect(0, 125, 900, 6);
 
-  ctx.fillStyle = '#f3c91b';
+  ctx.fillStyle = status.border;
   ctx.fillRect(0, 133, 10, 155);
-  ctx.fillStyle = '#fffdf6';
+  ctx.fillStyle = status.background;
   ctx.fillRect(10, 133, 890, 155);
-  ctx.strokeStyle = '#d8b719';
+  ctx.strokeStyle = status.border;
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.arc(89, 207, 31, 0, Math.PI * 2);
   ctx.stroke();
-  ctx.fillStyle = '#aa8700';
+  ctx.fillStyle = status.accent;
   ctx.font = '30px Arial';
   ctx.textAlign = 'center';
-  ctx.fillText('◷', 89, 187);
+  ctx.fillText(status.icon, 89, 187);
   ctx.textAlign = 'left';
   ctx.fillStyle = '#111722';
-  fitText(ctx, form.chaseStatusTitle || 'Payment pending', 148, 174, 680, 33, 700);
+  fitText(ctx, form.chaseStatusTitle || status.title, 148, 174, 680, 33, 700);
   ctx.fillStyle = '#414752';
-  fitText(ctx, form.chaseStatusMessage || 'Your payment is being processed.', 148, 221, 680, 27, 400);
+  fitText(ctx, form.chaseStatusMessage || status.message, 148, 221, 680, 27, 400);
 
   rounded(ctx, 47, 333, 806, 203, 14, '#fbfcff', '#dde1e7');
   ctx.textAlign = 'center';
@@ -152,10 +201,10 @@ export function drawChaseReceipt(canvas: HTMLCanvasElement, form: ReceiptForm) {
   ctx.fillStyle = '#343943';
   ctx.font = '28px Arial';
   ctx.fillText('Status', 55, 1213);
-  rounded(ctx, 665, 1193, 180, 58, 29, '#fff4c2');
+  rounded(ctx, 665, 1193, 180, 58, 29, status.badge);
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#896900';
-  fitText(ctx, `◷  ${form.chaseStatus || 'Pending'}`, 755, 1207, 150, 25, 600);
+  ctx.fillStyle = status.accent;
+  fitText(ctx, `${status.icon}  ${status.label}`, 755, 1207, 150, 25, 600);
 
   rounded(ctx, 53, 1300, 794, 330, 13, '#eef6ff', '#c8d9e9');
   ctx.textAlign = 'left';
@@ -188,6 +237,6 @@ export function drawChaseReceipt(canvas: HTMLCanvasElement, form: ReceiptForm) {
   ctx.textAlign = 'center';
   ctx.fillStyle = '#5b616b';
   ctx.font = '20px Arial';
-  ctx.fillText('▣  This payment is pending and will be processed shortly.', 450, 1670);
+  ctx.fillText(`▣  ${status.footer}`, 450, 1670);
   ctx.fillText('Thank you for banking with Chase.', 450, 1702);
 }
