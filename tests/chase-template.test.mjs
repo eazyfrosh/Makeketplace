@@ -9,7 +9,7 @@ const source = readFileSync(new URL('../src/components/receiptlab/chase-template
 const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } });
 const { drawChaseReceipt, getChaseStatusPresentation } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
 
-test('Chase is a complete editable template with a locked sample notice', () => {
+test('Chase is a complete editable template with a removable sample notice', () => {
   assert.ok(component.includes("id: 'chase'"));
   assert.ok(component.includes("field('chaseRecipient', 'Recipient name')"));
   assert.ok(component.includes("field('chaseTransactionId', 'Transaction ID')"));
@@ -18,7 +18,7 @@ test('Chase is a complete editable template with a locked sample notice', () => 
   assert.ok(component.includes('<option value="Cancelled">Cancelled</option>'));
   assert.ok(component.includes('<ChaseReceiptPreview form={form} />'));
   assert.ok(component.includes('drawChaseReceipt(c, form)'));
-  assert.ok(component.includes("template.id === 'okx' || template.id === 'chase'"));
+  assert.ok(component.includes("template.id === 'okx' || isInvoiceTemplate(template.id)"));
   assert.match(styles, /\.receipt\.chase\s*\{[\s\S]*?aspect-ratio:\s*38\s*\/\s*75/);
 });
 

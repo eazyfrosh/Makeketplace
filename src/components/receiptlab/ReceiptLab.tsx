@@ -582,7 +582,7 @@ export default function ReceiptLab() {
                                 : template.id === 'invoice-aurora'
                                   ? 1260
                                   : 1200;
-    const requiresSampleNotice = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || template.id === 'chase' || isInvoiceTemplate(template.id);
+    const requiresSampleNotice = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || isInvoiceTemplate(template.id);
     const safetyFooterHeight = watermarkEnabled || requiresSampleNotice ? 52 : 0;
     c.height = contentHeight + safetyFooterHeight;
     const x = c.getContext('2d');
@@ -2015,7 +2015,7 @@ function Editor({
     </label>
   );
   const invoice = isInvoiceTemplate(template.id);
-  const lockedSample = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || template.id === 'chase' || invoice;
+  const lockedSample = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || invoice;
   const handleLogo = (file?: File) => {
     if (!file) return;
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
