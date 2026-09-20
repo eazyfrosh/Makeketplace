@@ -81,7 +81,7 @@ function ChangellyLayout({ site }: { site: SupportSite }) {
   return <div className="bg-white text-[#202124]">
     <header className="border-b border-[#eeeeee] bg-white px-6 py-3 lg:px-10">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6">
-        <img src="/support-templates/logos/changelly.png" alt="Changelly" className="h-10 w-auto max-w-52 object-contain object-left" />
+        <img src="/support-templates/logos/changelly.png" alt="Changelly" className="h-16 w-auto max-w-72 object-contain object-left sm:h-20" />
         <nav className="hidden items-center gap-2 text-[11px] font-semibold uppercase tracking-wide sm:flex">
           <a href="#login" className="bg-[#00df76] px-4 py-2.5 text-[#111111]">Login</a>
           <a href="#signup" className="bg-[#00df76] px-4 py-2.5 text-[#111111]">Sign up</a>

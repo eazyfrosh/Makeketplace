@@ -1777,7 +1777,7 @@ function ChaseReceiptPreview({ form }: { form: Record<string, string> }) {
     <>
       <article className={`chase-screen chase-status-${status.key}`}>
         <header className="chase-header">
-          <div className="chase-brand"><b>CHASE</b><img src="/receiptlab/chase-logo.png" alt="Chase logo" /></div>
+          <div className="chase-brand"><img src="/receiptlab/chase-preview-logo.png" alt="Chase logo" /></div>
           <div><span>Receipt</span><b>{form.chaseReceiptDate || 'Demo date'}</b></div>
         </header>
         <section className="chase-pending">

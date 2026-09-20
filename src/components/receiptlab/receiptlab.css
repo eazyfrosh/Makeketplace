@@ -3573,7 +3573,8 @@
 .receiptlab-root .chase-screen.chase-status-successful { --chase-status-accent: #168a52; --chase-status-border: #22a06b; --chase-status-bg: #eefbf3; --chase-status-badge: #dcfae6; }
 .receiptlab-root .chase-screen.chase-status-cancelled { --chase-status-accent: #b42318; --chase-status-border: #e5484d; --chase-status-bg: #fff1f0; --chase-status-badge: #fee4e2; }
 .receiptlab-root .chase-header { height: 14.6cqw; box-sizing: border-box; padding: 0 5.3cqw; border-bottom: .7cqw solid #126bc5; background: #edf6ff; display: flex; align-items: center; justify-content: space-between; }
-.receiptlab-root .chase-brand { display: flex; align-items: center; gap: 2cqw; }
+.receiptlab-root .chase-brand { display: flex; align-items: center; }
+.receiptlab-root .chase-brand img { width: 24cqw; height: 12cqw; object-fit: contain; object-position: left center; display: block; }
 .receiptlab-root .chase-brand b { color: #0b0e14; font-size: 6.2cqw; letter-spacing: .045em; }
 .receiptlab-root .chase-brand i { width: 5.1cqw; height: 5.1cqw; box-sizing: border-box; transform: rotate(45deg); border: 1.35cqw solid #1787cf; }
 .receiptlab-root .chase-header > div:last-child { display: grid; justify-items: end; color: #343943; font-size: 2.7cqw; line-height: 1.28; }
@@ -3758,4 +3759,4 @@
 .receiptlab-root .mini-gcash::before { display: none; }
 .receiptlab-root .mini-gcash > img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 12px; }
 
-.receiptlab-root .chase-brand img { width: 6.2cqw; height: 6.2cqw; object-fit: contain; display: block; }
+.receiptlab-root .chase-brand img { width: 24cqw; height: 12cqw; object-fit: contain; object-position: left center; display: block; }
