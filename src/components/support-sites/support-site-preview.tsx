@@ -67,8 +67,59 @@ function BitcoinLayout({ site }: { site: SupportSite }) {
 
 function BitsoLayout({ site }: { site: SupportSite }) { const [query, setQuery] = React.useState(""); return <><Header site={site} /><section className="px-6 py-20 text-center"><h1 className="text-5xl font-semibold tracking-tight">{site.heroTitle}</h1><p className="mx-auto mt-4 max-w-lg text-lg opacity-65">{site.heroSubtitle}</p><SearchBox site={site} query={query} setQuery={setQuery} /></section><main className="mx-auto max-w-3xl px-6 pb-20"><div className="rounded-3xl bg-[#f7f7fb] p-8 text-center"><MessageCircle className="mx-auto size-8" style={{ color: site.branding.primary }} /><h2 className="mt-4 text-2xl font-semibold">Didn&apos;t find what you were looking for?</h2><p className="mt-3 text-sm text-muted-foreground">For a faster and more efficient service, open a chat where an expert will assist you.</p><button className="mt-6 rounded-full px-6 py-3 text-sm font-semibold text-white" style={{ background: site.branding.primary }}>Open a chat</button></div><h2 className="mt-16 text-2xl font-semibold">Promoted articles</h2><div className="mt-5 divide-y">{site.articles.map((article) => <article key={article.id} className="flex items-center justify-between py-5"><div><p className="font-medium">{article.title}</p><p className="mt-1 text-sm text-muted-foreground">{article.description}</p></div><ArrowRight className="size-4 text-muted-foreground" /></article>)}</div></main><Footer site={site} /></>; }
 
-function ChangellyLayout({ site }: { site: SupportSite }) { const [query, setQuery] = React.useState(""); return <><Header site={site} /><section className="bg-[#fafafa] px-6 py-16 text-center"><p className="text-xs font-bold uppercase tracking-[0.22em]" style={{ color: site.branding.primary }}>Changelly Knowledge Base</p><h1 className="mt-4 text-4xl font-semibold">{site.heroTitle}</h1><SearchBox site={site} query={query} setQuery={setQuery} /></section><main className="mx-auto max-w-6xl space-y-14 px-6 py-14 lg:px-10"><section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">{site.categories.map((category, i) => <div key={category}><h2 className="text-lg font-semibold">{category}</h2><div className="mt-4 space-y-3">{site.articles.slice(i % 3, (i % 3) + 3).map((article) => <a key={article.id} href="#article" className="block text-sm text-muted-foreground hover:text-foreground">{article.title}</a>)}</div><button className="mt-4 text-xs font-bold uppercase" style={{ color: site.branding.primary }}>See other articles →</button></div>)}</section><div className="rounded-2xl border bg-white p-8 text-center"><h2 className="text-2xl font-semibold">Can&apos;t find what you&apos;re looking for?</h2><p className="mt-2 text-muted-foreground">Let us help you.</p><button className="mt-5 rounded-full px-6 py-3 text-sm font-semibold text-white" style={{ background: site.branding.primary }}>Submit a ticket</button></div></main><Footer site={site} /></>; }
-
+function ChangellyLayout({ site }: { site: SupportSite }) {
+  const [query, setQuery] = React.useState("");
+  const articleGroups = site.categories.map((category, index) => ({
+    category,
+    articles: site.articles.slice(index % 3, (index % 3) + 3),
+  }));
+  const footerColumns = [
+    ["Home", "Cookie policy"],
+    ["About Us", "Privacy Policy", "Terms of Use", "Blog"],
+    ["Main page", "Supported currencies", "Affiliate program"],
+  ];
+  return <div className="bg-white text-[#202124]">
+    <header className="border-b border-[#eeeeee] bg-white px-6 py-3 lg:px-10">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6">
+        <img src="/support-templates/logos/changelly.png" alt="Changelly" className="h-10 w-auto max-w-52 object-contain object-left" />
+        <nav className="hidden items-center gap-2 text-[11px] font-semibold uppercase tracking-wide sm:flex">
+          <a href="#login" className="bg-[#00df76] px-4 py-2.5 text-[#111111]">Login</a>
+          <a href="#signup" className="bg-[#00df76] px-4 py-2.5 text-[#111111]">Sign up</a>
+          <a href="#ticket" className="bg-[#00df76] px-4 py-2.5 text-[#111111]">Submit a ticket</a>
+          <span className="ml-1 text-xs font-normal normal-case text-[#555555]">English⌄</span>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <section className="bg-[#f7f7f7] px-6 py-14 text-center lg:py-20">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#777777]">Changelly Support</p>
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#202124] md:text-5xl">{site.heroTitle}</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-base text-[#666666]">{site.heroSubtitle}</p>
+        <div className="mx-auto mt-8 max-w-2xl"><SearchBox site={site} query={query} setQuery={setQuery} /></div>
+      </section>
+      <section className="mx-auto max-w-6xl px-6 py-12 lg:px-10 lg:py-16">
+        <div className="grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+          {articleGroups.map(({ category, articles }) => <section key={category} className="border-t border-[#eeeeee] pt-5">
+            <h2 className="text-lg font-semibold text-[#202124]">{category}</h2>
+            <div className="mt-4 space-y-3">{articles.map((article) => <a key={article.id} href="#article" className="block text-sm leading-5 text-[#5d5d5d] hover:text-[#00b961]">{article.title}</a>)}</div>
+            <a href="#articles" className="mt-5 inline-block text-xs font-bold uppercase tracking-wide text-[#00b961]">See all articles →</a>
+          </section>)}
+        </div>
+        <section className="mx-auto mt-16 max-w-3xl border-t border-[#eeeeee] pt-10 text-center">
+          <h2 className="text-2xl font-semibold text-[#202124]">Can&apos;t find what you&apos;re looking for?</h2>
+          <p className="mt-3 text-sm text-[#666666]">Let us help you find the answer.</p>
+          <a href="#ticket" className="mt-6 inline-flex bg-[#00df76] px-6 py-3 text-sm font-semibold text-[#111111]">Submit a ticket</a>
+        </section>
+      </section>
+    </main>
+    <footer className="bg-black px-6 py-12 text-sm text-white lg:px-10">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-10 sm:grid-cols-3">{footerColumns.map((column, index) => <div key={index}><h3 className="mb-4 font-semibold">{index === 0 ? "Home" : index === 1 ? "Company" : "Main"}</h3><div className="space-y-3 text-white/65">{column.map((item) => <a key={item} href="#footer" className="block hover:text-white">{item}</a>)}</div></div>)}</div>
+        <div className="mt-10 border-t border-white/15 pt-6 text-xs text-white/50">© {new Date().getFullYear()} Changelly. Support center.</div>
+      </div>
+    </footer>
+  </div>;
+}
 function CashAppLayout({ site }: { site: SupportSite }) { const [query, setQuery] = React.useState(""); return <><Header site={site} /><section className="bg-[#00d64f] px-6 py-20 text-center text-black"><p className="text-sm font-semibold">Personalized help is one step away</p><h1 className="mt-4 text-5xl font-semibold tracking-tight">{site.heroTitle}</h1><SearchBox site={site} query={query} setQuery={setQuery} /></section><main className="mx-auto max-w-6xl px-6 py-16 lg:px-10"><section><h2 className="text-2xl font-semibold">Popular Topics</h2><div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{site.articles.slice(0, 6).map((article) => <div key={article.id} className="rounded-xl bg-[#f5f5f5] p-5 font-medium">{article.title}</div>)}</div></section><section className="mt-16"><h2 className="text-2xl font-semibold">Browse</h2><div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{site.categories.map((category) => <div key={category} className="flex items-center justify-between border-b py-4 font-medium"><span>{category}</span><ArrowRight className="size-4" /></div>)}</div></section><div className="mt-16 rounded-2xl bg-black p-8 text-white"><h2 className="text-2xl font-semibold">Contact us</h2><p className="mt-2 text-white/65">Start a chat in your Cash App account for fast support.</p><button className="mt-5 rounded-full bg-[#00d64f] px-5 py-3 text-sm font-semibold text-black">Start a chat</button></div></main><Footer site={site} /></>; }
 
 function BlockchainLayout({ site }: { site: SupportSite }) {
