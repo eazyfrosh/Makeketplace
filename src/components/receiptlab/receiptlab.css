@@ -3549,7 +3549,7 @@
 .receiptlab-root .mini-chase::before { display: none; }
 .receiptlab-root .chase-mini { position: absolute; inset: 0; overflow: hidden; color: #111722; font-family: Arial, Helvetica, sans-serif; }
 .receiptlab-root .chase-mini header { height: 36px; padding: 0 16px; border-bottom: 3px solid #126bc5; background: #edf6ff; display: flex; align-items: center; gap: 7px; }
-.receiptlab-root .chase-mini header b { font-size: 14px; letter-spacing: .04em; }
+.receiptlab-root .chase-mini header img { width: 74px; height: 29px; object-fit: contain; object-position: left center; display: block; }
 .receiptlab-root .chase-mini header i { width: 12px; height: 12px; transform: rotate(45deg); border: 3px solid #1787cf; }
 .receiptlab-root .chase-mini > strong { display: block; padding: 12px 16px; border-left: 4px solid #f3c91b; background: #fffdf6; font-size: 11px; }
 .receiptlab-root .chase-mini section { margin: 13px 16px 10px; padding: 11px; border: 1px solid #dde1e7; border-radius: 6px; text-align: center; }

@@ -1707,7 +1707,7 @@ function MobileReceiptMini({ id }: { id: 'gcash' | 'okx' }) {
 function ChaseReceiptMini() {
   return (
     <div className="chase-mini" aria-hidden="true">
-      <header><b>CHASE</b><i /></header>
+      <header><img src="/receiptlab/chase-preview-logo.png" alt="Chase logo" /></header>
       <strong>Payment pending</strong>
       <section><small>You sent</small><b>$2,500,000.00</b></section>
       <span /><span /><span />
