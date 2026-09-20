@@ -1696,6 +1696,7 @@ function MobileReceiptMini({ id }: { id: 'gcash' | 'okx' }) {
     </div>
   ) : (
     <div className="okx-mini" aria-hidden="true">
+      <img className="okx-mini-logo" src="/receiptlab/okx-preview-logo.png" alt="" />
       <b>Withdrawal details</b>
       <small>Amount</small><strong>- 10.316428 USDT</strong><i>✓ Sent</i>
       <span /><span /><span /><span />
@@ -1756,7 +1757,7 @@ function OkxReceiptPreview({ form }: { form: Record<string, string> }) {
     <>
       <article className="okx-screen">
         <div className="okx-statusbar"><b>19:23</b><span>▮▮▮⌁▱</span></div>
-        <header><i>‹</i><b>Withdrawal details</b></header>
+        <header><i>‹</i><div className="okx-header-brand"><img src="/receiptlab/okx-preview-logo.png" alt="OKX" /><b>Withdrawal details</b></div></header>
         <main>
           <small>Amount</small>
           <h2>{form.okxAmount || '- 10.316428 USDT'}</h2>

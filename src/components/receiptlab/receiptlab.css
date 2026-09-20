@@ -3478,6 +3478,7 @@
 .receiptlab-root .gcash-mini em,
 .receiptlab-root .okx-mini em { position: absolute; right: 9px; bottom: 6px; z-index: 2; color: #b42336; font-size: 7px; font-style: normal; font-weight: 900; }
 .receiptlab-root .okx-mini { padding: 20px; background: #101010; color: #f6f6f7; text-align: center; }
+.receiptlab-root .okx-mini-logo { display: block; width: 76px; height: 34px; margin: 0 auto 12px; object-fit: contain; }
 .receiptlab-root .okx-mini > b { display: block; padding-bottom: 16px; border-bottom: 1px solid #292929; font-size: 13px; }
 .receiptlab-root .okx-mini > small { display: block; margin-top: 18px; color: #919197; }
 .receiptlab-root .okx-mini > strong { display: block; margin-top: 7px; font-size: 15px; }
@@ -3523,7 +3524,9 @@
 .receiptlab-root .receipt.okx { width: min(430px, 100%); min-height: 0; aspect-ratio: 1 / 2; padding: 0; border-radius: 0; background: #101010; color: #f7f7f8; container-type: inline-size; font-family: Arial, Helvetica, sans-serif; }
 .receiptlab-root .okx-screen { position: absolute; inset: 0; overflow: hidden; background: #101010; }
 .receiptlab-root .okx-statusbar { height: 5.4cqw; padding: 1.2cqw 4.2cqw 0; display: flex; justify-content: space-between; font-size: 2.6cqw; }
-.receiptlab-root .okx-screen > header { height: 9.1cqw; border-bottom: 1px solid #292929; display: grid; place-items: center; font-size: 3.75cqw; }
+.receiptlab-root .okx-screen > header { height: 14cqw; border-bottom: 1px solid #292929; display: grid; place-items: center; font-size: 3.75cqw; }
+.receiptlab-root .okx-header-brand { display: flex; align-items: center; gap: 2cqw; }
+.receiptlab-root .okx-header-brand img { width: 16cqw; height: 7cqw; object-fit: contain; }
 .receiptlab-root .okx-screen > header i { position: absolute; left: 3.5cqw; font-size: 6cqw; font-style: normal; font-weight: 200; }
 .receiptlab-root .okx-screen > main { padding: 6.3cqw 4cqw 0; text-align: center; }
 .receiptlab-root .okx-screen > main > small { color: #96969b; font-size: 2.75cqw; }
