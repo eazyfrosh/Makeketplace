@@ -15,7 +15,7 @@ const companyLogoPaths: Record<string, string> = {
   cartwise: "/support-templates/logos/bitcoin.svg",
   routecare: "/support-templates/logos/byd.webp",
   "clarity-docs": "/support-templates/logos/bitso.svg",
-  "summit-corporate": "/support-templates/logos/changelly.svg",
+  "summit-corporate": "/support-templates/logos/changelly.png",
   plainhelp: "/support-templates/logos/cashapp.svg",
   nightshift: "/support-templates/logos/blockchain.png",
 };
