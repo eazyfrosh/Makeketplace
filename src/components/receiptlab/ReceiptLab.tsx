@@ -1612,7 +1612,7 @@ function Gallery({
             >
               {isInvoiceTemplate(t.id) ? (
                 <InvoiceMini id={t.id} />
-              ) : t.id === 'gcash' || t.id === 'okx' ? (
+              ) : t.id === 'gcash' ? (
                 <MobileReceiptMini id={t.id} />
               ) : t.id === 'chase' ? (
                 <ChaseReceiptMini />
@@ -1656,7 +1656,7 @@ function Gallery({
                                               ? '/receiptlab/wells-fargo-library-preview.jpg'
                                               : t.id === 'gcash'
                                                 ? '/receiptlab/gcash-library-preview.png'
-                                                : '/receiptlab/okx-library-preview.png'
+                                                : '/receiptlab/okx-preview-logo.png'
                     }
                     alt={`${t.name} receipt reference`}
                   />
@@ -1757,7 +1757,7 @@ function OkxReceiptPreview({ form }: { form: Record<string, string> }) {
     <>
       <article className="okx-screen">
         <div className="okx-statusbar"><b>19:23</b><span>▮▮▮⌁▱</span></div>
-        <header><i>‹</i><div className="okx-header-brand"><img src="/receiptlab/okx-preview-logo.png" alt="OKX" /><b>Withdrawal details</b></div></header>
+        <header><i>‹</i><b>Withdrawal details</b></header>
         <main>
           <small>Amount</small>
           <h2>{form.okxAmount || '- 10.316428 USDT'}</h2>
