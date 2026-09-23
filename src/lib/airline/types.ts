@@ -7,7 +7,9 @@ export interface Airport {
   name: string;
   city: string;
   country: string;
-  timezone: string;
+  timezone?: string;
+  /** Pre-normalized lowercase text used by airport autocomplete. */
+  searchLabel?: string;
 }
 
 export interface Airline {
@@ -68,6 +70,8 @@ export interface FlightSearchParams {
   multiCitySegments?: { from: string; to: string; date: string }[];
   passengers: PassengerCounts;
   cabin: CabinClass;
+  preferredAirlineId?: string;
+  customPrice?: number;
 }
 
 export interface PassengerInfo {
@@ -126,5 +130,7 @@ export interface RecentSearch {
   departureDate: string;
   cabin: CabinClass;
   tripType: TripType;
+  preferredAirlineId?: string;
+  customPrice?: number;
   timestamp: number;
 }

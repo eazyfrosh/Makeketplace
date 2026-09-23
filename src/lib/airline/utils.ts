@@ -1,8 +1,10 @@
 export function formatCurrency(amount: number, currency = "USD") {
+  const hasCents = !Number.isInteger(amount);
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: hasCents ? 2 : 0,
+    maximumFractionDigits: hasCents ? 2 : 0,
   }).format(amount);
 }
 

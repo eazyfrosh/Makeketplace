@@ -184,10 +184,7 @@ export function PrintableItinerary({ booking }: { booking: Booking }) {
             connecting itineraries). Carry a valid passport and any required visas or travel documents. Baggage
             allowance and fare rules are shown in your booking confirmation.
           </p>
-          <p className="mt-1.5">
-            SkyBook — a simulated booking platform inside Nexova. No real flights, payments, or airline systems are
-            involved. Document generated {generatedOn}.
-          </p>
+          <p className="mt-1.5">Document generated {generatedOn}.</p>
         </footer>
       </div>
     </div>

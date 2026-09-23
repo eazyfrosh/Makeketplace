@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowRight, SearchX, SlidersHorizontal } from "lucide-react";
 import { countryFlag } from "@/lib/airline/data/country-flags";
@@ -16,6 +16,8 @@ import { EmptyState } from "@/components/airline/ui/empty-state";
 import { useBookingStore } from "@/lib/airline/store/booking-store";
 import { RebookingBanner } from "@/components/airline/booking/rebooking-banner";
 import { formatCurrency, formatDateLong } from "@/lib/airline/utils";
+import { resolveAirline } from "@/lib/airline/data/airlines";
+import { useEffect } from "react";
 
 interface Leg {
   label: string;
@@ -23,7 +25,6 @@ interface Leg {
   to: string;
   date: string;
 }
-
 function sortFlights(flights: Flight[], key: SortKey): Flight[] {
   const sorted = [...flights];
   switch (key) {
@@ -52,6 +53,13 @@ export function SearchResultsClient() {
 
   const tripType = (params.get("tripType") as TripType) || "one_way";
   const cabin = (params.get("cabin") as CabinClass) || "economy";
+  const preferredAirlineId = params.get("airline") || undefined;
+  const preferredAirline = preferredAirlineId ? resolveAirline(preferredAirlineId) : undefined;
+  const priceParam = params.get("price");
+  const parsedPrice = priceParam ? Number(priceParam) : undefined;
+  const customPrice = parsedPrice !== undefined && Number.isFinite(parsedPrice) && parsedPrice > 0 && parsedPrice <= 1_000_000
+    ? Math.round(parsedPrice * 100) / 100
+    : undefined;
   const passengers: PassengerCounts = useMemo(() => {
     try {
       return JSON.parse(params.get("passengers") || "") as PassengerCounts;
@@ -96,6 +104,10 @@ export function SearchResultsClient() {
 
   const paramsKey = params.toString();
 
+  // Bare navigation to /search (no search was ever performed) is not a valid
+  // state for this page to render — it should send the user back to a real
+  // search form instead of showing an error. A manually-entered URL with
+  // garbage params (e.g. ?from=XXX) still falls through to the error card below.
   const hasSearchIntent = Boolean(params.get("from") || params.get("to") || params.get("segments"));
 
   useEffect(() => {
@@ -113,6 +125,8 @@ export function SearchResultsClient() {
       departureDate: legs[0]?.date ?? "",
       passengers,
       cabin,
+      preferredAirlineId,
+      customPrice,
     });
     clearItinerary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -137,9 +151,11 @@ export function SearchResultsClient() {
       departureDate: currentLeg.date,
       passengers,
       cabin,
+      preferredAirlineId,
+      customPrice,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLeg?.from, currentLeg?.to, currentLeg?.date, cabin]);
+  }, [currentLeg?.from, currentLeg?.to, currentLeg?.date, cabin, preferredAirlineId, customPrice]);
 
   const priceCeiling = useMemo(
     () => Math.max(500, ...rawFlights.map((f) => Math.ceil(f.price / 50) * 50)),
@@ -167,6 +183,7 @@ export function SearchResultsClient() {
   }
 
   if (!hasSearchIntent) {
+    // Redirecting to the homepage search form via the effect above.
     return null;
   }
 
@@ -175,8 +192,8 @@ export function SearchResultsClient() {
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <AlertTriangle className="mx-auto mb-4 text-gold-500" size={36} />
         <h1 className="text-xl font-semibold">We couldn&apos;t read your search</h1>
-        <p className="mt-2 text-foreground/60">Please start a new search.</p>
-        <Button className="mt-6" onClick={() => router.push("/platform/airline-booking-platform")}>Back to search</Button>
+        <p className="mt-2 text-foreground/60">Please start a new search from the homepage.</p>
+        <Button className="mt-6" onClick={() => router.push("/platform/airline-booking-platform")}>Back to homepage</Button>
       </div>
     );
   }
@@ -194,6 +211,20 @@ export function SearchResultsClient() {
           {formatDateLong(`${currentLeg.date}T00:00:00`)} · {passengers.adults + passengers.children + passengers.infants} passenger
           {passengers.adults + passengers.children + passengers.infants !== 1 ? "s" : ""}
         </p>
+        {(preferredAirline || customPrice !== undefined) && (
+          <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium">
+            {preferredAirline && (
+              <span className="rounded-full bg-brand-50 px-2.5 py-1 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
+                {preferredAirline.name}
+              </span>
+            )}
+            {customPrice !== undefined && (
+              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
+                {formatCurrency(customPrice)} per passenger
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {legs.length > 1 && (

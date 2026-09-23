@@ -15,7 +15,6 @@ import type { Booking } from "@/lib/airline/types";
 function defaultBoardingTime(departureIso: string) {
   return formatTime(new Date(new Date(departureIso).getTime() - 45 * 60000).toISOString());
 }
-
 function defaultGateFor(flightId: string) {
   const letters = "ABCDEFGHJK";
   const sum = flightId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -85,7 +84,7 @@ export default function BoardingPassPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-3xl border border-black/10 bg-white shadow-xl dark:border-white/10 dark:bg-neutral-900">
+      <div className="boarding-pass-card overflow-hidden rounded-3xl border border-black/10 bg-white shadow-xl dark:border-white/10 dark:bg-neutral-900">
         <div className="flex items-center justify-between bg-gradient-to-r from-brand-700 to-brand-600 p-5 text-white">
           <div className="flex items-center gap-2.5">
             <AirlineLogo airline={first.airline} size={34} />
@@ -167,7 +166,7 @@ export default function BoardingPassPage() {
       </div>
 
       <div className="no-print mt-6 flex justify-center">
-        <DownloadPdfButton label="Download boarding pass (PDF)" />
+        <DownloadPdfButton label="Download boarding pass (PDF)" targetSelector=".boarding-pass-card" filename="skybook-boarding-pass.pdf" />
       </div>
     </div>
   );

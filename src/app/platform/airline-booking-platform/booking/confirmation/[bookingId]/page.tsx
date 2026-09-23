@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, Ticket } from "lucide-react";
+import { CheckCircle2, Mail, Ticket } from "lucide-react";
 import { Card, CardContent } from "@/components/airline/ui/card";
 import { Badge } from "@/components/airline/ui/badge";
 import { Button } from "@/components/airline/ui/button";
@@ -56,7 +56,7 @@ export default function ConfirmationPage() {
           {justRebooked ? "Booking rebooked!" : "Booking confirmed!"}
         </h1>
         <p className="mt-1 text-foreground/60">
-          A confirmation summary is ready for <strong>{booking.passengers[0]?.email}</strong>. No real email is sent.
+          A confirmation summary is ready for <strong>{booking.passengers[0]?.email}</strong>.
         </p>
       </div>
 
@@ -159,6 +159,11 @@ export default function ConfirmationPage() {
         <Link href={`/platform/airline-booking-platform/boarding-pass/${booking.id}`}>
           <Button variant="secondary">
             <Ticket size={16} /> View boarding pass
+          </Button>
+        </Link>
+        <Link href={`/platform/airline-booking-platform/booking/confirmation/${booking.id}/email-preview`}>
+          <Button variant="outline">
+            <Mail size={16} /> Preview confirmation email
           </Button>
         </Link>
         <Link href="/platform/airline-booking-platform/trips">
