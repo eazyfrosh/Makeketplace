@@ -1,4 +1,4 @@
-import { airlines } from "./airlines";
+import { airlines, resolveAirline } from "./airlines";
 import { findAirport } from "./airports";
 import type { CabinClass, Flight, FlightSearchParams, FlightSegment } from "@/lib/airline/types";
 import { hashString, seedRandom } from "@/lib/airline/utils";
@@ -26,9 +26,10 @@ function buildSegment(
   rand: () => number,
   origin: string,
   destination: string,
-  departure: Date
+  departure: Date,
+  preferredAirline?: string
 ): FlightSegment {
-  const airline = airlines[Math.floor(rand() * airlines.length)];
+  const airline = (preferredAirline && resolveAirline(preferredAirline)) || airlines[Math.floor(rand() * airlines.length)];
   const baseDuration = distanceEstimate(origin, destination);
   const jitter = Math.floor(rand() * 40) - 20;
   const durationMinutes = Math.max(45, baseDuration + jitter);
@@ -54,7 +55,7 @@ export function generateFlights(params: FlightSearchParams, count = 12): Flight[
   const destinationAirport = findAirport(params.to);
   if (!originAirport || !destinationAirport) return [];
 
-  const seedKey = `${params.from}-${params.to}-${params.departureDate}-${params.cabin}`;
+  const seedKey = `${params.from}-${params.to}-${params.departureDate}-${params.cabin}-${params.preferredAirlineId ?? "any"}-${params.customPrice ?? "generated"}`;
   const rand = seedRandom(hashString(seedKey) || 1);
 
   const flights: Flight[] = [];
@@ -78,7 +79,7 @@ export function generateFlights(params: FlightSearchParams, count = 12): Flight[
     for (let s = 0; s <= stops; s++) {
       const isLast = s === stops;
       const segDestination = isLast ? params.to : stopCodes[Math.floor(rand() * stopCodes.length)];
-      const seg = buildSegment(rand, currentOrigin, segDestination, currentDeparture);
+      const seg = buildSegment(rand, currentOrigin, segDestination, currentDeparture, params.preferredAirlineId);
       segments.push(seg);
       currentOrigin = segDestination;
       const layoverMinutes = 45 + Math.floor(rand() * 105);
@@ -95,7 +96,7 @@ export function generateFlights(params: FlightSearchParams, count = 12): Flight[
     const stopsDiscount = stops === 0 ? 1.15 : stops === 1 ? 1 : 0.88;
     const cabinPrice = basePrice * CABIN_MULTIPLIER[params.cabin] * stopsDiscount;
     const priceJitter = 0.85 + rand() * 0.3;
-    const price = Math.round((cabinPrice * priceJitter) / 5) * 5;
+    const price = params.customPrice ?? Math.round((cabinPrice * priceJitter) / 5) * 5;
 
     const airline = segments[0].airline;
 

@@ -222,3 +222,39 @@ export const airlines: Airline[] = [
 export function findAirline(id: string): Airline | undefined {
   return airlines.find((a) => a.id === id);
 }
+
+export function resolveAirline(value: string): Airline | undefined {
+  const query = value.trim();
+  if (!query) return undefined;
+
+  const knownAirline = airlines.find(
+    (airline) =>
+      airline.id.toLowerCase() === query.toLowerCase() ||
+      airline.code.toLowerCase() === query.toLowerCase() ||
+      airline.name.toLowerCase() === query.toLowerCase()
+  );
+  if (knownAirline) return knownAirline;
+
+  const words = query.split(/\s+/).filter(Boolean);
+  const code = (words.length > 1 ? words.map((word) => word[0]).join("") : query.slice(0, 2))
+    .replace(/[^a-z]/gi, "")
+    .slice(0, 3)
+    .toUpperCase() || "FL";
+
+  return {
+    id: `custom-${query.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "airline"}`,
+    name: query,
+    code,
+    logoSrc: "",
+    logoColor: "#2563EB",
+    rating: 4.2,
+    baggageAllowance: {
+      carryOn: "1 bag + 1 personal item",
+      checked: "Standard checked baggage allowance",
+    },
+    aircraftTypes: ["Boeing 787-9", "Airbus A350-900", "Airbus A321neo"],
+    cabins: ["economy", "premium_economy", "business", "first"],
+    founded: 0,
+    hubAirport: "",
+  };
+}

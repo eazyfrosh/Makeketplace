@@ -1,6 +1,7 @@
 import type { Airport } from "@/lib/airline/types";
+import airportIndex from "./airports-index.json";
 
-export const airports: Airport[] = [
+const featuredAirports: Airport[] = [
   { code: "JFK", name: "John F. Kennedy International Airport", city: "New York", country: "United States", timezone: "America/New_York" },
   { code: "LGA", name: "LaGuardia Airport", city: "New York", country: "United States", timezone: "America/New_York" },
   { code: "EWR", name: "Newark Liberty International Airport", city: "Newark", country: "United States", timezone: "America/New_York" },
@@ -132,21 +133,216 @@ export const airports: Airport[] = [
   { code: "YYT", name: "St. John's International Airport", city: "St. John's", country: "Canada", timezone: "America/St_Johns" },
   { code: "REK", name: "Reykjavík Airport", city: "Reykjavík", country: "Iceland", timezone: "Atlantic/Reykjavik" },
   { code: "KEF", name: "Keflavík International Airport", city: "Reykjavík", country: "Iceland", timezone: "Atlantic/Reykjavik" },
+
+  // Eastern & Southeastern Europe
+  { code: "KBP", name: "Boryspil International Airport", city: "Kyiv", country: "Ukraine", timezone: "Europe/Kyiv" },
+  { code: "ZAG", name: "Franjo Tuđman Airport", city: "Zagreb", country: "Croatia", timezone: "Europe/Zagreb" },
+  { code: "OTP", name: "Henri Coandă International Airport", city: "Bucharest", country: "Romania", timezone: "Europe/Bucharest" },
+  { code: "SOF", name: "Sofia Airport", city: "Sofia", country: "Bulgaria", timezone: "Europe/Sofia" },
+  { code: "BEG", name: "Belgrade Nikola Tesla Airport", city: "Belgrade", country: "Serbia", timezone: "Europe/Belgrade" },
+  { code: "BTS", name: "M. R. Štefánik Airport", city: "Bratislava", country: "Slovakia", timezone: "Europe/Bratislava" },
+  { code: "LJU", name: "Ljubljana Jože Pučnik Airport", city: "Ljubljana", country: "Slovenia", timezone: "Europe/Ljubljana" },
+  { code: "VNO", name: "Vilnius Airport", city: "Vilnius", country: "Lithuania", timezone: "Europe/Vilnius" },
+  { code: "RIX", name: "Riga International Airport", city: "Riga", country: "Latvia", timezone: "Europe/Riga" },
+  { code: "TLL", name: "Lennart Meri Tallinn Airport", city: "Tallinn", country: "Estonia", timezone: "Europe/Tallinn" },
+  { code: "LUX", name: "Luxembourg Airport", city: "Luxembourg City", country: "Luxembourg", timezone: "Europe/Luxembourg" },
+  { code: "MLA", name: "Malta International Airport", city: "Luqa", country: "Malta", timezone: "Europe/Malta" },
+  { code: "LCA", name: "Larnaca International Airport", city: "Larnaca", country: "Cyprus", timezone: "Asia/Nicosia" },
+  { code: "SJJ", name: "Sarajevo International Airport", city: "Sarajevo", country: "Bosnia and Herzegovina", timezone: "Europe/Sarajevo" },
+  { code: "SKP", name: "Skopje International Airport", city: "Skopje", country: "North Macedonia", timezone: "Europe/Skopje" },
+  { code: "TIA", name: "Tirana International Airport", city: "Tirana", country: "Albania", timezone: "Europe/Tirane" },
+  { code: "TGD", name: "Podgorica Airport", city: "Podgorica", country: "Montenegro", timezone: "Europe/Podgorica" },
+  { code: "KIV", name: "Chișinău International Airport", city: "Chișinău", country: "Moldova", timezone: "Europe/Chisinau" },
+  { code: "MSQ", name: "Minsk National Airport", city: "Minsk", country: "Belarus", timezone: "Europe/Minsk" },
+
+  // Latin America & Caribbean
+  { code: "CCS", name: "Simón Bolívar International Airport", city: "Caracas", country: "Venezuela", timezone: "America/Caracas" },
+  { code: "UIO", name: "Mariscal Sucre International Airport", city: "Quito", country: "Ecuador", timezone: "America/Guayaquil" },
+  { code: "VVI", name: "Viru Viru International Airport", city: "Santa Cruz de la Sierra", country: "Bolivia", timezone: "America/La_Paz" },
+  { code: "ASU", name: "Silvio Pettirossi International Airport", city: "Asunción", country: "Paraguay", timezone: "America/Asuncion" },
+  { code: "MVD", name: "Carrasco International Airport", city: "Montevideo", country: "Uruguay", timezone: "America/Montevideo" },
+  { code: "PTY", name: "Tocumen International Airport", city: "Panama City", country: "Panama", timezone: "America/Panama" },
+  { code: "SJO", name: "Juan Santamaría International Airport", city: "San José", country: "Costa Rica", timezone: "America/Costa_Rica" },
+  { code: "GUA", name: "La Aurora International Airport", city: "Guatemala City", country: "Guatemala", timezone: "America/Guatemala" },
+  { code: "SAP", name: "Ramón Villeda Morales International Airport", city: "San Pedro Sula", country: "Honduras", timezone: "America/Tegucigalpa" },
+  { code: "SAL", name: "El Salvador International Airport", city: "San Salvador", country: "El Salvador", timezone: "America/El_Salvador" },
+  { code: "MGA", name: "Augusto C. Sandino International Airport", city: "Managua", country: "Nicaragua", timezone: "America/Managua" },
+  { code: "HAV", name: "José Martí International Airport", city: "Havana", country: "Cuba", timezone: "America/Havana" },
+  { code: "SDQ", name: "Las Américas International Airport", city: "Santo Domingo", country: "Dominican Republic", timezone: "America/Santo_Domingo" },
+  { code: "KIN", name: "Norman Manley International Airport", city: "Kingston", country: "Jamaica", timezone: "America/Jamaica" },
+  { code: "NAS", name: "Lynden Pindling International Airport", city: "Nassau", country: "Bahamas", timezone: "America/Nassau" },
+  { code: "POS", name: "Piarco International Airport", city: "Port of Spain", country: "Trinidad and Tobago", timezone: "America/Port_of_Spain" },
+  { code: "BGI", name: "Grantley Adams International Airport", city: "Bridgetown", country: "Barbados", timezone: "America/Barbados" },
+  { code: "BZE", name: "Philip S. W. Goldson International Airport", city: "Belize City", country: "Belize", timezone: "America/Belize" },
+  { code: "PAP", name: "Toussaint Louverture International Airport", city: "Port-au-Prince", country: "Haiti", timezone: "America/Port-au-Prince" },
+  { code: "SJU", name: "Luis Muñoz Marín International Airport", city: "San Juan", country: "Puerto Rico", timezone: "America/Puerto_Rico" },
+
+  // Middle East
+  { code: "IKA", name: "Imam Khomeini International Airport", city: "Tehran", country: "Iran", timezone: "Asia/Tehran" },
+  { code: "BGW", name: "Baghdad International Airport", city: "Baghdad", country: "Iraq", timezone: "Asia/Baghdad" },
+  { code: "KWI", name: "Kuwait International Airport", city: "Kuwait City", country: "Kuwait", timezone: "Asia/Kuwait" },
+  { code: "BAH", name: "Bahrain International Airport", city: "Manama", country: "Bahrain", timezone: "Asia/Bahrain" },
+  { code: "MCT", name: "Muscat International Airport", city: "Muscat", country: "Oman", timezone: "Asia/Muscat" },
+  { code: "BEY", name: "Beirut–Rafic Hariri International Airport", city: "Beirut", country: "Lebanon", timezone: "Asia/Beirut" },
+  { code: "SAH", name: "Sana'a International Airport", city: "Sanaa", country: "Yemen", timezone: "Asia/Aden" },
+
+  // Africa
+  { code: "ACC", name: "Kotoka International Airport", city: "Accra", country: "Ghana", timezone: "Africa/Accra" },
+  { code: "DAR", name: "Julius Nyerere International Airport", city: "Dar es Salaam", country: "Tanzania", timezone: "Africa/Dar_es_Salaam" },
+  { code: "EBB", name: "Entebbe International Airport", city: "Entebbe", country: "Uganda", timezone: "Africa/Kampala" },
+  { code: "KGL", name: "Kigali International Airport", city: "Kigali", country: "Rwanda", timezone: "Africa/Kigali" },
+  { code: "DSS", name: "Blaise Diagne International Airport", city: "Dakar", country: "Senegal", timezone: "Africa/Dakar" },
+  { code: "ABJ", name: "Félix-Houphouët-Boigny International Airport", city: "Abidjan", country: "Ivory Coast", timezone: "Africa/Abidjan" },
+  { code: "DLA", name: "Douala International Airport", city: "Douala", country: "Cameroon", timezone: "Africa/Douala" },
+  { code: "LUN", name: "Kenneth Kaunda International Airport", city: "Lusaka", country: "Zambia", timezone: "Africa/Lusaka" },
+  { code: "HRE", name: "Robert Gabriel Mugabe International Airport", city: "Harare", country: "Zimbabwe", timezone: "Africa/Harare" },
+  { code: "GBE", name: "Sir Seretse Khama International Airport", city: "Gaborone", country: "Botswana", timezone: "Africa/Gaborone" },
+  { code: "WDH", name: "Hosea Kutako International Airport", city: "Windhoek", country: "Namibia", timezone: "Africa/Windhoek" },
+  { code: "MPM", name: "Maputo International Airport", city: "Maputo", country: "Mozambique", timezone: "Africa/Maputo" },
+  { code: "LAD", name: "Quatro de Fevereiro Airport", city: "Luanda", country: "Angola", timezone: "Africa/Luanda" },
+  { code: "ALG", name: "Houari Boumediene Airport", city: "Algiers", country: "Algeria", timezone: "Africa/Algiers" },
+  { code: "TUN", name: "Tunis–Carthage International Airport", city: "Tunis", country: "Tunisia", timezone: "Africa/Tunis" },
+  { code: "MJI", name: "Mitiga International Airport", city: "Tripoli", country: "Libya", timezone: "Africa/Tripoli" },
+  { code: "KRT", name: "Khartoum International Airport", city: "Khartoum", country: "Sudan", timezone: "Africa/Khartoum" },
+  { code: "MRU", name: "Sir Seewoosagur Ramgoolam International Airport", city: "Port Louis", country: "Mauritius", timezone: "Indian/Mauritius" },
+  { code: "SEZ", name: "Seychelles International Airport", city: "Victoria", country: "Seychelles", timezone: "Indian/Mahe" },
+  { code: "TNR", name: "Ivato International Airport", city: "Antananarivo", country: "Madagascar", timezone: "Indian/Antananarivo" },
+  { code: "FIH", name: "N'djili Airport", city: "Kinshasa", country: "Democratic Republic of the Congo", timezone: "Africa/Kinshasa" },
+  { code: "BZV", name: "Maya-Maya Airport", city: "Brazzaville", country: "Republic of the Congo", timezone: "Africa/Brazzaville" },
+  { code: "LBV", name: "Libreville International Airport", city: "Libreville", country: "Gabon", timezone: "Africa/Libreville" },
+
+  // Central & South Asia, Caucasus
+  { code: "ULN", name: "Chinggis Khaan International Airport", city: "Ulaanbaatar", country: "Mongolia", timezone: "Asia/Ulaanbaatar" },
+  { code: "ALA", name: "Almaty International Airport", city: "Almaty", country: "Kazakhstan", timezone: "Asia/Almaty" },
+  { code: "TAS", name: "Tashkent International Airport", city: "Tashkent", country: "Uzbekistan", timezone: "Asia/Tashkent" },
+  { code: "GYD", name: "Heydar Aliyev International Airport", city: "Baku", country: "Azerbaijan", timezone: "Asia/Baku" },
+  { code: "TBS", name: "Tbilisi International Airport", city: "Tbilisi", country: "Georgia", timezone: "Asia/Tbilisi" },
+  { code: "EVN", name: "Zvartnots International Airport", city: "Yerevan", country: "Armenia", timezone: "Asia/Yerevan" },
+  { code: "RGN", name: "Yangon International Airport", city: "Yangon", country: "Myanmar", timezone: "Asia/Yangon" },
+  { code: "PNH", name: "Phnom Penh International Airport", city: "Phnom Penh", country: "Cambodia", timezone: "Asia/Phnom_Penh" },
+  { code: "VTE", name: "Wattay International Airport", city: "Vientiane", country: "Laos", timezone: "Asia/Vientiane" },
+  { code: "BWN", name: "Brunei International Airport", city: "Bandar Seri Begawan", country: "Brunei", timezone: "Asia/Brunei" },
+  { code: "MLE", name: "Velana International Airport", city: "Malé", country: "Maldives", timezone: "Indian/Maldives" },
+  { code: "PBH", name: "Paro International Airport", city: "Paro", country: "Bhutan", timezone: "Asia/Thimphu" },
+  { code: "KBL", name: "Hamid Karzai International Airport", city: "Kabul", country: "Afghanistan", timezone: "Asia/Kabul" },
+  { code: "FRU", name: "Manas International Airport", city: "Bishkek", country: "Kyrgyzstan", timezone: "Asia/Bishkek" },
+  { code: "DYU", name: "Dushanbe International Airport", city: "Dushanbe", country: "Tajikistan", timezone: "Asia/Dushanbe" },
+  { code: "ASB", name: "Ashgabat International Airport", city: "Ashgabat", country: "Turkmenistan", timezone: "Asia/Ashgabat" },
+
+  // Oceania & Pacific
+  { code: "POM", name: "Jacksons International Airport", city: "Port Moresby", country: "Papua New Guinea", timezone: "Pacific/Port_Moresby" },
+  { code: "APW", name: "Faleolo International Airport", city: "Apia", country: "Samoa", timezone: "Pacific/Apia" },
+  { code: "TBU", name: "Fuaʻamotu International Airport", city: "Nukuʻalofa", country: "Tonga", timezone: "Pacific/Tongatapu" },
+  { code: "VLI", name: "Bauerfield International Airport", city: "Port Vila", country: "Vanuatu", timezone: "Pacific/Efate" },
+  { code: "HIR", name: "Honiara International Airport", city: "Honiara", country: "Solomon Islands", timezone: "Pacific/Guadalcanal" },
+  { code: "NOU", name: "La Tontouta International Airport", city: "Nouméa", country: "New Caledonia", timezone: "Pacific/Noumea" },
+  { code: "GUM", name: "Antonio B. Won Pat International Airport", city: "Hagåtña", country: "Guam", timezone: "Pacific/Guam" },
+
+  // Microstates. Andorra, Vatican City, and Liechtenstein have no airport of
+  // their own, so these route through the real nearby airport that actually
+  // serves them (a distinct code from that airport's own entry, since two
+  // entries can't share a code). Monaco and San Marino have a genuine airport
+  // of their own right at (or effectively at) the microstate itself.
+  { code: "ALV", name: "Andorra (nearest airport: Barcelona–El Prat)", city: "Andorra la Vella", country: "Andorra", timezone: "Europe/Andorra" },
+  { code: "MCM", name: "Monaco Heliport", city: "Monaco", country: "Monaco", timezone: "Europe/Monaco" },
+  { code: "RMI", name: "Federico Fellini International Airport", city: "Rimini (for San Marino)", country: "San Marino", timezone: "Europe/San_Marino" },
+  { code: "VAT", name: "Vatican City (nearest airport: Rome–Fiumicino)", city: "Vatican City", country: "Vatican City", timezone: "Europe/Vatican" },
+  { code: "LIE", name: "Liechtenstein (nearest airport: Zurich)", city: "Vaduz", country: "Liechtenstein", timezone: "Europe/Vaduz" },
+
+  // Other well-known microstates with their own real airport, no fallback needed.
+  { code: "INU", name: "Nauru International Airport", city: "Yaren", country: "Nauru", timezone: "Pacific/Nauru" },
+  { code: "FUN", name: "Funafuti International Airport", city: "Funafuti", country: "Tuvalu", timezone: "Pacific/Funafuti" },
+  { code: "MAJ", name: "Marshall Islands International Airport", city: "Majuro", country: "Marshall Islands", timezone: "Pacific/Majuro" },
+  { code: "ROR", name: "Roman Tmetuchl International Airport", city: "Koror", country: "Palau", timezone: "Pacific/Palau" },
+  { code: "TRW", name: "Bonriki International Airport", city: "Tarawa", country: "Kiribati", timezone: "Pacific/Tarawa" },
+  { code: "SKB", name: "Robert L. Bradshaw International Airport", city: "Basseterre", country: "Saint Kitts and Nevis", timezone: "America/St_Kitts" },
 ];
 
+// Keep the featured airports first for the empty search and retain their
+// familiar display names. The generated index covers the remaining IATA codes.
+const featuredCodes = new Set(featuredAirports.map((airport) => airport.code));
+export const airports: Airport[] = [
+  ...featuredAirports,
+  ...airportIndex
+    .filter(([code]) => !featuredCodes.has(code))
+    .map(([code, name, city, country]) => ({ code, name, city, country })),
+];
+
+const airportsByCode = new Map(airports.map((airport) => [airport.code, airport]));
+
+function normalizeSearchText(text: string): string {
+  return text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+const searchIndex = airports.map((airport) => {
+  const city = normalizeSearchText(airport.city);
+  const name = normalizeSearchText(airport.name);
+  const country = normalizeSearchText(airport.country);
+  return { airport, code: airport.code.toLowerCase(), city, name, country,
+    haystack: `${airport.code.toLowerCase()} ${city} ${name} ${country}` };
+});
+
 export function findAirport(code: string): Airport | undefined {
-  return airports.find((a) => a.code === code);
+  return airportsByCode.get(code.toUpperCase());
+}
+
+/**
+ * Resolves pasted text straight to a single airport when the paste itself
+ * unambiguously identifies one, e.g. "JFK", "jfk", "JFK - John F. Kennedy
+ * International Airport", "New York (JFK)", or the full airport name copied
+ * from elsewhere in the app. Returns undefined for anything looser (a city
+ * or country name, a partial word) so the normal fuzzy dropdown handles it.
+ */
+export function recognizeAirport(pasted: string): Airport | undefined {
+  const trimmed = pasted.trim();
+  if (!trimmed) return undefined;
+
+  if (/^[A-Za-z]{3}$/.test(trimmed)) {
+    const exact = findAirport(trimmed.toUpperCase());
+    if (exact) return exact;
+  }
+
+  const trailingCode = trimmed.match(/\(([A-Za-z]{3})\)\s*$/);
+  if (trailingCode) {
+    const exact = findAirport(trailingCode[1].toUpperCase());
+    if (exact) return exact;
+  }
+
+  const leadingCode = trimmed.match(/^([A-Za-z]{3})\s*[-:,]/);
+  if (leadingCode) {
+    const exact = findAirport(leadingCode[1].toUpperCase());
+    if (exact) return exact;
+  }
+
+  const lower = normalizeSearchText(trimmed);
+  const exactName = airports.find((a) => normalizeSearchText(a.name) === lower);
+  if (exactName) return exactName;
+
+  // Looser paste formats, e.g. "Paris Charles de Gaulle Airport" (the city
+  // prefixed onto the airport's own name) or any other reordering/combination
+  // of the airport's own fields. Auto-select only when every word in the
+  // paste is accounted for by exactly one airport, so an ambiguous or
+  // unrelated paste safely falls through to the normal fuzzy dropdown
+  // instead of guessing.
+  const words = lower.split(/\s+/).filter(Boolean);
+  if (words.length > 1) {
+    const matches = airports.filter((a) => wordsMatchAirport(words, a));
+    if (matches.length === 1) return matches[0];
+  }
+
+  return undefined;
+}
+
+function wordsMatchAirport(words: string[], a: Airport): boolean {
+  const haystack = normalizeSearchText(`${a.code} ${a.city} ${a.name} ${a.country}`);
+  return words.every((w) => haystack.includes(w));
 }
 
 export function searchAirports(query: string, limit = 8): Airport[] {
-  const q = query.trim().toLowerCase();
+  const q = normalizeSearchText(query);
   if (!q) return airports.slice(0, limit);
-  const scored = airports
-    .map((a) => {
-      const code = a.code.toLowerCase();
-      const city = a.city.toLowerCase();
-      const name = a.name.toLowerCase();
-      const country = a.country.toLowerCase();
+  const words = q.split(/\s+/).filter(Boolean);
+  const scored = searchIndex
+    .map(({ airport, code, city, name, country, haystack }) => {
       let score = -1;
       if (code === q) score = 100;
       else if (code.startsWith(q)) score = 90;
@@ -154,9 +350,13 @@ export function searchAirports(query: string, limit = 8): Airport[] {
       else if (city.includes(q)) score = 60;
       else if (name.includes(q)) score = 40;
       else if (country.includes(q)) score = 20;
-      return { a, score };
+      // Multi-word query where the words are spread across the airport's
+      // fields in some order/combination, e.g. "Paris Charles de Gaulle
+      // Airport" (city name prefixed onto the airport's own name).
+      else if (words.length > 1 && words.every((word) => haystack.includes(word))) score = 30;
+      return { airport, score };
     })
     .filter((x) => x.score > 0)
     .sort((x, y) => y.score - x.score);
-  return scored.slice(0, limit).map((x) => x.a);
+  return scored.slice(0, limit).map((x) => x.airport);
 }

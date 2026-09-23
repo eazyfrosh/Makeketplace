@@ -6,39 +6,59 @@ import { jsPDF } from "jspdf";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/airline/ui/button";
 
-export function DownloadPdfButton({ label = "Download PDF" }: { label?: string }) {
+interface DownloadPdfButtonProps {
+  label?: string;
+  targetSelector?: string;
+  filename?: string;
+}
+export function DownloadPdfButton({
+  label = "Download PDF",
+  targetSelector = ".printable-itinerary",
+  filename = "skybook-itinerary.pdf",
+}: DownloadPdfButtonProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
-  async function downloadItinerary() {
-    const source = document.querySelector<HTMLElement>(".printable-itinerary");
-    // Boarding-pass pages do not mount PrintableItinerary and keep their
-    // existing browser-print behavior.
+  async function downloadPdf() {
+    if (isDownloading) return;
+    const source = document.querySelector<HTMLElement>(targetSelector);
     if (!source) {
-      window.print();
+      window.alert("The PDF content is not available yet. Please try again.");
       return;
     }
-    if (isDownloading) return;
 
     setIsDownloading(true);
-    let exportRoot: HTMLElement | null = null;
+    let captureViewport: HTMLDivElement | null = null;
 
     try {
-      // Keep the live itinerary hidden. Capture a temporary clone using the
-      // existing markup and styles, without changing the designed document.
-      exportRoot = source.cloneNode(true) as HTMLElement;
-      exportRoot.classList.remove("hidden", "print:block", "print:bg-white", "print:text-black");
+      // Capture one A4 page at a time. A single tall browser canvas can be
+      // scaled down or clipped, which loses the bottom of long itineraries.
+      const exportRoot = source.cloneNode(true) as HTMLElement;
+      exportRoot.classList.remove("hidden");
+      exportRoot.classList.remove("print:block");
+      exportRoot.classList.remove("print:bg-white", "print:text-black");
+      captureViewport = document.createElement("div");
+      captureViewport.style.position = "fixed";
+      captureViewport.style.left = "0";
+      captureViewport.style.top = "0";
+      captureViewport.style.width = "190mm";
+      captureViewport.style.overflow = "hidden";
+      captureViewport.style.backgroundColor = "#ffffff";
+      captureViewport.style.zIndex = "9999";
+      captureViewport.style.pointerEvents = "none";
       exportRoot.style.position = "absolute";
       exportRoot.style.left = "0";
       exportRoot.style.top = "0";
       exportRoot.style.width = "190mm";
-      exportRoot.style.backgroundColor = "#ffffff";
-      exportRoot.style.color = "#000000";
-      exportRoot.style.zIndex = "9999";
-      exportRoot.style.pointerEvents = "none";
-      document.body.appendChild(exportRoot);
+      if (source.classList.contains("printable-itinerary")) {
+        exportRoot.style.backgroundColor = "#ffffff";
+        exportRoot.style.color = "#000000";
+      }
+      captureViewport.appendChild(exportRoot);
+      document.body.appendChild(captureViewport);
 
-      // Embed external airline logos in the temporary clone so the PDF keeps
-      // the actual logos without a cross-origin rendering failure.
+      // Airline logos are loaded from an external provider. Embed each logo
+      // as a data URL in the temporary clone so the canvas keeps the actual
+      // logo without becoming tainted by a cross-origin image.
       await Promise.all(
         [...exportRoot.querySelectorAll<HTMLImageElement>("img")].map(async (image) => {
           if (!image.src.startsWith("http")) return;
@@ -53,50 +73,53 @@ export function DownloadPdfButton({ label = "Download PDF" }: { label?: string }
               reader.readAsDataURL(blob);
             });
           } catch {
-            // Keep the original logo if its provider does not allow CORS.
+            // Keep the original image if the provider does not allow CORS.
           }
         })
       );
 
       await document.fonts.ready;
+      await Promise.all([...exportRoot.querySelectorAll("img")].map((image) => image.decode().catch(() => {})));
       await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-
-      const imageData = await toPng(exportRoot, {
-        backgroundColor: "#ffffff",
-        pixelRatio: 2,
-        cacheBust: true,
-      });
-
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pageMargin = 10;
-      const pageWidth = 210 - pageMargin * 2;
-      const pageHeight = 297 - pageMargin * 2;
-      const imageDimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
-        const image = new Image();
-        image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
-        image.onerror = () => reject(new Error("Generated itinerary image could not be loaded"));
-        image.src = imageData;
-      });
-      const imageHeight = (imageDimensions.height * pageWidth) / imageDimensions.width;
-      const pageCount = Math.max(1, Math.ceil(imageHeight / pageHeight));
+      const horizontalMargin = 15;
+      const verticalMargin = 10;
+      const pageWidth = 210 - horizontalMargin * 2;
+      const pageHeight = 297 - verticalMargin * 2;
+      const widthPx = Math.ceil(exportRoot.getBoundingClientRect().width);
+      const contentHeightPx = Math.ceil(Math.max(exportRoot.scrollHeight, exportRoot.getBoundingClientRect().height));
+      if (!widthPx || !contentHeightPx) throw new Error("PDF content has no visible dimensions");
+      const pageHeightPx = Math.floor((widthPx * pageHeight) / pageWidth);
+      const pageCount = Math.ceil(contentHeightPx / pageHeightPx);
+      captureViewport.style.width = `${widthPx}px`;
+      captureViewport.style.height = `${pageHeightPx}px`;
 
       for (let page = 0; page < pageCount; page += 1) {
+        exportRoot.style.top = `${-page * pageHeightPx}px`;
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        const imageData = await toPng(captureViewport, {
+          width: widthPx,
+          height: pageHeightPx,
+          backgroundColor: "#ffffff",
+          pixelRatio: 2,
+          skipAutoScale: true,
+        });
         if (page > 0) pdf.addPage();
-        pdf.addImage(imageData, "PNG", pageMargin, pageMargin - page * pageHeight, pageWidth, imageHeight);
+        pdf.addImage(imageData, "PNG", horizontalMargin, verticalMargin, pageWidth, pageHeight);
       }
 
-      pdf.save("skybook-itinerary.pdf");
+      pdf.save(filename);
     } catch (error) {
-      console.error("Unable to download itinerary PDF", error);
-      window.alert("The itinerary PDF could not be downloaded. Please try again.");
+      console.error("Unable to download PDF", error);
+      window.alert("The PDF could not be downloaded. Please try again.");
     } finally {
-      exportRoot?.remove();
+      captureViewport?.remove();
       setIsDownloading(false);
     }
   }
 
   return (
-    <Button variant="outline" onClick={downloadItinerary} disabled={isDownloading} aria-busy={isDownloading}>
+    <Button variant="outline" onClick={downloadPdf} disabled={isDownloading} aria-busy={isDownloading}>
       {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} {isDownloading ? "Preparing PDF…" : label}
     </Button>
   );

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PlaneLanding, PlaneTakeoff } from "lucide-react";
-import { searchAirports, findAirport } from "@/lib/airline/data/airports";
+import { searchAirports, findAirport, recognizeAirport } from "@/lib/airline/data/airports";
 import { countryFlag } from "@/lib/airline/data/country-flags";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,6 @@ interface AirportAutocompleteProps {
   placeholder?: string;
   openOnMount?: boolean;
 }
-
 export function AirportAutocomplete({ label, value, onChange, icon = "from", placeholder, openOnMount = false }: AirportAutocompleteProps) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(openOnMount);
@@ -22,6 +21,20 @@ export function AirportAutocomplete({ label, value, onChange, icon = "from", pla
   const selected = findAirport(value);
   const results = searchAirports(query);
 
+  function handlePaste(e: React.ClipboardEvent<HTMLInputElement>) {
+    const pasted = e.clipboardData.getData("text");
+    const recognized = recognizeAirport(pasted);
+    if (recognized) {
+      e.preventDefault();
+      onChange(recognized.code);
+      setQuery("");
+      setOpen(false);
+    }
+  }
+
+  // openOnMount can flip to true a render or two after this component's own
+  // mount (e.g. a parent effect detecting a URL hash), so react to it
+  // changing rather than only seeding the initial state.
   useEffect(() => {
     if (openOnMount) setOpen(true);
   }, [openOnMount]);
@@ -70,6 +83,7 @@ export function AirportAutocomplete({ label, value, onChange, icon = "from", pla
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onPaste={handlePaste}
             placeholder="Search city, airport, or code"
             className="mb-2 w-full rounded-lg border border-black/10 bg-black/[0.02] px-3 py-2 text-sm outline-none focus:border-brand-400 dark:border-white/10 dark:bg-white/5"
           />
