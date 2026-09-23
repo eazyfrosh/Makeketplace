@@ -163,7 +163,7 @@ export default function ConfirmationPage() {
         </Link>
         <Link href={`/platform/airline-booking-platform/booking/confirmation/${booking.id}/email-preview`}>
           <Button variant="outline">
-            <Mail size={16} /> Preview confirmation email
+            <Mail size={16} /> Preview Email
           </Button>
         </Link>
         <Link href="/platform/airline-booking-platform/trips">

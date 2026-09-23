@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { CalendarClock, ShieldCheck, Ticket } from "lucide-react";
+import { CalendarClock, Mail, ShieldCheck, Ticket } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { getBooking, cancelBooking } from "@/lib/airline/services/bookings";
 import { Card, CardContent } from "@/components/airline/ui/card";
@@ -74,6 +74,9 @@ export default function BookingDetailPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <DownloadPdfButton label="Download PDF itinerary" />
+          <Link href={`/platform/airline-booking-platform/booking/confirmation/${booking.id}/email-preview`}>
+            <Button variant="outline"><Mail size={15} /> Preview Email</Button>
+          </Link>
           {booking.status !== "cancelled" && (
             <Link href={`/platform/airline-booking-platform/boarding-pass/${booking.id}`}>
               <Button variant="secondary"><Ticket size={15} /> Boarding pass</Button>
