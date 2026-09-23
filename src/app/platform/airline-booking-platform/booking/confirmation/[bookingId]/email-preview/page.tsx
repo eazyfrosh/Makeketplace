@@ -102,8 +102,12 @@ export default function EmailPreviewPage() {
               placeholder="name@example.com"
               className="min-w-0 flex-1 rounded-xl border border-[#aac9e5] bg-white px-3.5 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#07599f] focus:ring-2 focus:ring-[#07599f]/15"
             />
-            <Button type="button" onClick={sendEmail} className="sm:w-auto">
-              <Send size={16} /> Send email
+            <Button
+              type="button"
+              onClick={sendEmail}
+              className="w-full bg-[#07599f] px-5 text-white shadow-lg shadow-blue-900/20 hover:bg-[#043f75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07599f] focus-visible:ring-offset-2 dark:bg-[#07599f] dark:text-white dark:hover:bg-[#043f75] sm:w-auto"
+            >
+              <Send size={16} /> Send Email
             </Button>
           </div>
         </section>
