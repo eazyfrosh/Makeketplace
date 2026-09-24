@@ -8,6 +8,7 @@ import {
   Palette,
   LayoutGrid,
   Code2,
+  QrCode,
   type LucideIcon,
 } from "lucide-react";
 
@@ -22,6 +23,7 @@ const ICONS: Record<string, LucideIcon> = {
   graphic: Palette,
   templates: LayoutGrid,
   custom: Code2,
+  qr: QrCode,
 };
 
 const GRADIENTS: Record<string, string> = {
@@ -33,6 +35,7 @@ const GRADIENTS: Record<string, string> = {
   graphic: "from-pink-400/30 via-rose-500/20 to-orange-400/30",
   templates: "from-cyan-400/30 via-sky-500/20 to-blue-500/30",
   custom: "from-slate-400/30 via-indigo-500/20 to-violet-500/30",
+  qr: "from-emerald-400/30 via-cyan-500/20 to-blue-500/30",
 };
 
 interface ServiceVisualProps {
@@ -48,12 +51,19 @@ function VisualChrome({ label }: { label?: string }) {
       <span className="size-2.5 rounded-full bg-red-400/70" />
       <span className="size-2.5 rounded-full bg-yellow-400/70" />
       <span className="size-2.5 rounded-full bg-green-400/70" />
-      {label && <span className="ml-3 truncate text-[11px] text-white/40">{label}</span>}
+      {label && (
+        <span className="ml-3 truncate text-[11px] text-white/40">{label}</span>
+      )}
     </div>
   );
 }
 
-export function ServiceVisual({ variant, className, chrome = true, label }: ServiceVisualProps) {
+export function ServiceVisual({
+  variant,
+  className,
+  chrome = true,
+  label,
+}: ServiceVisualProps) {
   if (variant.startsWith("/")) {
     return (
       <div

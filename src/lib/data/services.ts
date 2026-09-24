@@ -37,21 +37,24 @@ const standardReviews = [
     author: "Maya Chen",
     role: "Founder",
     rating: 5,
-    quote: "The delivery was faster than promised and the quality was miles above agencies we'd worked with before.",
+    quote:
+      "The delivery was faster than promised and the quality was miles above agencies we'd worked with before.",
   },
   {
     id: "r2",
     author: "Daniel Osei",
     role: "Head of Product",
     rating: 5,
-    quote: "Clean architecture, great documentation, and a support team that actually responds.",
+    quote:
+      "Clean architecture, great documentation, and a support team that actually responds.",
   },
   {
     id: "r3",
     author: "Priya Nair",
     role: "CTO",
     rating: 4,
-    quote: "Exactly the premium feel we needed for launch. A couple of rounds of revisions and it was perfect.",
+    quote:
+      "Exactly the premium feel we needed for launch. A couple of rounds of revisions and it was perfect.",
   },
 ];
 
@@ -65,7 +68,10 @@ export const services: Service[] = [
     description:
       "A production-grade digital banking platform with accounts, cards, transfers, and compliance tooling baked in — the same foundation neobanks use to launch in weeks, not years.",
     heroImage: "/service-previews/banking-platform.png",
-    screenshots: ["/services/banking/overview.png", "/services/banking/transfer.png"],
+    screenshots: [
+      "/services/banking/overview.png",
+      "/services/banking/transfer.png",
+    ],
     features: [
       "Multi-currency accounts & ledgers",
       "Virtual & physical card issuance",
@@ -96,7 +102,10 @@ export const services: Service[] = [
     description:
       "An end-to-end flight booking system — search, seat selection, passenger management, e-tickets, and an admin console — designed to feel like Expedia or Google Flights out of the box.",
     heroImage: "/service-previews/airline-booking-platform.png",
-    screenshots: ["/services/airline/booking-verified.png", "/services/airline/email-confirmation.png"],
+    screenshots: [
+      "/services/airline/booking-verified.png",
+      "/services/airline/email-confirmation.png",
+    ],
     features: [
       "Flight search with smart filters",
       "Interactive seat maps",
@@ -127,7 +136,10 @@ export const services: Service[] = [
     description:
       "A logistics and fleet management platform with live shipment tracking, route optimization, and warehouse tools — everything a modern logistics operator needs in one dashboard.",
     heroImage: "/service-previews/logistics-platform.png",
-    screenshots: ["/services/logistics/track-shipment.png", "/services/logistics/shipment-detail.png"],
+    screenshots: [
+      "/services/logistics/track-shipment.png",
+      "/services/logistics/shipment-detail.png",
+    ],
     features: [
       "Real-time shipment tracking",
       "Route optimization engine",
@@ -295,31 +307,30 @@ export const services: Service[] = [
     reviews: standardReviews,
   },
   {
-    slug: "custom-software-development",
-    accessUrl: "/access/custom-software-development",
+    slug: "qr-code-generator",
+    accessUrl: "/platform/qr-code-generator",
     name: "QR Code Generator",
     category: "development",
-    tagline: "Bespoke software engineering for ambitious products.",
+    tagline: "Create beautiful, scannable QR codes in seconds.",
     description:
-      "Dedicated engineering for custom products — web apps, internal tools, APIs, and integrations — architected and built by senior engineers from spec to production.",
-    heroImage: "/service-previews/custom-software-development.png",
-    screenshots: ["custom-planning", "custom-build", "custom-deploy"],
+      "Generate privacy-friendly QR codes for URLs, text, email, phone calls, SMS, Wi-Fi networks, and digital contact cards, then download them as PNG or SVG.",
+    heroImage: "qr-generator",
+    screenshots: ["qr-url", "qr-wifi", "qr-contact"],
     features: [
-      "Discovery & technical architecture",
-      "Full-stack web & API development",
-      "Cloud infrastructure & DevOps",
-      "QA & automated testing",
-      "Post-launch support & maintenance",
-      "Dedicated engineering pod",
+      "URL, text, email, phone and SMS QR codes",
+      "Wi-Fi network QR codes",
+      "Digital contact card QR codes",
+      "Custom foreground and background colors",
+      "High-resolution PNG downloads",
+      "Scalable SVG downloads",
     ],
     benefits: [
-      "Senior engineers, not junior contractors",
-      "Transparent sprints and weekly demos",
-      "Built for maintainability and scale",
-      "From spec to production, fully managed",
+      "Generate QR codes instantly without design software",
+      "Information stays inside your browser",
+      "Ready for print, web, menus and product packaging",
+      "Works beautifully on desktop and mobile",
     ],
-    startingPriceCents: 1299900,
-    comingSoon: true,
+    startingPriceCents: 0,
     rating: 5.0,
     reviewCount: 61,
     faq: standardFaq("QR Code Generator"),
@@ -331,11 +342,24 @@ export const services: Service[] = [
     name: "Support Website Templates",
     category: "templates",
     tagline: "Create a polished help center for your business in minutes.",
-    description: "Choose an original support portal, customize its branding and knowledge base, then publish a customer-ready help center without touching code.",
+    description:
+      "Choose an original support portal, customize its branding and knowledge base, then publish a customer-ready help center without touching code.",
     heroImage: "support-studio",
     screenshots: ["support-search", "support-knowledge", "support-editor"],
-    features: ["Eight original responsive designs", "Live visual editor", "Knowledge base and FAQ tools", "Instant support search", "Contact and ticket options", "Hosted publishing URL"],
-    benefits: ["Launch a professional help center quickly", "Keep every page on-brand", "Give customers answers around the clock", "No sensitive credentials are ever collected"],
+    features: [
+      "Eight original responsive designs",
+      "Live visual editor",
+      "Knowledge base and FAQ tools",
+      "Instant support search",
+      "Contact and ticket options",
+      "Hosted publishing URL",
+    ],
+    benefits: [
+      "Launch a professional help center quickly",
+      "Keep every page on-brand",
+      "Give customers answers around the clock",
+      "No sensitive credentials are ever collected",
+    ],
     startingPriceCents: 0,
     rating: 4.9,
     reviewCount: 28,
