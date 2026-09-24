@@ -1594,6 +1594,9 @@ function Gallery({
 }) {
   return (
     <div className="content">
+      <div className="template-library-logo" aria-hidden="true">
+        <img src="/receiptlab/chase-library-heading-logo.png" alt="" />
+      </div>
       <PageTitle
         over="TEMPLATE LIBRARY"
         title="Choose your starting point"
