@@ -3757,19 +3757,24 @@
 .receiptlab-root .mini-boa,
 .receiptlab-root .mini-citi-bank,
 .receiptlab-root .mini-wells-fargo,
+.receiptlab-root .mini-chase,
 .receiptlab-root .mini-okx { padding: 0; background: #101010; }
 .receiptlab-root .mini-boa::before,
 .receiptlab-root .mini-citi-bank::before,
 .receiptlab-root .mini-wells-fargo::before,
+.receiptlab-root .mini-chase::before,
 .receiptlab-root .mini-okx::before { display: none; }
 .receiptlab-root .mini-boa > img,
 .receiptlab-root .mini-citi-bank > img,
 .receiptlab-root .mini-wells-fargo > img,
+.receiptlab-root .mini-chase > img,
 .receiptlab-root .mini-okx > img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .receiptlab-root .mini-wells-fargo > img { object-fit: cover; }
 .receiptlab-root .mini-boa > img,
 .receiptlab-root .mini-citi-bank > img,
+.receiptlab-root .mini-chase > img,
 .receiptlab-root .mini-okx > img { padding: 12px; }
+.receiptlab-root .mini-chase { background: #fff; }
 
 .receiptlab-root .mini-gcash { padding: 0; background: #fff; }
 .receiptlab-root .mini-gcash::before { display: none; }

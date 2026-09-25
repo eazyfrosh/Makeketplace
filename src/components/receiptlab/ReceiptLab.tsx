@@ -1617,8 +1617,6 @@ function Gallery({
                 <InvoiceMini id={t.id} />
               ) : t.id === 'gcash' ? (
                 <MobileReceiptMini id={t.id} />
-              ) : t.id === 'chase' ? (
-                <ChaseReceiptMini />
               ) : t.id === 'studio' ||
               t.id === 'mono' ||
               t.id === 'citrus' ||
@@ -1630,6 +1628,7 @@ function Gallery({
               t.id === 'boa' ||
               t.id === 'citi-bank' ||
               t.id === 'wells-fargo' ||
+              t.id === 'chase' ||
               t.id === 'gcash' ||
               t.id === 'okx' ? (
                 <>
@@ -1657,6 +1656,8 @@ function Gallery({
                                             ? '/receiptlab/citi-library-preview.png'
                                       : t.id === 'wells-fargo'
                                               ? '/receiptlab/wells-fargo-library-preview.jpg'
+                                              : t.id === 'chase'
+                                                ? '/receiptlab/chase-preview-logo.png'
                                               : t.id === 'gcash'
                                                 ? '/receiptlab/gcash-library-preview.png'
                                                 : '/receiptlab/okx-preview-logo.png'
