@@ -1612,8 +1612,6 @@ function Gallery({
             >
               {isInvoiceTemplate(t.id) ? (
                 <InvoiceMini id={t.id} />
-              ) : t.id === 'gcash' ? (
-                <MobileReceiptMini id={t.id} />
               ) : t.id === 'studio' ||
               t.id === 'mono' ||
               t.id === 'citrus' ||
