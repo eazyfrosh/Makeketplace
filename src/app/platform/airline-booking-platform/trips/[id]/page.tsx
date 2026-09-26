@@ -16,6 +16,7 @@ import { DownloadPdfButton } from "@/components/airline/booking/download-pdf-but
 import { PrintableItinerary } from "@/components/airline/booking/printable-itinerary";
 import { extrasLineItems } from "@/lib/airline/data/extras-pricing";
 import { startRebooking } from "@/lib/airline/rebooking";
+import { getVerificationUrl } from "@/lib/airline/verification-url";
 import { bookingStatusLabel, bookingStatusTone, canManageBooking } from "@/lib/airline/data/booking-status";
 import { cabinLabel, formatCurrency, formatDateLong, formatTime } from "@/lib/airline/utils";
 import type { Booking } from "@/lib/airline/types";
@@ -82,7 +83,7 @@ export default function BookingDetailPage() {
               <Button variant="secondary"><Ticket size={15} /> Boarding pass</Button>
             </Link>
           )}
-          <Link href={`/verify-boarding-pass/${booking.bookingReference}?token=${booking.verificationToken}`} target="_blank">
+          <Link href={getVerificationUrl(booking.bookingReference, booking.verificationToken)} target="_blank">
             <Button variant="outline"><ShieldCheck size={15} /> Verification page</Button>
           </Link>
           {manageable && (

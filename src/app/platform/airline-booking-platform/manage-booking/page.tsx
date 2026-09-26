@@ -191,7 +191,7 @@ export default function ManageBookingPage() {
                 <Ticket size={16} /> View boarding pass
               </Button>
             </Link>
-            <Link href={`/verify-boarding-pass/${booking.bookingReference}?token=${booking.verificationToken}`} target="_blank">
+            <Link href={getVerificationUrl(booking.bookingReference, booking.verificationToken)} target="_blank">
               <Button variant="outline">
                 <ShieldCheck size={16} /> Verification page
               </Button>
