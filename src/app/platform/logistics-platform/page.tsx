@@ -4,17 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ExternalLink,
-  Loader2,
   PackagePlus,
   PackageSearch,
   ShieldCheck,
   Truck,
   MessageCircle,
 } from "lucide-react";
-import { toast } from "sonner";
 
 import { useAuth } from "@/context/auth-context";
-import { getMyShipments, getTracknovaSsoUrl } from "@/lib/logistics/client";
+import { getMyShipments } from "@/lib/logistics/client";
 import { CarrierLogo } from "@/components/logistics/carrier-logo";
 import { StatusBadge } from "@/components/logistics/status-badge";
 import { getCarrier } from "@/lib/logistics/data/carriers";
@@ -30,25 +28,12 @@ const TERMINAL_STATUSES = new Set<Shipment["status"]>(["delivered", "cancelled",
 export default function LogisticsDashboardPage() {
   const { user } = useAuth();
   const [shipments, setShipments] = useState<Shipment[] | null>(null);
-  const [openingTracknova, setOpeningTracknova] = useState(false);
 
   useEffect(() => {
     getMyShipments()
       .then(({ shipments }) => setShipments(shipments))
       .catch(() => setShipments([]));
   }, []);
-
-  async function handleOpenTracknova() {
-    setOpeningTracknova(true);
-    try {
-      const { redirectUrl } = await getTracknovaSsoUrl();
-      window.open(redirectUrl, "_blank", "noopener,noreferrer");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't open TrackNova.");
-    } finally {
-      setOpeningTracknova(false);
-    }
-  }
 
   const activeCount = shipments?.filter((s) => !TERMINAL_STATUSES.has(s.status)).length ?? 0;
   const deliveredCount = shipments?.filter((s) => s.status === "delivered").length ?? 0;
@@ -61,9 +46,11 @@ export default function LogisticsDashboardPage() {
             <h1 className="text-2xl font-semibold tracking-tight">Shipments</h1>
             <p className="text-muted-foreground mt-1 text-sm">TrackNova — create and track your shipments.</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" disabled={openingTracknova} onClick={handleOpenTracknova}>
-                {openingTracknova ? <Loader2 className="size-3.5 animate-spin" /> : <ExternalLink className="size-3.5" />}
-                Open in TrackNova
+              <Button variant="outline" size="sm" asChild>
+                <a href="https://www.tracknova.app/" target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="size-3.5" />
+                  Open in TrackNova
+                </a>
               </Button>
               {user?.role === "admin" && (
                 <Button variant="outline" size="sm" asChild>
