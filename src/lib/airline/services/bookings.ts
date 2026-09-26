@@ -1,5 +1,6 @@
 import { getAll, getOne, queryByField, remove, upsert } from "@/lib/airline/services/store";
 import { generateVerificationToken } from "@/lib/airline/utils";
+import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import type { Booking } from "@/lib/airline/types";
 
 const COLLECTION = "bookings";
@@ -24,6 +25,23 @@ async function syncPublicMirrors(booking: Booking): Promise<void> {
     upsert(LOOKUP_COLLECTION, { ...booking, id: lookupId(booking) }),
     upsert(VERIFICATION_COLLECTION, { ...booking, id: verificationId(booking) }),
   ]);
+
+  // Publish a privacy-limited verification copy through the trusted API so
+  // a QR scan can be resolved on the separate SkyBook deployment. Failure
+  // here must not discard the user's locally completed booking.
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch("/api/airline/verification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...headers },
+      body: JSON.stringify({ booking }),
+    });
+    if (!response.ok) {
+      console.error("Unable to publish SkyBook verification record.", response.status);
+    }
+  } catch (error) {
+    console.error("Unable to publish SkyBook verification record.", error);
+  }
 }
 
 async function saveBooking(booking: Booking): Promise<void> {
@@ -44,7 +62,10 @@ async function withVerificationToken(booking: Booking): Promise<Booking> {
 
 export async function getBooking(id: string): Promise<Booking | null> {
   const booking = await getOne<Booking>(COLLECTION, id);
-  return booking ? withVerificationToken(booking) : null;
+  if (!booking) return null;
+  const verified = await withVerificationToken(booking);
+  if (verified.verificationToken) await syncPublicMirrors(verified);
+  return verified;
 }
 
 export async function getUserBookings(userId: string): Promise<Booking[]> {

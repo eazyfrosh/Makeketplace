@@ -22,7 +22,7 @@ test("airline QR links use the public SkyBook deployment by default", () => {
     const value = getVerificationUrl(" ez-123 ", "secure token");
     assert.equal(
       value,
-      "https://flightbook.vercel.app/verify/EZ-123?token=secure+token",
+      "https://flightbook-dusky.vercel.app/verify/EZ-123?token=secure+token",
     );
     assert.equal(value.includes("makeketplace.vercel.app"), false);
     assert.equal(value.includes("verify-boarding-pass"), false);
@@ -55,7 +55,7 @@ test("unsafe or invalid origins fall back to the public SkyBook deployment", () 
   try {
     for (const value of ["javascript:alert(1)", "not a URL"]) {
       process.env.NEXT_PUBLIC_FLIGHTBOOK_ORIGIN = value;
-      assert.equal(getFlightbookOrigin(), "https://flightbook.vercel.app");
+      assert.equal(getFlightbookOrigin(), "https://flightbook-dusky.vercel.app");
     }
   } finally {
     if (previous === undefined)

@@ -7,7 +7,7 @@
  * code. The verification token is preserved so a short booking reference on
  * its own is not enough to construct a verification link.
  */
-const DEFAULT_FLIGHTBOOK_ORIGIN = "https://flightbook.vercel.app";
+const DEFAULT_FLIGHTBOOK_ORIGIN = "https://flightbook-dusky.vercel.app";
 
 export function getFlightbookOrigin(): string {
   const configured = process.env.NEXT_PUBLIC_FLIGHTBOOK_ORIGIN?.trim();
