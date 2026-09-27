@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     }
     const caller = await verifyCaller(request);
     if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-    if (!(await canCustomize(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTools subscription is required to customize support templates." }, { status: 403 });
+    if (!(await canCustomize(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTool subscription is required to customize support templates." }, { status: 403 });
     const id = url.searchParams.get("id");
     if (id) { const site = await findSite(id); if (!site) return NextResponse.json(null); if (caller.role !== "admin" && site.userId !== caller.uid) return NextResponse.json({ error: "You do not have access to this project." }, { status: 403 }); return NextResponse.json(site); }
     const sites = await listSites();
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-  if (!(await canCustomize(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTools subscription is required to customize support templates." }, { status: 403 });
+  if (!(await canCustomize(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTool subscription is required to customize support templates." }, { status: 403 });
   try {
     const input = await request.json() as SupportSite;
     const id = safeId(String(input.id || ""));
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-  if (!(await canCustomize(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTools subscription is required to customize support templates." }, { status: 403 });
+  if (!(await canCustomize(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTool subscription is required to customize support templates." }, { status: 403 });
   try {
     const id = safeId(new URL(request.url).searchParams.get("id") ?? "");
     if (!id) return NextResponse.json({ error: "Project ID is required." }, { status: 400 });

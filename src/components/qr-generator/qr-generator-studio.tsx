@@ -344,7 +344,7 @@ export function QrGeneratorStudio() {
       <section className="border-b border-white/10 bg-gradient-to-b from-primary/10 to-transparent">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 text-sm font-medium text-primary">
-            <QrCode className="size-5" /> EazyTools QR Studio
+            <QrCode className="size-5" /> EazyTool QR Studio
           </div>
           <h1 className="mt-3 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">
             Create a QR code for almost anything.
@@ -518,7 +518,7 @@ export function QrGeneratorStudio() {
             </div>
           </div>
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            QR codes are generated on your device. EazyTools does not upload or
+            QR codes are generated on your device. EazyTool does not upload or
             store the information entered here.
           </p>
         </aside>

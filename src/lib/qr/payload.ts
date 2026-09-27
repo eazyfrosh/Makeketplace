@@ -29,7 +29,7 @@ export interface QrFields {
 
 export const defaultQrFields: QrFields = {
   url: "https://eazytools.app",
-  text: "Welcome to EazyTools",
+  text: "Welcome to EazyTool",
   email: "hello@example.com",
   subject: "Hello",
   body: "I would like to get in touch.",

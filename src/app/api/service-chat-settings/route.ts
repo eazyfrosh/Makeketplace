@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   if (!caller) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   const parsed = service.safeParse(new URL(request.url).searchParams.get("serviceSlug"));
   if (!parsed.success) return NextResponse.json({ error: "Unsupported service." }, { status: 400 });
-  if (!(await canUseService(caller.uid, caller.role, parsed.data))) return NextResponse.json({ error: "An active EazyTools subscription is required." }, { status: 403 });
+  if (!(await canUseService(caller.uid, caller.role, parsed.data))) return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
   return NextResponse.json({ settings: await getServiceChatSettings(caller.uid, parsed.data as ChatEnabledService) });
 }
 
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   if (!caller) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   const parsed = settingsSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid settings." }, { status: 400 });
-  if (!(await canUseService(caller.uid, caller.role, parsed.data.serviceSlug))) return NextResponse.json({ error: "An active EazyTools subscription is required." }, { status: 403 });
+  if (!(await canUseService(caller.uid, caller.role, parsed.data.serviceSlug))) return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
   const settings = { ...parsed.data, userId: caller.uid, updatedAt: new Date().toISOString() };
   await saveServiceChatSettings(settings);
   return NextResponse.json({ settings });

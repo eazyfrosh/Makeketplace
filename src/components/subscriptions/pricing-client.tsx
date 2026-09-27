@@ -48,9 +48,9 @@ export function PricingClient() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
       <div className="mx-auto max-w-3xl text-center">
-        <Badge variant="soft"><Sparkles className="mr-1 size-3" /> EazyTools All Access</Badge>
+        <Badge variant="soft"><Sparkles className="mr-1 size-3" /> EazyTool All Access</Badge>
         <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">Simple Pricing. One Subscription. All Your Tools.</h1>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">One subscription unlocks every EazyTools service, template, and new tool we add.</p>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">One subscription unlocks every EazyTool service, template, and new tool we add.</p>
         <div className="mt-8 inline-flex rounded-full border border-border bg-card p-1">
           {(["monthly", "yearly"] as const).map((value) => (
             <button key={value} type="button" onClick={() => setCycle(value)} className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${cycle === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>

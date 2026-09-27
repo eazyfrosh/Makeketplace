@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const active = Boolean(subscription && subscription.status === "active" && (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= Date.now()));
     const plan = active && subscription ? await getPlan(subscription.planId) : null;
     if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes("support-website-templates"))) {
-      return NextResponse.json({ error: "An active EazyTools subscription is required to upload template assets." }, { status: 403 });
+      return NextResponse.json({ error: "An active EazyTool subscription is required to upload template assets." }, { status: 403 });
     }
   }
   const form = await request.formData().catch(() => null);

@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     if (slug) return NextResponse.json((await allSites()).find((site) => site.slug === slug && site.status === "published") ?? null);
     const caller = await verifyCaller(request);
     if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-    if (!(await canManagePremiumSites(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTools subscription is required." }, { status: 403 });
+    if (!(await canManagePremiumSites(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
     const sites = await allSites();
     return NextResponse.json(caller.role === "admin" ? sites : sites.filter((site) => site.userId === caller.uid));
   } catch (error) { console.error("[premium-sites] read failed", error); return NextResponse.json({ error: "Premium websites are temporarily unavailable." }, { status: 503 }); }
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-  if (!(await canManagePremiumSites(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTools subscription is required." }, { status: 403 });
+  if (!(await canManagePremiumSites(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
   try {
     const input = await request.json() as PremiumSite;
     const id = safeId(String(input.id || ""));
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-  if (!(await canManagePremiumSites(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTools subscription is required." }, { status: 403 });
+  if (!(await canManagePremiumSites(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
   try {
     const id = safeId(new URL(request.url).searchParams.get("id") ?? "");
     const result = await list({ prefix: `${PREFIX}${id}.json`, limit: 1 });

@@ -27,7 +27,7 @@ const standardFaq = (name: string) => [
   {
     question: "What's included with my subscription?",
     answer:
-      "The complete service experience described above is included while your EazyTools All Access subscription is active.",
+      "The complete service experience described above is included while your EazyTool All Access subscription is active.",
   },
 ];
 

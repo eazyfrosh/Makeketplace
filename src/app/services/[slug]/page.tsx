@@ -93,7 +93,7 @@ export default async function ServiceDetailPage({
                   </span>
                 </div>
                 <div className="h-4 w-px bg-white/10" />
-                <div className="text-sm font-medium text-primary">Included with EazyTools All Access</div>
+                <div className="text-sm font-medium text-primary">Included with EazyTool All Access</div>
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
