@@ -107,6 +107,15 @@ service cloud.firestore {
     match /wallet_funding_intents/{intentId} { allow read, write: if false; }
     match /wallet_audit_logs/{logId} { allow read, write: if false; }
 
+    // Email Flash templates, delivery records, audit events, and rate-limit
+    // counters are only exposed through authenticated server routes. This
+    // prevents customers from forging delivery state or reading another
+    // customer's recipients and transaction references with the client SDK.
+    match /receiptEmailTemplates/{templateId} { allow read, write: if false; }
+    match /receiptEmailSends/{sendId} { allow read, write: if false; }
+    match /receiptEmailAuditLogs/{logId} { allow read, write: if false; }
+    match /receiptEmailRateLimits/{userId} { allow read, write: if false; }
+
     // Support tickets: owner or admin only.
     match /supportTickets/{ticketId} {
       allow read: if isOwner(resource.data.userId) || isAdmin();

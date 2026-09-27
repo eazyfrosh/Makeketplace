@@ -1,0 +1,47 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="1480" y2="920" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="0.55" stop-color="#1E3A8A"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="30" stdDeviation="34" flood-color="#020617" flood-opacity="0.35"/></filter>
+  </defs>
+  <rect width="1600" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="1400" cy="120" r="280" fill="#60A5FA" fill-opacity="0.12"/>
+  <circle cx="130" cy="900" r="360" fill="#A78BFA" fill-opacity="0.1"/>
+  <g filter="url(#shadow)">
+    <rect x="410" y="120" width="780" height="760" rx="38" fill="white"/>
+    <rect x="410" y="120" width="780" height="18" rx="9" fill="url(#accent)"/>
+    <rect x="470" y="190" width="72" height="72" rx="20" fill="#2563EB"/>
+    <path d="M489 217h34v23h-34z" stroke="white" stroke-width="5" stroke-linejoin="round"/><path d="m489 218 17 13 17-13" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="568" y="221" fill="#0F172A" font-family="Arial, sans-serif" font-size="34" font-weight="700">Email Flash</text>
+    <text x="568" y="255" fill="#64748B" font-family="Arial, sans-serif" font-size="20">Branded transaction receipt</text>
+    <text x="470" y="340" fill="#0F172A" font-family="Arial, sans-serif" font-size="52" font-weight="750">Receipt</text>
+    <text x="470" y="385" fill="#64748B" font-family="Arial, sans-serif" font-size="22">Thank you for your purchase, Ada.</text>
+    <rect x="470" y="430" width="660" height="110" rx="20" fill="#F1F5F9"/>
+    <text x="500" y="468" fill="#64748B" font-family="Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="2">VERIFIED EAZYTOOLS TRANSACTION</text>
+    <text x="500" y="512" fill="#0F172A" font-family="monospace" font-size="26" font-weight="700">EZT-28F4A91C</text>
+    <text x="470" y="610" fill="#334155" font-family="Arial, sans-serif" font-size="22">Professional service</text>
+    <text x="1130" y="610" fill="#0F172A" font-family="Arial, sans-serif" font-size="22" font-weight="700" text-anchor="end">₦25,000.00</text>
+    <path d="M470 646h660" stroke="#E2E8F0" stroke-width="2"/>
+    <text x="470" y="716" fill="#0F172A" font-family="Arial, sans-serif" font-size="26" font-weight="700">Total</text>
+    <text x="1130" y="716" fill="#2563EB" font-family="Arial, sans-serif" font-size="36" font-weight="800" text-anchor="end">₦25,000.00</text>
+    <rect x="470" y="772" width="220" height="54" rx="27" fill="#DCFCE7"/>
+    <circle cx="504" cy="799" r="11" fill="#16A34A"/>
+    <path d="m499 799 4 4 7-9" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="526" y="807" fill="#166534" font-family="Arial, sans-serif" font-size="20" font-weight="700">Delivered</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="1085" y="680" width="350" height="170" rx="28" fill="#0F172A"/>
+    <circle cx="1135" cy="730" r="24" fill="#2563EB"/>
+    <path d="M1124 722h22v16h-22z" stroke="white" stroke-width="3"/><path d="m1124 723 11 9 11-9" stroke="white" stroke-width="3"/>
+    <text x="1175" y="724" fill="white" font-family="Arial, sans-serif" font-size="20" font-weight="700">Receipt delivered</text>
+    <text x="1175" y="752" fill="#94A3B8" font-family="Arial, sans-serif" font-size="16">ada@example.com</text>
+    <text x="1130" y="805" fill="#60A5FA" font-family="Arial, sans-serif" font-size="18" font-weight="700">Verified sender domain</text>
+  </g>
+</svg>

@@ -73,6 +73,9 @@ export default function AdminPage() {
           <Button variant="secondary" asChild>
             <Link href="/admin/support-websites">Support websites</Link>
           </Button>
+          <Button variant="secondary" asChild>
+            <Link href="/admin/email-flash">Email Flash usage</Link>
+          </Button>
         </div>
       </div>
 

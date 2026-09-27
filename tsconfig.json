@@ -23,5 +23,14 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "frieghtbridge"]
+  "exclude": [
+    "node_modules",
+    "Makeketplace",
+    "_premium-elite",
+    "_premium-volterra",
+    "flightbook",
+    "frieghtbridge",
+    "tracknova",
+    "velaire"
+  ]
 }

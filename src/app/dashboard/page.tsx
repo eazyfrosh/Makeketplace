@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Copy, Download, FileText, KeyRound, Loader2, Package, ShieldQuestion, WalletCards } from "lucide-react";
+import { ArrowRight, Copy, Download, FileText, KeyRound, Loader2, Mail, Package, ShieldQuestion, WalletCards } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/auth-context";
@@ -130,6 +130,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex gap-2">
           <Button asChild><Link href="/wallet"><WalletCards className="size-4" />Wallet</Link></Button>
+          <Button variant="secondary" asChild><Link href="/platform/email-flash"><Mail className="size-4" />Email Flash</Link></Button>
           <Button variant="secondary" asChild>
             <Link href="/dashboard/domains">My domains</Link>
           </Button>
