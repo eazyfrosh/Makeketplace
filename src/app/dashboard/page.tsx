@@ -130,7 +130,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex gap-2">
           <Button asChild><Link href="/wallet"><WalletCards className="size-4" />Wallet</Link></Button>
-          <Button variant="secondary" asChild><Link href="/platform/email-flash"><Mail className="size-4" />Email Flash</Link></Button>
+          <Button variant="secondary" asChild><Link href="/platform/email-designer"><Mail className="size-4" />Email Designer</Link></Button>
           <Button variant="secondary" asChild>
             <Link href="/dashboard/domains">My domains</Link>
           </Button>

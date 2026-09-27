@@ -1,71 +1,55 @@
-export interface ReceiptEmailLineItem {
-  description: string;
-  quantity: number;
-  unitAmountMinor: number;
-}
+export type EmailDesignCategory = "announcement" | "order-update" | "invitation" | "support" | "status-notice";
 
 export interface ReceiptEmailTemplate {
   id: string;
   userId: string;
+  schemaVersion: 2;
   name: string;
+  category: EmailDesignCategory;
   senderName: string;
   senderEmail: string;
+  brandName: string;
   logoUrl: string;
-  primaryColor: string;
-  backgroundColor: string;
-  textColor: string;
-  merchantName: string;
-  merchantEmail: string;
-  merchantPhone: string;
-  merchantAddress: string;
   subject: string;
-  message: string;
+  statusLabel: string;
+  heading: string;
+  paragraphs: string[];
+  backgroundColor: string;
+  cardColor: string;
+  textColor: string;
+  mutedColor: string;
+  accentColor: string;
+  panelColor: string;
+  panelTextColor: string;
+  featuredImageUrl: string;
+  panelHeading: string;
+  panelBody: string;
+  buttonEnabled: boolean;
+  buttonText: string;
+  buttonUrl: string;
   footer: string;
-  sampleCustomerName: string;
-  sampleItems: ReceiptEmailLineItem[];
-  currency: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export type ReceiptEmailDeliveryStatus =
-  | "sending"
-  | "sent"
-  | "delivered"
-  | "delivery_delayed"
-  | "bounced"
-  | "complained"
-  | "failed"
-  | "suppressed";
+export type ReceiptEmailDeliveryStatus = "sending" | "sent" | "delivered" | "delivery_delayed" | "bounced" | "complained" | "failed" | "suppressed";
 
 export interface ReceiptEmailSend {
   id: string;
   userId: string;
   templateId: string;
   templateName: string;
+  category: EmailDesignCategory;
   recipientEmail: string;
-  customerName: string;
-  merchantName: string;
-  transactionId: string;
-  transactionType: string;
-  transactionReference: string;
-  amountMinor: number;
-  currency: string;
+  brandName: string;
+  senderEmail: string;
+  subject: string;
+  sendMode: "test" | "delivery";
+  recipientConsentConfirmed: boolean;
   provider: "resend";
   providerEmailId: string | null;
   status: ReceiptEmailDeliveryStatus;
   error: string | null;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface ReceiptTransactionOption {
-  id: string;
-  type: "order" | "wallet" | "subscription" | "domain";
-  reference: string;
-  description: string;
-  amountMinor: number;
-  currency: string;
-  occurredAt: string;
-  lineItems: ReceiptEmailLineItem[];
 }

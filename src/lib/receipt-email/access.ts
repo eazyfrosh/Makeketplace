@@ -12,7 +12,7 @@ export async function requireReceiptEmailAccess(caller: AuthenticatedCaller) {
   );
   if (!active || !subscription) throw new Error("ACTIVE_SUBSCRIPTION_REQUIRED");
   const plan = await getPlan(subscription.planId);
-  if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes("email-flash"))) {
+  if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes("email-designer") && !plan.includedTools.includes("email-flash"))) {
     throw new Error("ACTIVE_SUBSCRIPTION_REQUIRED");
   }
 }

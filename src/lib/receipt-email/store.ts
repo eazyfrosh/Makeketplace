@@ -3,19 +3,19 @@ import "server-only";
 import { adminDb } from "@/lib/licensing/admin-db";
 import type { ReceiptEmailSend, ReceiptEmailTemplate } from "@/lib/receipt-email/types";
 
-const TEMPLATES = "receiptEmailTemplates";
-const SENDS = "receiptEmailSends";
-const AUDIT = "receiptEmailAuditLogs";
-const LIMITS = "receiptEmailRateLimits";
+const TEMPLATES = "emailDesignerTemplates";
+const SENDS = "emailDesignerSends";
+const AUDIT = "emailDesignerAuditLogs";
+const LIMITS = "emailDesignerRateLimits";
 
 function db() {
-  if (!adminDb) throw new Error("Receipt email storage is unavailable. Configure Firebase Admin credentials.");
+  if (!adminDb) throw new Error("Email Designer storage is unavailable. Configure Firebase Admin credentials.");
   return adminDb;
 }
 
 export async function listReceiptTemplates(userId: string) {
   const snap = await db().collection(TEMPLATES).where("userId", "==", userId).get();
-  return snap.docs.map((doc) => doc.data() as ReceiptEmailTemplate).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  return snap.docs.map((doc) => doc.data() as ReceiptEmailTemplate).filter((item) => item.schemaVersion === 2).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
 export async function getReceiptTemplate(id: string) {

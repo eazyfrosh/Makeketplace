@@ -17,7 +17,7 @@ export async function PATCH(request: Request, context: Context) {
     if (!current || current.userId !== caller.uid) return NextResponse.json({ error: "Template not found." }, { status: 404 });
     const parsed = receiptTemplateInputSchema.safeParse(await request.json());
     if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid template." }, { status: 400 });
-    const template = { ...current, ...parsed.data, id, userId: caller.uid, updatedAt: new Date().toISOString() };
+    const template = { ...current, ...parsed.data, schemaVersion: 2 as const, id, userId: caller.uid, updatedAt: new Date().toISOString() };
     await saveReceiptTemplate(template);
     await logReceiptEmailAudit({ actorId: caller.uid, action: "template.updated", targetId: id });
     return NextResponse.json({ template });

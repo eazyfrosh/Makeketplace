@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   try {
     return NextResponse.json(await getReceiptEmailAdminSummary());
   } catch (error) {
-    console.error("[email-flash] admin summary failed", error);
-    return NextResponse.json({ error: "Email Flash usage is temporarily unavailable." }, { status: 503 });
+    console.error("[email-designer] admin summary failed", error);
+    return NextResponse.json({ error: "Email Designer usage is temporarily unavailable." }, { status: 503 });
   }
 }

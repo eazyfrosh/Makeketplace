@@ -22,12 +22,12 @@ export async function sendTransactionalReceipt(input: { fromName: string; fromEm
     subject: input.subject,
     html: input.html,
   }, { idempotencyKey: input.idempotencyKey });
-  if (result.error || !result.data?.id) throw new Error(result.error?.message ?? "The email provider rejected this receipt.");
+  if (result.error || !result.data?.id) throw new Error(result.error?.message ?? "The email provider rejected this message.");
   return result.data.id;
 }
 
 export function verifyResendWebhook(payload: string, headers: Headers) {
-  if (!resend || !process.env.RESEND_WEBHOOK_SECRET) throw new Error("Receipt email webhooks are not configured.");
+  if (!resend || !process.env.RESEND_WEBHOOK_SECRET) throw new Error("Email Designer webhooks are not configured.");
   return resend.webhooks.verify({
     payload,
     webhookSecret: process.env.RESEND_WEBHOOK_SECRET,

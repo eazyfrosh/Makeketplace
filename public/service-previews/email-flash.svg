@@ -19,7 +19,7 @@
     <rect x="410" y="120" width="780" height="18" rx="9" fill="url(#accent)"/>
     <rect x="470" y="190" width="72" height="72" rx="20" fill="#2563EB"/>
     <path d="M489 217h34v23h-34z" stroke="white" stroke-width="5" stroke-linejoin="round"/><path d="m489 218 17 13 17-13" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="568" y="221" fill="#0F172A" font-family="Arial, sans-serif" font-size="34" font-weight="700">Email Flash</text>
+    <text x="568" y="221" fill="#0F172A" font-family="Arial, sans-serif" font-size="34" font-weight="700">Email Designer</text>
     <text x="568" y="255" fill="#64748B" font-family="Arial, sans-serif" font-size="20">Branded transaction receipt</text>
     <text x="470" y="340" fill="#0F172A" font-family="Arial, sans-serif" font-size="52" font-weight="750">Receipt</text>
     <text x="470" y="385" fill="#64748B" font-family="Arial, sans-serif" font-size="22">Thank you for your purchase, Ada.</text>

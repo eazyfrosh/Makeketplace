@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     await requireReceiptEmailAccess(caller);
     return NextResponse.json({ sends: await listReceiptSends(caller.uid) });
   } catch (error) {
-    console.error("[email-flash] history failed", error);
+    console.error("[email-designer] history failed", error);
     return NextResponse.json({ error: "Send history is temporarily unavailable." }, { status: 503 });
   }
 }
