@@ -39,9 +39,11 @@ const design = {
   footer: "Thank you.",
 };
 
-test("general email design renders customizable brand, heading, panel, button and sender", () => {
+test("general email design renders customizable brand, heading, panel and button without exposing sender metadata", () => {
   const html = renderReceiptEmail(design);
-  for (const marker of ["Acme &amp; Sons", "A useful update", "BIG NEWS", "Learn more", "hello@acme.test"]) assert.match(html, new RegExp(marker));
+  for (const marker of ["Acme &amp; Sons", "A useful update", "BIG NEWS", "Learn more"]) assert.match(html, new RegExp(marker));
+  assert.ok(!html.includes("Sent by"));
+  assert.ok(!html.includes("hello@acme.test"));
 });
 
 test("email content is escaped", () => {
@@ -69,14 +71,14 @@ test("status and payment-like messages are visibly unverified and not proof of p
 
 test("server forces tests to the signed-in email and requires consent for other recipients", () => {
   const route = readFileSync(new URL("../src/app/api/email-flash/send/route.ts", import.meta.url), "utf8");
-  for (const marker of ["verifyCaller", "requireReceiptEmailAccess", "caller.email", "recipientConsentConfirmed", "consumeReceiptEmailRateLimit", "requestId"]) assert.ok(route.includes(marker), marker);
+  for (const marker of ["verifyCaller", "requireReceiptEmailAccess", "caller.email", "recipientConsentConfirmed", "consumeReceiptEmailRateLimit", "requestId", "senderIdentityId", "getSenderIdentity", "getEmailDomainForUser"]) assert.ok(route.includes(marker), marker);
   assert.ok(!route.includes("getReceiptTransaction"));
   assert.ok(!route.includes("transactionId"));
 });
 
 test("delivery webhook verifies its provider signature", () => {
   const webhook = readFileSync(new URL("../src/app/api/email-flash/webhook/route.ts", import.meta.url), "utf8");
-  assert.ok(webhook.includes("verifyResendWebhook"));
+  assert.ok(webhook.includes("emailDomainProvider.verifyWebhook"));
   assert.ok(webhook.includes("Invalid webhook signature"));
 });
 

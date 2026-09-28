@@ -35,7 +35,7 @@ export interface ReceiptEmailTemplate {
   updatedAt: string;
 }
 
-export type ReceiptEmailDeliveryStatus = "sending" | "sent" | "delivered" | "delivery_delayed" | "bounced" | "complained" | "failed" | "suppressed";
+export type ReceiptEmailDeliveryStatus = "sending" | "queued" | "sent" | "delivered" | "delayed" | "delivery_delayed" | "bounced" | "complained" | "failed" | "suppressed";
 
 export interface ReceiptEmailSend {
   id: string;
@@ -46,6 +46,11 @@ export interface ReceiptEmailSend {
   recipientEmail: string;
   brandName: string;
   senderEmail: string;
+  senderIdentityId?: string;
+  domainId?: string;
+  emailDomainId?: string;
+  senderDisplayName?: string;
+  replyTo?: string;
   subject: string;
   sendMode: "test" | "delivery";
   recipientConsentConfirmed: boolean;

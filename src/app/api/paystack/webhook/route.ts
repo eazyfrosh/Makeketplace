@@ -13,7 +13,6 @@ import {
 import { activateSubscription, processSubscriptionRenewal, updateSubscriptionFromProvider } from "@/lib/subscriptions/server";
 import { creditVerifiedDeposit, failFundingIntent, getFundingIntent, reverseVerifiedDeposit } from "@/lib/wallet/store";
 import { verifyPaystackSignature, verifyPaystackTransaction } from "@/lib/wallet/paystack";
-import { sanitizeRegistrant } from "@/types/domains";
 
 export const runtime = "nodejs";
 
@@ -79,7 +78,8 @@ export async function POST(request: Request) {
           if (order) {
             if (order.paymentStatus !== "paid") {
               if (verified.status !== "success" || verified.amount !== order.amountCents || verified.currency !== order.currency || verified.metadata?.userId !== order.userId) throw new Error("Verified payment details do not match the domain order.");
-              await registerPaidDomain(reference, order.userId, sanitizeRegistrant({ email: "", name: "Paystack customer" }));
+              if (!order.registrant || !order.registrarTermsAcceptedAt) throw new Error("Domain order is missing registrant details or consent.");
+              await registerPaidDomain(reference, order.userId, order.registrant);
             }
           } else {
             await processSubscriptionRenewal(reference);

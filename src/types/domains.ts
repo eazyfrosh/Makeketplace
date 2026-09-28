@@ -1,18 +1,23 @@
 export type DomainStatus = "active" | "pending" | "expired" | "suspended" | "registration_failed";
-export type DomainPaymentStatus = "pending" | "paid" | "failed" | "refunded";
-export type DomainRegistrationStatus = "pending" | "registered" | "failed" | "needs_review";
+export type DomainPaymentStatus = "pending" | "confirmed" | "paid" | "failed" | "refunded" | "refund_pending" | "admin_review";
+export type DomainRegistrationStatus = "payment_pending" | "payment_confirmed" | "registration_pending" | "pending" | "registered" | "dns_pending" | "email_verification_pending" | "email_ready" | "failed" | "needs_review";
 export type DnsRecordType = "A" | "AAAA" | "CNAME" | "MX" | "TXT";
 
 export interface DomainRecord {
   id: string; userId: string; domain: string; tld: string; registrar: "resellerclub";
   registrarOrderId: string | null; status: DomainStatus; registeredAt: string | null; expiresAt: string | null;
   autoRenew: boolean; nameservers: string[]; customerPriceCents: number; currency: "NGN";
+  providerDomainId?: string | null; purchasePriceMinor?: number; paymentReference?: string | null;
+  registrationStatus?: DomainRegistrationStatus; dnsStatus?: "not_started" | "pending" | "configured" | "failed";
+  emailVerificationStatus?: "not_started" | "pending" | "verified" | "failed"; renewalStatus?: "manual" | "auto" | "renewal_pending" | "failed";
+  provisioningErrors?: Array<{ code: string; message: string; occurredAt: string }>;
   registrant?: Registrant; templateId?: "elite-broker" | "volterra"; templateSiteId?: string; templateSiteUrl?: string; createdAt: string; updatedAt: string;
 }
 export interface DomainOrder {
   id: string; userId: string; domain: string; tld: string; amountCents: number; currency: "NGN";
   paystackReference: string; paymentStatus: DomainPaymentStatus; registrationStatus: DomainRegistrationStatus;
-  registrarOrderId: string | null; templateId?: "elite-broker" | "volterra"; templateSiteId?: string; templateSiteUrl?: string; errorMessage?: string; createdAt: string; updatedAt: string;
+  registrarOrderId: string | null; providerDomainId?: string | null; idempotencyKey?: string; refundState?: "not_required" | "pending" | "completed" | "admin_review";
+  registrant?: Registrant; registrarTermsAcceptedAt?: string; templateId?: "elite-broker" | "volterra"; templateSiteId?: string; templateSiteUrl?: string; errorMessage?: string; createdAt: string; updatedAt: string;
 }
 export interface DomainAvailability { domain: string; tld: string; available: boolean; priceCents: number; currency: "NGN"; }
 export interface DnsRecord { host: string; type: DnsRecordType; value: string; ttl: number; priority?: number; }
@@ -29,6 +34,7 @@ export const isValidDomain = (input: string) => /^(?=.{1,253}$)(?:[a-z0-9](?:[a-
 export const getTld = (domain: string) => `.${normalizeDomain(domain).split(".").slice(1).join(".")}`;
 export const domainPriceNaira = (cents: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(cents / 100);
 export const sanitizeRegistrant = (v: Partial<Registrant>): Registrant => ({ name: String(v.name ?? "").trim().slice(0, 120), email: String(v.email ?? "").trim().toLowerCase().slice(0, 160), phone: String(v.phone ?? "").trim().slice(0, 40), organization: String(v.organization ?? "").trim().slice(0, 120), address: String(v.address ?? "").trim().slice(0, 180), city: String(v.city ?? "").trim().slice(0, 80), state: String(v.state ?? "").trim().slice(0, 80), country: String(v.country ?? "NG").trim().slice(0, 2).toUpperCase(), postalCode: String(v.postalCode ?? "").trim().slice(0, 20) });
+export const isCompleteRegistrant = (v: Registrant) => Boolean(v.name && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email) && v.phone && v.address && v.city && v.state && /^[A-Z]{2}$/.test(v.country ?? "") && v.postalCode);
 export const isValidNameserver = (v: string) => /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(v);
 export const domainCurrency = "NGN" as const;
 export const domainRegistrar = "resellerclub" as const;

@@ -76,6 +76,9 @@ export default function AdminPage() {
           <Button variant="secondary" asChild>
             <Link href="/admin/email-designer">Email Designer usage</Link>
           </Button>
+          <Button variant="secondary" asChild>
+            <Link href="/admin/email-domains">Email domains</Link>
+          </Button>
         </div>
       </div>
 

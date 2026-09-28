@@ -57,9 +57,9 @@ export async function listReceiptSends(userId: string, limit = 50) {
 
 export async function updateReceiptSendByProviderId(providerEmailId: string, status: ReceiptEmailSend["status"], error: string | null) {
   const snap = await db().collection(SENDS).where("providerEmailId", "==", providerEmailId).limit(1).get();
-  if (snap.empty) return false;
+  if (snap.empty) return null;
   await snap.docs[0].ref.set({ status, error, updatedAt: new Date().toISOString() }, { merge: true });
-  return true;
+  return snap.docs[0].data() as ReceiptEmailSend;
 }
 
 export async function consumeReceiptEmailRateLimit(userId: string) {

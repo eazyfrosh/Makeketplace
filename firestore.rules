@@ -129,6 +129,18 @@ service cloud.firestore {
     match /emailDesignerAuditLogs/{logId} { allow read, write: if false; }
     match /emailDesignerRateLimits/{userId} { allow read, write: if false; }
 
+    // Purchased domains, registrar orders, email-domain verification, sender
+    // identities, provider events, suppressions and audit records are exposed
+    // only through authenticated server routes. This prevents ownership,
+    // verification, From addresses and delivery state being forged by clients.
+    match /domains/{domainId} { allow read, write: if false; }
+    match /domainOrders/{orderId} { allow read, write: if false; }
+    match /emailDomains/{domainId} { allow read, write: if false; }
+    match /emailSenderIdentities/{senderId} { allow read, write: if false; }
+    match /emailProviderEvents/{eventId} { allow read, write: if false; }
+    match /emailSuppressions/{suppressionId} { allow read, write: if false; }
+    match /emailDomainAuditLogs/{logId} { allow read, write: if false; }
+
     // Support tickets: owner or admin only.
     match /supportTickets/{ticketId} {
       allow read: if isOwner(resource.data.userId) || isAdmin();

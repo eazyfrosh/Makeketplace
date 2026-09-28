@@ -1,7 +1,16 @@
 import { z } from "zod";
 
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/, "Use a six-digit hex color.");
-const remoteUrl = z.string().trim().url().max(2000).refine((value) => /^https?:\/\//i.test(value), "URL must use HTTP or HTTPS.");
+function isSafePublicUrl(value: string) {
+  try {
+    const url = new URL(value); const host = url.hostname.toLowerCase();
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return false;
+    if (host === 'localhost' || host.endsWith('.local') || host === '0.0.0.0' || host === '169.254.169.254') return false;
+    if (/^(?:10\.|127\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.)/.test(host)) return false;
+    return true;
+  } catch { return false; }
+}
+const remoteUrl = z.string().trim().url().max(2000).refine(isSafePublicUrl, "Use a safe public HTTP or HTTPS URL.");
 const webUrl = z.union([z.literal(""), remoteUrl]);
 const logoSource = z.union([
   z.literal(""),
@@ -46,6 +55,7 @@ export const receiptSendInputSchema = z.object({
   mode: z.enum(["test", "delivery"]),
   recipientEmail: z.string().trim().toLowerCase().email().max(254).optional(),
   recipientConsentConfirmed: z.boolean().default(false),
+  senderIdentityId: z.string().trim().min(1).max(160),
 });
 
 export type ReceiptTemplateInput = z.infer<typeof receiptTemplateInputSchema>;

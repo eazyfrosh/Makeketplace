@@ -107,3 +107,43 @@ Use matching test-mode keys and test plan codes first. The browser callback is
 only a progress screen; wallet credit and subscription state are determined by
 server-stored payment intents, Paystack signature checks, transaction
 verification, and idempotent Firestore transactions.
+
+## ResellerClub and automatic email domains
+
+Domain checkout is deliberately disabled until the registrar is fully
+configured. The production UI never fabricates availability, registration IDs,
+DNS changes, or verified email domains. Add all `RESELLERCLUB_*` values from
+`.env.example` to Vercel's Production environment and redeploy. You need the
+Reseller ID and API key from **ResellerClub → Settings → API**, a ResellerClub
+customer ID, matching registrant/admin/technical/billing contact ID, and at
+least two default nameservers. ResellerClub also requires the API caller's IP
+to be whitelisted. Because ordinary Vercel Functions do not guarantee a fixed
+egress IP, use Vercel Secure Compute/static egress or a fixed-egress proxy before
+enabling live registration, then whitelist that IP in ResellerClub.
+
+For safe testing, create a ResellerClub demo reseller account and use its test
+credentials with `https://test.httpapi.com`. Never use live credentials against
+the test URL: ResellerClub warns that those requests can still affect production.
+Automated tests use in-memory provider mocks and never create a real order.
+
+The initial email provider is Resend. Add `RESEND_API_KEY` and
+`RESEND_WEBHOOK_SECRET`, and configure the signed webhook at:
+
+```text
+https://YOUR_EAZYTOOL_DOMAIN/api/email-flash/webhook
+```
+
+After registration, EazyTool adds the domain to Resend, retrieves its SPF,
+DKIM, return-path and verification records, adds a conservative DMARC record,
+writes them through the registrar provider, and checks verification using the
+Vercel cron. The committed schedule runs daily so it deploys on Vercel Hobby;
+users can also check immediately from their domain dashboard. On Vercel Pro,
+change the schedule to `0 * * * *` for hourly background checks. Sender
+identities are outbound-only; replies are delivered
+to their configured reply-to address.
+
+Deploy Firestore rules and indexes before enabling the feature:
+
+```bash
+firebase deploy --project YOUR_FIREBASE_PROJECT_ID --only firestore:rules,firestore:indexes
+```
