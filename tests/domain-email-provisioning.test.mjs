@@ -50,7 +50,20 @@ test("delivery webhook is signed and idempotent and can suppress abusive recipie
 
 test("Firestore denies direct access to registrar and email-domain security records", () => {
   const rules = read("../firestore.rules");
-  for (const collection of ["domains", "domainOrders", "emailDomains", "emailSenderIdentities", "emailProviderEvents", "emailSuppressions", "emailDomainAuditLogs"]) assert.match(rules, new RegExp(`match /${collection}\\/\\{[^}]+\\} \\{ allow read, write: if false; \\}`));
+  for (const collection of ["domains", "domainOrders", "domainRegistrarAccounts", "emailDomains", "emailSenderIdentities", "emailProviderEvents", "emailSuppressions", "emailDomainAuditLogs"]) assert.match(rules, new RegExp(`match /${collection}\\/\\{[^}]+\\} \\{ allow read, write: if false; \\}`));
+});
+
+test("ResellerClub buyer accounts are per-user and not global environment configuration", () => {
+  const provider = read("../src/lib/domains/resellerclub-provider.ts");
+  const accountStore = read("../src/lib/domains/registrar-account-store.ts");
+  const env = read("../.env.example");
+  assert.match(provider, /ensureBuyerAccount/);
+  assert.match(provider, /api\/customers\/details\.json/);
+  assert.match(provider, /api\/customers\/v2\/signup\.json/);
+  assert.match(provider, /api\/contacts\/search\.json/);
+  assert.match(accountStore, /domainRegistrarAccounts/);
+  assert.ok(!env.includes("RESELLERCLUB_CUSTOMER_ID="));
+  assert.ok(!env.includes("RESELLERCLUB_CONTACT_ID="));
 });
 
 test("production UI has no fake registrar success and manual DNS cannot claim an update", () => {

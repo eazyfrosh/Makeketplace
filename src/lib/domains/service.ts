@@ -23,7 +23,8 @@ export async function registerPaidDomain(reference: string, userId: string, regi
   try {
     const available = await provider.searchAvailability(order.domain);
     if (!available.available) throw new DomainProviderError("DOMAIN_UNAVAILABLE", "Domain became unavailable before registration.");
-    const response = await provider.registerDomain({ domain: order.domain, years: 1, registrant, idempotencyKey: order.idempotencyKey ?? order.id });
+    const buyer = await provider.ensureBuyerAccount({ userId, registrant });
+    const response = await provider.registerDomain({ domain: order.domain, years: 1, registrant, buyer, idempotencyKey: order.idempotencyKey ?? order.id });
     const expiry = response.expiresAt || (() => { const value = new Date(); value.setFullYear(value.getFullYear() + 1); return value.toISOString(); })();
     const domain: DomainRecord = { id: `domain_${order.id}`, userId, domain: order.domain, tld: getTld(order.domain), registrar: "resellerclub", registrarOrderId: response.providerDomainId, providerDomainId: response.providerDomainId, status: "active", registrationStatus: "registered", dnsStatus: "not_started", emailVerificationStatus: "not_started", registeredAt: response.registeredAt ?? now, expiresAt: expiry, autoRenew: false, renewalStatus: "manual", nameservers: await provider.getNameservers(response.providerDomainId).catch(() => []), customerPriceCents: order.amountCents, purchasePriceMinor: order.amountCents, paymentReference: reference, currency: "NGN", registrant, templateId: order.templateId, templateSiteId: order.templateSiteId, templateSiteUrl: order.templateSiteUrl, provisioningErrors: [], createdAt: now, updatedAt: now };
     await saveDomain(domain);

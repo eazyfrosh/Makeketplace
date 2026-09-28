@@ -135,6 +135,7 @@ service cloud.firestore {
     // verification, From addresses and delivery state being forged by clients.
     match /domains/{domainId} { allow read, write: if false; }
     match /domainOrders/{orderId} { allow read, write: if false; }
+    match /domainRegistrarAccounts/{userId} { allow read, write: if false; }
     match /emailDomains/{domainId} { allow read, write: if false; }
     match /emailSenderIdentities/{senderId} { allow read, write: if false; }
     match /emailProviderEvents/{eventId} { allow read, write: if false; }

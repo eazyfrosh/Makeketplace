@@ -42,4 +42,4 @@ export const domainMaxNameservers = 6;
 export const domainMaxDnsRecords = 100;
 export const domainWebhookRoute = "/api/paystack/webhook";
 export const domainDocs = { resellerClub: "https://manage.resellerclub.com/kb/answer/744", paystackWebhook: "https://paystack.com/docs/payments/webhooks/" } as const;
-export const domainEnvironmentKeys = ["RESELLERCLUB_RESELLER_ID", "RESELLERCLUB_API_KEY", "RESELLERCLUB_BASE_URL", "PAYSTACK_SECRET_KEY", "NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY"] as const;
+export const domainEnvironmentKeys = ["RESELLERCLUB_RESELLER_ID", "RESELLERCLUB_API_KEY", "RESELLERCLUB_API_BASE_URL", "RESELLERCLUB_DEFAULT_NAMESERVERS", "PAYSTACK_SECRET_KEY", "NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY"] as const;

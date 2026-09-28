@@ -12,13 +12,15 @@ export class DomainProviderError extends Error {
 export interface DomainSearchResult { domain: string; available: boolean; providerStatus: string; }
 export interface DomainPriceQuote { domain: string; years: number; currency: string; amountMinor: number; }
 export interface RegisteredDomain { providerDomainId: string; domain: string; status: string; registeredAt: string | null; expiresAt: string | null; }
+export interface DomainProviderBuyer { providerCustomerId: string; providerContactId: string; }
 
 export interface DomainProvider {
   readonly name: string;
   isConfigured(): boolean;
   searchAvailability(domain: string): Promise<DomainSearchResult>;
   getPrice(domain: string, years?: number): Promise<DomainPriceQuote>;
-  registerDomain(input: { domain: string; years: number; registrant: Registrant; idempotencyKey: string }): Promise<RegisteredDomain>;
+  ensureBuyerAccount(input: { userId: string; registrant: Registrant }): Promise<DomainProviderBuyer>;
+  registerDomain(input: { domain: string; years: number; registrant: Registrant; buyer: DomainProviderBuyer; idempotencyKey: string }): Promise<RegisteredDomain>;
   getRegistrationStatus(providerDomainId: string): Promise<RegisteredDomain>;
   getNameservers(providerDomainId: string): Promise<string[]>;
   createDnsRecord(providerDomainId: string, record: DnsRecord): Promise<void>;
