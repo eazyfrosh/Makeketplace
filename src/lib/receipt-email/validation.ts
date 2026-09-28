@@ -1,7 +1,13 @@
 import { z } from "zod";
 
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/, "Use a six-digit hex color.");
-const webUrl = z.union([z.literal(""), z.string().trim().url().max(2000).refine((value) => /^https?:\/\//i.test(value), "URL must use HTTP or HTTPS.")]);
+const remoteUrl = z.string().trim().url().max(2000).refine((value) => /^https?:\/\//i.test(value), "URL must use HTTP or HTTPS.");
+const webUrl = z.union([z.literal(""), remoteUrl]);
+const logoSource = z.union([
+  z.literal(""),
+  remoteUrl,
+  z.string().max(450_000, "Compressed logo is too large.").regex(/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/, "Upload a PNG, JPEG, or WebP logo."),
+]);
 
 export const receiptTemplateInputSchema = z.object({
   id: z.string().trim().max(120).optional(),
@@ -10,7 +16,7 @@ export const receiptTemplateInputSchema = z.object({
   senderName: z.string().trim().min(1).max(120),
   senderEmail: z.string().trim().toLowerCase().email().max(254),
   brandName: z.string().trim().min(1).max(160),
-  logoUrl: webUrl,
+  logoUrl: logoSource,
   subject: z.string().trim().min(1).max(180),
   statusLabel: z.string().trim().max(80),
   heading: z.string().trim().min(1).max(240),

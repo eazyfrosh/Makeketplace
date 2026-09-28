@@ -72,3 +72,13 @@ test("Firestore blocks direct client access to Email Designer records", () => {
   const rules = readFileSync(new URL("../firestore.rules", import.meta.url), "utf8");
   for (const collection of ["emailDesignerTemplates", "emailDesignerSends", "emailDesignerAuditLogs", "emailDesignerRateLimits"]) assert.match(rules, new RegExp(`match /${collection}\\/\\{[^}]+\\} \\{ allow read, write: if false; \\}`));
 });
+
+test("logo upload is compressed into the design without a storage service", () => {
+  const editor = readFileSync(new URL("../src/app/platform/email-designer/page.tsx", import.meta.url), "utf8");
+  assert.ok(editor.includes('brandName: "Eazy Tool"'));
+  assert.ok(editor.includes('statusLabel: "Status Notice"'));
+  assert.ok(editor.includes('canvas.toDataURL("image/webp"'));
+  assert.ok(!editor.includes("/api/email-flash/logo"));
+  assert.ok(!editor.includes("firebase/storage"));
+  assert.ok(!editor.includes("@vercel/blob"));
+});

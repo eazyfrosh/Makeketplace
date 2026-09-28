@@ -20,12 +20,12 @@ import type { ReceiptTemplateInput } from "@/lib/receipt-email/validation";
 const base: ReceiptTemplateInput = {
   name: "New announcement",
   category: "announcement",
-  senderName: "Eazy Design Team",
+  senderName: "Eazy Tool Team",
   senderEmail: "hello@example.com",
-  brandName: "Eazy Design",
+  brandName: "Eazy Tool",
   logoUrl: "",
-  subject: "An update from Eazy Design",
-  statusLabel: "Announcement",
+  subject: "An update from Eazy Tool",
+  statusLabel: "Status Notice",
   heading: "A NEW CHAPTER",
   paragraphs: ["Hello there,", "We have an important update to share with you."],
   backgroundColor: "#050505",
@@ -79,6 +79,29 @@ export default function EmailDesignerPage() {
 
   React.useEffect(() => { if (!hasAccess) return; load().catch((error) => toast.error(error instanceof Error ? error.message : "Email Designer could not be loaded.")).finally(() => setLoading(false)); }, [hasAccess, load]);
   function update<K extends keyof ReceiptTemplateInput>(key: K, value: ReceiptTemplateInput[K]) { setDesign((current) => ({ ...current, [key]: value })); }
+  async function uploadLogo(file: File | undefined) {
+    if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) return toast.error("Upload a PNG, JPEG, or WebP logo.");
+    if (file.size > 2 * 1024 * 1024) return toast.error("Logo must be 2 MB or smaller.");
+    const objectUrl = URL.createObjectURL(file);
+    try {
+      const image = new window.Image();
+      image.src = objectUrl;
+      await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("Logo could not be read.")); });
+      const scale = Math.min(1, 256 / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Logo could not be processed.");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/webp", 0.84);
+      if (dataUrl.length > 450_000) throw new Error("Compressed logo is too large. Choose a simpler image.");
+      update("logoUrl", dataUrl);
+      toast.success("Logo added to this design. No storage service was used.");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Logo could not be processed."); }
+    finally { URL.revokeObjectURL(objectUrl); }
+  }
   function choosePreset(value: ReceiptTemplateInput) { setSelectedId(null); setDesign({ ...value, paragraphs: [...value.paragraphs] }); }
   function chooseSaved(item: ReceiptEmailTemplate) { const { id: _id, userId: _userId, schemaVersion: _schemaVersion, createdAt: _createdAt, updatedAt: _updatedAt, ...editable } = item; void _id; void _userId; void _schemaVersion; void _createdAt; void _updatedAt; setSelectedId(item.id); setDesign(editable); }
 
@@ -122,7 +145,7 @@ export default function EmailDesignerPage() {
         <div><h2 className="font-semibold">Design content</h2><p className="text-sm text-muted-foreground">Every field updates the real email preview.</p></div>
         <Field label="Design name"><Input value={design.name} onChange={(e) => update("name", e.target.value)} /></Field>
         <Field label="Brand name"><Input value={design.brandName} onChange={(e) => update("brandName", e.target.value)} /></Field>
-        <Field label="Logo URL"><Input type="url" placeholder="https://.../logo.png" value={design.logoUrl} onChange={(e) => update("logoUrl", e.target.value)} /></Field>
+        <Field label="Upload logo"><div className="space-y-2"><Input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void uploadLogo(e.target.files?.[0])} />{design.logoUrl && <div className="flex items-center justify-between rounded-xl border p-2"><Image src={design.logoUrl} alt="Uploaded logo" width={42} height={42} unoptimized className="size-10 rounded bg-white object-contain" /><Button type="button" size="sm" variant="ghost" onClick={() => update("logoUrl", "")}>Remove</Button></div>}<p className="text-xs text-muted-foreground">PNG, JPEG or WebP up to 2 MB. Compressed and stored inside the design—no external storage.</p></div></Field>
         <Field label="Verified sender name"><Input value={design.senderName} onChange={(e) => update("senderName", e.target.value)} /></Field>
         <Field label="Verified sender email"><Input type="email" value={design.senderEmail} onChange={(e) => update("senderEmail", e.target.value)} /></Field>
         <Field label="Subject line"><Input value={design.subject} onChange={(e) => update("subject", e.target.value)} /></Field>
