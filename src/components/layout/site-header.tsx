@@ -55,8 +55,8 @@ export function SiteHeader() {
       <div className="glass border-b border-white/10">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <Image src="/eazytools-logo-light.png" alt="EazyTool" width={1536} height={1024} priority className="h-10 w-auto max-w-[132px] object-contain dark:hidden" />
-            <Image src="/eazytools-logo-dark.png" alt="EazyTool" width={1536} height={1024} priority className="hidden h-10 w-auto max-w-[132px] object-contain dark:block" />
+            <Image src="/eazytools-logo-light.png" alt="EazyTool" width={1040} height={736} priority className="h-14 w-auto max-w-[160px] object-contain dark:hidden" />
+            <Image src="/eazytools-logo-dark.png" alt="EazyTool" width={1040} height={736} priority className="hidden h-14 w-auto max-w-[160px] object-contain dark:block" />
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">

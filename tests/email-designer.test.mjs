@@ -30,6 +30,9 @@ const design = {
   featuredImageUrl: "",
   panelHeading: "BIG NEWS",
   panelBody: "Read the latest update.",
+  warningEnabled: true,
+  warningHeading: "Important account notice",
+  warningMessage: "Review these details carefully before continuing.",
   buttonEnabled: true,
   buttonText: "Learn more",
   buttonUrl: "https://acme.test/update",
@@ -45,6 +48,15 @@ test("email content is escaped", () => {
   const html = renderReceiptEmail(design);
   assert.ok(!html.includes("<script>alert(1)</script>"));
   assert.match(html, /&lt;script&gt;/);
+});
+
+test("email uses clean sans-serif typography and renders the editable warning section", () => {
+  const html = renderReceiptEmail(design);
+  assert.match(html, /font-family:Inter/);
+  assert.ok(!html.includes("Times New Roman"));
+  assert.ok(!html.includes("font-family:Impact"));
+  assert.match(html, /Important account notice/);
+  assert.match(html, /Review these details carefully/);
 });
 
 test("status and payment-like messages are visibly unverified and not proof of payment", () => {

@@ -24,6 +24,9 @@ export interface ReceiptEmailTemplate {
   featuredImageUrl: string;
   panelHeading: string;
   panelBody: string;
+  warningEnabled: boolean;
+  warningHeading: string;
+  warningMessage: string;
   buttonEnabled: boolean;
   buttonText: string;
   buttonUrl: string;
