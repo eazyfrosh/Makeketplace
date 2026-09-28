@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Menu, Search, X } from "lucide-react";
@@ -55,8 +54,7 @@ export function SiteHeader() {
       <div className="glass border-b border-white/10">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <Image src="/eazytools-logo-light.png" alt="EazyTool" width={1134} height={737} priority className="h-10 w-auto max-w-[132px] object-contain dark:hidden" />
-            <Image src="/eazytools-logo-dark.png" alt="EazyTool" width={1134} height={737} priority className="hidden h-10 w-auto max-w-[132px] object-contain dark:block" />
+            <span className="text-xl font-black tracking-tight text-foreground">EazyTool</span>
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">

@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { toast } from "sonner";
 import { AtSign, Link2, MessageCircle, Send } from "lucide-react";
 
@@ -55,8 +54,7 @@ export function SiteFooter() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
           <div>
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/eazytools-logo-light.png" alt="EazyTool" width={1134} height={737} className="h-14 w-auto max-w-[184px] object-contain dark:hidden" />
-              <Image src="/eazytools-logo-dark.png" alt="EazyTool" width={1134} height={737} className="hidden h-14 w-auto max-w-[184px] object-contain dark:block" />
+              <span className="text-2xl font-black tracking-tight text-foreground">EazyTool</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               Practical digital tools and services for professionals who value speed,
