@@ -19,9 +19,7 @@ export function SubscriptionCallback() {
   React.useEffect(() => {
     if (authLoading || !user) return;
     const reference = params.get("reference") ?? params.get("trxref");
-    const planId = params.get("planId");
-    const billingCycle = params.get("billingCycle") === "yearly" ? "yearly" : "monthly";
-    if (!reference || !planId) {
+    if (!reference) {
       setState("error");
       setMessage("The subscription callback is missing payment details.");
       return;
@@ -32,7 +30,7 @@ export function SubscriptionCallback() {
         const response = await fetch("/api/subscriptions/activate", {
           method: "POST",
           headers: { "Content-Type": "application/json", ...headers },
-          body: JSON.stringify({ reference, planId, billingCycle }),
+          body: JSON.stringify({ reference }),
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data?.error ?? "Paystack payment verification failed.");

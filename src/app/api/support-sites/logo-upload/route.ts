@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
   if (caller.role !== "admin") {
     const subscription = await getSubscriptionForUser(caller.uid);
-    const active = Boolean(subscription && subscription.status === "active" && (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= Date.now()));
+    const active = Boolean(subscription && ["active", "non_renewing"].includes(subscription.status) && (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= Date.now()));
     const plan = active && subscription ? await getPlan(subscription.planId) : null;
     if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes("support-website-templates"))) {
       return NextResponse.json({ error: "An active EazyTool subscription is required to upload template assets." }, { status: 403 });

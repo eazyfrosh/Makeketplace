@@ -41,6 +41,7 @@ export interface WalletFundingIntent {
   email: string;
   amountMinor: number;
   currency: WalletCurrency;
+  purpose: "wallet_topup";
   reference: string;
   status: "pending" | "completed" | "failed";
   provider: "paystack";

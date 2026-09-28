@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   }
 
   const subscription = await getSubscriptionForUser(caller.uid);
-  if (!subscription || subscription.status !== "active") return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
+  if (!subscription || !["active", "non_renewing"].includes(subscription.status)) return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
   if (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now()) return NextResponse.json({ error: "Your subscription has expired." }, { status: 403 });
   const plan = await getPlan(subscription.planId);
   if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes(serviceSlug))) return NextResponse.json({ error: "This service is not included in your subscription." }, { status: 403 });

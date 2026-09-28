@@ -1,10 +1,12 @@
+import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { verifyCaller } from "@/lib/licensing/verify-auth";
-import { getPlan } from "@/lib/subscriptions/store";
+import { createSubscriptionPaymentIntent, failSubscriptionPaymentIntent, getPlan } from "@/lib/subscriptions/store";
 import type { SubscriptionBillingCycle } from "@/types/subscriptions";
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
@@ -15,27 +17,39 @@ export async function POST(request: Request) {
   const plan = await getPlan(planId);
   if (!plan || !plan.active) return NextResponse.json({ error: "Plan not found." }, { status: 404 });
   const planCode = billingCycle === "yearly" ? plan.yearlyPlanCode : plan.monthlyPlanCode;
-  const reference = `sub_${caller.uid}_${Date.now()}`;
+  const amountMinor = billingCycle === "yearly" ? plan.yearlyPriceCents : plan.monthlyPriceCents;
+  const reference = `EZT-SUB-${Date.now()}-${crypto.randomBytes(6).toString("hex").toUpperCase()}`;
 
-  if (!PAYSTACK_SECRET_KEY || !planCode) {
-    return NextResponse.json({ demo: true, reference, authorizationUrl: `/subscription/callback?reference=${encodeURIComponent(reference)}&planId=${encodeURIComponent(plan.id)}&billingCycle=${billingCycle}` });
-  }
+  if (!PAYSTACK_SECRET_KEY) return NextResponse.json({ error: "Subscription payments are not configured. Add PAYSTACK_SECRET_KEY in Vercel." }, { status: 503 });
+  if (!planCode) return NextResponse.json({ error: `The Paystack ${billingCycle} plan code is not configured.` }, { status: 503 });
 
-  const response = await fetch("https://api.paystack.co/transaction/initialize", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email: caller.email,
-      amount: billingCycle === "yearly" ? plan.yearlyPriceCents : plan.monthlyPriceCents,
-      plan: planCode,
-      reference,
-      metadata: { userId: caller.uid, planId: plan.id, billingCycle },
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/subscription/callback?planId=${encodeURIComponent(plan.id)}&billingCycle=${billingCycle}`,
-    }),
-  });
-  const data = await response.json();
-  if (!response.ok || !data?.data?.authorization_url) {
-    return NextResponse.json({ error: data?.message ?? "Paystack could not initialize checkout." }, { status: 502 });
+  const now = new Date().toISOString();
+  await createSubscriptionPaymentIntent({ id: reference, userId: caller.uid, email: caller.email, planId: plan.id, billingCycle, amountMinor, currency: "NGN", purpose: "subscription", reference, status: "pending", providerTransactionId: null, createdAt: now, updatedAt: now });
+
+  try {
+    const origin = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || new URL(request.url).origin;
+    const response = await fetch("https://api.paystack.co/transaction/initialize", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: caller.email,
+        amount: amountMinor,
+        currency: "NGN",
+        plan: planCode,
+        reference,
+        metadata: { purpose: "subscription", userId: caller.uid, planId: plan.id, billingCycle, subscriptionReference: reference },
+        callback_url: `${origin}/subscription/callback`,
+      }),
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok || !data?.data?.authorization_url) {
+      await failSubscriptionPaymentIntent(reference);
+      return NextResponse.json({ error: data?.message ?? "Paystack could not initialize checkout." }, { status: 502 });
+    }
+    return NextResponse.json({ reference, authorizationUrl: data.data.authorization_url });
+  } catch (error) {
+    await failSubscriptionPaymentIntent(reference);
+    console.error("[subscriptions] Paystack initialization failed", error);
+    return NextResponse.json({ error: "Paystack could not initialize checkout." }, { status: 502 });
   }
-  return NextResponse.json({ demo: false, reference: data.data.reference ?? reference, authorizationUrl: data.data.authorization_url });
 }

@@ -1,6 +1,7 @@
 export type SubscriptionPlanId = "all-access";
 export type SubscriptionBillingCycle = "monthly" | "yearly";
-export type SubscriptionStatus = "free" | "active" | "past_due" | "cancelled" | "expired";
+export type SubscriptionStatus = "free" | "active" | "non_renewing" | "past_due" | "cancelled" | "expired";
+export type SubscriptionPaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
 export interface SubscriptionPlan {
   id: string;
@@ -47,10 +48,30 @@ export interface SubscriptionPayment {
   amountCents: number;
   billingCycle: SubscriptionBillingCycle;
   provider: "paystack";
+  purpose: "subscription";
+  currency: "NGN";
   reference: string;
-  status: "paid" | "failed" | "pending";
+  providerTransactionId: string | null;
+  status: SubscriptionPaymentStatus;
   paidAt: string | null;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubscriptionPaymentIntent {
+  id: string;
+  userId: string;
+  email: string;
+  planId: string;
+  billingCycle: SubscriptionBillingCycle;
+  amountMinor: number;
+  currency: "NGN";
+  purpose: "subscription";
+  reference: string;
+  status: SubscriptionPaymentStatus;
+  providerTransactionId: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SubscriptionSnapshot {

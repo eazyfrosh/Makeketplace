@@ -86,3 +86,24 @@ src/
 npm run build
 npm run lint
 ```
+
+## Paystack wallet and subscription setup
+
+EazyTool uses two separate Paystack purposes through one signed webhook:
+
+- `wallet_topup` credits the authenticated user's closed-loop wallet only after Paystack verification.
+- `subscription` activates or renews EazyTool All Access using Paystack recurring plans.
+
+Configure `PAYSTACK_SECRET_KEY`, `PAYSTACK_ALL_ACCESS_MONTHLY_PLAN_CODE`,
+`PAYSTACK_ALL_ACCESS_YEARLY_PLAN_CODE`, and `NEXT_PUBLIC_APP_URL` in Vercel. In
+Paystack, create a monthly NGN 35,000 plan and an annual NGN 250,000 plan, then
+configure the webhook URL as:
+
+```text
+https://YOUR_EAZYTOOL_DOMAIN/api/paystack/webhook
+```
+
+Use matching test-mode keys and test plan codes first. The browser callback is
+only a progress screen; wallet credit and subscription state are determined by
+server-stored payment intents, Paystack signature checks, transaction
+verification, and idempotent Firestore transactions.

@@ -17,7 +17,7 @@ async function listSites() { const result = await list({ prefix: SITE_PREFIX, li
 async function canCustomize(uid: string, role: string) {
   if (role === "admin") return true;
   const subscription = await getSubscriptionForUser(uid);
-  if (!subscription || subscription.status !== "active" || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) return false;
+  if (!subscription || !["active", "non_renewing"].includes(subscription.status) || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) return false;
   const plan = await getPlan(subscription.planId);
   return Boolean(plan && (plan.includedTools.includes("*") || plan.includedTools.includes("support-website-templates")));
 }

@@ -19,7 +19,7 @@ const settingsSchema = z.object({
 async function canUseService(userId: string, role: string, serviceSlug: ChatEnabledService) {
   if (role === "admin") return true;
   const subscription = await getSubscriptionForUser(userId);
-  if (!subscription || subscription.status !== "active" || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) return false;
+  if (!subscription || !["active", "non_renewing"].includes(subscription.status) || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) return false;
   const plan = await getPlan(subscription.planId);
   return Boolean(plan && (plan.includedTools.includes("*") || plan.includedTools.includes(serviceSlug)));
 }

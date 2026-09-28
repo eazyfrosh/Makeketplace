@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const reference = `EZT-WAL-${Date.now()}-${crypto.randomBytes(6).toString("hex").toUpperCase()}`;
     await createFundingIntent({ userId: caller.uid, email: caller.email, amountMinor, reference });
     const origin = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || new URL(request.url).origin;
-    const response = await fetch("https://api.paystack.co/transaction/initialize", { method: "POST", headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" }, body: JSON.stringify({ email: caller.email, amount: amountMinor, currency: "NGN", reference, callback_url: `${origin}/wallet?funding=processing&reference=${encodeURIComponent(reference)}`, metadata: { purpose: "wallet_funding", userId: caller.uid, walletReference: reference } }) });
+    const response = await fetch("https://api.paystack.co/transaction/initialize", { method: "POST", headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" }, body: JSON.stringify({ email: caller.email, amount: amountMinor, currency: "NGN", reference, callback_url: `${origin}/wallet?funding=processing&reference=${encodeURIComponent(reference)}`, metadata: { purpose: "wallet_topup", userId: caller.uid, walletReference: reference } }) });
     const payload = await response.json().catch(() => null) as { data?: { authorization_url?: string; access_code?: string } } | null;
     if (!response.ok || !payload?.data?.authorization_url) { await failFundingIntent(reference); return NextResponse.json({ error: "Unable to start Paystack checkout." }, { status: 502 }); }
     return NextResponse.json({ authorizationUrl: payload.data.authorization_url, accessCode: payload.data.access_code, reference });

@@ -8,7 +8,7 @@ const PREFIX = "premium-data/sites/";
 const safeId = (value: string) => value.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 120);
 async function readSite(url: string): Promise<PremiumSite | null> { try { const response = await fetch(url, { cache: "no-store" }); return response.ok ? await response.json() as PremiumSite : null; } catch { return null; } }
 async function allSites() { const result = await list({ prefix: PREFIX, limit: 1000 }); const rows = await Promise.all(result.blobs.map((blob) => readSite(blob.url))); return rows.filter((row): row is PremiumSite => Boolean(row)); }
-async function canManagePremiumSites(uid: string, role: string) { if (role === "admin") return true; const subscription = await getSubscriptionForUser(uid); if (!subscription || subscription.status !== "active" || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) return false; const plan = await getPlan(subscription.planId); return Boolean(plan && (plan.includedTools.includes("*") || plan.includedTools.includes("premium-templates"))); }
+async function canManagePremiumSites(uid: string, role: string) { if (role === "admin") return true; const subscription = await getSubscriptionForUser(uid); if (!subscription || !["active", "non_renewing"].includes(subscription.status) || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) return false; const plan = await getPlan(subscription.planId); return Boolean(plan && (plan.includedTools.includes("*") || plan.includedTools.includes("premium-templates"))); }
 
 export async function GET(request: Request) {
   try {

@@ -115,7 +115,7 @@ export default function DashboardPage() {
     );
   }
 
-  const hasAllAccess = Boolean(subscription && subscription.status === "active" && (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= Date.now()) && subscriptionPlan?.includedTools.includes("*"));
+  const hasAllAccess = Boolean(subscription && ["active", "non_renewing"].includes(subscription.status) && (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= Date.now()) && subscriptionPlan?.includedTools.includes("*"));
   const totalSpent = licenses.reduce((sum, l) => sum + (l.orderTotalCents ?? 0), 0);
   const invoiceCount = new Set(licenses.map((l) => l.orderId)).size;
 

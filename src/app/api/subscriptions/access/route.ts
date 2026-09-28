@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const slug = new URL(request.url).searchParams.get("serviceSlug");
   if (!slug) return NextResponse.json({ allowed: false, reason: "missing_tool" }, { status: 400 });
   const subscription = await getSubscriptionForUser(caller.uid);
-  if (!subscription || subscription.status !== "active" || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) {
+  if (!subscription || !["active", "non_renewing"].includes(subscription.status) || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) {
     return NextResponse.json({ allowed: false, reason: "active_subscription_required" }, { status: 403 });
   }
   const plan = await getPlan(subscription.planId);

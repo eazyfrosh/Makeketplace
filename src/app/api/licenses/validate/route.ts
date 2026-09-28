@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     // accepting legacy licenses below while validating new subscriptions
     // against their live server-side record and plan entitlements.
     if (subscription?.id === payload.licenseId) {
-      if (subscription.status !== "active") {
+      if (!["active", "non_renewing"].includes(subscription.status)) {
         await record("denied_suspended");
         return NextResponse.json({ valid: false, reason: "denied_suspended" }, { status: 403 });
       }

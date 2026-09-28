@@ -107,6 +107,15 @@ service cloud.firestore {
     match /wallet_funding_intents/{intentId} { allow read, write: if false; }
     match /wallet_audit_logs/{logId} { allow read, write: if false; }
 
+    // Subscription payment intents, verified payment history, subscription
+    // state, and Paystack event-id records are server-mediated only. The
+    // browser uses authenticated APIs and cannot activate itself directly.
+    match /subscriptionPlans/{planId} { allow read, write: if false; }
+    match /subscriptions/{subscriptionId} { allow read, write: if false; }
+    match /subscriptionPayments/{paymentId} { allow read, write: if false; }
+    match /subscriptionPaymentIntents/{intentId} { allow read, write: if false; }
+    match /paystackProviderEvents/{eventId} { allow read, write: if false; }
+
     // Email Designer templates, delivery records, audit events, and rate-limit
     // counters are only exposed through authenticated server routes. This
     // prevents customers from forging delivery state or reading another

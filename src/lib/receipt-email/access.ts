@@ -7,7 +7,7 @@ export async function requireReceiptEmailAccess(caller: AuthenticatedCaller) {
   if (caller.role === "admin") return;
   const subscription = await getSubscriptionForUser(caller.uid);
   const active = Boolean(
-    subscription?.status === "active" &&
+    subscription && ["active", "non_renewing"].includes(subscription.status) &&
       (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= Date.now()),
   );
   if (!active || !subscription) throw new Error("ACTIVE_SUBSCRIPTION_REQUIRED");

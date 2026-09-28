@@ -38,7 +38,7 @@ export async function createFundingIntent(input: { userId: string; email: string
   const db = requireDb();
   const now = new Date().toISOString();
   const id = input.reference;
-  const intent: WalletFundingIntent = { id, userId: input.userId, email: input.email, amountMinor: input.amountMinor, currency: "NGN", reference: input.reference, status: "pending", provider: "paystack", providerReference: null, transactionId: null, createdAt: now, updatedAt: now };
+  const intent: WalletFundingIntent = { id, userId: input.userId, email: input.email, amountMinor: input.amountMinor, currency: "NGN", purpose: "wallet_topup", reference: input.reference, status: "pending", provider: "paystack", providerReference: null, transactionId: null, createdAt: now, updatedAt: now };
   await db.runTransaction(async (tx) => {
     const walletRef = db.collection(WALLETS).doc(input.userId);
     const intentRef = db.collection(INTENTS).doc(id);
@@ -83,7 +83,7 @@ export async function creditVerifiedDeposit(input: { reference: string; provider
     const now = new Date().toISOString();
     const fundingDate = now.slice(0, 10); const fundedToday = wallet.dailyFundingDate === fundingDate ? wallet.dailyFundingMinor ?? 0 : 0;
     if (fundedToday + intent.amountMinor > walletLimits.maximumDailyFundingMinor) throw new Error("Deposit exceeds the daily funding limit.");
-    const entry: WalletTransaction = { id: ledgerRef.id, userId: intent.userId, type: "deposit", amountMinor: intent.amountMinor, currency: "NGN", direction: "credit", status: "completed", description: "Wallet deposit", reference: intent.reference, provider: "paystack", providerReference: input.providerReference, serviceType: null, serviceId: null, relatedTransactionId: null, metadata: {}, createdAt: now, updatedAt: now };
+    const entry: WalletTransaction = { id: ledgerRef.id, userId: intent.userId, type: "deposit", amountMinor: intent.amountMinor, currency: "NGN", direction: "credit", status: "completed", description: "Wallet deposit", reference: intent.reference, provider: "paystack", providerReference: input.providerReference, serviceType: null, serviceId: null, relatedTransactionId: null, metadata: { purpose: "wallet_topup" }, createdAt: now, updatedAt: now };
     tx.set(walletRef, { ...wallet, balanceMinor: wallet.balanceMinor + intent.amountMinor, totalDepositedMinor: wallet.totalDepositedMinor + intent.amountMinor, dailyFundingDate: fundingDate, dailyFundingMinor: fundedToday + intent.amountMinor, updatedAt: now });
     tx.create(ledgerRef, entry);
     tx.update(intentRef, { status: "completed", providerReference: input.providerReference, transactionId: entry.id, updatedAt: now });
@@ -94,6 +94,31 @@ export async function creditVerifiedDeposit(input: { reference: string; provider
 export async function failFundingIntent(reference: string) {
   const db = requireDb(); const ref = db.collection(INTENTS).doc(reference);
   await db.runTransaction(async (tx) => { const snap = await tx.get(ref); if (snap.exists && snap.data()?.status === "pending") tx.update(ref, { status: "failed", updatedAt: new Date().toISOString() }); });
+}
+
+export async function reverseVerifiedDeposit(input: { reference: string; refundReference: string }) {
+  const db = requireDb();
+  const depositQuery = await db.collection(TRANSACTIONS).where("reference", "==", input.reference).where("type", "==", "deposit").limit(1).get();
+  if (depositQuery.empty) return false;
+  const depositRef = depositQuery.docs[0].ref;
+  const reversalRef = db.collection(TRANSACTIONS).doc(`refund_${input.refundReference}`);
+  return db.runTransaction(async (tx) => {
+    const [depositSnap, reversalSnap] = await Promise.all([tx.get(depositRef), tx.get(reversalRef)]);
+    if (reversalSnap.exists || depositSnap.data()?.status === "refunded") return false;
+    const deposit = depositSnap.data() as WalletTransaction;
+    const walletRef = db.collection(WALLETS).doc(deposit.userId);
+    const walletSnap = await tx.get(walletRef);
+    if (!walletSnap.exists) throw new Error("Wallet not found for refunded deposit.");
+    const wallet = walletSnap.data() as Wallet;
+    if (wallet.balanceMinor < deposit.amountMinor) throw new Error("Refunded wallet deposit has already been spent; manual reconciliation is required.");
+    const now = new Date().toISOString();
+    const reversal: WalletTransaction = { id: reversalRef.id, userId: deposit.userId, type: "reversal", amountMinor: deposit.amountMinor, currency: deposit.currency, direction: "debit", status: "completed", description: "Paystack wallet deposit refund", reference: input.refundReference, provider: "paystack", providerReference: input.refundReference, serviceType: null, serviceId: null, relatedTransactionId: deposit.id, metadata: { originalReference: deposit.reference }, createdAt: now, updatedAt: now };
+    tx.update(walletRef, { balanceMinor: wallet.balanceMinor - deposit.amountMinor, updatedAt: now });
+    tx.update(depositRef, { status: "refunded", updatedAt: now });
+    tx.create(reversalRef, reversal);
+    tx.create(db.collection(AUDIT).doc(), { actorUserId: "paystack", action: "deposit_refund", targetUserId: deposit.userId, amountMinor: deposit.amountMinor, currency: deposit.currency, reference: input.refundReference, transactionId: reversal.id, reason: "Verified Paystack refund", timestamp: now, metadata: { originalReference: deposit.reference } });
+    return true;
+  });
 }
 
 export async function debitWallet(input: { userId: string; amountMinor: number; reference: string; description: string; serviceType: string; serviceId: string; metadata?: WalletTransaction["metadata"] }) {
