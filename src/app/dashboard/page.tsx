@@ -10,9 +10,7 @@ import {
   FileText,
   HandCoins,
   KeyRound,
-  LayoutTemplate,
   Loader2,
-  Mail,
   Package,
   Plus,
   ShieldQuestion,
@@ -62,8 +60,6 @@ const STATUS_VARIANT: Record<string, "default" | "outline" | "destructive"> = {
 
 const QUICK_ACTIONS = [
   { href: "/services", label: "View services", description: "Explore tools and templates", icon: Package },
-  { href: "/platform/website-builder", label: "Create a website", description: "Start with a ready-made template", icon: LayoutTemplate },
-  { href: "/platform/email-designer", label: "Design an email", description: "Create a polished message", icon: Mail },
   { href: "/domains", label: "Buy a domain", description: "Find an address for your brand", icon: Globe2 },
   { href: "/wallet", label: "Fund your wallet", description: "Pay for eligible EazyTool services", icon: Plus },
   { href: "/dashboard/affiliate", label: "Earn with EazyTool", description: "Share EazyTool and track rewards", icon: HandCoins },
