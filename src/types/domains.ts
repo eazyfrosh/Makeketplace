@@ -23,7 +23,14 @@ export interface DomainAvailability { domain: string; tld: string; available: bo
 export interface DnsRecord { host: string; type: DnsRecordType; value: string; ttl: number; priority?: number; }
 export interface Registrant { name: string; email: string; phone?: string; organization?: string; address?: string; city?: string; state?: string; country?: string; postalCode?: string; }
 export interface DomainDetails { domain: string; status: string; expiryDate: string | null; nameservers: string[]; dnsRecords: DnsRecord[]; registrant?: Registrant; }
-export interface DomainPricing { tld: string; registrarCostCents: number; markupCents: number; minimumProfitCents: number; }
+export interface DomainPricing {
+  tld: string;
+  registrarCostCents: number;
+  markupCents: number;
+  minimumProfitCents: number;
+  fixedRegistrationPriceMinor?: number;
+  fixedRenewalPriceMinor?: number;
+}
 export interface ResellerClubOptions { resellerId: string; apiKey: string; baseUrl: string; }
 
 export const COMMON_TLDS = [".com", ".net", ".org", ".co", ".io", ".ai", ".app", ".dev", ".me", ".xyz"];
