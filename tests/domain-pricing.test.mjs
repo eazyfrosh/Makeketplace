@@ -24,4 +24,12 @@ test("compiled pricing returns the approved fixed prices for supported extension
   assert.equal(pricing.calculateDomainRenewalPrice(".org"), 3_700_000);
   assert.equal(pricing.calculateDomainPrice(".app"), 3_500_000);
   assert.equal(pricing.calculateDomainRenewalPrice(".app"), 4_200_000);
+  assert.equal(pricing.calculateDomainPrice(".io"), 11_500_000);
+  assert.equal(pricing.calculateDomainRenewalPrice(".io"), 13_500_000);
+  assert.equal(pricing.calculateDomainPrice(".ai"), 39_000_000);
+  assert.equal(pricing.calculateDomainRenewalPrice(".ai"), 41_500_000);
+  assert.equal(pricing.getDomainRegistrationYears(".ai"), 2);
+  assert.equal(pricing.getDomainRenewalYears(".ai"), 2);
+  assert.equal(pricing.calculateDomainPrice(".co"), 7_200_000);
+  assert.equal(pricing.calculateDomainRenewalPrice(".co"), 8_200_000);
 });

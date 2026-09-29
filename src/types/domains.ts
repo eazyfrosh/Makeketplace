@@ -19,7 +19,7 @@ export interface DomainOrder {
   registrarOrderId: string | null; providerDomainId?: string | null; idempotencyKey?: string; refundState?: "not_required" | "pending" | "completed" | "admin_review";
   registrant?: Registrant; registrarTermsAcceptedAt?: string; templateId?: "elite-broker" | "volterra"; templateSiteId?: string; templateSiteUrl?: string; errorMessage?: string; createdAt: string; updatedAt: string;
 }
-export interface DomainAvailability { domain: string; tld: string; available: boolean; priceCents: number; currency: "NGN"; }
+export interface DomainAvailability { domain: string; tld: string; available: boolean; priceCents: number; currency: "NGN"; registrationYears?: number; }
 export interface DnsRecord { host: string; type: DnsRecordType; value: string; ttl: number; priority?: number; }
 export interface Registrant { name: string; email: string; phone?: string; organization?: string; address?: string; city?: string; state?: string; country?: string; postalCode?: string; }
 export interface DomainDetails { domain: string; status: string; expiryDate: string | null; nameservers: string[]; dnsRecords: DnsRecord[]; registrant?: Registrant; }
@@ -30,6 +30,8 @@ export interface DomainPricing {
   minimumProfitCents: number;
   fixedRegistrationPriceMinor?: number;
   fixedRenewalPriceMinor?: number;
+  minimumRegistrationYears?: number;
+  minimumRenewalYears?: number;
 }
 export interface ResellerClubOptions { resellerId: string; apiKey: string; baseUrl: string; }
 
