@@ -126,6 +126,8 @@
   }
   html {
     color-scheme: light;
+    scroll-behavior: smooth;
+    overflow-x: clip;
   }
   body {
     background: var(--background);
@@ -135,11 +137,67 @@
       radial-gradient(circle at 94% 12%, color-mix(in oklab, #22d3ee 9%, transparent), transparent 28%),
       linear-gradient(180deg, color-mix(in oklab, #ffffff 82%, #f1ecff), var(--background) 34rem);
     background-attachment: fixed;
+    min-width: 320px;
+    overflow-x: clip;
+  }
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+  input,
+  textarea,
+  select {
+    min-width: 0;
+    max-width: 100%;
+  }
+  main {
+    min-width: 0;
   }
   .dark body {
     background-image:
       radial-gradient(circle at 10% -10%, color-mix(in oklab, var(--primary) 9%, transparent), transparent 30%),
       radial-gradient(circle at 95% 15%, color-mix(in oklab, #22d3ee 6%, transparent), transparent 25%);
+  }
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    scroll-margin: 6rem;
+  }
+}
+
+@layer utilities {
+  .page-shell {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 2rem 1rem 7rem;
+  }
+
+  .surface-card {
+    border: 1px solid var(--border);
+    border-radius: 1.25rem;
+    background: color-mix(in oklab, var(--card) 92%, transparent);
+    box-shadow: 0 16px 50px -38px color-mix(in oklab, var(--foreground) 35%, transparent);
+  }
+
+  @media (min-width: 640px) {
+    .page-shell { padding-inline: 1.5rem; padding-top: 4rem; }
+  }
+
+  @media (min-width: 1024px) {
+    .page-shell { padding-inline: 2rem; padding-bottom: 4rem; }
   }
 }
 

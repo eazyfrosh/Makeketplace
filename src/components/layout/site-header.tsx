@@ -57,7 +57,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full">
       <div className="glass border-b border-white/10">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-6 lg:px-8">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="EazyTool home">
             <Image src="/eazytools-logo-light.png" alt="EazyTool" width={1040} height={736} priority className="h-11 w-auto max-w-[132px] object-contain dark:hidden sm:h-14 sm:max-w-[160px]" />
             <Image src="/eazytools-logo-dark.png" alt="EazyTool" width={1040} height={736} priority className="hidden h-11 w-auto max-w-[132px] object-contain dark:block sm:h-14 sm:max-w-[160px]" />
