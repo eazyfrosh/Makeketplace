@@ -107,7 +107,7 @@ export default function AffiliateDashboardPage() {
           <h1 className="text-2xl font-semibold">Join the affiliate program</h1>
           <p className="text-muted-foreground mt-2">
             Get your own referral link and earn a commission on every purchase made by someone you refer to
-            Nexova.
+            EazyTool.
           </p>
           <Button className="mt-8" onClick={handleJoin} disabled={joining}>
             {joining ? "Joining…" : "Get my referral link"}

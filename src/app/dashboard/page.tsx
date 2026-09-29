@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Copy,
   FileText,
+  HandCoins,
   KeyRound,
   LayoutTemplate,
   Loader2,
@@ -65,6 +66,7 @@ const QUICK_ACTIONS = [
   { href: "/platform/email-designer", label: "Design an email", description: "Create a polished message", icon: Mail },
   { href: "/domains", label: "Buy a domain", description: "Find an address for your brand", icon: Globe2 },
   { href: "/wallet", label: "Fund your wallet", description: "Pay for eligible EazyTool services", icon: Plus },
+  { href: "/dashboard/affiliate", label: "Earn with EazyTool", description: "Share EazyTool and track rewards", icon: HandCoins },
 ];
 
 export default function DashboardPage() {
@@ -162,7 +164,7 @@ export default function DashboardPage() {
           </div>
           <Link href="/support" className="hidden text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline sm:block">Need help?</Link>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {QUICK_ACTIONS.map(({ href, label, description, icon: Icon }) => (
             <Link key={href} href={href} className="group flex min-h-36 flex-col justify-between rounded-2xl border bg-card p-4 transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-lg hover:shadow-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" /></span>

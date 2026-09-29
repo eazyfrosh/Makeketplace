@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Menu, Search, WalletCards, X } from "lucide-react";
+import { HandCoins, LayoutDashboard, Menu, Search, WalletCards, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -86,6 +86,7 @@ export function SiteHeader() {
                 <DropdownMenuTrigger asChild><button className="ml-1 flex items-center gap-2 rounded-full pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Open account menu"><Avatar className="size-8"><AvatarFallback>{user.name?.[0]?.toUpperCase() ?? "U"}</AvatarFallback></Avatar><span className="hidden max-w-24 truncate text-sm font-medium lg:block">{user.name?.split(" ")[0] ?? "Account"}</span></button></DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild><Link href="/dashboard"><LayoutDashboard className="size-4" />Dashboard</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard/affiliate"><HandCoins className="size-4" />Affiliate program</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link href="/dashboard/profile">Account settings</Link></DropdownMenuItem>
                   {user.role === "admin" && <DropdownMenuItem asChild><Link href="/admin">Admin area</Link></DropdownMenuItem>}
                   <DropdownMenuSeparator />
@@ -103,7 +104,7 @@ export function SiteHeader() {
       {mobileOpen && <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass border-b border-white/10 lg:hidden"><nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6" aria-label="Mobile navigation">
         {NAV_LINKS.map((link) => { const active = isActive(pathname, link.href); return <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={cn("rounded-xl px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground", active && "bg-accent text-foreground")}>{link.label}</Link>; })}
         <div className="my-2 h-px bg-border" />
-        {user ? <><Link href="/dashboard" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><LayoutDashboard className="size-4 text-primary" />Dashboard</Link><Link href="/wallet" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><WalletCards className="size-4 text-primary" />Wallet</Link><Link href="/dashboard/profile" className="rounded-xl px-3 py-3 text-sm font-medium">Account settings</Link><button onClick={() => logout()} className="rounded-xl px-3 py-3 text-left text-sm font-medium text-muted-foreground">Log out</button></> : <div className="flex gap-2 px-1 pt-1"><Button variant="secondary" size="sm" asChild className="flex-1"><Link href="/auth/login">Log in</Link></Button><Button size="sm" asChild className="flex-1"><Link href="/auth/signup">Get started</Link></Button></div>}
+        {user ? <><Link href="/dashboard" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><LayoutDashboard className="size-4 text-primary" />Dashboard</Link><Link href="/wallet" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><WalletCards className="size-4 text-primary" />Wallet</Link><Link href="/dashboard/affiliate" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><HandCoins className="size-4 text-primary" />Affiliate program</Link><Link href="/dashboard/profile" className="rounded-xl px-3 py-3 text-sm font-medium">Account settings</Link><button onClick={() => logout()} className="rounded-xl px-3 py-3 text-left text-sm font-medium text-muted-foreground">Log out</button></> : <div className="flex gap-2 px-1 pt-1"><Button variant="secondary" size="sm" asChild className="flex-1"><Link href="/auth/login">Log in</Link></Button><Button size="sm" asChild className="flex-1"><Link href="/auth/signup">Get started</Link></Button></div>}
       </nav></motion.div>}
     </header>
   );
