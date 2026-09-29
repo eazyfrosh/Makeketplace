@@ -270,6 +270,71 @@
   }
 }
 
+@media (max-width: 1279px) {
+  .email-designer-workspace[data-mobile-workspace="edit"] > section,
+  .email-designer-workspace[data-mobile-workspace="edit"] > div > section:last-child,
+  .email-designer-workspace[data-mobile-workspace="preview"] > div,
+  .email-designer-workspace[data-mobile-workspace="preview"] > section:last-child,
+  .email-designer-workspace[data-mobile-workspace="send"] > section:first-child,
+  .email-designer-workspace[data-mobile-workspace="send"] > div > section:first-child {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .email-designer-workspace > section:last-child {
+    overflow: hidden;
+  }
+
+  .email-designer-workspace > section:last-child > div {
+    overflow: visible;
+  }
+
+  .email-designer-workspace > section:last-child table,
+  .email-designer-workspace > section:last-child tbody,
+  .email-designer-workspace > section:last-child tr,
+  .email-designer-workspace > section:last-child td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .email-designer-workspace > section:last-child thead {
+    display: none;
+  }
+
+  .email-designer-workspace > section:last-child tr {
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 0.875rem;
+    padding: 0.75rem;
+  }
+
+  .email-designer-workspace > section:last-child td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.35rem;
+    overflow-wrap: anywhere;
+    text-align: right;
+    white-space: normal;
+  }
+
+  .email-designer-workspace > section:last-child td::before {
+    flex-shrink: 0;
+    color: var(--muted-foreground);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .email-designer-workspace > section:last-child td:nth-child(1)::before { content: "Recipient"; }
+  .email-designer-workspace > section:last-child td:nth-child(2)::before { content: "Subject"; }
+  .email-designer-workspace > section:last-child td:nth-child(3)::before { content: "Type"; }
+  .email-designer-workspace > section:last-child td:nth-child(4)::before { content: "Status"; }
+  .email-designer-workspace > section:last-child td:nth-child(5)::before { content: "Date"; }
+}
+
 /* Homepage-specific art direction: editorial contrast over the shared system. */
 .home-display {
   font-family: Georgia, "Times New Roman", serif;
