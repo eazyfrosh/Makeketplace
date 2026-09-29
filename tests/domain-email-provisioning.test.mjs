@@ -78,7 +78,20 @@ test("availability uses the signed connector while every purchase path stays fea
   assert.match(connector, /X-EazyTool-Timestamp/);
   assert.match(connector, /X-EazyTool-Nonce/);
   assert.match(search, /isResellerClubAvailabilityConfigured/);
+  const facade = read("../src/lib/resellerclub.ts");
+  assert.match(facade, /DOMAIN_REGISTRATION_CERTIFIED/);
+  assert.match(facade, /connectorDomainProvider\.isConfigured/);
   for (const route of ["initialize", "wallet", "verify"]) {
     assert.match(read(`../src/app/api/domains/checkout/${route}/route.ts`), /areDomainPurchasesEnabled/);
   }
+});
+
+test("connector registration uses an independent Droplet kill switch and idempotency store", () => {
+  const connector = read("../scripts/resellerclub-connector/connector.py");
+  const server = read("../scripts/resellerclub-connector/server.py");
+  assert.match(connector, /RESELLERCLUB_REGISTRATION_ENABLED/);
+  assert.match(connector, /REGISTRATION_DISABLED/);
+  assert.match(connector, /CREATE TABLE IF NOT EXISTS operations/);
+  assert.match(server, /X-EazyTool-Signature/);
+  assert.ok(!server.includes("api-key"));
 });

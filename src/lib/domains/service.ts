@@ -1,5 +1,5 @@
 import { DomainProviderError, domainServiceUnavailableMessage, requireDomainProvider } from "@/lib/domains/provider";
-import { resellerClubDomainProvider } from "@/lib/domains/resellerclub-provider";
+import { connectorDomainProvider } from "@/lib/domains/connector-client";
 import { claimDomainRegistration, getDomainForUser, getDomainOrder, getDomainOrderByReference, saveDomain, saveDomainOrder } from "@/lib/domains/store";
 import { provisionEmailDomain } from "@/lib/email-domains/provisioning";
 import { getTld, type DomainRecord, type Registrant } from "@/types/domains";
@@ -11,7 +11,7 @@ export async function registerPaidDomain(reference: string, userId: string, regi
   if (await getDomainForUser(order.domain, userId)) return order;
   const now = new Date().toISOString();
   let provider;
-  try { provider = requireDomainProvider(resellerClubDomainProvider); }
+  try { provider = requireDomainProvider(connectorDomainProvider); }
   catch {
     const unavailable = { ...order, paymentStatus: "admin_review" as const, registrationStatus: "failed" as const, refundState: "admin_review" as const, errorMessage: domainServiceUnavailableMessage, updatedAt: now };
     await saveDomainOrder(unavailable);
