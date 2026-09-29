@@ -26,9 +26,9 @@ test("automated tests may use a mock provider without adding mock behavior to pr
 test("provider availability is checked before wallet debit or Paystack checkout", () => {
   const wallet = read("../src/app/api/domains/checkout/wallet/route.ts");
   const paystack = read("../src/app/api/domains/checkout/initialize/route.ts");
-  assert.ok(wallet.indexOf("!isResellerClubConfigured()") < wallet.indexOf("purchaseWithWallet({"));
-  assert.ok(paystack.indexOf("!isResellerClubConfigured()") < paystack.indexOf("transaction/initialize"));
-  for (const source of [wallet, paystack]) assert.match(source, /PROVIDER_NOT_CONFIGURED/);
+  assert.ok(wallet.indexOf("!areDomainPurchasesEnabled()") < wallet.indexOf("purchaseWithWallet({"));
+  assert.ok(paystack.indexOf("!areDomainPurchasesEnabled()") < paystack.indexOf("transaction/initialize"));
+  for (const source of [wallet, paystack]) assert.match(source, /DOMAIN_PURCHASES_DISABLED/);
 });
 
 test("registration, wallet reversal, payment verification and retries are idempotent", () => {
@@ -69,4 +69,16 @@ test("ResellerClub buyer accounts are per-user and not global environment config
 test("production UI has no fake registrar success and manual DNS cannot claim an update", () => {
   const domainPage = read("../src/app/domains/page.tsx"); const manage = read("../src/app/api/domains/manage/route.ts");
   assert.match(domainPage, /Domain service is being configured/); assert.ok(!manage.includes("saveDomain(")); assert.match(manage, /No DNS change was made/);
+});
+
+test("availability uses the signed connector while every purchase path stays feature-flagged", () => {
+  const connector = read("../src/lib/domains/connector-client.ts");
+  const search = read("../src/app/api/domains/search/route.ts");
+  assert.match(connector, /createHmac\("sha256"/);
+  assert.match(connector, /X-EazyTool-Timestamp/);
+  assert.match(connector, /X-EazyTool-Nonce/);
+  assert.match(search, /isResellerClubAvailabilityConfigured/);
+  for (const route of ["initialize", "wallet", "verify"]) {
+    assert.match(read(`../src/app/api/domains/checkout/${route}/route.ts`), /areDomainPurchasesEnabled/);
+  }
 });
