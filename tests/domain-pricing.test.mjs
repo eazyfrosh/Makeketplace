@@ -12,10 +12,16 @@ test("server-side .com registration and renewal prices use approved integer kobo
   assert.ok(!source.includes("process.env.NEXT_PUBLIC"));
 });
 
-test("compiled pricing returns ₦24,000 registration and ₦30,000 renewal", async () => {
+test("compiled pricing returns the approved fixed prices for supported extensions", async () => {
   const standalone = source.replace(/^import .*$/m, "const COMMON_TLDS = ['.com'];").replace(/: Record<string, DomainPricing>/g, "").replace(/: DomainPricing/g, "").replace(/: string/g, "").replace(/, registrarCostCents =/g, ", registrarCostCents =");
   const { outputText } = ts.transpileModule(standalone, { compilerOptions: { module: ts.ModuleKind.ESNext } });
   const pricing = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`);
   assert.equal(pricing.calculateDomainPrice(".com"), 2_400_000);
   assert.equal(pricing.calculateDomainRenewalPrice(".com"), 3_000_000);
+  assert.equal(pricing.calculateDomainPrice(".net"), 2_900_000);
+  assert.equal(pricing.calculateDomainRenewalPrice(".net"), 3_600_000);
+  assert.equal(pricing.calculateDomainPrice(".org"), 3_100_000);
+  assert.equal(pricing.calculateDomainRenewalPrice(".org"), 3_700_000);
+  assert.equal(pricing.calculateDomainPrice(".app"), 3_500_000);
+  assert.equal(pricing.calculateDomainRenewalPrice(".app"), 4_200_000);
 });
