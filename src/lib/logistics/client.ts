@@ -1,7 +1,7 @@
 "use client";
 
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
-import type { Shipment, ShipmentMessage, TrackingEvent } from "@/lib/logistics/types";
+import type { Shipment, ShipmentEmailNotification, ShipmentMessage, TrackingEvent } from "@/lib/logistics/types";
 import type { ShipmentFormValues } from "@/lib/logistics/validation";
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
@@ -50,6 +50,17 @@ export function getShipmentMessages(id: string): Promise<{ messages: ShipmentMes
 
 export function sendShipmentMessage(id: string, text: string): Promise<{ message: ShipmentMessage }> {
   return api(`/api/logistics/shipments/${id}/messages`, { method: "POST", body: JSON.stringify({ text }) });
+}
+
+export function sendShipmentStatusEmail(
+  id: string,
+  input: { recipientEmail: string; eventId?: string; requestId: string; recipientConfirmed: true },
+): Promise<{ notification: ShipmentEmailNotification; duplicate?: boolean }> {
+  return api(`/api/logistics/shipments/${id}/email`, { method: "POST", body: JSON.stringify(input) });
+}
+
+export function getShipmentEmailNotifications(id: string): Promise<{ notifications: ShipmentEmailNotification[]; emailConfigured: boolean }> {
+  return api(`/api/logistics/shipments/${id}/email`);
 }
 
 export function getAdminShipments(): Promise<{ shipments: Shipment[] }> {

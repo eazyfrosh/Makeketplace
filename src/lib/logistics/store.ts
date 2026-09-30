@@ -2,13 +2,15 @@
 // under its own collection names so it can never collide with anything the
 // marketplace or the licensing system already uses.
 import { adminDb, isAdminDbConfigured } from "@/lib/licensing/admin-db";
-import type { Shipment, ShipmentMessage, TrackingEvent } from "@/lib/logistics/types";
+import type { Shipment, ShipmentEmailNotification, ShipmentMessage, TrackingEvent } from "@/lib/logistics/types";
 
 export const isLogisticsBackendDurable = isAdminDbConfigured;
 
 const SHIPMENTS = "logisticsShipments";
 const EVENTS = "logisticsTrackingEvents";
 const MESSAGES = "logisticsMessages";
+const EMAILS = "logisticsEmailNotifications";
+const EMAIL_LIMITS = "logisticsEmailRateLimits";
 
 declare global {
   var __nexovaLogisticsDemoStore:
@@ -16,14 +18,18 @@ declare global {
         shipments: Map<string, Shipment>;
         events: Map<string, TrackingEvent>;
         messages: Map<string, ShipmentMessage>;
+        emails: Map<string, ShipmentEmailNotification>;
+        emailLimits: Map<string, { windowStartedAt: number; count: number }>;
       }
     | undefined;
 }
 
 function demoStore() {
   if (!global.__nexovaLogisticsDemoStore) {
-    global.__nexovaLogisticsDemoStore = { shipments: new Map(), events: new Map(), messages: new Map() };
+    global.__nexovaLogisticsDemoStore = { shipments: new Map(), events: new Map(), messages: new Map(), emails: new Map(), emailLimits: new Map() };
   }
+  global.__nexovaLogisticsDemoStore.emails ??= new Map();
+  global.__nexovaLogisticsDemoStore.emailLimits ??= new Map();
   return global.__nexovaLogisticsDemoStore;
 }
 
@@ -113,4 +119,63 @@ export async function getMessagesForShipment(shipmentId: string): Promise<Shipme
     return snap.docs.map((d) => d.data() as ShipmentMessage);
   }
   return Array.from(demoStore().messages.values()).filter((m) => m.shipmentId === shipmentId);
+}
+
+export async function claimShipmentEmailSend(notification: ShipmentEmailNotification): Promise<"claimed" | "duplicate"> {
+  if (adminDb) {
+    const notificationRef = adminDb.collection(EMAILS).doc(notification.id);
+    const limitRef = adminDb.collection(EMAIL_LIMITS).doc(notification.userId);
+    return adminDb.runTransaction(async (transaction) => {
+      const [existing, limitSnapshot] = await Promise.all([transaction.get(notificationRef), transaction.get(limitRef)]);
+      if (existing.exists) return "duplicate";
+
+      const now = Date.now();
+      const windowMs = 10 * 60 * 1000;
+      const maximum = Math.max(1, Number(process.env.LOGISTICS_EMAIL_RATE_LIMIT ?? 10));
+      const previous = limitSnapshot.data() as { windowStartedAt?: number; count?: number } | undefined;
+      const inWindow = previous?.windowStartedAt && now - previous.windowStartedAt < windowMs;
+      const count = inWindow ? Number(previous?.count ?? 0) : 0;
+      if (count >= maximum) throw new Error("LOGISTICS_EMAIL_RATE_LIMITED");
+
+      transaction.create(notificationRef, stripUndefined(notification));
+      transaction.set(limitRef, { windowStartedAt: inWindow ? previous?.windowStartedAt : now, count: count + 1, updatedAt: notification.createdAt });
+      return "claimed";
+    });
+  }
+
+  const store = demoStore();
+  if (store.emails.has(notification.id)) return "duplicate";
+  const now = Date.now();
+  const previous = store.emailLimits.get(notification.userId);
+  const inWindow = Boolean(previous && now - previous.windowStartedAt < 10 * 60 * 1000);
+  const count = inWindow ? previous!.count : 0;
+  const maximum = Math.max(1, Number(process.env.LOGISTICS_EMAIL_RATE_LIMIT ?? 10));
+  if (count >= maximum) throw new Error("LOGISTICS_EMAIL_RATE_LIMITED");
+  store.emails.set(notification.id, notification);
+  store.emailLimits.set(notification.userId, { windowStartedAt: inWindow ? previous!.windowStartedAt : now, count: count + 1 });
+  return "claimed";
+}
+
+export async function getShipmentEmailNotification(id: string): Promise<ShipmentEmailNotification | null> {
+  if (adminDb) {
+    const snapshot = await adminDb.collection(EMAILS).doc(id).get();
+    return snapshot.exists ? (snapshot.data() as ShipmentEmailNotification) : null;
+  }
+  return demoStore().emails.get(id) ?? null;
+}
+
+export async function updateShipmentEmailNotification(notification: ShipmentEmailNotification): Promise<void> {
+  if (adminDb) {
+    await adminDb.collection(EMAILS).doc(notification.id).set(stripUndefined(notification));
+    return;
+  }
+  demoStore().emails.set(notification.id, notification);
+}
+
+export async function getShipmentEmails(shipmentId: string, userId: string): Promise<ShipmentEmailNotification[]> {
+  if (adminDb) {
+    const snapshot = await adminDb.collection(EMAILS).where("shipmentId", "==", shipmentId).get();
+    return snapshot.docs.map((document) => document.data() as ShipmentEmailNotification).filter((item) => item.userId === userId).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+  return Array.from(demoStore().emails.values()).filter((item) => item.shipmentId === shipmentId && item.userId === userId).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }

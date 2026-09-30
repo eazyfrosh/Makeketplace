@@ -32,20 +32,26 @@ export function getRecentDemoEmails(limit = 20): SentEmailRecord[] {
  * the flow stays fully testable with zero email-provider setup, matching the
  * app's existing "demo mode" fallback pattern for payments.
  */
-export async function sendEmail(params: { to: string; subject: string; html: string }): Promise<void> {
+export async function sendEmail(params: { to: string; subject: string; html: string; text?: string; idempotencyKey?: string; from?: string }): Promise<{ id: string; provider: "resend" | "demo" }> {
   if (isEmailConfigured && resend) {
-    await resend.emails.send({ from: FROM, to: params.to, subject: params.subject, html: params.html });
-    return;
+    const result = await resend.emails.send(
+      { from: params.from ?? FROM, to: params.to, subject: params.subject, html: params.html, text: params.text },
+      params.idempotencyKey ? { idempotencyKey: params.idempotencyKey } : undefined,
+    );
+    if (result.error || !result.data?.id) throw new Error(result.error?.message ?? "Email provider rejected the message.");
+    return { id: result.data.id, provider: "resend" };
   }
 
   console.warn(
     `[email:demo] RESEND_API_KEY not set — logging instead of sending. To: ${params.to} | Subject: ${params.subject}`,
   );
+  const id = `email_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   demoLog().push({
-    id: `email_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    id,
     to: params.to,
     subject: params.subject,
     html: params.html,
     createdAt: new Date().toISOString(),
   });
+  return { id, provider: "demo" };
 }

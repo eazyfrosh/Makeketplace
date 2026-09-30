@@ -118,3 +118,22 @@ export interface ShipmentMessage {
   text: string;
   createdAt: string;
 }
+
+export type ShipmentEmailStatus = "pending" | "sent" | "failed";
+
+export interface ShipmentEmailNotification {
+  id: string;
+  userId: string;
+  shipmentId: string;
+  eventId: string;
+  trackingNumber: string;
+  shipmentStatus: ShipmentStatus;
+  recipientEmail: string;
+  subject: string;
+  provider: "resend";
+  providerMessageId?: string;
+  status: ShipmentEmailStatus;
+  errorMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+}

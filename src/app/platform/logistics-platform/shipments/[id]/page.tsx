@@ -5,8 +5,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { ArrowLeft, MessageCircle, Pencil, PlusCircle, Send } from "lucide-react";
-import { getShipment, addTrackingEvent, getShipmentMessages, sendShipmentMessage } from "@/lib/logistics/client";
+import { ArrowLeft, CheckCircle2, Mail, MessageCircle, Pencil, PlusCircle, Send } from "lucide-react";
+import { getShipment, addTrackingEvent, getShipmentMessages, sendShipmentMessage, sendShipmentStatusEmail } from "@/lib/logistics/client";
 import { cn } from "@/lib/utils";
 import { CarrierThemeScope } from "@/components/logistics/carrier-theme-scope";
 import { CarrierLogo } from "@/components/logistics/carrier-logo";
@@ -20,6 +20,7 @@ import { LoadingState } from "@/components/logistics/ui/loading-state";
 import { getCarrier } from "@/lib/logistics/data/carriers";
 import { SERVICE_LABELS, SHIPMENT_STATUSES, STATUS_LABELS } from "@/lib/logistics/types";
 import { formatCurrency, formatDateLong } from "@/lib/logistics/format";
+import { LOGISTICS_EMAIL_STATUS_COPY, getShipmentEmailSubject } from "@/lib/logistics/email-templates";
 import type { Shipment, ShipmentMessage, ShipmentStatus, TrackingEvent } from "@/lib/logistics/types";
 
 interface EventFormValues {
@@ -123,6 +124,103 @@ function ShipmentChatCard({ shipmentId }: { shipmentId: string }) {
             <Send size={15} />
           </Button>
         </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function createEmailRequestId() {
+  const random = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID().replaceAll("-", "") : `${Date.now()}${Math.random().toString(36).slice(2)}`;
+  return `logemail_${random}`;
+}
+
+function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: TrackingEvent[] }) {
+  const sortedEvents = [...events].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+  const [recipientEmail, setRecipientEmail] = useState(shipment.receiver.email);
+  const [eventId, setEventId] = useState(sortedEvents[0]?.id ?? "current");
+  const [confirmed, setConfirmed] = useState(false);
+  const [sending, setSending] = useState(false);
+  const selectedEvent = sortedEvents.find((event) => event.id === eventId);
+  const selectedStatus = selectedEvent?.status ?? shipment.status;
+  const template = LOGISTICS_EMAIL_STATUS_COPY[selectedStatus];
+
+  useEffect(() => {
+    if (sortedEvents[0] && !sortedEvents.some((event) => event.id === eventId)) setEventId(sortedEvents[0].id);
+  }, [eventId, sortedEvents]);
+
+  async function handleSend() {
+    if (sending || !recipientEmail.trim() || !confirmed) return;
+    setSending(true);
+    try {
+      await sendShipmentStatusEmail(shipment.id, {
+        recipientEmail: recipientEmail.trim(),
+        eventId: selectedEvent?.id,
+        requestId: createEmailRequestId(),
+        recipientConfirmed: true,
+      });
+      toast.success(`Shipment update sent to ${recipientEmail.trim()}.`);
+      setConfirmed(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "The shipment email could not be sent.");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <Card className="mt-6 overflow-hidden">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Mail size={17} /> Email a shipment update
+        </CardTitle>
+        <p className="text-sm text-foreground/55">Choose a tracking event and send its matching status template to the recipient.</p>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="space-y-4">
+            <div>
+              <Label>Recipient email</Label>
+              <Input type="email" value={recipientEmail} onChange={(event) => setRecipientEmail(event.target.value)} placeholder="customer@example.com" autoComplete="email" />
+              <p className="mt-1.5 text-xs text-foreground/45">The receiver&apos;s email is filled in automatically, but you can change it.</p>
+            </div>
+            <div>
+              <Label>Tracking update</Label>
+              <Select value={eventId} onChange={(event) => setEventId(event.target.value)}>
+                {sortedEvents.length === 0 ? (
+                  <option value="current">Current status — {STATUS_LABELS[shipment.status]}</option>
+                ) : (
+                  sortedEvents.map((event) => <option key={event.id} value={event.id}>{STATUS_LABELS[event.status]} — {event.location}</option>)
+                )}
+              </Select>
+            </div>
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-foreground/10 bg-black/[0.02] p-3.5 dark:bg-white/[0.03]">
+              <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-0.5 size-4 accent-[var(--carrier-primary)]" />
+              <span className="text-xs leading-5 text-foreground/65">I confirm this recipient is connected to the shipment and can receive its status updates.</span>
+            </label>
+            <Button type="button" variant="carrier" className="w-full sm:w-auto" disabled={sending || !confirmed || !recipientEmail.trim()} onClick={handleSend}>
+              {sending ? <><span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> Sending…</> : <><Send size={15} /> Send status email</>}
+            </Button>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-foreground/10 bg-white text-slate-900 shadow-sm">
+            <div className="h-1.5" style={{ backgroundColor: template.color }} />
+            <div className="p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-extrabold">TrackNova</span>
+                <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: `${template.color}16`, color: template.color }}>{template.eyebrow}</span>
+              </div>
+              <p className="mt-6 text-xs font-bold uppercase tracking-[0.14em]" style={{ color: template.color }}>Email preview</p>
+              <h3 className="mt-2 text-xl font-bold leading-tight sm:text-2xl">{template.heading}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">Hello {shipment.receiver.name || "Customer"}, {template.message}</p>
+              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs">
+                <div className="flex justify-between gap-3"><span className="text-slate-500">Tracking number</span><span className="font-mono font-bold">{shipment.trackingNumber}</span></div>
+                <div className="mt-3 flex justify-between gap-3 border-t border-slate-200 pt-3"><span className="text-slate-500">Status</span><span className="font-bold" style={{ color: template.color }}>{STATUS_LABELS[selectedStatus]}</span></div>
+                <div className="mt-3 flex justify-between gap-3 border-t border-slate-200 pt-3"><span className="text-slate-500">Location</span><span className="text-right font-semibold">{selectedEvent?.location || `${shipment.receiver.city}, ${shipment.receiver.country}`}</span></div>
+              </div>
+              <div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><CheckCircle2 size={14} style={{ color: template.color }} /><span>Subject: {getShipmentEmailSubject(shipment, selectedStatus)}</span></div>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -249,6 +347,8 @@ export default function ShipmentDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      <ShipmentEmailCard shipment={shipment} events={events} />
 
       <Card className="mt-6">
         <CardHeader><CardTitle>Tracking history</CardTitle></CardHeader>

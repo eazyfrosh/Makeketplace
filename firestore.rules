@@ -54,6 +54,12 @@ service cloud.firestore {
     match /logisticsMessages/{messageId} {
       allow read, write: if false;
     }
+    match /logisticsEmailNotifications/{notificationId} {
+      allow read, write: if false;
+    }
+    match /logisticsEmailRateLimits/{userId} {
+      allow read, write: if false;
+    }
 
     // Banking Platform accounts/cards/transactions/PIN profiles/rate limits —
     // same server-mediated-only pattern, via the authenticated /api/banking
