@@ -1,6 +1,6 @@
 import "server-only";
 import { SignJWT, jwtVerify, errors as joseErrors } from "jose";
-import { randomBytes } from "crypto";
+import { createHash, randomBytes } from "crypto";
 
 const SESSION_TTL_SECONDS = 12 * 60 * 60; // 12 hours
 
@@ -17,11 +17,24 @@ function getSecret(): Uint8Array {
   if (process.env.BANKING_SESSION_JWT_SECRET) {
     return new TextEncoder().encode(process.env.BANKING_SESSION_JWT_SECRET);
   }
+
+  // Vercel can execute login and verification on different function
+  // instances. A per-process random fallback therefore creates tokens that
+  // another instance cannot verify. If the private NovaBank connector secret
+  // is configured, derive a separate, context-bound session key from it. The
+  // original connector secret is never exposed or used directly as a JWT key.
+  if (process.env.NOVABANK_SSO_SHARED_SECRET) {
+    return createHash("sha256")
+      .update("eazytool:banking-session:v1\0")
+      .update(process.env.NOVABANK_SSO_SHARED_SECRET)
+      .digest();
+  }
+
   if (!global.__nexovaBankingDevSecret) {
     global.__nexovaBankingDevSecret = randomBytes(32);
     console.warn(
       "[banking] BANKING_SESSION_JWT_SECRET is not set — using a random per-boot secret. " +
-        "Set BANKING_SESSION_JWT_SECRET in production so banking sessions stay valid across restarts/instances.",
+        "Set BANKING_SESSION_JWT_SECRET (or NOVABANK_SSO_SHARED_SECRET) in production so banking sessions stay valid across restarts/instances.",
     );
   }
   return global.__nexovaBankingDevSecret;

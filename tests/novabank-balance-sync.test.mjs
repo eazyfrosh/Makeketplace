@@ -18,6 +18,10 @@ const sync = readFileSync(
   new URL("../src/lib/banking/novabank-sync.ts", import.meta.url),
   "utf8",
 );
+const bankingSession = readFileSync(
+  new URL("../src/lib/banking/session.ts", import.meta.url),
+  "utf8",
+);
 
 test("admin balance adjustments synchronize only after the local ledger write", () => {
   const ledgerWrite = adjustment.indexOf("await createTransaction(tx)");
@@ -49,4 +53,10 @@ test("NovaBank sync derives identity and financial data on the server", () => {
   assert.match(sync, /getTransactionsForUser\(userId\)/);
   assert.match(sync, /NOVABANK_SSO_SHARED_SECRET/);
   assert.match(sync, /cache: "no-store"/);
+});
+
+test("banking sessions use a stable server-side key across Vercel instances", () => {
+  assert.match(bankingSession, /process\.env\.BANKING_SESSION_JWT_SECRET/);
+  assert.match(bankingSession, /process\.env\.NOVABANK_SSO_SHARED_SECRET/);
+  assert.match(bankingSession, /createHash\("sha256"\)/);
 });
