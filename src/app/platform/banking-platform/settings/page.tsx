@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { KeyRound, Loader2, Snowflake, Sparkles, Sun, User } from "lucide-react";
+import { CreditCard, KeyRound, Loader2, ReceiptText, Snowflake, Sparkles, Sun, User } from "lucide-react";
 import { toast } from "sonner";
 
 import { useBankingAccount } from "@/lib/banking/use-account";
@@ -306,20 +306,27 @@ export default function BankingSettingsPage() {
               </CardContent>
             </Card>
 
-            <p className="text-muted-foreground mt-6 text-xs">
-              Looking to freeze or unblock your card instead? That&apos;s on the{" "}
-              <Link href="/platform/banking-platform/cards" className="text-primary underline-offset-4 hover:underline">
-                Cards page
-              </Link>
-              . Want to edit a transaction&apos;s receipt (description, reference, status)? Each transaction on the{" "}
-              <Link
-                href="/platform/banking-platform/transactions"
-                className="text-primary underline-offset-4 hover:underline"
-              >
-                Transactions page
-              </Link>{" "}
-              has its own Edit button.
-            </p>
+            <div className="mt-6 rounded-xl border bg-muted/30 p-4">
+              <p className="text-sm font-medium">Manage cards and transaction receipts</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Freeze or unblock a card from Cards. Edit a receipt&apos;s description, reference, or status from
+                Transactions.
+              </p>
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <Button asChild variant="outline" className="w-full sm:w-auto">
+                  <Link href="/platform/banking-platform/cards">
+                    <CreditCard className="size-4" />
+                    Open Cards page
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="w-full sm:w-auto">
+                  <Link href="/platform/banking-platform/transactions">
+                    <ReceiptText className="size-4" />
+                    Open Transactions page
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </>
         )
       )}

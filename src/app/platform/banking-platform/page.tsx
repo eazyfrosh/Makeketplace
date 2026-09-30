@@ -75,7 +75,7 @@ export default function BankingDashboardPage() {
               <Button variant="outline" size="sm" asChild>
                 <Link href="/platform/banking-platform/settings">
                   <Settings className="size-3.5" />
-                  Settings
+                  Admin Setting
                 </Link>
               </Button>
             </div>
