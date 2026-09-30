@@ -91,7 +91,12 @@ export function adjustOwnBalance(input: {
   direction: "credit" | "debit";
   amount: number;
   description: string;
-}): Promise<{ balance: number; transaction: Transaction }> {
+}): Promise<{
+  balance: number;
+  transaction: Transaction;
+  novaBankSynced: boolean;
+  syncWarning: string | null;
+}> {
   return api("/api/banking/account/adjust-balance", { method: "POST", body: JSON.stringify(input) });
 }
 

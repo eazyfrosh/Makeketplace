@@ -6,6 +6,10 @@ const adjustment = readFileSync(
   new URL("../src/app/api/banking/admin/users/[uid]/adjust-balance/route.ts", import.meta.url),
   "utf8",
 );
+const selfAdjustment = readFileSync(
+  new URL("../src/app/api/banking/account/adjust-balance/route.ts", import.meta.url),
+  "utf8",
+);
 const sync = readFileSync(
   new URL("../src/lib/banking/novabank-sync.ts", import.meta.url),
   "utf8",
@@ -17,6 +21,14 @@ test("admin balance adjustments synchronize only after the local ledger write", 
   assert.ok(ledgerWrite >= 0);
   assert.ok(externalSync > ledgerWrite);
   assert.match(adjustment, /novaBankSynced: sync\.ok/);
+});
+
+test("self-service demo adjustments synchronize only after the local ledger write", () => {
+  const ledgerWrite = selfAdjustment.indexOf("await createTransaction(tx)");
+  const externalSync = selfAdjustment.indexOf("await syncUserToNovaBank(caller.uid)");
+  assert.ok(ledgerWrite >= 0);
+  assert.ok(externalSync > ledgerWrite);
+  assert.match(selfAdjustment, /novaBankSynced: sync\.ok/);
 });
 
 test("NovaBank sync derives identity and financial data on the server", () => {

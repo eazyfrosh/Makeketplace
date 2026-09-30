@@ -112,8 +112,16 @@ export default function BankingSettingsPage() {
     }
     setApplyingDemoFunds(true);
     try {
-      await adjustOwnBalance({ direction: demoDirection, amount, description: demoReason.trim() });
-      toast.success("Demo funds applied.");
+      const result = await adjustOwnBalance({
+        direction: demoDirection,
+        amount,
+        description: demoReason.trim(),
+      });
+      if (result.novaBankSynced) {
+        toast.success("Demo funds applied and synchronized with NovaBank.");
+      } else {
+        toast.warning(result.syncWarning ?? "Demo funds were saved, but NovaBank could not be updated yet.");
+      }
       setDemoAmount("");
       setDemoReason("");
       await reload();

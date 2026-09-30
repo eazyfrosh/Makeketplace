@@ -4,6 +4,7 @@ import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { verifyBankingSession } from "@/lib/banking/session";
 import { generateReference } from "@/lib/banking/format";
 import { createTransaction, getAccountForUser, updateAccount } from "@/lib/banking/store";
+import { syncUserToNovaBank } from "@/lib/banking/novabank-sync";
 import type { Transaction } from "@/lib/banking/types";
 
 interface AdjustBody {
@@ -70,5 +71,16 @@ export async function POST(request: Request) {
   };
   await createTransaction(tx);
 
-  return NextResponse.json({ balance: newBalance, transaction: tx });
+  // Keep the standalone NovaBank dashboard in step with the authoritative
+  // EazyTool demo ledger. This must happen after both local writes so a
+  // temporary NovaBank outage never causes the financial mutation to run
+  // twice when the user retries.
+  const sync = await syncUserToNovaBank(caller.uid);
+
+  return NextResponse.json({
+    balance: newBalance,
+    transaction: tx,
+    novaBankSynced: sync.ok,
+    syncWarning: sync.ok ? null : sync.error,
+  });
 }
