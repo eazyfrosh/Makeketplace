@@ -3765,3 +3765,22 @@
 .receiptlab-root .mini-gcash > img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 12px; }
 
 .receiptlab-root .chase-brand img { width: 24cqw; height: 12cqw; object-fit: contain; object-position: left center; display: block; }
+
+
+/* Wells Fargo reference layout: keep labels and values in stable, non-overlapping columns. */
+.receiptlab-root .wells-details > div {
+  grid-template-columns: 132px minmax(0, 1fr);
+  min-height: 60px;
+  align-items: start;
+}
+.receiptlab-root .wells-details b {
+  min-width: 0;
+  font-size: 15px;
+  line-height: 1.2;
+}
+.receiptlab-root .wells-details span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  line-height: 1.3;
+}
