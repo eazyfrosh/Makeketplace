@@ -68,6 +68,8 @@ export function getAccount(): Promise<{
   transactions: Transaction[];
   hasPin: boolean;
   profile: { email: string | null; firstName: string | null; lastName: string | null };
+  novaBankSynced: boolean;
+  syncWarning: string | null;
 }> {
   return api("/api/banking/account");
 }

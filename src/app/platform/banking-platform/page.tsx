@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeftRight, ArrowRight, ExternalLink, Loader2, Settings, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ArrowLeftRight, ArrowRight, ExternalLink, Loader2, Settings, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/auth-context";
@@ -97,6 +97,18 @@ export default function BankingDashboardPage() {
             </Card>
           )}
         </div>
+
+        {data && !data.novaBankSynced && (
+          <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600" />
+            <div>
+              <p className="font-medium">NovaBank synchronization needs attention</p>
+              <p className="mt-1 text-muted-foreground">
+                {data.syncWarning ?? "Your EazyTool balance is safe, but NovaBank could not be updated."}
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-3">
           <Link

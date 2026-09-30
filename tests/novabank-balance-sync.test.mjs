@@ -10,6 +10,10 @@ const selfAdjustment = readFileSync(
   new URL("../src/app/api/banking/account/adjust-balance/route.ts", import.meta.url),
   "utf8",
 );
+const accountRead = readFileSync(
+  new URL("../src/app/api/banking/account/route.ts", import.meta.url),
+  "utf8",
+);
 const sync = readFileSync(
   new URL("../src/lib/banking/novabank-sync.ts", import.meta.url),
   "utf8",
@@ -29,6 +33,14 @@ test("self-service demo adjustments synchronize only after the local ledger writ
   assert.ok(ledgerWrite >= 0);
   assert.ok(externalSync > ledgerWrite);
   assert.match(selfAdjustment, /novaBankSynced: sync\.ok/);
+});
+
+test("loading the EazyTool banking account reconciles older data with NovaBank", () => {
+  const localLoad = accountRead.indexOf("await getOrBootstrapAccount(");
+  const externalSync = accountRead.indexOf("await syncUserToNovaBank(caller.uid)");
+  assert.ok(localLoad >= 0);
+  assert.ok(externalSync > localLoad);
+  assert.match(accountRead, /novaBankSynced: sync\.ok/);
 });
 
 test("NovaBank sync derives identity and financial data on the server", () => {

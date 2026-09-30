@@ -11,6 +11,8 @@ interface AccountState {
   transactions: Transaction[];
   hasPin: boolean;
   profile: { email: string | null; firstName: string | null; lastName: string | null };
+  novaBankSynced: boolean;
+  syncWarning: string | null;
 }
 
 export function useBankingAccount() {

@@ -4,6 +4,7 @@ import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { verifyBankingSession } from "@/lib/banking/session";
 import { getOrBootstrapAccount } from "@/lib/banking/bootstrap";
 import { getBankingProfile } from "@/lib/banking/store";
+import { syncUserToNovaBank } from "@/lib/banking/novabank-sync";
 
 export async function GET(request: Request) {
   const caller = await verifyCaller(request);
@@ -24,11 +25,21 @@ export async function GET(request: Request) {
     `${profile.firstName ?? caller.email.split("@")[0] ?? "CARDHOLDER"}`,
   );
 
+  // Reconcile the standalone NovaBank view whenever the authoritative
+  // EazyTool banking dashboard loads. This also repairs older adjustments
+  // that were saved before automatic synchronization was introduced, and
+  // removes any requirement to enter NovaBank through a special SSO link.
+  // The operation is idempotent: NovaBank overwrites the mirrored balance
+  // and transaction documents using stable identifiers.
+  const sync = await syncUserToNovaBank(caller.uid);
+
   return NextResponse.json({
     account,
     card: { ...card, cardNumber: undefined, cvv: undefined, pin: undefined },
     transactions: transactions.sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     hasPin: Boolean(profile?.transactionPin),
     profile: { email: profile.email, firstName: profile.firstName, lastName: profile.lastName },
+    novaBankSynced: sync.ok,
+    syncWarning: sync.ok ? null : sync.error,
   });
 }
