@@ -123,11 +123,15 @@ export default function AdminBankingUserPage() {
     }
     setBusy(true);
     try {
-      await callAction(`/api/banking/admin/users/${uid}/adjust-balance`, {
+      const result = await callAction(`/api/banking/admin/users/${uid}/adjust-balance`, {
         method: "POST",
         body: JSON.stringify({ direction: adjustDirection, amount, description: adjustReason.trim() }),
-      });
-      toast.success("Balance adjusted.");
+      }) as { novaBankSynced?: boolean; syncWarning?: string | null };
+      if (result.novaBankSynced) {
+        toast.success("Balance adjusted and updated on NovaBank.");
+      } else {
+        toast.warning(result.syncWarning ?? "Balance adjusted, but NovaBank has not synchronized yet.");
+      }
       setAdjustAmount("");
       setAdjustReason("");
       await load();

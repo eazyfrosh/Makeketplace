@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { verifyAdminCaller } from "@/lib/licensing/verify-auth";
 import { generateReference } from "@/lib/banking/format";
 import { createTransaction, getAccountForUser, updateAccount } from "@/lib/banking/store";
+import { syncUserToNovaBank } from "@/lib/banking/novabank-sync";
 import type { Transaction } from "@/lib/banking/types";
 
 interface AdjustBody {
@@ -57,5 +58,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ uid
   };
   await createTransaction(tx);
 
-  return NextResponse.json({ balance: newBalance, transaction: tx });
+  // The EazyTool ledger is authoritative. Synchronize only after both the
+  // balance and immutable adjustment record have been saved, and never retry
+  // the financial mutation merely because the external display sync failed.
+  const sync = await syncUserToNovaBank(uid);
+  return NextResponse.json({
+    balance: newBalance,
+    transaction: tx,
+    novaBankSynced: sync.ok,
+    syncWarning: sync.ok ? null : sync.error,
+  });
 }
