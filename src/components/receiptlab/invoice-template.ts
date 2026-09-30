@@ -65,11 +65,10 @@ async function drawAuroraInvoice(
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas is unavailable');
   canvas.width = 900;
-  canvas.height = 1400;
   ctx.fillStyle = '#f3f4f4';
   ctx.fillRect(0, 0, 900, 1400);
   ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, 900, 1348);
+  ctx.fillRect(0, 0, 900, 1400);
   let loadedLogo: HTMLImageElement | null = null;
   if (logoUrl) {
     try { loadedLogo = await loadLogo(logoUrl); } catch { /* Keep the Aurora mark fallback. */ }
@@ -134,11 +133,6 @@ async function drawAuroraInvoice(
   ctx.beginPath(); ctx.roundRect(105, 1180, 690, 74, 8); ctx.stroke();
   ctx.fillStyle = '#159447';
   ctx.fillText(form.auroraNewPaymentLabel || 'New payment', 450, 1227);
-  ctx.fillStyle = '#fff3cd';
-  ctx.fillRect(0, 1348, 900, 52);
-  ctx.fillStyle = '#9f1239';
-  ctx.font = '800 20px Arial';
-  ctx.fillText('DEMO • NOT A REAL TRANSACTION', 450, 1380);
 }
 export async function drawInvoice(
   canvas: HTMLCanvasElement,

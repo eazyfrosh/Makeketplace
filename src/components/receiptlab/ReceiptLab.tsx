@@ -591,7 +591,7 @@ export default function ReceiptLab() {
                                 : template.id === 'invoice-aurora'
                                   ? 1400
                                   : 1200;
-    const requiresSampleNotice = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || isInvoiceTemplate(template.id);
+    const requiresSampleNotice = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || (isInvoiceTemplate(template.id) && template.id !== 'invoice-aurora');
     const safetyFooterHeight = watermarkEnabled || requiresSampleNotice ? 52 : 0;
     c.height = contentHeight + safetyFooterHeight;
     const x = c.getContext('2d');
@@ -1853,10 +1853,12 @@ function InvoicePreview({
   id,
   form,
   logoUrl,
+  watermarkEnabled,
 }: {
   id: InvoiceTemplateId;
   form: Record<string, string>;
   logoUrl: string;
+  watermarkEnabled: boolean;
 }) {
   const totals = invoiceTotals(form);
   const money = (value: number) => invoiceMoney(value, form.invoiceCurrency);
@@ -1886,7 +1888,7 @@ function InvoicePreview({
           </div>
           <div className="aurora-payment-notice"><span aria-hidden="true">i</span><p>{form.auroraNotice || 'You can share your proof of payment from payment history.'}</p></div>
           <div className="aurora-payment-actions"><button type="button">{form.auroraFinishLabel || 'Finish'}</button><button type="button">{form.auroraNewPaymentLabel || 'New payment'}</button></div>
-          <div className="aurora-payment-sample">DEMO • NOT A REAL TRANSACTION</div>
+          {watermarkEnabled && <div className="aurora-payment-sample">DEMO • NOT A REAL TRANSACTION</div>}
         </article>
       </>
     );
@@ -1991,7 +1993,7 @@ function Editor({
     </label>
   );
   const invoice = isInvoiceTemplate(template.id);
-  const lockedSample = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || invoice;
+  const lockedSample = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || (invoice && template.id !== 'invoice-aurora');
   const handleLogo = (file?: File) => {
     if (!file) return;
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
@@ -2393,7 +2395,7 @@ function Editor({
                 {watermarkEnabled && <div className="watermark safety-footer">DEMO • NOT A REAL TRANSACTION</div>}
               </article>
             ) : invoice ? (
-              <InvoicePreview id={template.id as InvoiceTemplateId} form={form} logoUrl={invoiceLogo} />
+              <InvoicePreview id={template.id as InvoiceTemplateId} form={form} logoUrl={invoiceLogo} watermarkEnabled={watermarkEnabled} />
             ) : template.id === 'studio' ? (
               <>
                 <img
