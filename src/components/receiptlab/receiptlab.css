@@ -3793,3 +3793,101 @@
 .receiptlab-root .wells-details > div > span {
   align-self: start;
 }
+
+
+/* Aurora Invoice payment-confirmation template. */
+.receiptlab-root .receipt.invoice-aurora {
+  width: min(430px, 100%);
+  min-height: 0;
+  aspect-ratio: 900 / 1400;
+  padding: 0;
+  border-radius: 0;
+  background: #f3f4f4;
+  color: #202326;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.receiptlab-root .aurora-payment-document {
+  min-height: 100%;
+  background: #f3f4f4;
+  color: #202326;
+  display: flex;
+  flex-direction: column;
+}
+.receiptlab-root .aurora-payment-header {
+  padding: 28px 24px 22px;
+  background: #f3f4f4;
+  text-align: center;
+}
+.receiptlab-root .aurora-payment-header img,
+.receiptlab-root .aurora-payment-mark {
+  width: 38px;
+  height: 38px;
+  margin: 0 auto 5px;
+  object-fit: contain;
+}
+.receiptlab-root .aurora-payment-mark {
+  color: #159447;
+  font-size: 32px;
+  font-weight: 800;
+}
+.receiptlab-root .aurora-payment-header b,
+.receiptlab-root .aurora-payment-header small { display: block; }
+.receiptlab-root .aurora-payment-header b { color: #159447; font-size: 19px; }
+.receiptlab-root .aurora-payment-header small { margin-top: 4px; color: #8e9496; font-size: 8px; letter-spacing: .16em; }
+.receiptlab-root .aurora-payment-fields {
+  flex: 1;
+  padding: 8px 38px 12px;
+  background: #fff;
+}
+.receiptlab-root .aurora-payment-fields > div {
+  padding: 16px 0 15px;
+  border-bottom: 1px solid #e1e2e2;
+}
+.receiptlab-root .aurora-payment-fields small,
+.receiptlab-root .aurora-payment-fields strong { display: block; }
+.receiptlab-root .aurora-payment-fields small { color: #9ca0a2; font-size: 11px; }
+.receiptlab-root .aurora-payment-fields strong { margin-top: 5px; color: #202326; font-size: 17px; line-height: 1.25; overflow-wrap: anywhere; }
+.receiptlab-root .aurora-payment-fields .aurora-payment-transaction { font-size: 15px; }
+.receiptlab-root .aurora-payment-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 18px 38px 0;
+  padding: 13px 14px;
+  border-radius: 7px;
+  background: #e4efd9;
+  color: #4e5a4b;
+}
+.receiptlab-root .aurora-payment-notice > span { display: grid; width: 22px; height: 22px; flex: 0 0 auto; place-items: center; border: 1px solid #64705d; border-radius: 50%; font-size: 13px; }
+.receiptlab-root .aurora-payment-notice p { margin: 1px 0 0; font-size: 12px; line-height: 1.35; }
+.receiptlab-root .aurora-payment-actions { display: grid; gap: 10px; padding: 18px 38px 22px; background: #fff; }
+.receiptlab-root .aurora-payment-actions button { min-height: 38px; border-radius: 5px; font-size: 15px; font-weight: 700; }
+.receiptlab-root .aurora-payment-actions button:first-child { border: 0; background: #159447; color: #fff; }
+.receiptlab-root .aurora-payment-actions button:last-child { border: 2px solid #159447; background: #fff; color: #159447; }
+.receiptlab-root .aurora-payment-sample {
+  padding: 10px 12px;
+  border-top: 1px solid #d69e00;
+  background: #fff3cd;
+  color: #9f1239;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-align: center;
+}
+.receiptlab-root .mini-invoice-aurora { background: #f3f4f4; padding: 12px; }
+.receiptlab-root .mini-invoice-aurora::before { display: none; }
+.receiptlab-root .aurora-payment-mini {
+  width: 82%;
+  height: 100%;
+  padding: 13px 10px 8px;
+  background: #fff;
+  color: #202326;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+}
+.receiptlab-root .aurora-payment-mini b { color: #159447; font-size: 9px; text-align: center; }
+.receiptlab-root .aurora-payment-mini small { color: #9ca0a2; font-size: 4px; text-align: center; }
+.receiptlab-root .aurora-payment-mini span { height: 13px; border-bottom: 1px solid #e1e2e2; }
+.receiptlab-root .aurora-payment-mini i { margin-top: auto; padding: 4px; background: #fff3cd; color: #9f1239; font-size: 4px; font-style: normal; text-align: center; }

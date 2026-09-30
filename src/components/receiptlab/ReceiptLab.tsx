@@ -331,7 +331,7 @@ export default function ReceiptLab() {
     chaseStatus: 'Pending',
     chaseFee: '$900.00',
     chaseTotal: '$2,500,900.00',
-    invoiceBusiness: 'Nevora Creative Studio',
+    invoiceBusiness: 'Aurora Invoice',
     invoiceEmail: 'hello@nevora.example',
     invoiceAddress: '223 Sample Street, New York, NY',
     invoicePhone: '+1 (000) 123-4567',
@@ -349,6 +349,15 @@ export default function ReceiptLab() {
     invoiceTaxRate: '7.5',
     invoiceCurrency: 'USD',
     invoiceNotes: 'Thank you for your business. Payment is due within 14 days.',
+    auroraPaymentDate: '11 September 2026',
+    auroraBankName: 'ABSA BANK',
+    auroraAccountNumber: '1234567890',
+    auroraYourReference: 'FLASH DEMO',
+    auroraRecipientReference: 'ASLAM DESAI',
+    auroraTransactionNumber: 'b3c231a1-5720-4374-8b47-d11cf288e28f',
+    auroraNotice: 'You can share your proof of payment from payment history.',
+    auroraFinishLabel: 'Finish',
+    auroraNewPaymentLabel: 'New payment',
   });
   const ref = useRef<HTMLDivElement>(null),
     total = (Number(form.amount || 0) + Number(form.tax || 0)).toFixed(2);
@@ -580,7 +589,7 @@ export default function ReceiptLab() {
                               : template.id === 'chase'
                                 ? 1776
                                 : template.id === 'invoice-aurora'
-                                  ? 1260
+                                  ? 1400
                                   : 1200;
     const requiresSampleNotice = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || isInvoiceTemplate(template.id);
     const safetyFooterHeight = watermarkEnabled || requiresSampleNotice ? 52 : 0;
@@ -1816,12 +1825,11 @@ function ChaseReceiptPreview({ form }: { form: Record<string, string> }) {
 function InvoiceMini({ id }: { id: InvoiceTemplateId }) {
   if (id === 'invoice-aurora') {
     return (
-      <div className="aurora-mini-sheet" aria-hidden="true">
-        <div><i>NV</i><b>INVOICE</b></div>
-        <span className="aurora-mini-client" />
-        <strong>ITEM DESCRIPTION</strong>
-        <span /><span /><span />
-        <small>SAMPLE INVOICE</small>
+      <div className="aurora-payment-mini" aria-hidden="true">
+        <b>AURORA</b>
+        <small>PAYMENT CONFIRMATION</small>
+        <span /><span /><span /><span />
+        <i>SAMPLE</i>
       </div>
     );
   }
@@ -1862,56 +1870,24 @@ function InvoicePreview({
   if (id === 'invoice-aurora') {
     return (
       <>
-        <article className="aurora-invoice-document">
-          <header className="aurora-header">
-            <div className="aurora-brand">
-              {logoUrl ? <img src={logoUrl} alt="Business logo" /> : <i>{initials}</i>}
-              <span><b>{form.invoiceBusiness || 'Nevora Studio'}</b></span>
-            </div>
-            <h2>Invoice</h2>
-            <div className="aurora-client">
-              <small>Invoice to</small>
-              <b>{form.invoiceClient || 'Sample Client'}</b>
-              <span>{form.invoiceAddress || '223 Sample Street, New York, NY'}</span>
-              <span>P: {form.invoicePhone || '+1 (000) 123-4567'}</span>
-              <span>M: {form.invoiceClientEmail || 'client@example.com'}</span>
-            </div>
-            <dl className="aurora-meta">
-              <div><dt>Invoice</dt><dd>#{form.invoiceNumber || 'INV-001'}</dd></div>
-              <div><dt>Issued</dt><dd>{form.invoiceIssueDate || 'Sample date'}</dd></div>
-              <div><dt>Due</dt><dd>{form.invoiceDueDate || 'Sample date'}</dd></div>
-            </dl>
+        <article className="aurora-payment-document">
+          <header className="aurora-payment-header">
+            {logoUrl ? <img src={logoUrl} alt="Payment brand logo" /> : <div className="aurora-payment-mark" aria-hidden="true">A</div>}
+            <b>{form.invoiceBusiness || 'Aurora Invoice'}</b>
+            <small>PAYMENT CONFIRMATION</small>
           </header>
-          <div className="aurora-table" role="table" aria-label="Invoice line items">
-            <div className="aurora-table-head" role="row">
-              <span>SL</span><span>Item description</span><span>Price</span><span>Qty</span><span>Total</span>
-            </div>
-            <div className="aurora-table-row" role="row">
-              <span>1</span><b>{form.invoiceDescription || 'Professional services'}</b><span>{money(totals.unitPrice)}</span><span>{totals.quantity}</span><strong>{money(totals.subtotal)}</strong>
-            </div>
-            {[2, 3, 4].map((row) => <div className="aurora-table-row empty" role="row" aria-hidden="true" key={row}><span>{row}</span><b /><span /><span /><strong /></div>)}
+          <div className="aurora-payment-fields">
+            <div><small>Payment date</small><strong>{form.auroraPaymentDate || 'Demo date'}</strong></div>
+            <div><small>Bank name</small><strong>{form.auroraBankName || 'Sample bank'}</strong></div>
+            <div><small>Account number</small><strong>{form.auroraAccountNumber || '0000000000'}</strong></div>
+            <div><small>Your reference</small><strong>{form.auroraYourReference || 'FLASH DEMO'}</strong></div>
+            <div><small>Recipient&apos;s reference</small><strong>{form.auroraRecipientReference || 'Sample recipient'}</strong></div>
+            <div><small>Transaction number</small><strong className="aurora-payment-transaction">{form.auroraTransactionNumber || 'SAMPLE-TRANSACTION-ID'}</strong></div>
           </div>
-          <section className="aurora-lower">
-            <div className="aurora-payment"><h3>Payment info</h3><p>{form.invoicePaymentInfo || 'PayPal: billing@example.com'}</p><p>Account: {form.invoiceEmail || 'hello@example.com'}</p></div>
-            <dl className="aurora-summary">
-              <div><dt>Subtotal</dt><dd>{money(totals.subtotal)}</dd></div>
-              <div><dt>Tax {totals.taxRate}%</dt><dd>{money(totals.tax)}</dd></div>
-              <div><dt>Grand total</dt><dd>{money(totals.total)}</dd></div>
-            </dl>
-          </section>
-          <section className="aurora-closing">
-            <div className="aurora-terms"><h3>Terms &amp; conditions</h3><p>{form.invoiceNotes || 'Thank you for your business.'}</p></div>
-            <div className="aurora-signature"><strong>{form.invoiceSigner || 'Alex Morgan'}</strong><span>{form.invoiceSignerTitle || 'Creative Director'}</span></div>
-          </section>
-          <footer className="aurora-footer">
-            {logoUrl ? <img src={logoUrl} alt="Business logo" /> : <i>{initials}</i>}
-            <span><b>Location</b><small>{form.invoiceAddress || '223 Sample Street, New York, NY'}</small></span>
-            <span><b>Phone</b><small>{form.invoicePhone || '+1 (000) 123-4567'}</small></span>
-            <span><b>Email</b><small>{form.invoiceEmail || 'hello@example.com'}</small></span>
-          </footer>
-          <strong className="aurora-sample-mark">SAMPLE INVOICE • NOT A REAL TRANSACTION</strong>
+          <div className="aurora-payment-notice"><span aria-hidden="true">i</span><p>{form.auroraNotice || 'You can share your proof of payment from payment history.'}</p></div>
+          <div className="aurora-payment-actions"><button type="button">{form.auroraFinishLabel || 'Finish'}</button><button type="button">{form.auroraNewPaymentLabel || 'New payment'}</button></div>
+          <div className="aurora-payment-sample">DEMO • NOT A REAL TRANSACTION</div>
         </article>
-        <div className="watermark safety-footer">DEMO • NOT A REAL TRANSACTION</div>
       </>
     );
   }
@@ -2093,7 +2069,7 @@ function Editor({
               <div className="invoice-logo-control">
                 <div className="invoice-logo-control-head">
                   <span>
-                    <b>Business logo</b>
+                    <b>{template.id === 'invoice-aurora' ? 'Payment brand logo' : 'Business logo'}</b>
                     <small>PNG, JPG, or WebP · up to 2 MB</small>
                   </span>
                   {invoiceLogo && (
@@ -2116,42 +2092,52 @@ function Editor({
                 </label>
                 {logoError && <p className="logo-error" role="alert">{logoError}</p>}
               </div>
-              <div className="row">
-                {field('invoiceBusiness', 'Business name')}
-                {field('invoiceEmail', 'Business email')}
-              </div>
-              {template.id === 'invoice-aurora' && (
+              {template.id === 'invoice-aurora' ? (
                 <>
-                  {field('invoiceAddress', 'Business address')}
                   <div className="row">
-                    {field('invoicePhone', 'Business phone')}
-                    {field('invoicePaymentInfo', 'Payment information')}
+                    {field('invoiceBusiness', 'Template brand')}
+                    {field('auroraPaymentDate', 'Payment date')}
                   </div>
+                  {field('auroraBankName', 'Bank name')}
+                  {field('auroraAccountNumber', 'Account number')}
                   <div className="row">
-                    {field('invoiceSigner', 'Authorized signer')}
-                    {field('invoiceSignerTitle', 'Signer title')}
+                    {field('auroraYourReference', 'Your reference')}
+                    {field('auroraRecipientReference', "Recipient's reference")}
+                  </div>
+                  {field('auroraTransactionNumber', 'Transaction number')}
+                  {field('auroraNotice', 'Information notice')}
+                  <div className="row">
+                    {field('auroraFinishLabel', 'Finish button label')}
+                    {field('auroraNewPaymentLabel', 'New payment label')}
                   </div>
                 </>
+              ) : (
+                <>
+                  <div className="row">
+                    {field('invoiceBusiness', 'Business name')}
+                    {field('invoiceEmail', 'Business email')}
+                  </div>
+                  <div className="row">
+                    {field('invoiceNumber', 'Invoice number')}
+                    {field('invoiceCurrency', 'Currency code')}
+                  </div>
+                  <div className="row">
+                    {field('invoiceClient', 'Client name')}
+                    {field('invoiceClientEmail', 'Client email')}
+                  </div>
+                  <div className="row">
+                    {field('invoiceIssueDate', 'Issue date')}
+                    {field('invoiceDueDate', 'Due date')}
+                  </div>
+                  {field('invoiceDescription', 'Service description')}
+                  <div className="row three">
+                    {field('invoiceQuantity', 'Quantity')}
+                    {field('invoiceUnitPrice', 'Unit price')}
+                    {field('invoiceTaxRate', 'Tax %')}
+                  </div>
+                  {field('invoiceNotes', 'Notes')}
+                </>
               )}
-              <div className="row">
-                {field('invoiceNumber', 'Invoice number')}
-                {field('invoiceCurrency', 'Currency code')}
-              </div>
-              <div className="row">
-                {field('invoiceClient', 'Client name')}
-                {field('invoiceClientEmail', 'Client email')}
-              </div>
-              <div className="row">
-                {field('invoiceIssueDate', 'Issue date')}
-                {field('invoiceDueDate', 'Due date')}
-              </div>
-              {field('invoiceDescription', 'Service description')}
-              <div className="row three">
-                {field('invoiceQuantity', 'Quantity')}
-                {field('invoiceUnitPrice', 'Unit price')}
-                {field('invoiceTaxRate', 'Tax %')}
-              </div>
-              {field('invoiceNotes', 'Notes')}
             </>
           ) : template.id === 'citi-bank' ? (<><>{field('citiName', 'Customer name')}{field('citiConfirmation', 'Confirmation number')}{field('citiSource', 'Payment source')}<div className="row">{field('citiSourceEnding', 'Source account ending')}{field('citiAmount', 'Payment amount')}</div>{field('citiDate', 'Payment date')}<div className="row">{field('citiPayTo', 'Payment to')}{field('citiPayToEnding', 'Payee account ending')}</div></></>) : template.id === 'wells-fargo' ? (<><>{field('wellsRecipient', 'Recipient name')}{field('wellsRecipientAccount', 'Recipient account')}{field('wellsSource', 'Source account')}<div className="row">{field('wellsAmount', 'Amount')}{field('wellsFees', 'Fees')}</div>{field('wellsTotal', 'Total from account')}<div className="row">{field('wellsSendDate', 'Send on')}{field('wellsDeliverDate', 'Deliver by')}</div>{field('wellsMessage', "Message to recipient's bank")}<div className="row">{field('wellsStatus', 'Status')}{field('wellsConfirmation', 'Confirmation number')}</div></></>) : template.id === 'boa' ? (
             <>

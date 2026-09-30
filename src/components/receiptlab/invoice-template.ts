@@ -64,239 +64,82 @@ async function drawAuroraInvoice(
 ) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas is unavailable');
-  const blue = '#2563eb';
-  const navy = '#14213d';
-  const ink = '#14213d';
-  const muted = '#64748b';
-  const totals = invoiceTotals(form);
-  const money = (value: number) => invoiceMoney(value, form.invoiceCurrency);
+  canvas.width = 900;
+  canvas.height = 1400;
+  ctx.fillStyle = '#f3f4f4';
+  ctx.fillRect(0, 0, 900, 1400);
   ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, 900, 1260);
-  ctx.fillStyle = navy;
-  ctx.fillRect(0, 0, 900, 12);
-  ctx.fillStyle = navy;
-  ctx.font = '800 50px Arial';
-  ctx.textAlign = 'right';
-  ctx.fillText('INVOICE', 830, 91);
-  ctx.fillStyle = blue;
-  ctx.fillRect(766, 107, 64, 6);
-
+  ctx.fillRect(0, 0, 900, 1348);
   let loadedLogo: HTMLImageElement | null = null;
   if (logoUrl) {
-    try {
-      loadedLogo = await loadLogo(logoUrl);
-      ctx.save();
-      ctx.beginPath();
-      ctx.roundRect(70, 53, 74, 74, 14);
-      ctx.clip();
-      ctx.drawImage(loadedLogo, 70, 53, 74, 74);
-      ctx.restore();
-    } catch {
-      // The text mark below remains available when an upload cannot be decoded.
-    }
+    try { loadedLogo = await loadLogo(logoUrl); } catch { /* Keep the Aurora mark fallback. */ }
   }
-  if (!logoUrl) {
-    ctx.fillStyle = navy;
-    ctx.beginPath();
-    ctx.roundRect(70, 53, 74, 74, 17);
-    ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.font = '800 27px Arial';
-    ctx.fillText('NV', 107, 99);
-  }
-  ctx.textAlign = 'left';
-  ctx.fillStyle = ink;
-  ctx.font = '800 27px Arial';
-  ctx.fillText(form.invoiceBusiness || 'Nevora Studio', 154, 77, 360);
-
-  ctx.fillStyle = '#f6f8fc';
-  ctx.beginPath();
-  ctx.roundRect(70, 155, 760, 145, 16);
-  ctx.fill();
-  ctx.strokeStyle = '#e2e8f0';
-  ctx.strokeRect(70, 155, 760, 145);
-
-  ctx.fillStyle = ink;
-  ctx.font = '800 16px Arial';
-  ctx.fillStyle = blue;
-  ctx.fillText('BILL TO', 95, 187);
-  ctx.fillStyle = ink;
-  ctx.font = '800 25px Arial';
-  ctx.fillText(form.invoiceClient || 'Sample Client', 95, 221, 350);
-  ctx.fillStyle = muted;
-  ctx.font = '15px Arial';
-  ctx.fillText(form.invoiceAddress || '223 Sample Street, New York, NY', 95, 247, 350);
-  ctx.fillText(`P: ${form.invoicePhone || '+1 (000) 123-4567'}`, 95, 268, 350);
-  ctx.fillText(`M: ${form.invoiceClientEmail || 'client@example.com'}`, 95, 289, 350);
-  const meta = [
-    ['Invoice', `#${form.invoiceNumber || 'INV-001'}`],
-    ['Issued', form.invoiceIssueDate || 'Sample date'],
-    ['Due', form.invoiceDueDate || 'Sample date'],
-  ];
-  meta.forEach(([label, value], index) => {
-    const y = 207 + index * 30;
-    ctx.fillStyle = ink;
-    ctx.font = '700 17px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(label, 575, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(value, 836, y, 155);
-  });
-
-  const columns = [70, 122, 525, 640, 731, 836];
-  const tableTop = 360;
-  ctx.fillStyle = navy;
-  ctx.fillRect(70, tableTop, 766, 49);
-  ctx.fillStyle = '#fff';
-  ctx.font = '800 15px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText('SL', 96, 391);
-  ctx.textAlign = 'left';
-  ctx.fillText('ITEM DESCRIPTION', 142, 391);
-  ctx.textAlign = 'center';
-  ctx.fillText('PRICE', 582, 391);
-  ctx.fillText('QTY', 686, 391);
-  ctx.fillText('TOTAL', 784, 391);
-  for (let row = 0; row < 4; row += 1) {
-    const y = tableTop + 49 + row * 78;
-    ctx.fillStyle = row % 2 ? '#ffffff' : '#f8fafc';
-    ctx.fillRect(70, y, 766, 78);
-    ctx.strokeStyle = '#e3e8ef';
-    ctx.beginPath();
-    ctx.moveTo(70, y + 78);
-    ctx.lineTo(836, y + 78);
-    ctx.stroke();
-    if (row === 0) {
-      ctx.fillStyle = ink;
-      ctx.font = '700 18px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('1', 96, y + 44);
-      ctx.textAlign = 'left';
-      wrappedLines(ctx, form.invoiceDescription || 'Professional services', 350).slice(0, 2).forEach((line, index) => {
-        ctx.fillText(line, 142, y + 34 + index * 22);
-      });
-      ctx.textAlign = 'center';
-      ctx.fillText(money(totals.unitPrice), 582, y + 44, 100);
-      ctx.fillText(String(totals.quantity), 686, y + 44);
-      ctx.fillText(money(totals.subtotal), 784, y + 44, 95);
-    }
-  }
-
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#f3f6fb';
-  ctx.beginPath();
-  ctx.roundRect(70, 765, 390, 105, 12);
-  ctx.fill();
-  ctx.fillStyle = blue;
-  ctx.fillRect(70, 765, 6, 105);
-  ctx.fillStyle = ink;
-  ctx.font = '800 19px Arial';
-  ctx.fillText('PAYMENT DETAILS', 94, 796);
-  ctx.fillStyle = muted;
-  ctx.font = '16px Arial';
-  ctx.fillText(form.invoicePaymentInfo || 'PayPal: billing@example.com', 94, 826, 340);
-  ctx.fillText(`Account: ${form.invoiceEmail || 'hello@example.com'}`, 94, 852, 340);
-  const summary = [
-    ['SUBTOTAL', money(totals.subtotal)],
-    [`TAX ${totals.taxRate}%`, money(totals.tax)],
-    ['GRAND TOTAL', money(totals.total)],
-  ];
-  summary.forEach(([label, value], index) => {
-    const y = 792 + index * 47;
-    ctx.fillStyle = ink;
-    ctx.font = index === 2 ? '800 19px Arial' : '700 17px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(label, 565, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(value, 836, y);
-    if (index === 2) {
-      ctx.fillStyle = blue;
-      ctx.beginPath();
-      ctx.roundRect(550, y - 28, 286, 44, 9);
-      ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.font = '800 18px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText(label, 565, y);
-      ctx.textAlign = 'right';
-      ctx.fillText(value, 821, y);
-    } else {
-      ctx.strokeStyle = '#b7bcc2';
-      ctx.beginPath();
-      ctx.moveTo(565, y + 13);
-      ctx.lineTo(836, y + 13);
-      ctx.stroke();
-    }
-  });
-
-  ctx.textAlign = 'left';
-  ctx.fillStyle = ink;
-  ctx.font = '800 19px Arial';
-  ctx.fillText('TERMS & CONDITIONS', 70, 954);
-  ctx.fillStyle = muted;
-  ctx.font = '16px Arial';
-  wrappedLines(ctx, form.invoiceNotes || 'Thank you for your business.', 490).slice(0, 3).forEach((line, index) => {
-    ctx.fillText(line, 70, 986 + index * 24);
-  });
-
-  ctx.fillStyle = ink;
-  ctx.font = '700 20px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText(form.invoiceSigner || 'Alex Morgan', 687, 990, 245);
-  ctx.strokeStyle = '#171717';
-  ctx.beginPath();
-  ctx.moveTo(565, 1003);
-  ctx.lineTo(812, 1003);
-  ctx.stroke();
-  ctx.fillStyle = ink;
-  ctx.font = '800 14px Arial';
-  ctx.fillText((form.invoiceSignerTitle || 'Creative Director').toUpperCase(), 687, 1027, 245);
-
-  ctx.fillStyle = navy;
-  ctx.beginPath();
-  ctx.roundRect(70, 1080, 42, 42, 10);
-  ctx.fill();
   if (loadedLogo) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(70, 1080, 42, 42, 10);
-    ctx.clip();
-    ctx.drawImage(loadedLogo, 70, 1080, 42, 42);
-    ctx.restore();
+    ctx.drawImage(loadedLogo, 367, 42, 76, 76);
   } else {
-    ctx.fillStyle = '#fff';
-    ctx.font = '800 16px Arial';
+    ctx.fillStyle = '#159447';
+    ctx.font = '800 48px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('NV', 91, 1107);
+    ctx.fillText('A', 405, 83);
+    ctx.fillStyle = '#159447';
+    ctx.font = '700 28px Arial';
+    ctx.fillText(form.invoiceBusiness || 'Aurora Invoice', 450, 137);
   }
-  const footerBlocks = [
-    ['LOCATION', form.invoiceAddress || '223 Sample Street, New York, NY'],
-    ['PHONE', form.invoicePhone || '+1 (000) 123-4567'],
-    ['EMAIL', form.invoiceEmail || 'hello@example.com'],
+  ctx.textAlign = 'left';
+  const rows: Array<[string, string]> = [
+    ['Payment date', form.auroraPaymentDate || 'Demo date'],
+    ['Bank name', form.auroraBankName || 'Sample bank'],
+    ['Account number', form.auroraAccountNumber || '0000000000'],
+    ['Your reference', form.auroraYourReference || 'FLASH DEMO'],
+    ["Recipient's reference", form.auroraRecipientReference || 'Sample recipient'],
+    ['Transaction number', form.auroraTransactionNumber || 'SAMPLE-TRANSACTION-ID'],
   ];
-  footerBlocks.forEach(([label, value], index) => {
-    const x = 130 + index * 225;
-    ctx.strokeStyle = '#8d9298';
-    ctx.beginPath();
-    ctx.moveTo(x, 1077);
-    ctx.lineTo(x, 1127);
-    ctx.stroke();
-    ctx.fillStyle = blue;
-    ctx.font = '800 12px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(label, x + 14, 1093);
-    ctx.fillStyle = muted;
-    ctx.font = '13px Arial';
-    wrappedLines(ctx, value, 190).slice(0, 2).forEach((line, lineIndex) => ctx.fillText(line, x + 14, 1112 + lineIndex * 15));
+  let y = 205;
+  rows.forEach(([label, value]) => {
+    ctx.fillStyle = '#a0a4a8';
+    ctx.font = '24px Arial';
+    ctx.fillText(label, 105, y);
+    ctx.fillStyle = '#202326';
+    ctx.font = '700 28px Arial';
+    const lines = wrappedLines(ctx, value, 690).slice(0, 2);
+    lines.forEach((line, index) => ctx.fillText(line, 105, y + 42 + index * 34));
+    y += label === 'Transaction number' ? 142 : 112;
   });
-  ctx.fillStyle = '#e8f8ff';
-  ctx.fillRect(70, 1162, 766, 34);
-  ctx.fillStyle = '#137da5';
-  ctx.font = '800 13px Arial';
+  ctx.fillStyle = '#e4efd9';
+  ctx.beginPath();
+  ctx.roundRect(105, 960, 690, 92, 9);
+  ctx.fill();
+  ctx.fillStyle = '#4e5a4b';
+  ctx.beginPath();
+  ctx.arc(136, 1006, 18, 0, Math.PI * 2);
+  ctx.strokeStyle = '#64705d';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#4e5a4b';
+  ctx.font = '700 22px Arial';
   ctx.textAlign = 'center';
-  ctx.fillText('SAMPLE INVOICE • NOT A REAL TRANSACTION', 453, 1184);
+  ctx.fillText('i', 136, 1014);
+  ctx.textAlign = 'left';
+  ctx.font = '24px Arial';
+  wrappedLines(ctx, form.auroraNotice || 'You can share your proof of payment from payment history.', 600).slice(0, 2).forEach((line, index) => ctx.fillText(line, 175, 996 + index * 30));
+  ctx.fillStyle = '#159447';
+  ctx.beginPath(); ctx.roundRect(105, 1085, 690, 74, 8); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 28px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(form.auroraFinishLabel || 'Finish', 450, 1132);
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = '#159447';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(105, 1180, 690, 74, 8); ctx.stroke();
+  ctx.fillStyle = '#159447';
+  ctx.fillText(form.auroraNewPaymentLabel || 'New payment', 450, 1227);
+  ctx.fillStyle = '#fff3cd';
+  ctx.fillRect(0, 1348, 900, 52);
+  ctx.fillStyle = '#9f1239';
+  ctx.font = '800 20px Arial';
+  ctx.fillText('DEMO • NOT A REAL TRANSACTION', 450, 1380);
 }
-
 export async function drawInvoice(
   canvas: HTMLCanvasElement,
   id: InvoiceTemplateId,
