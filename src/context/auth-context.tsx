@@ -48,6 +48,25 @@ const DEMO_SESSION_KEY = "nexova_demo_session";
 const DEMO_ADMIN_EMAIL = "admin@nexova.demo";
 const DEMO_ADMIN_PASSWORD = "admin123";
 const USERS_COLLECTION = "users";
+const DEMO_LOCKOUT_KEY = "eazytool_demo_login_lockout";
+
+function lockoutMessage(seconds = 30 * 60) {
+  const minutes = Math.max(1, Math.ceil(seconds / 60));
+  return `Too many unsuccessful login attempts. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`;
+}
+
+async function checkServerLockout(email: string) {
+  const response = await fetch("/api/auth/login-attempts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "check", email }) });
+  const result = await response.json();
+  if (!response.ok) throw new Error(response.status === 429 ? lockoutMessage(result.retryAfterSeconds) : result.error || "Login protection is unavailable.");
+}
+
+async function recordServerFailure(email: string) {
+  const response = await fetch("/api/auth/login-attempts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "failure", email }) });
+  const result = await response.json();
+  if (response.status === 429) throw new Error(lockoutMessage(result.retryAfterSeconds));
+  return typeof result.attemptsRemaining === "number" ? result.attemptsRemaining : null;
+}
 
 function readDemoUsers(): DemoUserRecord[] {
   if (typeof window === "undefined") return [];
@@ -213,16 +232,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (email: string, password: string) => {
       if (isDemoMode) {
+        const lockout = JSON.parse(window.sessionStorage.getItem(DEMO_LOCKOUT_KEY) ?? "null") as { email: string; attempts: number; lockedUntil: number } | null;
+        if (lockout?.email === email.toLowerCase() && lockout.lockedUntil > Date.now()) throw new Error(lockoutMessage(Math.ceil((lockout.lockedUntil - Date.now()) / 1000)));
         const found = readDemoUsers().find((u) => u.email === email && u.password === password);
-        if (!found) throw new Error("Invalid email or password.");
+        if (!found) {
+          const attempts = lockout?.email === email.toLowerCase() ? lockout.attempts + 1 : 1;
+          const lockedUntil = attempts >= 5 ? Date.now() + 30 * 60_000 : 0;
+          window.sessionStorage.setItem(DEMO_LOCKOUT_KEY, JSON.stringify({ email: email.toLowerCase(), attempts: lockedUntil ? 0 : attempts, lockedUntil }));
+          if (lockedUntil) throw new Error(lockoutMessage());
+          throw new Error(`Invalid email or password. ${5 - attempts} attempt${5 - attempts === 1 ? "" : "s"} remaining.`);
+        }
+        window.sessionStorage.removeItem(DEMO_LOCKOUT_KEY);
         window.sessionStorage.setItem(DEMO_SESSION_KEY, found.uid);
         const profile = await getOne<UserProfile>(USERS_COLLECTION, found.uid);
         setUser(profile);
         return;
       }
       if (!auth) throw new Error("Firebase is not configured.");
+      const normalizedEmail = email.trim().toLowerCase();
+      await checkServerLockout(normalizedEmail);
       await setPersistence(auth, browserSessionPersistence);
-      await signInWithEmailAndPassword(auth, email, password);
+      let credential;
+      try {
+        credential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+      } catch {
+        const remaining = await recordServerFailure(normalizedEmail);
+        throw new Error(`Invalid email or password.${remaining === null ? "" : ` ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`}`);
+      }
+      const token = await credential.user.getIdToken();
+      await fetch("/api/auth/login-attempts", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ action: "success", email: normalizedEmail }) });
     },
     [isDemoMode],
   );

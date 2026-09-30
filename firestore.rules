@@ -148,6 +148,7 @@ service cloud.firestore {
     match /sms_requests/{requestId} { allow read, write: if false; }
     match /sms_rate_limits/{rateLimitId} { allow read, write: if false; }
     match /sms_settings/{userId} { allow read, write: if false; }
+    match /auth_login_limits/{limitId} { allow read, write: if false; }
 
     // Support tickets: owner or admin only.
     match /supportTickets/{ticketId} {
