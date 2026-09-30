@@ -3795,7 +3795,7 @@
 }
 
 
-/* Aurora Invoice payment-confirmation template. */
+/* Bank Template payment-confirmation template. */
 .receiptlab-root .receipt.invoice-aurora {
   width: min(430px, 100%);
   min-height: 0;

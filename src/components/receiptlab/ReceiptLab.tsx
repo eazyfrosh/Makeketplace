@@ -186,10 +186,10 @@ const templates: Template[] = [
   },
   {
     id: 'invoice-aurora',
-    name: 'Aurora Invoice',
-    category: 'Invoice',
+    name: 'Bank Template',
+    category: 'Banking',
     accent: '#2563eb',
-    description: 'Professional business invoice',
+    description: 'Editable bank payment confirmation',
   },
   {
     id: 'invoice-ledger',
@@ -331,7 +331,7 @@ export default function ReceiptLab() {
     chaseStatus: 'Pending',
     chaseFee: '$900.00',
     chaseTotal: '$2,500,900.00',
-    invoiceBusiness: 'Aurora Invoice',
+    invoiceBusiness: 'Bank Template',
     invoiceEmail: 'hello@nevora.example',
     invoiceAddress: '223 Sample Street, New York, NY',
     invoicePhone: '+1 (000) 123-4567',
@@ -1875,7 +1875,7 @@ function InvoicePreview({
         <article className="aurora-payment-document">
           <header className="aurora-payment-header">
             {logoUrl ? <img src={logoUrl} alt="Payment brand logo" /> : <div className="aurora-payment-mark" aria-hidden="true">A</div>}
-            <b>{form.invoiceBusiness || 'Aurora Invoice'}</b>
+            <b>{form.invoiceBusiness || 'Bank Template'}</b>
             <small>PAYMENT CONFIRMATION</small>
           </header>
           <div className="aurora-payment-fields">

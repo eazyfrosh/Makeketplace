@@ -82,7 +82,7 @@ async function drawAuroraInvoice(
     ctx.fillText('A', 405, 83);
     ctx.fillStyle = '#159447';
     ctx.font = '700 28px Arial';
-    ctx.fillText(form.invoiceBusiness || 'Aurora Invoice', 450, 137);
+    ctx.fillText(form.invoiceBusiness || 'Bank Template', 450, 137);
   }
   ctx.textAlign = 'left';
   const rows: Array<[string, string]> = [
