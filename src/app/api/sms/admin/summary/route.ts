@@ -1,0 +1,2 @@
+import{NextResponse}from"next/server";import{verifyAdminCaller}from"@/lib/licensing/verify-auth";import{getSmsConfigurationStatus}from"@/lib/sms/config";import{adminSmsSummary}from"@/lib/sms/store";
+export async function GET(request:Request){if(!await verifyAdminCaller(request))return NextResponse.json({error:"Administrator access required."},{status:403});try{return NextResponse.json({...await adminSmsSummary(),configuration:getSmsConfigurationStatus()})}catch{return NextResponse.json({messages:[],suspendedUsers:0,configuration:getSmsConfigurationStatus()})}}

@@ -7,7 +7,8 @@
     { "collectionGroup": "wallet_transactions", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "userId", "order": "ASCENDING" }, { "fieldPath": "type", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "ASCENDING" }] },
     { "collectionGroup": "wallet_transactions", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "type", "order": "ASCENDING" }, { "fieldPath": "userId", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "ASCENDING" }] },
     { "collectionGroup": "wallet_transactions", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "reference", "order": "ASCENDING" }, { "fieldPath": "type", "order": "ASCENDING" }] },
-    { "collectionGroup": "emailSenderIdentities", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "userId", "order": "ASCENDING" }, { "fieldPath": "isDefault", "order": "ASCENDING" }] }
+    { "collectionGroup": "emailSenderIdentities", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "userId", "order": "ASCENDING" }, { "fieldPath": "isDefault", "order": "ASCENDING" }] },
+    { "collectionGroup": "sms_messages", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "userId", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] }
   ],
   "fieldOverrides": []
 }

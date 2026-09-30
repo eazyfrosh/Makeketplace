@@ -1,0 +1,2 @@
+import{NextResponse}from"next/server";import{verifyCaller}from"@/lib/licensing/verify-auth";import{listUserSms}from"@/lib/sms/store";
+export async function GET(request:Request){const caller=await verifyCaller(request);if(!caller)return NextResponse.json({error:"Sign in to view SMS history."},{status:401});try{return NextResponse.json({messages:await listUserSms(caller.uid)})}catch(e){console.error("[api/sms/history]",e);return NextResponse.json({error:"SMS history is unavailable."},{status:503})}}

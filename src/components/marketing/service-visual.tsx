@@ -9,6 +9,7 @@ import {
   LayoutGrid,
   Code2,
   QrCode,
+  MessageSquareText,
   type LucideIcon,
 } from "lucide-react";
 
@@ -24,6 +25,7 @@ const ICONS: Record<string, LucideIcon> = {
   templates: LayoutGrid,
   custom: Code2,
   qr: QrCode,
+  sms: MessageSquareText,
 };
 
 const GRADIENTS: Record<string, string> = {
@@ -36,6 +38,7 @@ const GRADIENTS: Record<string, string> = {
   templates: "from-cyan-400/30 via-sky-500/20 to-blue-500/30",
   custom: "from-slate-400/30 via-indigo-500/20 to-violet-500/30",
   qr: "from-emerald-400/30 via-cyan-500/20 to-blue-500/30",
+  sms: "from-blue-400/30 via-cyan-500/20 to-violet-500/30",
 };
 
 interface ServiceVisualProps {
