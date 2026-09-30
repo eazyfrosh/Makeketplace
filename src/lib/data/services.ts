@@ -345,7 +345,7 @@ export const services: Service[] = [
     tagline: "Create beautiful, scannable QR codes in seconds.",
     description:
       "Generate privacy-friendly QR codes for URLs, text, email, phone calls, SMS, Wi-Fi networks, and digital contact cards, then download them as PNG or SVG.",
-    heroImage: "qr-generator",
+    heroImage: "/service-previews/qr-code-generator.png",
     screenshots: ["qr-url", "qr-wifi", "qr-contact"],
     features: [
       "URL, text, email, phone and SMS QR codes",
