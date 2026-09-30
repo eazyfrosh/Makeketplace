@@ -19,7 +19,7 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
     return { Authorization: `Bearer ${token}` };
   }
   if (typeof window !== "undefined") {
-    const uid = window.localStorage.getItem(DEMO_SESSION_KEY);
+    const uid = window.sessionStorage.getItem(DEMO_SESSION_KEY);
     if (uid) {
       const profile = await getOne<UserProfile>("users", uid);
       return { "x-demo-uid": uid, "x-demo-email": profile?.email ?? "" };

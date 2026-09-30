@@ -10,8 +10,10 @@ import {
   type ReactNode,
 } from "react";
 import {
+  browserSessionPersistence,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  setPersistence,
   signInWithEmailAndPassword,
   signOut,
   updateProfile as updateFirebaseProfile,
@@ -126,7 +128,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isDemoMode) {
       ensureDemoAdminSeed().then(() => {
-        const sessionUid = window.localStorage.getItem(DEMO_SESSION_KEY);
+        // Demo authentication follows the same tab-scoped lifetime as Firebase.
+        // Remove any older persistent session created by previous releases.
+        window.localStorage.removeItem(DEMO_SESSION_KEY);
+        const sessionUid = window.sessionStorage.getItem(DEMO_SESSION_KEY);
         if (sessionUid) {
           getOne<UserProfile>(USERS_COLLECTION, sessionUid).then((profile) => setUser(profile));
         }
@@ -139,21 +144,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
+    const firebaseAuth = auth;
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        let profile = await getOne<UserProfile>(USERS_COLLECTION, firebaseUser.uid);
-        if (!profile) {
-          profile = makeProfile(firebaseUser.uid, firebaseUser.email ?? "", firebaseUser.displayName ?? "");
-          await upsert(USERS_COLLECTION, profile);
+    let unsubscribe = () => {};
+    let cancelled = false;
+    // SESSION persistence stores the Firebase session in this browser tab.
+    // Closing the tab/browser removes it, so returning to EazyTools requires
+    // a fresh login instead of silently restoring a long-lived local session.
+    void setPersistence(firebaseAuth, browserSessionPersistence)
+      .then(() => {
+        if (cancelled) return;
+        unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
+          if (firebaseUser) {
+            let profile = await getOne<UserProfile>(USERS_COLLECTION, firebaseUser.uid);
+            if (!profile) {
+              profile = makeProfile(firebaseUser.uid, firebaseUser.email ?? "", firebaseUser.displayName ?? "");
+              await upsert(USERS_COLLECTION, profile);
+            }
+            setUser(profile);
+          } else {
+            setUser(null);
+          }
+          setLoading(false);
+        });
+      })
+      .catch((error) => {
+        console.error("[auth] Could not enable session-only persistence", error);
+        if (!cancelled) {
+          setUser(null);
+          setLoading(false);
         }
-        setUser(profile);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-    return () => unsubscribe();
+      });
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, [isDemoMode]);
 
   const signup = useCallback(
@@ -168,12 +193,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         writeDemoUsers(users);
         const profile = makeProfile(uid, email, name);
         await upsert(USERS_COLLECTION, profile);
-        window.localStorage.setItem(DEMO_SESSION_KEY, uid);
+        window.sessionStorage.setItem(DEMO_SESSION_KEY, uid);
         setUser(profile);
         await attributeReferralIfPresent();
         return;
       }
       if (!auth) throw new Error("Firebase is not configured.");
+      await setPersistence(auth, browserSessionPersistence);
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       if (name) await updateFirebaseProfile(cred.user, { displayName: name });
       const profile = makeProfile(cred.user.uid, email, name);
@@ -189,12 +215,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isDemoMode) {
         const found = readDemoUsers().find((u) => u.email === email && u.password === password);
         if (!found) throw new Error("Invalid email or password.");
-        window.localStorage.setItem(DEMO_SESSION_KEY, found.uid);
+        window.sessionStorage.setItem(DEMO_SESSION_KEY, found.uid);
         const profile = await getOne<UserProfile>(USERS_COLLECTION, found.uid);
         setUser(profile);
         return;
       }
       if (!auth) throw new Error("Firebase is not configured.");
+      await setPersistence(auth, browserSessionPersistence);
       await signInWithEmailAndPassword(auth, email, password);
     },
     [isDemoMode],
@@ -202,6 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     if (isDemoMode) {
+      window.sessionStorage.removeItem(DEMO_SESSION_KEY);
       window.localStorage.removeItem(DEMO_SESSION_KEY);
       setUser(null);
       return;
