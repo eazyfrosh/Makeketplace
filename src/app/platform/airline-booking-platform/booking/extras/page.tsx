@@ -47,6 +47,8 @@ function ExtrasForm() {
     setConfirming(true);
     await new Promise((resolve) => setTimeout(resolve, 900));
 
+    try {
+
     const passengerCount = searchParams
       ? searchParams.passengers.adults + searchParams.passengers.children + searchParams.passengers.infants
       : passengers.length || 1;
@@ -99,6 +101,10 @@ function ExtrasForm() {
     reset();
     toast.success("Booking confirmed!");
     router.push(`/platform/airline-booking-platform/booking/confirmation/${booking.id}`);
+    } catch {
+      setConfirming(false);
+      toast.error("Your booking could not be saved. Please try again.");
+    }
   }
 
   if (itinerary.filter(Boolean).length === 0) return null;

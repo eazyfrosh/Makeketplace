@@ -61,6 +61,13 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Airline bookings contain passenger and identity-document details. They
+    // are available only through authenticated, ownership-checked APIs. The
+    // verification copy is privacy-limited by the server before it is stored.
+    match /airlineBookings/{bookingId} { allow read, write: if false; }
+    match /airlineBookingReferences/{referenceId} { allow read, write: if false; }
+    match /airlineBookingVerifications/{verificationId} { allow read, write: if false; }
+
     // Banking Platform accounts/cards/transactions/PIN profiles/rate limits —
     // same server-mediated-only pattern, via the authenticated /api/banking
     // endpoints (Admin SDK bypasses these rules). Balances and card secrets

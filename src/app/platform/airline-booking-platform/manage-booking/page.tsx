@@ -33,18 +33,27 @@ export default function ManageBookingPage() {
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const found = await findBookingByReferenceAndName(reference, lastName);
-    setBooking(found);
-    setSearched(true);
-    setLoading(false);
-    if (!found) toast.error("No booking found for that reference and last name");
+    try {
+      const found = await findBookingByReferenceAndName(reference, lastName);
+      setBooking(found);
+      setSearched(true);
+      if (!found) toast.error("No booking found for that reference and last name");
+    } catch {
+      toast.error("Booking lookup could not be completed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleCancel() {
     if (!booking) return;
-    await cancelBooking(booking);
-    setBooking({ ...booking, status: "cancelled" });
-    toast.success("Booking cancelled");
+    try {
+      await cancelBooking(booking);
+      setBooking({ ...booking, status: "cancelled" });
+      toast.success("Booking cancelled");
+    } catch {
+      toast.error("The booking could not be cancelled. Please try again.");
+    }
   }
 
   function handleRebook() {

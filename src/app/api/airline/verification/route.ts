@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { adminDb, isAdminDbConfigured } from "@/lib/licensing/admin-db";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
-import type { Booking } from "@/lib/airline/types";
+import { isBooking, publicVerificationBooking } from "@/lib/airline/booking-record";
 
 const COLLECTION = "airlineBookingVerifications";
 const ALLOWED_ORIGIN = "https://flightbook-dusky.vercel.app";
@@ -23,37 +23,6 @@ function normalizeLookup(reference: string, token: string) {
     return null;
   }
   return { ref, tok, id: `${ref}_${tok}` };
-}
-
-function publicBooking(input: Booking): Booking {
-  return {
-    ...input,
-    bookingReference: input.bookingReference.trim().toUpperCase(),
-    // The public verification record never needs contact, passport, or other
-    // identity-document data. Keep only the fields rendered on the ticket.
-    passengers: input.passengers.map((passenger) => ({
-      ...passenger,
-      passportNumber: "",
-      email: "",
-      phone: "",
-      dateOfBirth: "",
-    })),
-  };
-}
-
-function isBooking(value: unknown): value is Booking {
-  if (!value || typeof value !== "object") return false;
-  const booking = value as Partial<Booking>;
-  return Boolean(
-    typeof booking.id === "string" &&
-      typeof booking.userId === "string" &&
-      typeof booking.bookingReference === "string" &&
-      typeof booking.verificationToken === "string" &&
-      Array.isArray(booking.flights) &&
-      booking.flights.length > 0 &&
-      Array.isArray(booking.passengers) &&
-      booking.passengers.length > 0,
-  );
 }
 
 export async function OPTIONS() {
@@ -104,7 +73,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid verification credentials." }, { status: 400 });
   }
 
-  const safeBooking = publicBooking(booking);
+  const safeBooking = publicVerificationBooking(booking);
   await adminDb.collection(COLLECTION).doc(lookup.id).set({
     ownerId: booking.userId,
     booking: safeBooking,

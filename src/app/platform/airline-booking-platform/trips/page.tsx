@@ -26,9 +26,14 @@ export default function MyTripsPage() {
   const load = useCallback(async () => {
     if (!user) return;
     setFetching(true);
-    const list = await getUserBookings(user.uid);
-    setBookings(list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
-    setFetching(false);
+    try {
+      const list = await getUserBookings(user.uid);
+      setBookings(list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+    } catch {
+      toast.error("Your trips could not be loaded. Please try again.");
+    } finally {
+      setFetching(false);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -60,9 +65,13 @@ export default function MyTripsPage() {
   const shown = tab === "upcoming" ? upcoming : tab === "past" ? past : cancelled;
 
   async function handleCancel(booking: Booking) {
-    await cancelBooking(booking);
-    toast.success(`Booking ${booking.bookingReference} cancelled`);
-    load();
+    try {
+      await cancelBooking(booking);
+      toast.success(`Booking ${booking.bookingReference} cancelled`);
+      await load();
+    } catch {
+      toast.error("The booking could not be cancelled. Please try again.");
+    }
   }
 
   function handleRebook(booking: Booking) {

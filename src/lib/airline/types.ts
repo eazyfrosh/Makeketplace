@@ -117,6 +117,8 @@ export interface Booking {
   currency: string;
   status: BookingStatus;
   createdAt: string;
+  /** Server-maintained timestamp used to keep cached bookings from replacing newer records. */
+  updatedAt?: string;
   rebookedAt?: string;
   seatAssignment: string | null;
   gate?: string;
