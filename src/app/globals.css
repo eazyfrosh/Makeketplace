@@ -139,6 +139,7 @@
     background-attachment: fixed;
     min-width: 320px;
     overflow-x: clip;
+    line-height: 1.55;
   }
   img,
   video,
@@ -154,6 +155,11 @@
   }
   main {
     min-width: 0;
+  }
+  button,
+  [role="button"],
+  a {
+    touch-action: manipulation;
   }
   .dark body {
     background-image:
@@ -337,10 +343,10 @@
 
 /* Homepage-specific art direction: editorial contrast over the shared system. */
 .home-display {
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 500;
-  font-style: italic;
-  letter-spacing: -0.06em;
+  font-family: var(--font-geist-sans), sans-serif;
+  font-weight: 650;
+  font-style: normal;
+  letter-spacing: -0.05em;
 }
 
 .home-catalog {

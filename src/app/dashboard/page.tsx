@@ -17,6 +17,8 @@ import {
   Sparkles,
   WalletCards,
   Globe2,
+  LayoutTemplate,
+  Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -60,6 +62,8 @@ const STATUS_VARIANT: Record<string, "default" | "outline" | "destructive"> = {
 
 const QUICK_ACTIONS = [
   { href: "/services", label: "View services", description: "Explore tools and templates", icon: Package },
+  { href: "/support-templates", label: "Create a website", description: "Choose and customize a website template", icon: LayoutTemplate },
+  { href: "/platform/email-designer", label: "Design an email", description: "Create and preview a professional email", icon: Mail },
   { href: "/domains", label: "Buy a domain", description: "Find an address for your brand", icon: Globe2 },
   { href: "/wallet", label: "Fund your wallet", description: "Pay for eligible EazyTool services", icon: Plus },
   { href: "/dashboard/affiliate", label: "Earn with EazyTool", description: "Share EazyTool and track rewards", icon: HandCoins },
@@ -146,7 +150,7 @@ export default function DashboardPage() {
           <Badge variant="soft"><Sparkles className="size-3" /> Your EazyTool workspace</Badge>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Welcome back, {firstName}</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-            Choose what you want to do next. Your tools, purchases, and account details are all in one place.
+            Choose one action below. We will guide you through it, and your tools, purchases, and account details stay together here.
           </p>
         </div>
         <div className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-primary/15 blur-3xl" />

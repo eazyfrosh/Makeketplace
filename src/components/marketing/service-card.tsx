@@ -67,7 +67,7 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
         <div className="mt-auto border-t border-border/60 pt-4">
           <div className="grid w-full grid-cols-2 gap-2">
             <Button variant="secondary" size="sm" className="w-full px-2" asChild>
-              <Link href={primaryHref}>{isSupportTemplates ? "Preview gallery" : "Learn more"}</Link>
+              <Link href={primaryHref}>{isSupportTemplates ? "See templates" : "See how it works"}</Link>
             </Button>
             {isSupportTemplates ? (
               <Button size="sm" className="w-full px-2" asChild>

@@ -8,16 +8,16 @@ import { ArrowUpRight, BadgeCheck, Box, Check, ChevronLeft, ChevronRight, Clock3
 
 import { Button } from "@/components/ui/button";
 
-const TRUST_POINTS = ["Source code included", "Launch support", "Secure checkout"];
-const HERO_HEADLINE = "Sharp Tools & Templates\nAvailable for Your Hustle";
+const TRUST_POINTS = ["Clear step-by-step guidance", "Works on phone and computer", "Help when you need it"];
+const HERO_HEADLINE = "Simple digital tools\neveryone can use";
 const HERO_HEADLINE_BREAK = HERO_HEADLINE.indexOf("\n");
 
 const SHOWCASE_SLIDES = [
   {
-    src: "/hero/showcase-design.png",
-    alt: "A coordinated collection of premium web, mobile, and product design interfaces",
-    eyebrow: "Design that feels distinctive",
-    title: "Beautiful digital experiences",
+    src: "/home/eazytool-for-everyone.webp",
+    alt: "Three people of different ages comfortably using a laptop and phone together",
+    eyebrow: "Made to feel easy",
+    title: "Useful for everyone",
     accent: "bg-fuchsia-400 shadow-[0_0_12px_#e879f9]",
   },
   {
@@ -80,8 +80,8 @@ export function Hero() {
 
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10 lg:px-8">
         <div className="max-w-2xl">
-          <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }} className="mt-7 text-balance text-[clamp(3rem,7vw,5.8rem)] font-semibold leading-[0.95] tracking-[-0.055em]">
-            <span className="sr-only">Sharp Tools &amp; Templates Available for Your Hustle</span>
+          <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }} className="mt-7 text-balance text-[clamp(2.8rem,5.5vw,4.8rem)] font-semibold leading-[0.98] tracking-[-0.05em]">
+            <span className="sr-only">Simple digital tools everyone can use</span>
             <span aria-hidden="true">
               {typedHeadline.slice(0, HERO_HEADLINE_BREAK)}
               <span className="home-display mt-3 block text-gradient-brand">{typedHeadline.slice(HERO_HEADLINE_BREAK + 1)}</span>
@@ -89,12 +89,12 @@ export function Hero() {
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.12 }} className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-            Generate custom transaction receipts, websites, templates, website tools, and more.
+            Create websites, design emails, manage business tasks, and use helpful digital tools—without needing to be a technology expert.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.18 }} className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button size="lg" asChild><Link href="/services">Browse the marketplace<ArrowUpRight className="size-4" /></Link></Button>
-            <Button size="lg" variant="secondary" asChild><Link href="/contact">Build something custom</Link></Button>
+            <Button size="lg" asChild><Link href="/services">See all tools<ArrowUpRight className="size-4" /></Link></Button>
+            <Button size="lg" variant="secondary" asChild><Link href="/auth/signup">Create an account</Link></Button>
           </motion.div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }} className="mt-8 flex flex-wrap gap-x-5 gap-y-2">
@@ -171,7 +171,7 @@ export function Hero() {
 
           <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }} className="glass absolute -bottom-5 right-3 flex items-center gap-3 rounded-2xl p-3.5 shadow-xl sm:right-8 lg:-right-6">
             <div className="flex -space-x-2">{["MC", "DO", "PN"].map((initials, index) => <span key={initials} className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-gradient-brand text-[9px] font-bold text-white" style={{ zIndex: 3 - index }}>{initials}</span>)}</div>
-            <div><div className="flex items-center gap-1 text-xs font-semibold">4.9 <Star className="size-3 fill-amber-400 text-amber-400" /></div><p className="text-[10px] text-muted-foreground">Trusted by 1,500+ teams</p></div>
+            <div><div className="flex items-center gap-1 text-xs font-semibold">Easy to follow <Star className="size-3 fill-amber-400 text-amber-400" /></div><p className="text-[10px] text-muted-foreground">Designed for every experience level</p></div>
           </motion.div>
         </motion.div>
       </div>
@@ -179,10 +179,10 @@ export function Hero() {
       <div className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-px overflow-hidden rounded-2xl border border-border/70 bg-foreground/[0.06] sm:grid-cols-3 lg:grid-cols-4">
           {[
-            { icon: Box, value: "8", label: "Specialist product lines" },
-            { icon: Clock3, value: "48h", label: "Average project kickoff" },
-            { icon: Star, value: "4.9/5", label: "Average client rating" },
-            { icon: BadgeCheck, value: "100%", label: "Source code ownership" },
+            { icon: Box, value: "1", label: "Choose what you want to do" },
+            { icon: Clock3, value: "2", label: "Follow the simple steps" },
+            { icon: Star, value: "3", label: "Preview and check your work" },
+            { icon: BadgeCheck, value: "4", label: "Save, download, or publish" },
           ].map(({ icon: Icon, value, label }, index) => <div key={label} className={`flex items-center gap-3 bg-background/65 px-5 py-4 backdrop-blur-xl ${index === 3 ? "sm:col-span-3 lg:col-span-1" : ""}`}><Icon className="size-4 text-primary" /><div className="flex items-baseline gap-2"><strong className="text-sm">{value}</strong><span className="text-xs text-muted-foreground">{label}</span></div></div>)}
         </div>
       </div>

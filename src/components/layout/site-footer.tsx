@@ -1,12 +1,7 @@
-"use client";
-
-import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { toast } from "sonner";
-import { AtSign, Link2, MessageCircle, Send } from "lucide-react";
+import { ArrowRight, CircleHelp } from "lucide-react";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { categories } from "@/lib/data/services";
 
@@ -39,15 +34,6 @@ const FOOTER_LINKS: { title: string; links: { label: string; href: string }[] }[
 ];
 
 export function SiteFooter() {
-  const [email, setEmail] = React.useState("");
-
-  function subscribe(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim()) return;
-    toast.success("You're subscribed! Watch your inbox for launches and deals.");
-    setEmail("");
-  }
-
   return (
     <footer className="relative border-t border-white/10">
       <div className="bg-gradient-brand-soft absolute inset-x-0 top-0 h-px" />
@@ -62,18 +48,7 @@ export function SiteFooter() {
               Practical digital tools and services for professionals who value speed,
               accuracy, and control.
             </p>
-            <div className="mt-6 flex items-center gap-3">
-              {[AtSign, Link2, MessageCircle].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="glass flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
-                  aria-label="Social link"
-                >
-                  <Icon className="size-4" />
-                </a>
-              ))}
-            </div>
+            <Button className="mt-6" variant="secondary" asChild><Link href="/contact"><CircleHelp className="size-4" />Get help</Link></Button>
           </div>
 
           {FOOTER_LINKS.map((group) => (
@@ -111,27 +86,14 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-5 rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-sm font-semibold">Stay in the loop</h3>
-            <p className="text-sm text-muted-foreground">
-              New launches, deals, and product updates — no spam.
+            <h3 className="font-semibold">Need help choosing your next step?</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Tell us what you want to create, and we will point you in the right direction.
             </p>
           </div>
-          <form onSubmit={subscribe} className="flex w-full max-w-sm gap-2">
-            <Input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@company.com"
-              className="h-11"
-            />
-            <Button type="submit" size="default" className="shrink-0">
-              <Send className="size-4" />
-              Subscribe
-            </Button>
-          </form>
+          <div className="flex flex-col gap-2 sm:flex-row"><Button variant="secondary" asChild><Link href="/#how-it-works">See how it works</Link></Button><Button asChild><Link href="/contact">Contact support<ArrowRight className="size-4" /></Link></Button></div>
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm text-muted-foreground sm:flex-row">

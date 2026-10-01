@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
-import { Search } from "lucide-react";
+import { HelpCircle, Search, Sparkles } from "lucide-react";
 
 import { services, categories } from "@/lib/data/services";
 import type { ServiceCategory } from "@/types";
@@ -32,14 +32,24 @@ export function ServicesClient() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="max-w-2xl">
-        <span className="text-sm font-medium text-primary">Services</span>
+        <span className="text-sm font-medium text-primary">Choose what you want to do</span>
         <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
-          Every product line, one marketplace
+          Helpful tools in one simple place
         </h1>
         <p className="mt-4 text-muted-foreground">
-          Platforms, design, business tools, templates, and custom development — pick
-          what you need and launch with a senior team behind it.
+          You do not need technical experience. Search by the task you want to complete, then follow the instructions inside the tool.
         </p>
+      </div>
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+        <div className="flex gap-3 rounded-2xl border bg-primary/[0.06] p-4">
+          <Sparkles className="mt-0.5 size-5 shrink-0 text-primary" />
+          <div><h2 className="font-semibold">New here?</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">Start with one small task. You can preview your work before saving or publishing it.</p></div>
+        </div>
+        <div className="flex gap-3 rounded-2xl border bg-card p-4">
+          <HelpCircle className="mt-0.5 size-5 shrink-0 text-primary" />
+          <div><h2 className="font-semibold">Not sure which tool to choose?</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">Use the Help button at the bottom of the screen for a simple list of common tasks.</p></div>
+        </div>
       </div>
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -48,7 +58,8 @@ export function ServicesClient() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name or feature…"
+            placeholder="What do you want to do?"
+            aria-label="Search services by task or name"
             className="h-11 pl-9"
           />
         </div>

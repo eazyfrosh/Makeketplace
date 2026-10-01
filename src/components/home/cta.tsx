@@ -39,13 +39,13 @@ export function CTA() {
               <Sparkles className="size-4" /> Everything in one place
             </span>
             <h2 className="mt-4 max-w-xl text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
-              Everything You Need
+              Start with one simple task
             </h2>
             <p className="mt-5 max-w-xl text-base leading-7 text-white/80">
-              Powerful tools built for speed, accuracy, and total privacy.
+              Choose a tool, follow the clear instructions, and check your work before you finish.
             </p>
             <p className="mt-3 max-w-xl text-sm leading-6 text-white/65">
-              Create, customize, and move forward with a growing collection of dependable digital tools for your everyday hustle.
+              EazyTool brings websites, email design, domains, business platforms, and everyday digital tools into one familiar workspace.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button size="lg" variant="secondary" className="bg-white text-black hover:bg-white/90" asChild>

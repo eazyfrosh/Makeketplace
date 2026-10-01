@@ -53,6 +53,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <a href="#main-content" className="sr-only z-[100] rounded-md bg-background px-4 py-3 font-semibold focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to main content</a>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -63,7 +64,7 @@ export default function RootLayout({
             <RefCapture />
             <div className="relative flex min-h-screen flex-col">
               <SiteHeader />
-              <main className="flex-1">{children}</main>
+              <main id="main-content" className="flex-1">{children}</main>
               <SiteFooter />
             </div>
             <TelegramLiveChat />

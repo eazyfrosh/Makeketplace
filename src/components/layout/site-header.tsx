@@ -21,9 +21,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { WalletNavLink } from "@/components/wallet/wallet-nav-link";
+import { BeginnerGuide } from "@/components/layout/beginner-guide";
 
 const NAV_LINKS = [
   { href: "/services", label: "Services" },
+  { href: "/#how-it-works", label: "How it works" },
   { href: "/domains", label: "Domains" },
   { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
@@ -79,6 +81,8 @@ export function SiteHeader() {
 
           <div className="flex items-center gap-1">
             {user && <div className="hidden xl:block"><WalletNavLink /></div>}
+            {user && <Button variant="secondary" size="sm" className="hidden md:inline-flex" asChild><Link href="/dashboard"><LayoutDashboard className="size-4" />My dashboard</Link></Button>}
+            <BeginnerGuide />
             <Button variant="ghost" size="icon" className="md:hidden" aria-label="Search" aria-expanded={searchOpen} onClick={() => setSearchOpen((value) => !value)}><Search className="size-4" /></Button>
             <ThemeToggle />
             <div className="hidden sm:block">
@@ -102,7 +106,7 @@ export function SiteHeader() {
       </div>
 
       {mobileOpen && <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass border-b border-white/10 lg:hidden"><nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6" aria-label="Mobile navigation">
-        {NAV_LINKS.map((link) => { const active = isActive(pathname, link.href); return <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={cn("rounded-xl px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground", active && "bg-accent text-foreground")}>{link.label}</Link>; })}
+        {NAV_LINKS.map((link) => { const active = isActive(pathname, link.href); return <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)} aria-current={active ? "page" : undefined} className={cn("rounded-xl px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground", active && "bg-accent text-foreground")}>{link.label}</Link>; })}
         <div className="my-2 h-px bg-border" />
         {user ? <><Link href="/dashboard" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><LayoutDashboard className="size-4 text-primary" />Dashboard</Link><Link href="/wallet" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><WalletCards className="size-4 text-primary" />Wallet</Link><Link href="/dashboard/affiliate" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><HandCoins className="size-4 text-primary" />Affiliate program</Link><Link href="/dashboard/profile" className="rounded-xl px-3 py-3 text-sm font-medium">Account settings</Link><button onClick={() => logout()} className="rounded-xl px-3 py-3 text-left text-sm font-medium text-muted-foreground">Log out</button></> : <div className="flex gap-2 px-1 pt-1"><Button variant="secondary" size="sm" asChild className="flex-1"><Link href="/auth/login">Log in</Link></Button><Button size="sm" asChild className="flex-1"><Link href="/auth/signup">Get started</Link></Button></div>}
       </nav></motion.div>}

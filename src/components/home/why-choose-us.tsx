@@ -6,33 +6,33 @@ import { Clock, Code2, LifeBuoy, ShieldCheck, Sparkles, Wallet } from "lucide-re
 const REASONS = [
   {
     icon: Code2,
-    title: "Senior engineering, always",
-    description: "Every project is built by senior engineers and designers — never outsourced to junior contractors.",
+    title: "Plain, simple language",
+    description: "Buttons and instructions explain what will happen, so you never have to guess what a technical word means.",
   },
   {
     icon: Clock,
-    title: "Weeks, not months",
-    description: "Kickoff within 48 hours and launch-ready builds in weeks thanks to battle-tested foundations.",
+    title: "Quick ways to start",
+    description: "Ready-made templates and clear choices help you begin without setting up everything from an empty page.",
   },
   {
     icon: ShieldCheck,
-    title: "Enterprise-grade security",
-    description: "Bank-grade encryption, audit trails, and compliance workflows built into every platform.",
+    title: "Clear account protection",
+    description: "Sign-in checks and private account areas help keep your projects and personal information separated from other users.",
   },
   {
     icon: Wallet,
-    title: "Transparent pricing",
-    description: "One flat price per service with no hidden fees — know exactly what you're paying for up front.",
+    title: "Know before you pay",
+    description: "See the price and purpose before checkout. Your wallet is only used for eligible EazyTool services.",
   },
   {
     icon: LifeBuoy,
-    title: "Real support, real people",
-    description: "A dedicated dashboard for tickets, invoices, and updates — never wait on a black-box inbox.",
+    title: "Help is always nearby",
+    description: "Use the Help button from any page or contact support when you are unsure about the next step.",
   },
   {
     icon: Sparkles,
-    title: "Built to scale",
-    description: "Every product line is architected to grow from your first users to millions of them.",
+    title: "Friendly on every device",
+    description: "Layouts adapt to phones, tablets, and computers with comfortable text and touch-friendly buttons.",
   },
 ];
 
@@ -42,9 +42,9 @@ export function WhyChooseUs() {
       <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(to_right,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_1px)] [background-size:56px_56px]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative mx-auto max-w-3xl text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">The EazyTool standard</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Made for real people</span>
           <h2 className="mt-3 text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
-            No theatre. Just good work.<br className="hidden sm:block" /> The speed of a marketplace, the care of a product studio.
+            Easy enough for a first-time user.<br className="hidden sm:block" /> Useful enough for everyday business.
           </h2>
         </div>
 
