@@ -5,12 +5,20 @@ function escape(value: string) {
 }
 
 export function isStatusOrPaymentTemplate(template: Pick<ReceiptEmailTemplate, "category" | "subject" | "heading" | "paragraphs">) {
-  return template.category === "status-notice" || /payment|transaction|deposit|withdrawal|balance|paid|processing/i.test([template.subject, template.heading, ...template.paragraphs].join(" "));
+  return template.category === "status-notice" || template.category === "banking" || /payment|transaction|deposit|withdrawal|balance|paid|processing/i.test([template.subject, template.heading, ...template.paragraphs].join(" "));
 }
 
 export function renderReceiptEmail(template: ReceiptEmailTemplate) {
   const sensitive = isStatusOrPaymentTemplate(template);
-  const paragraphs = template.paragraphs.map((paragraph) => `<p style="margin:0 0 16px;font-size:16px;line-height:1.7;font-weight:400">${escape(paragraph)}</p>`).join("");
+  const bankingDetails = template.paragraphs.slice(1).map((paragraph) => {
+    const separator = paragraph.indexOf(":");
+    const label = separator >= 0 ? paragraph.slice(0, separator) : "Detail";
+    const value = separator >= 0 ? paragraph.slice(separator + 1).trim() : paragraph;
+    return `<tr><td style="padding:10px 0;color:${template.mutedColor};font-size:14px">${escape(label)}</td><td style="padding:10px 0;text-align:right;font-size:14px;font-weight:700">${escape(value)}</td></tr>`;
+  }).join("");
+  const paragraphs = template.category === "banking"
+    ? `<p style="margin:0 0 18px;font-size:16px;line-height:1.7;font-weight:700">${escape(template.paragraphs[0] ?? "")}</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse"><tbody>${bankingDetails}</tbody></table>`
+    : template.paragraphs.map((paragraph) => `<p style="margin:0 0 16px;font-size:16px;line-height:1.7;font-weight:400">${escape(paragraph)}</p>`).join("");
   const logo = template.logoUrl ? `<img src="${escape(template.logoUrl)}" alt="${escape(template.brandName)}" style="width:50px;height:50px;border-radius:4px;object-fit:contain;background:#fff" />` : `<div style="width:50px;height:50px;border-radius:4px;background:#fff;color:${template.accentColor};display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px">${escape(template.brandName.slice(0, 1))}</div>`;
   const image = template.featuredImageUrl ? `<img src="${escape(template.featuredImageUrl)}" alt="" style="display:block;width:100%;max-height:300px;object-fit:cover;margin-bottom:24px" />` : "";
   const customWarning = template.warningEnabled && template.warningHeading && template.warningMessage ? `<div style="margin:24px 0 0;padding:16px 18px;border-left:4px solid #F59E0B;background:#FFFBEB;color:#78350F;border-radius:6px"><strong style="display:block;margin-bottom:6px;font-size:14px;line-height:1.4">${escape(template.warningHeading)}</strong><span style="font-size:13px;line-height:1.6">${escape(template.warningMessage)}</span></div>` : "";

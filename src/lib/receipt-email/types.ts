@@ -1,4 +1,4 @@
-export type EmailDesignCategory = "announcement" | "order-update" | "invitation" | "support" | "status-notice";
+export type EmailDesignCategory = "announcement" | "order-update" | "invitation" | "banking" | "support" | "status-notice";
 
 export interface ReceiptEmailTemplate {
   id: string;

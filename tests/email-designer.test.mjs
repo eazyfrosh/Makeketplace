@@ -69,6 +69,29 @@ test("status and payment-like messages are visibly unverified and not proof of p
   assert.match(html, /NOT PROOF OF PAYMENT/);
 });
 
+test("banking preset renders its date and remark as structured transaction details", () => {
+  const bankingDesign = {
+    ...design,
+    category: "banking",
+    heading: "Transaction amount: ₦0.00 NGN",
+    paragraphs: [
+      "Note: Your transaction is currently being processed. Please wait while the details are reviewed.",
+      "Date: 01/10/2026 02:52",
+      "Remark: Transfer",
+    ],
+    panelHeading: "PROCESSING TRANSACTION",
+  };
+  const html = renderReceiptEmail(bankingDesign);
+  assert.match(html, /<table role="presentation"/);
+  for (const marker of ["Transaction amount: ₦0.00 NGN", "01\/10\/2026 02:52", "Transfer", "PROCESSING TRANSACTION", "NOT PROOF OF PAYMENT"]) assert.match(html, new RegExp(marker));
+});
+
+test("Email Designer replaces the invitation preset with the banking preset", () => {
+  const editor = readFileSync(new URL("../src/app/platform/email-designer/page.tsx", import.meta.url), "utf8");
+  for (const marker of ['label: "Banking"', 'category: "banking"', "Transaction amount: ₦0.00 NGN", "PROCESSING TRANSACTION"]) assert.ok(editor.includes(marker), marker);
+  assert.ok(!editor.includes('label: "Invitation"'));
+});
+
 test("server forces tests to the signed-in email and requires consent for other recipients", () => {
   const route = readFileSync(new URL("../src/app/api/email-flash/send/route.ts", import.meta.url), "utf8");
   for (const marker of ["verifyCaller", "requireReceiptEmailAccess", "caller.email", "recipientConsentConfirmed", "consumeReceiptEmailRateLimit", "requestId", "senderIdentityId", "getSenderIdentity", "getEmailDomainForUser"]) assert.ok(route.includes(marker), marker);

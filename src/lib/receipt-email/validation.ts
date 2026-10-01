@@ -21,7 +21,7 @@ const logoSource = z.union([
 export const receiptTemplateInputSchema = z.object({
   id: z.string().trim().max(120).optional(),
   name: z.string().trim().min(1).max(120),
-  category: z.enum(["announcement", "order-update", "invitation", "support", "status-notice"]),
+  category: z.enum(["announcement", "order-update", "invitation", "banking", "support", "status-notice"]),
   senderName: z.string().trim().min(1).max(120),
   senderEmail: z.string().trim().toLowerCase().email().max(254),
   brandName: z.string().trim().min(1).max(160),
