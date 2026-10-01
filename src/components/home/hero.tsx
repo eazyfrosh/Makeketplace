@@ -14,10 +14,10 @@ const HERO_HEADLINE_BREAK = HERO_HEADLINE.indexOf("\n");
 
 const SHOWCASE_SLIDES = [
   {
-    src: "/home/eazytool-for-everyone.webp",
-    alt: "Three people of different ages comfortably using a laptop and phone together",
-    eyebrow: "Made to feel easy",
-    title: "Useful for everyone",
+    src: "/home/young-professional-laptop.png",
+    alt: "Young professional working on a laptop in a modern office",
+    eyebrow: "Work with confidence",
+    title: "Turn ideas into action",
     accent: "bg-fuchsia-400 shadow-[0_0_12px_#e879f9]",
   },
   {
