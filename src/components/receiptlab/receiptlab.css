@@ -3993,7 +3993,7 @@
 .receiptlab-root .nova-bank-details small { color: #999; font-size: 17px; }
 .receiptlab-root .nova-bank-details strong { min-width: 0; font-size: 18px; font-weight: 400; overflow-wrap: anywhere; }
 .receiptlab-root .nova-bank-mark { margin-top: 9%; text-align: center; }
-.receiptlab-root .nova-bank-mark img { width: 118px; height: 78px; object-fit: contain; }
+.receiptlab-root .nova-bank-mark img { display: block; width: 118px; height: 78px; margin: 0 auto; object-fit: contain; object-position: center; }
 .receiptlab-root .nova-bank-mark span { font-size: 47px; }
 .receiptlab-root .nova-bank-mark i,
 .receiptlab-root .nova-bank-mark b { margin-left: -8px; font-size: 35px; font-style: normal; }
@@ -4012,4 +4012,4 @@
 .receiptlab-root .nova-bank-mini > span { font-size: 6px; text-align: center; }
 .receiptlab-root .nova-bank-mini > i { margin-top: 15px; padding-top: 5px; border-top: 1px solid #333; color: #ddd; font-size: 5px; font-style: normal; }
 .receiptlab-root .nova-bank-mini > small { color: #999; font-size: 5px; }
-.receiptlab-root .nova-bank-mini > img { width: 42px; height: 28px; margin: auto auto 0; object-fit: contain; }
+.receiptlab-root .nova-bank-mini > img { display: block; width: 42px; height: 28px; margin: auto auto 0; object-fit: contain; object-position: center; }
