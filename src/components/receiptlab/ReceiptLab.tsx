@@ -358,6 +358,20 @@ export default function ReceiptLab() {
     auroraNotice: 'You can share your proof of payment from payment history.',
     auroraFinishLabel: 'Finish',
     auroraNewPaymentLabel: 'New payment',
+    ledgerStatus: 'Sent!',
+    ledgerCurrency: 'PHP',
+    ledgerAmount: '950.00',
+    ledgerServiceFee: '10.00',
+    ledgerTotalAmount: '960.00',
+    ledgerPaymentMethod: 'InstaPay',
+    ledgerRecipientName: 'Flash Demon',
+    ledgerRecipientDetails: 'G-Xchange, Inc. / Gcash',
+    ledgerRecipientAccount: '09909090909',
+    ledgerSenderName: 'Flash Demon',
+    ledgerSenderAccount: '••••••5287',
+    ledgerCreatedOn: 'Mar 30, 2026 7:15 AM',
+    ledgerReferenceNumber: 'BN-20260330-06210034',
+    ledgerInvoiceNumber: '779583',
   });
   const ref = useRef<HTMLDivElement>(null),
     total = (Number(form.amount || 0) + Number(form.tax || 0)).toFixed(2);
@@ -588,7 +602,7 @@ export default function ReceiptLab() {
                               ? 1608
                               : template.id === 'chase'
                                 ? 1776
-                                : template.id === 'invoice-aurora'
+                                : template.id === 'invoice-aurora' || template.id === 'invoice-ledger'
                                   ? 1400
                                   : 1200;
     const requiresSampleNotice = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || (isInvoiceTemplate(template.id) && template.id !== 'invoice-aurora');
@@ -1823,6 +1837,13 @@ function ChaseReceiptPreview({ form }: { form: Record<string, string> }) {
 }
 
 function InvoiceMini({ id }: { id: InvoiceTemplateId }) {
+  if (id === 'invoice-ledger') {
+    return (
+      <div className="ledger-payment-mini" aria-hidden="true">
+        <b>✓</b><strong>Sent!</strong><span>PHP <i>950.00</i></span><em>Total Amount&nbsp; PHP 960.00</em><small>To&nbsp; Flash Demon</small><small>Reference no.</small>
+      </div>
+    );
+  }
   if (id === 'invoice-aurora') {
     return (
       <div className="aurora-payment-mini" aria-hidden="true">
@@ -1843,7 +1864,7 @@ function InvoiceMini({ id }: { id: InvoiceTemplateId }) {
       <div className="invoice-mini-line invoice-mini-head" />
       <div className="invoice-mini-line" />
       <div className="invoice-mini-line short" />
-      <strong>{id === 'invoice-ledger' ? '$1,987.50' : id === 'invoice-nova' ? '$2,405.75' : '$1,998.75'}</strong>
+      <strong>{id === 'invoice-nova' ? '$2,405.75' : '$1,998.75'}</strong>
       <small>SAMPLE INVOICE</small>
     </div>
   );
@@ -1869,6 +1890,29 @@ function InvoicePreview({
     .map((word) => word[0])
     .join('')
     .toUpperCase();
+  if (id === 'invoice-ledger') {
+    return (
+      <article className="ledger-payment-document">
+        <div className="ledger-payment-status"><span aria-hidden="true">✓</span><strong>{form.ledgerStatus || 'Sent!'}</strong></div>
+        <div className="ledger-payment-amount"><small>{form.ledgerCurrency || 'PHP'}</small><b>{form.ledgerAmount || '0.00'}</b></div>
+        <div className="ledger-payment-summary">
+          <div><span>Service Fee</span><b>{form.ledgerCurrency || 'PHP'} {form.ledgerServiceFee || '0.00'}</b></div>
+          <div className="ledger-total"><span>Total Amount</span><b>{form.ledgerCurrency || 'PHP'} {form.ledgerTotalAmount || '0.00'}</b></div>
+          <div><span>Send Money via</span><b className="ledger-payment-method">{form.ledgerPaymentMethod || 'InstaPay'}</b></div>
+        </div>
+        <div className="ledger-payment-parties">
+          <section><small>To</small><strong>{form.ledgerRecipientName || 'Flash Demon'}</strong><span>{form.ledgerRecipientDetails || 'G-Xchange, Inc. / Gcash'}</span><span>{form.ledgerRecipientAccount || '0000000000'}</span></section>
+          <section><small>From</small><strong>{form.ledgerSenderName || 'Flash Demon'}</strong><span>{form.ledgerSenderAccount || '••••••5287'}</span></section>
+        </div>
+        <div className="ledger-payment-meta">
+          <div><small>Created on</small><strong>{form.ledgerCreatedOn || 'Demo date'}</strong></div>
+          <div><small>Reference no.</small><strong>{form.ledgerReferenceNumber || 'SAMPLE-REFERENCE'}</strong></div>
+          <div><small>Invoice no.</small><strong>{form.ledgerInvoiceNumber || '000000'}</strong></div>
+        </div>
+        {watermarkEnabled && <div className="ledger-payment-sample">DEMO • NOT A REAL TRANSACTION</div>}
+      </article>
+    );
+  }
   if (id === 'invoice-aurora') {
     return (
       <>
@@ -2111,6 +2155,33 @@ function Editor({
                   <div className="row">
                     {field('auroraFinishLabel', 'Finish button label')}
                     {field('auroraNewPaymentLabel', 'New payment label')}
+                  </div>
+                </>
+              ) : template.id === 'invoice-ledger' ? (
+                <>
+                  <div className="row">
+                    {field('ledgerStatus', 'Status')}
+                    {field('ledgerPaymentMethod', 'Payment method')}
+                  </div>
+                  <div className="row three">
+                    {field('ledgerCurrency', 'Currency')}
+                    {field('ledgerAmount', 'Amount')}
+                    {field('ledgerServiceFee', 'Service fee')}
+                  </div>
+                  {field('ledgerTotalAmount', 'Total amount')}
+                  <div className="row">
+                    {field('ledgerRecipientName', 'Recipient name')}
+                    {field('ledgerRecipientAccount', 'Recipient account')}
+                  </div>
+                  {field('ledgerRecipientDetails', 'Recipient details')}
+                  <div className="row">
+                    {field('ledgerSenderName', 'Sender name')}
+                    {field('ledgerSenderAccount', 'Sender account')}
+                  </div>
+                  {field('ledgerCreatedOn', 'Created on')}
+                  <div className="row">
+                    {field('ledgerReferenceNumber', 'Reference number')}
+                    {field('ledgerInvoiceNumber', 'Invoice number')}
                   </div>
                 </>
               ) : (

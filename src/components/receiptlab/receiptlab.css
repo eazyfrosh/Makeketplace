@@ -3891,3 +3891,67 @@
 .receiptlab-root .aurora-payment-mini small { color: #9ca0a2; font-size: 4px; text-align: center; }
 .receiptlab-root .aurora-payment-mini span { height: 13px; border-bottom: 1px solid #e1e2e2; }
 .receiptlab-root .aurora-payment-mini i { margin-top: auto; padding: 4px; background: #fff3cd; color: #9f1239; font-size: 4px; font-style: normal; text-align: center; }
+
+/* Ledger Invoice: editable InstaPay-style payment confirmation. */
+.receiptlab-root .receipt.invoice-ledger {
+  width: min(430px, 100%);
+  aspect-ratio: 584 / 893;
+  border: 0;
+  border-radius: 0;
+  background: #f4f4f4;
+  color: #202124;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.receiptlab-root .ledger-payment-document {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 24px 12%;
+  background: #f4f4f4;
+  text-align: left;
+}
+.receiptlab-root .ledger-payment-status { text-align: center; }
+.receiptlab-root .ledger-payment-status span {
+  width: 64px; height: 64px; margin: 0 auto 10px; border-radius: 50%;
+  background: #159b96; color: #fff; font-size: 38px; font-weight: 700;
+  display: grid; place-items: center;
+}
+.receiptlab-root .ledger-payment-status strong { color: #159b96; font-size: 28px; }
+.receiptlab-root .ledger-payment-amount { margin: 20px 0 24px; text-align: center; }
+.receiptlab-root .ledger-payment-amount small { font-size: 17px; }
+.receiptlab-root .ledger-payment-amount b { margin-left: 5px; font-size: 38px; }
+.receiptlab-root .ledger-payment-summary { border-bottom: 1px dotted #c9c9c9; padding-bottom: 18px; }
+.receiptlab-root .ledger-payment-summary > div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: 15px; }
+.receiptlab-root .ledger-payment-summary b { font-weight: 500; text-align: right; }
+.receiptlab-root .ledger-payment-summary .ledger-total { color: #2875a8; font-weight: 700; }
+.receiptlab-root .ledger-payment-summary .ledger-total b { font-weight: 700; }
+.receiptlab-root .ledger-payment-method { color: #243f78; font-size: 20px; font-weight: 800 !important; }
+.receiptlab-root .ledger-payment-parties { border-bottom: 1px dotted #c9c9c9; padding: 24px 0; }
+.receiptlab-root .ledger-payment-parties section + section { margin-top: 20px; }
+.receiptlab-root .ledger-payment-parties small,
+.receiptlab-root .ledger-payment-parties strong,
+.receiptlab-root .ledger-payment-parties span { display: block; }
+.receiptlab-root .ledger-payment-parties small { color: #777; font-size: 15px; }
+.receiptlab-root .ledger-payment-parties strong { margin-top: 5px; font-size: 19px; }
+.receiptlab-root .ledger-payment-parties span { color: #555; font-size: 15px; line-height: 1.35; }
+.receiptlab-root .ledger-payment-meta { padding: 22px 0 0; text-align: center; }
+.receiptlab-root .ledger-payment-meta > div + div { margin-top: 20px; }
+.receiptlab-root .ledger-payment-meta small,
+.receiptlab-root .ledger-payment-meta strong { display: block; }
+.receiptlab-root .ledger-payment-meta small { color: #777; font-size: 15px; }
+.receiptlab-root .ledger-payment-meta strong { margin-top: 5px; font-size: 18px; overflow-wrap: anywhere; }
+.receiptlab-root .ledger-payment-sample { margin: 22px -14% -24px; padding: 8px; background: #fff3cd; color: #9f1239; font-size: 10px; font-weight: 800; letter-spacing: .04em; text-align: center; }
+@media (max-width: 520px) {
+  .receiptlab-root .ledger-payment-document { padding-left: 9%; padding-right: 9%; }
+  .receiptlab-root .ledger-payment-sample { margin-left: -10%; margin-right: -10%; }
+}
+.receiptlab-root .ledger-payment-mini {
+  width: 82%; height: 100%; padding: 12px 9px; box-sizing: border-box;
+  background: #f4f4f4; color: #202124; display: flex; flex-direction: column;
+  align-items: stretch; gap: 5px; font-size: 5px;
+}
+.receiptlab-root .ledger-payment-mini > b { align-self: center; width: 18px; height: 18px; border-radius: 50%; background: #159b96; color: #fff; font-size: 13px; display: grid; place-items: center; }
+.receiptlab-root .ledger-payment-mini > strong { color: #159b96; font-size: 9px; text-align: center; }
+.receiptlab-root .ledger-payment-mini > span { margin-top: 6px; text-align: center; }
+.receiptlab-root .ledger-payment-mini > span i { font-size: 16px; font-style: normal; font-weight: 800; }
+.receiptlab-root .ledger-payment-mini > em { color: #2875a8; font-size: 6px; font-style: normal; font-weight: 800; }
+.receiptlab-root .ledger-payment-mini > small { margin-top: 6px; padding-top: 5px; border-top: 1px dotted #c9c9c9; font-size: 5px; }

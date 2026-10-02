@@ -134,6 +134,46 @@ async function drawAuroraInvoice(
   ctx.fillStyle = '#159447';
   ctx.fillText(form.auroraNewPaymentLabel || 'New payment', 450, 1227);
 }
+
+async function drawLedgerInvoice(canvas: HTMLCanvasElement, form: Record<string, string>) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas is unavailable');
+  canvas.width = 900;
+  canvas.height = 1400;
+  ctx.fillStyle = '#f4f4f4';
+  ctx.fillRect(0, 0, 900, 1400);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#159b96';
+  ctx.beginPath(); ctx.arc(450, 84, 48, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = '700 48px Arial'; ctx.fillText('✓', 450, 101);
+  ctx.fillStyle = '#159b96'; ctx.font = '700 38px Arial'; ctx.fillText(form.ledgerStatus || 'Sent!', 450, 168);
+  ctx.fillStyle = '#202124'; ctx.font = '25px Arial'; ctx.textAlign = 'right'; ctx.fillText(form.ledgerCurrency || 'PHP', 330, 228);
+  ctx.font = '700 62px Arial'; ctx.fillText(form.ledgerAmount || '0.00', 610, 228);
+  ctx.textAlign = 'left';
+  const line = (label: string, value: string, y: number, accent = false) => {
+    ctx.fillStyle = accent ? '#2875a8' : '#202124'; ctx.font = `${accent ? '700 ' : ''}24px Arial`; ctx.fillText(label, 95, y);
+    ctx.textAlign = 'right'; ctx.fillText(`${form.ledgerCurrency || 'PHP'} ${value}`, 805, y); ctx.textAlign = 'left';
+  };
+  line('Service Fee', form.ledgerServiceFee || '0.00', 315);
+  line('Total Amount', form.ledgerTotalAmount || '0.00', 375, true);
+  ctx.fillStyle = '#202124'; ctx.font = '24px Arial'; ctx.fillText('Send Money via', 95, 435);
+  ctx.textAlign = 'right'; ctx.fillStyle = '#243f78'; ctx.font = '700 34px Arial'; ctx.fillText(form.ledgerPaymentMethod || 'InstaPay', 805, 435); ctx.textAlign = 'left';
+  ctx.strokeStyle = '#d5d5d5'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(95, 485); ctx.lineTo(805, 485); ctx.stroke();
+  const party = (title: string, name: string, detail: string, account: string, y: number) => {
+    ctx.fillStyle = '#777'; ctx.font = '22px Arial'; ctx.fillText(title, 95, y);
+    ctx.fillStyle = '#111'; ctx.font = '700 27px Arial'; ctx.fillText(name, 95, y + 38);
+    ctx.font = '22px Arial'; ctx.fillText(detail, 95, y + 70); ctx.fillText(account, 95, y + 100);
+  };
+  party('To', form.ledgerRecipientName || 'Flash Demon', form.ledgerRecipientDetails || 'G-Xchange, Inc. / Gcash', form.ledgerRecipientAccount || '0000000000', 545);
+  party('From', form.ledgerSenderName || 'Flash Demon', '', form.ledgerSenderAccount || '••••••5287', 765);
+  ctx.strokeStyle = '#d5d5d5'; ctx.beginPath(); ctx.moveTo(95, 925); ctx.lineTo(805, 925); ctx.stroke();
+  const meta = (label: string, value: string, y: number) => { ctx.textAlign = 'center'; ctx.fillStyle = '#777'; ctx.font = '22px Arial'; ctx.fillText(label, 450, y); ctx.fillStyle = '#111'; ctx.font = '700 25px Arial'; ctx.fillText(value, 450, y + 38); };
+  meta('Created on', form.ledgerCreatedOn || 'Demo date', 1000);
+  meta('Reference no.', form.ledgerReferenceNumber || 'SAMPLE-REFERENCE', 1100);
+  meta('Invoice no.', form.ledgerInvoiceNumber || '000000', 1200);
+  ctx.textAlign = 'left';
+}
+
 export async function drawInvoice(
   canvas: HTMLCanvasElement,
   id: InvoiceTemplateId,
@@ -142,6 +182,10 @@ export async function drawInvoice(
 ) {
   if (id === 'invoice-aurora') {
     await drawAuroraInvoice(canvas, form, logoUrl);
+    return;
+  }
+  if (id === 'invoice-ledger') {
+    await drawLedgerInvoice(canvas, form);
     return;
   }
   const ctx = canvas.getContext('2d');
@@ -153,7 +197,7 @@ export async function drawInvoice(
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, 900, 1200);
   ctx.fillStyle = palette.accent;
-  ctx.fillRect(0, 0, id === 'invoice-ledger' ? 18 : 900, id === 'invoice-ledger' ? 1200 : 16);
+  ctx.fillRect(0, 0, 900, 16);
 
   if (logoUrl) {
     try {
@@ -170,7 +214,7 @@ export async function drawInvoice(
   } else {
     ctx.fillStyle = palette.accent;
     ctx.beginPath();
-    ctx.roundRect(66, 68, 92, 92, id === 'invoice-ledger' ? 8 : 24);
+    ctx.roundRect(66, 68, 92, 92, 24);
     ctx.fill();
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'center';
