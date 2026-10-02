@@ -3,7 +3,7 @@
 import { getAll, getOne, remove, upsert } from "@/lib/airline/services/store";
 import { generateVerificationToken } from "@/lib/airline/utils";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
-import type { Booking } from "@/lib/airline/types";
+import type { Booking, BookingStatusSummary } from "@/lib/airline/types";
 
 const COLLECTION = "bookings";
 const LOOKUP_COLLECTION = "bookingLookup";
@@ -178,6 +178,32 @@ export async function findBookingByReferenceAndName(
     return cached?.passengers.some((passenger) => passenger.lastName.trim().toLowerCase() === name)
       ? cached
       : null;
+  }
+}
+
+export async function findBookingStatusByReference(reference: string): Promise<BookingStatusSummary | null> {
+  const ref = reference.trim().toUpperCase();
+  if (!/^[A-Z0-9-]{4,32}$/.test(ref)) return null;
+  try {
+    const result = await api<{ booking: BookingStatusSummary | null }>("/api/airline/bookings/status", {
+      method: "POST",
+      body: JSON.stringify({ reference: ref }),
+    });
+    return result.booking;
+  } catch (error) {
+    if (!(error instanceof BookingApiError && error.status === 503)) throw error;
+    const cached = (await getAll<Booking>(COLLECTION)).find(
+      (booking) => booking.bookingReference.trim().toUpperCase() === ref,
+    );
+    if (!cached) return null;
+    return {
+      bookingReference: ref,
+      status: cached.status,
+      flights: cached.flights,
+      gate: cached.gate,
+      terminal: cached.terminal,
+      boardingTime: cached.boardingTime,
+    };
   }
 }
 

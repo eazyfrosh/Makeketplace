@@ -5,7 +5,7 @@ import {
   normalizeBookingReference,
   publicVerificationBooking,
 } from "@/lib/airline/booking-record";
-import type { Booking } from "@/lib/airline/types";
+import type { Booking, BookingStatusSummary } from "@/lib/airline/types";
 
 const BOOKINGS = "airlineBookings";
 const REFERENCES = "airlineBookingReferences";
@@ -63,6 +63,26 @@ export async function findOwnedBookingByReference(
   return booking.passengers.some((passenger) => passenger.lastName.trim().toLowerCase() === wantedName)
     ? booking
     : null;
+}
+
+export async function findOwnedBookingStatusByReference(
+  reference: string,
+  userId: string,
+): Promise<BookingStatusSummary | null> {
+  const db = dbOrThrow();
+  const ref = normalizeBookingReference(reference);
+  const pointer = await db.collection(REFERENCES).doc(ref).get();
+  if (!pointer.exists || pointer.data()?.userId !== userId) return null;
+  const booking = await getOwnedBooking(String(pointer.data()?.bookingId ?? ""), userId);
+  if (!booking) return null;
+  return {
+    bookingReference: normalizeBookingReference(booking.bookingReference),
+    status: booking.status,
+    flights: booking.flights,
+    gate: booking.gate,
+    terminal: booking.terminal,
+    boardingTime: booking.boardingTime,
+  };
 }
 
 export async function saveOwnedBooking(
