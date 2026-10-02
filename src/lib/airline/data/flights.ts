@@ -22,6 +22,17 @@ function distanceEstimate(originCode: string, destinationCode: string) {
   return 65 + (seed % 915);
 }
 
+function timeOnDate(date: Date, value?: string): Date | undefined {
+  const match = value?.match(/^(\d{2}):(\d{2})$/);
+  if (!match) return undefined;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) return undefined;
+  const result = new Date(date);
+  result.setHours(hours, minutes, 0, 0);
+  return result;
+}
+
 function buildSegment(
   rand: () => number,
   origin: string,
@@ -55,7 +66,7 @@ export function generateFlights(params: FlightSearchParams, count = 12): Flight[
   const destinationAirport = findAirport(params.to);
   if (!originAirport || !destinationAirport) return [];
 
-  const seedKey = `${params.from}-${params.to}-${params.departureDate}-${params.cabin}-${params.preferredAirlineId ?? "any"}-${params.customPrice ?? "generated"}`;
+  const seedKey = `${params.from}-${params.to}-${params.departureDate}-${params.cabin}-${params.preferredAirlineId ?? "any"}-${params.customPrice ?? "generated"}-${params.customDepartureTime ?? "generated"}-${params.customArrivalTime ?? "generated"}`;
   const rand = seedRandom(hashString(seedKey) || 1);
 
   const flights: Flight[] = [];
@@ -65,8 +76,8 @@ export function generateFlights(params: FlightSearchParams, count = 12): Flight[
     const stops = rand() < 0.42 ? 0 : rand() < 0.75 ? 1 : 2;
     const departureHour = 4 + Math.floor(rand() * 19);
     const departureMinute = Math.floor(rand() * 12) * 5;
-    const departure = new Date(baseDate);
-    departure.setHours(departureHour, departureMinute, 0, 0);
+    const departure = timeOnDate(baseDate, params.customDepartureTime) ?? new Date(baseDate);
+    if (!params.customDepartureTime) departure.setHours(departureHour, departureMinute, 0, 0);
 
     const segments: FlightSegment[] = [];
     let currentOrigin = params.from;
@@ -84,6 +95,17 @@ export function generateFlights(params: FlightSearchParams, count = 12): Flight[
       currentOrigin = segDestination;
       const layoverMinutes = 45 + Math.floor(rand() * 105);
       currentDeparture = new Date(new Date(seg.arrivalTime).getTime() + layoverMinutes * 60000);
+    }
+
+    const requestedArrival = timeOnDate(baseDate, params.customArrivalTime);
+    if (requestedArrival) {
+      const finalSegment = segments[segments.length - 1];
+      const finalDeparture = new Date(finalSegment.departureTime);
+      while (requestedArrival.getTime() <= finalDeparture.getTime()) {
+        requestedArrival.setDate(requestedArrival.getDate() + 1);
+      }
+      finalSegment.arrivalTime = requestedArrival.toISOString();
+      finalSegment.durationMinutes = Math.round((requestedArrival.getTime() - finalDeparture.getTime()) / 60000);
     }
 
     const totalDurationMinutes = Math.round(

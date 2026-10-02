@@ -72,6 +72,8 @@ export interface FlightSearchParams {
   cabin: CabinClass;
   preferredAirlineId?: string;
   customPrice?: number;
+  customDepartureTime?: string;
+  customArrivalTime?: string;
 }
 
 export interface PassengerInfo {
@@ -134,5 +136,7 @@ export interface RecentSearch {
   tripType: TripType;
   preferredAirlineId?: string;
   customPrice?: number;
+  customDepartureTime?: string;
+  customArrivalTime?: string;
   timestamp: number;
 }

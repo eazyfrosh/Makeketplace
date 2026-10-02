@@ -25,6 +25,11 @@ interface Leg {
   to: string;
   date: string;
 }
+
+function validCustomTime(value: string | null): string | undefined {
+  if (!value || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value)) return undefined;
+  return value;
+}
 function sortFlights(flights: Flight[], key: SortKey): Flight[] {
   const sorted = [...flights];
   switch (key) {
@@ -60,6 +65,8 @@ export function SearchResultsClient() {
   const customPrice = parsedPrice !== undefined && Number.isFinite(parsedPrice) && parsedPrice > 0 && parsedPrice <= 1_000_000
     ? Math.round(parsedPrice * 100) / 100
     : undefined;
+  const customDepartureTime = validCustomTime(params.get("departureTime"));
+  const customArrivalTime = validCustomTime(params.get("arrivalTime"));
   const passengers: PassengerCounts = useMemo(() => {
     try {
       return JSON.parse(params.get("passengers") || "") as PassengerCounts;
@@ -127,6 +134,8 @@ export function SearchResultsClient() {
       cabin,
       preferredAirlineId,
       customPrice,
+      customDepartureTime,
+      customArrivalTime,
     });
     clearItinerary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -153,9 +162,11 @@ export function SearchResultsClient() {
       cabin,
       preferredAirlineId,
       customPrice,
+      customDepartureTime,
+      customArrivalTime,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLeg?.from, currentLeg?.to, currentLeg?.date, cabin, preferredAirlineId, customPrice]);
+  }, [currentLeg?.from, currentLeg?.to, currentLeg?.date, cabin, preferredAirlineId, customPrice, customDepartureTime, customArrivalTime]);
 
   const priceCeiling = useMemo(
     () => Math.max(500, ...rawFlights.map((f) => Math.ceil(f.price / 50) * 50)),
@@ -211,7 +222,7 @@ export function SearchResultsClient() {
           {formatDateLong(`${currentLeg.date}T00:00:00`)} · {passengers.adults + passengers.children + passengers.infants} passenger
           {passengers.adults + passengers.children + passengers.infants !== 1 ? "s" : ""}
         </p>
-        {(preferredAirline || customPrice !== undefined) && (
+        {(preferredAirline || customPrice !== undefined || customDepartureTime || customArrivalTime) && (
           <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium">
             {preferredAirline && (
               <span className="rounded-full bg-brand-50 px-2.5 py-1 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
@@ -221,6 +232,16 @@ export function SearchResultsClient() {
             {customPrice !== undefined && (
               <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
                 {formatCurrency(customPrice)} per passenger
+              </span>
+            )}
+            {customDepartureTime && (
+              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
+                Departs {customDepartureTime}
+              </span>
+            )}
+            {customArrivalTime && (
+              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
+                Arrives {customArrivalTime}
               </span>
             )}
           </div>
