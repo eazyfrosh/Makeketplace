@@ -1852,6 +1852,7 @@ function InvoiceMini({ id }: { id: InvoiceTemplateId }) {
     return (
       <div className="nova-bank-mini" aria-hidden="true">
         <b>✓</b><strong>$500.00</strong><span>Jane Truong</span><i>From&nbsp; ANZ Pensioner Advantage</i><i>Message&nbsp; JtTF bw bank pay</i><small>733132-536139</small>
+        <img src="/receiptlab/anz-logo.png" alt="" />
       </div>
     );
   }
@@ -1921,7 +1922,7 @@ function InvoicePreview({
           <div><small>Date</small><strong>{form.novaDate || 'Demo date'}</strong></div>
           <div><small>Receipt no.</small><strong>{form.novaReceiptNumber || '000000'}</strong></div>
         </div>
-        <div className="nova-bank-mark" aria-hidden="true"><span>●</span><i>◆</i><b>◆</b></div>
+        <div className="nova-bank-mark"><img src="/receiptlab/anz-logo.png" alt="ANZ" /></div>
         {watermarkEnabled && <div className="nova-bank-sample">DEMO • NOT A REAL TRANSACTION</div>}
       </article>
     );

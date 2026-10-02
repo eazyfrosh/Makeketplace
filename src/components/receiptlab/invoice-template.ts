@@ -194,7 +194,12 @@ async function drawNovaInvoice(canvas: HTMLCanvasElement, form: Record<string, s
   row('Ref.', form.novaReference || 'SAMPLE-REFERENCE', 825);
   row('Date', form.novaDate || 'Demo date', 925);
   row('Receipt no.', form.novaReceiptNumber || '000000', 1025);
-  ctx.fillStyle = '#087ff5'; ctx.font = '900 72px Arial'; ctx.textAlign = 'center'; ctx.fillText('●', 430, 1240); ctx.fillText('◆', 490, 1240);
+  try {
+    const logo = await loadLogo('/receiptlab/anz-logo.png');
+    ctx.drawImage(logo, 385, 1150, 130, 85);
+  } catch {
+    ctx.fillStyle = '#087ff5'; ctx.font = '900 72px Arial'; ctx.textAlign = 'center'; ctx.fillText('●', 430, 1240); ctx.fillText('◆', 490, 1240);
+  }
 }
 
 export async function drawInvoice(
