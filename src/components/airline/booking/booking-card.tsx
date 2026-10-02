@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, Ticket } from "lucide-react";
+import { Pencil, Ticket, Trash2 } from "lucide-react";
 import type { Booking } from "@/lib/airline/types";
 import { Badge } from "@/components/airline/ui/badge";
 import { Button } from "@/components/airline/ui/button";
@@ -10,10 +10,11 @@ import { cabinLabel, formatCurrency, formatDateLong, formatTime } from "@/lib/ai
 interface BookingCardProps {
   booking: Booking;
   onCancel?: (booking: Booking) => void;
-  onRebook?: (booking: Booking) => void;
+  onEdit?: (booking: Booking) => void;
+  onDelete?: (booking: Booking) => void;
 }
 
-export function BookingCard({ booking, onCancel, onRebook }: BookingCardProps) {
+export function BookingCard({ booking, onCancel, onEdit, onDelete }: BookingCardProps) {
   const flight = booking.flights[0];
   const first = flight.segments[0];
   const last = flight.segments[flight.segments.length - 1];
@@ -35,7 +36,7 @@ export function BookingCard({ booking, onCancel, onRebook }: BookingCardProps) {
         <div className="flex items-center gap-1.5">
           <Badge tone="brand">{cabinLabel(flight.cabin)}</Badge>
           <Badge tone={bookingStatusTone(booking.status)}>{bookingStatusLabel(booking.status)}</Badge>
-          {booking.rebookedAt && <Badge tone="gold">Rebooked</Badge>}
+          {booking.rebookedAt && <Badge tone="gold">Updated</Badge>}
         </div>
       </div>
 
@@ -55,14 +56,19 @@ export function BookingCard({ booking, onCancel, onRebook }: BookingCardProps) {
               <Button size="sm" variant="secondary"><Ticket size={13} /> Boarding pass</Button>
             </Link>
           )}
-          {manageable && onRebook && (
-            <Button size="sm" variant="outline" onClick={() => onRebook(booking)}>
-              <CalendarClock size={13} /> Rebook
+          {manageable && onEdit && (
+            <Button size="sm" variant="outline" onClick={() => onEdit(booking)}>
+              <Pencil size={13} /> Edit booking
             </Button>
           )}
           {manageable && onCancel && (
             <Button size="sm" variant="danger" onClick={() => onCancel(booking)}>
               Cancel
+            </Button>
+          )}
+          {onDelete && (
+            <Button size="sm" variant="danger" onClick={() => onDelete(booking)}>
+              <Trash2 size={13} /> Delete
             </Button>
           )}
         </div>

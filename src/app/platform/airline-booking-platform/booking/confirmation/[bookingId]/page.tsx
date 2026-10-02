@@ -53,7 +53,7 @@ export default function ConfirmationPage() {
           <CheckCircle2 size={32} />
         </span>
         <h1 className="mt-4 text-2xl font-bold sm:text-3xl">
-          {justRebooked ? "Booking rebooked!" : "Booking confirmed!"}
+          {justRebooked ? "Booking updated!" : "Booking confirmed!"}
         </h1>
         <p className="mt-1 text-foreground/60">
           A confirmation summary is ready for <strong>{booking.passengers[0]?.email}</strong>.
@@ -69,7 +69,7 @@ export default function ConfirmationPage() {
             </p>
             <div className="mt-2 flex items-center justify-center gap-2 sm:justify-start">
               <Badge tone={bookingStatusTone(booking.status)}>{bookingStatusLabel(booking.status)}</Badge>
-              {booking.rebookedAt && <Badge tone="gold">Rebooked</Badge>}
+              {booking.rebookedAt && <Badge tone="gold">Updated</Badge>}
             </div>
           </div>
           <QRCodeImage value={getVerificationUrl(booking.bookingReference, booking.verificationToken)} />

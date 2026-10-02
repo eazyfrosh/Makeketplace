@@ -26,7 +26,7 @@ export function RebookingBanner() {
     <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-gold-500/30 bg-gold-500/10 px-4 py-3 text-sm">
       <span className="flex items-center gap-2 text-foreground/80">
         <CalendarClock size={16} className="text-gold-500" />
-        Choosing a new flight for booking <strong>{reference ?? rebookingBookingId}</strong> — the new flight will replace the original.
+        Editing booking <strong>{reference ?? rebookingBookingId}</strong> — confirm the new itinerary to save your changes.
       </span>
       <button
         onClick={() => {
