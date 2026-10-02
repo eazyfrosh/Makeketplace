@@ -2112,32 +2112,34 @@ function Editor({
           </label>
           {invoice ? (
             <>
-              <div className="invoice-logo-control">
-                <div className="invoice-logo-control-head">
-                  <span>
-                    <b>{template.id === 'invoice-aurora' ? 'Payment brand logo' : 'Business logo'}</b>
-                    <small>PNG, JPG, or WebP · up to 2 MB</small>
-                  </span>
-                  {invoiceLogo && (
-                    <button type="button" onClick={() => setInvoiceLogo('')}>
-                      <Trash2 aria-hidden="true" /> Remove
-                    </button>
-                  )}
+              {template.id !== 'invoice-ledger' && (
+                <div className="invoice-logo-control">
+                  <div className="invoice-logo-control-head">
+                    <span>
+                      <b>{template.id === 'invoice-aurora' ? 'Payment brand logo' : 'Business logo'}</b>
+                      <small>PNG, JPG, or WebP · up to 2 MB</small>
+                    </span>
+                    {invoiceLogo && (
+                      <button type="button" onClick={() => setInvoiceLogo('')}>
+                        <Trash2 aria-hidden="true" /> Remove
+                      </button>
+                    )}
+                  </div>
+                  <label className="logo-upload">
+                    {invoiceLogo ? <img src={invoiceLogo} alt="Uploaded business logo" /> : <ImagePlus aria-hidden="true" />}
+                    <span>{invoiceLogo ? 'Replace logo' : 'Add your logo'}</span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={(event) => {
+                        handleLogo(event.target.files?.[0]);
+                        event.target.value = '';
+                      }}
+                    />
+                  </label>
+                  {logoError && <p className="logo-error" role="alert">{logoError}</p>}
                 </div>
-                <label className="logo-upload">
-                  {invoiceLogo ? <img src={invoiceLogo} alt="Uploaded business logo" /> : <ImagePlus aria-hidden="true" />}
-                  <span>{invoiceLogo ? 'Replace logo' : 'Add your logo'}</span>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    onChange={(event) => {
-                      handleLogo(event.target.files?.[0]);
-                      event.target.value = '';
-                    }}
-                  />
-                </label>
-                {logoError && <p className="logo-error" role="alert">{logoError}</p>}
-              </div>
+              )}
               {template.id === 'invoice-aurora' ? (
                 <>
                   <div className="row">
