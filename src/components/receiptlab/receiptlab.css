@@ -3955,3 +3955,59 @@
 .receiptlab-root .ledger-payment-mini > span i { font-size: 16px; font-style: normal; font-weight: 800; }
 .receiptlab-root .ledger-payment-mini > em { color: #2875a8; font-size: 6px; font-style: normal; font-weight: 800; }
 .receiptlab-root .ledger-payment-mini > small { margin-top: 6px; padding-top: 5px; border-top: 1px dotted #c9c9c9; font-size: 5px; }
+
+/* ANZ Bank Template: editable dark bank-transfer confirmation. */
+.receiptlab-root .receipt.invoice-nova {
+  width: min(430px, 100%);
+  aspect-ratio: 585 / 791;
+  border: 0;
+  border-radius: 0;
+  background: #000;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.receiptlab-root .nova-bank-document {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 9% 8% 7%;
+  background: #000;
+  color: #fff;
+}
+.receiptlab-root .nova-bank-status { text-align: center; }
+.receiptlab-root .nova-bank-status span {
+  width: 66px; height: 66px; margin: 0 auto; border: 5px solid #08a916; border-radius: 50%;
+  color: #08a916; font-size: 47px; line-height: 1; display: grid; place-items: center;
+}
+.receiptlab-root .nova-bank-amount { margin: 13% 0 7%; text-align: center; }
+.receiptlab-root .nova-bank-amount strong,
+.receiptlab-root .nova-bank-amount b { display: block; }
+.receiptlab-root .nova-bank-amount strong { font-size: clamp(28px, 8.8cqw, 55px); letter-spacing: .01em; }
+.receiptlab-root .nova-bank-amount b { margin-top: 5px; font-size: 24px; font-weight: 400; }
+.receiptlab-root .nova-bank-recipient { margin-bottom: 9%; text-align: center; }
+.receiptlab-root .nova-bank-recipient strong,
+.receiptlab-root .nova-bank-recipient span { display: block; }
+.receiptlab-root .nova-bank-recipient strong { font-size: 23px; }
+.receiptlab-root .nova-bank-recipient span { margin-top: 4px; color: #999; font-size: 18px; }
+.receiptlab-root .nova-bank-details { border-top: 1px solid #333; }
+.receiptlab-root .nova-bank-details > div { display: grid; grid-template-columns: 30% minmax(0, 1fr); gap: 12px; padding: 20px 0; border-bottom: 1px solid #333; }
+.receiptlab-root .nova-bank-details small { color: #999; font-size: 17px; }
+.receiptlab-root .nova-bank-details strong { min-width: 0; font-size: 18px; font-weight: 400; overflow-wrap: anywhere; }
+.receiptlab-root .nova-bank-mark { margin-top: 9%; color: #087ff5; text-align: center; }
+.receiptlab-root .nova-bank-mark span { font-size: 47px; }
+.receiptlab-root .nova-bank-mark i,
+.receiptlab-root .nova-bank-mark b { margin-left: -8px; font-size: 35px; font-style: normal; }
+.receiptlab-root .nova-bank-sample { margin: 8% -10% -7%; padding: 8px; background: #fff3cd; color: #9f1239; font-size: 10px; font-weight: 800; letter-spacing: .04em; text-align: center; }
+@media (max-width: 520px) {
+  .receiptlab-root .nova-bank-document { padding-left: 7%; padding-right: 7%; }
+  .receiptlab-root .nova-bank-details > div { grid-template-columns: 28% minmax(0, 1fr); gap: 8px; padding: 16px 0; }
+  .receiptlab-root .nova-bank-sample { margin-left: -8%; margin-right: -8%; }
+}
+.receiptlab-root .nova-bank-mini {
+  width: 82%; height: 100%; padding: 14px 10px; box-sizing: border-box;
+  background: #000; color: #fff; display: flex; flex-direction: column; gap: 6px;
+}
+.receiptlab-root .nova-bank-mini > b { align-self: center; width: 20px; height: 20px; border: 2px solid #08a916; border-radius: 50%; color: #08a916; font-size: 12px; display: grid; place-items: center; }
+.receiptlab-root .nova-bank-mini > strong { margin-top: 5px; font-size: 16px; text-align: center; }
+.receiptlab-root .nova-bank-mini > span { font-size: 6px; text-align: center; }
+.receiptlab-root .nova-bank-mini > i { margin-top: 15px; padding-top: 5px; border-top: 1px solid #333; color: #ddd; font-size: 5px; font-style: normal; }
+.receiptlab-root .nova-bank-mini > small { color: #999; font-size: 5px; }

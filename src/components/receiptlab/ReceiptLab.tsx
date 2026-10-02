@@ -193,17 +193,17 @@ const templates: Template[] = [
   },
   {
     id: 'invoice-ledger',
-    name: 'Ledger Invoice',
-    category: 'Invoice',
+    name: 'Bank Template',
+    category: 'Banking',
     accent: '#171717',
-    description: 'Refined monochrome layout',
+    description: 'Editable payment confirmation',
   },
   {
     id: 'invoice-nova',
-    name: 'Nova Invoice',
-    category: 'Invoice',
+    name: 'ANZ Bank Template',
+    category: 'Banking',
     accent: '#087f5b',
-    description: 'Confident emerald statement',
+    description: 'Editable dark bank transfer receipt',
   },
 ];
 export default function ReceiptLab() {
@@ -372,6 +372,17 @@ export default function ReceiptLab() {
     ledgerCreatedOn: 'Mar 30, 2026 7:15 AM',
     ledgerReferenceNumber: 'BN-20260330-06210034',
     ledgerInvoiceNumber: '779583',
+    novaStatus: 'Completed',
+    novaCurrency: '$',
+    novaAmount: '500.00',
+    novaRecipientName: 'Jane Truong',
+    novaRecipientBsb: '733132',
+    novaRecipientAccount: '536139',
+    novaFrom: 'ANZ Pensioner Advantage',
+    novaMessage: 'JtTF bw bank pay wpc500',
+    novaReference: '733132-536139',
+    novaDate: '21 Dec 2021',
+    novaReceiptNumber: '735446',
   });
   const ref = useRef<HTMLDivElement>(null),
     total = (Number(form.amount || 0) + Number(form.tax || 0)).toFixed(2);
@@ -602,7 +613,7 @@ export default function ReceiptLab() {
                               ? 1608
                               : template.id === 'chase'
                                 ? 1776
-                                : template.id === 'invoice-aurora' || template.id === 'invoice-ledger'
+                                : template.id === 'invoice-aurora' || template.id === 'invoice-ledger' || template.id === 'invoice-nova'
                                   ? 1400
                                   : 1200;
     const requiresSampleNotice = template.id === 'black' || template.id === 'blue' || template.id === 'indigo' || template.id === 'gcash' || template.id === 'okx' || (isInvoiceTemplate(template.id) && template.id !== 'invoice-aurora');
@@ -1837,6 +1848,13 @@ function ChaseReceiptPreview({ form }: { form: Record<string, string> }) {
 }
 
 function InvoiceMini({ id }: { id: InvoiceTemplateId }) {
+  if (id === 'invoice-nova') {
+    return (
+      <div className="nova-bank-mini" aria-hidden="true">
+        <b>✓</b><strong>$500.00</strong><span>Jane Truong</span><i>From&nbsp; ANZ Pensioner Advantage</i><i>Message&nbsp; JtTF bw bank pay</i><small>733132-536139</small>
+      </div>
+    );
+  }
   if (id === 'invoice-ledger') {
     return (
       <div className="ledger-payment-mini" aria-hidden="true">
@@ -1864,7 +1882,7 @@ function InvoiceMini({ id }: { id: InvoiceTemplateId }) {
       <div className="invoice-mini-line invoice-mini-head" />
       <div className="invoice-mini-line" />
       <div className="invoice-mini-line short" />
-      <strong>{id === 'invoice-nova' ? '$2,405.75' : '$1,998.75'}</strong>
+      <strong>$1,998.75</strong>
       <small>SAMPLE INVOICE</small>
     </div>
   );
@@ -1890,6 +1908,24 @@ function InvoicePreview({
     .map((word) => word[0])
     .join('')
     .toUpperCase();
+  if (id === 'invoice-nova') {
+    return (
+      <article className="nova-bank-document">
+        <div className="nova-bank-status"><span aria-hidden="true">✓</span></div>
+        <div className="nova-bank-amount"><strong>{form.novaCurrency || '$'}{form.novaAmount || '0.00'}</strong><b>{form.novaStatus || 'Completed'}</b></div>
+        <div className="nova-bank-recipient"><strong>{form.novaRecipientName || 'Jane Truong'}</strong><span>BSB {form.novaRecipientBsb || '000000'}</span><span>Account {form.novaRecipientAccount || '000000'}</span></div>
+        <div className="nova-bank-details">
+          <div><small>From</small><strong>{form.novaFrom || 'Sample account'}</strong></div>
+          <div><small>Message</small><strong>{form.novaMessage || 'Sample payment message'}</strong></div>
+          <div><small>Ref.</small><strong>{form.novaReference || 'SAMPLE-REFERENCE'}</strong></div>
+          <div><small>Date</small><strong>{form.novaDate || 'Demo date'}</strong></div>
+          <div><small>Receipt no.</small><strong>{form.novaReceiptNumber || '000000'}</strong></div>
+        </div>
+        <div className="nova-bank-mark" aria-hidden="true"><span>●</span><i>◆</i><b>◆</b></div>
+        {watermarkEnabled && <div className="nova-bank-sample">DEMO • NOT A REAL TRANSACTION</div>}
+      </article>
+    );
+  }
   if (id === 'invoice-ledger') {
     return (
       <article className="ledger-payment-document">
@@ -2184,6 +2220,26 @@ function Editor({
                   <div className="row">
                     {field('ledgerReferenceNumber', 'Reference number')}
                     {field('ledgerInvoiceNumber', 'Invoice number')}
+                  </div>
+                </>
+              ) : template.id === 'invoice-nova' ? (
+                <>
+                  <div className="row">
+                    {field('novaStatus', 'Status')}
+                    {field('novaCurrency', 'Currency symbol')}
+                  </div>
+                  {field('novaAmount', 'Amount')}
+                  <div className="row">
+                    {field('novaRecipientName', 'Recipient name')}
+                    {field('novaRecipientBsb', 'Recipient BSB')}
+                  </div>
+                  {field('novaRecipientAccount', 'Recipient account')}
+                  {field('novaFrom', 'From account')}
+                  {field('novaMessage', 'Message')}
+                  {field('novaReference', 'Reference')}
+                  <div className="row">
+                    {field('novaDate', 'Date')}
+                    {field('novaReceiptNumber', 'Receipt number')}
                   </div>
                 </>
               ) : (

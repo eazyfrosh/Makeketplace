@@ -174,6 +174,29 @@ async function drawLedgerInvoice(canvas: HTMLCanvasElement, form: Record<string,
   ctx.textAlign = 'left';
 }
 
+async function drawNovaInvoice(canvas: HTMLCanvasElement, form: Record<string, string>) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas is unavailable');
+  canvas.width = 900;
+  canvas.height = 1400;
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 900, 1400);
+  ctx.textAlign = 'center';
+  ctx.strokeStyle = '#08a916'; ctx.lineWidth = 8;
+  ctx.beginPath(); ctx.arc(450, 120, 68, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(415, 122); ctx.lineTo(442, 150); ctx.lineTo(500, 83); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = '700 68px Arial'; ctx.fillText(`${form.novaCurrency || '$'}${form.novaAmount || '0.00'}`, 450, 330);
+  ctx.font = '30px Arial'; ctx.fillText(form.novaRecipientName || 'Jane Truong', 450, 395);
+  ctx.fillStyle = '#999'; ctx.font = '25px Arial'; ctx.fillText(`BSB ${form.novaRecipientBsb || '000000'}`, 450, 445); ctx.fillText(`Account ${form.novaRecipientAccount || '000000'}`, 450, 490);
+  ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(60, 560); ctx.lineTo(840, 560); ctx.stroke();
+  const row = (label: string, value: string, y: number) => { ctx.textAlign = 'left'; ctx.fillStyle = '#999'; ctx.font = '25px Arial'; ctx.fillText(label, 60, y); ctx.fillStyle = '#fff'; ctx.font = '25px Arial'; ctx.fillText(value, 300, y); ctx.beginPath(); ctx.moveTo(60, y + 35); ctx.lineTo(840, y + 35); ctx.stroke(); };
+  row('From', form.novaFrom || 'Sample account', 625);
+  row('Message', form.novaMessage || 'Sample payment message', 725);
+  row('Ref.', form.novaReference || 'SAMPLE-REFERENCE', 825);
+  row('Date', form.novaDate || 'Demo date', 925);
+  row('Receipt no.', form.novaReceiptNumber || '000000', 1025);
+  ctx.fillStyle = '#087ff5'; ctx.font = '900 72px Arial'; ctx.textAlign = 'center'; ctx.fillText('●', 430, 1240); ctx.fillText('◆', 490, 1240);
+}
+
 export async function drawInvoice(
   canvas: HTMLCanvasElement,
   id: InvoiceTemplateId,
@@ -188,9 +211,13 @@ export async function drawInvoice(
     await drawLedgerInvoice(canvas, form);
     return;
   }
+  if (id === 'invoice-nova') {
+    await drawNovaInvoice(canvas, form);
+    return;
+  }
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas is unavailable');
-  const palette = palettes[id];
+  const palette = palettes[id as InvoiceTemplateId];
   const totals = invoiceTotals(form);
   const money = (value: number) => invoiceMoney(value, form.invoiceCurrency);
   canvas.width = 900;
