@@ -38,7 +38,12 @@ export default function ContactPage() {
             <Mail className="mt-0.5 size-5 text-primary" />
             <div>
               <div className="font-medium">Email</div>
-              <div className="text-sm text-muted-foreground">hello@nexova.io</div>
+              <a
+                href="mailto:support@eazytool.app"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary hover:underline"
+              >
+                support@eazytool.app
+              </a>
             </div>
           </div>
           <div className="glass flex items-start gap-3 rounded-xl p-4">
