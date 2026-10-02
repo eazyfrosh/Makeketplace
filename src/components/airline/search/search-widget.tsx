@@ -46,6 +46,8 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
   const [cabin, setCabin] = useState<CabinClass>("economy");
   const [preferredAirline, setPreferredAirline] = useState("");
   const [customPrice, setCustomPrice] = useState("");
+  const [customDepartureTime, setCustomDepartureTime] = useState("");
+  const [customArrivalTime, setCustomArrivalTime] = useState("");
   const [segments, setSegments] = useState<MultiSegment[]>(blankSegments);
   const [autoFocusFrom, setAutoFocusFrom] = useState(false);
 
@@ -100,6 +102,8 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
     const enteredAirline = preferredAirline.trim().slice(0, 80);
     if (enteredAirline) params.set("airline", enteredAirline);
     if (parsedPrice !== undefined) params.set("price", parsedPrice.toFixed(2));
+    if (customDepartureTime) params.set("departureTime", customDepartureTime);
+    if (customArrivalTime) params.set("arrivalTime", customArrivalTime);
 
     if (tripType === "multi_city") {
       params.set("segments", JSON.stringify(segments));
@@ -119,6 +123,8 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
         tripType,
         preferredAirlineId: enteredAirline || undefined,
         customPrice: parsedPrice,
+        customDepartureTime: customDepartureTime || undefined,
+        customArrivalTime: customArrivalTime || undefined,
         timestamp: Date.now(),
       });
     }
@@ -247,9 +253,9 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
       <section className="mt-4 rounded-2xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-500/20 dark:bg-brand-500/5">
         <div className="mb-3">
           <h3 className="text-sm font-semibold">Customize your flight</h3>
-          <p className="mt-0.5 text-xs text-foreground/55">Type any airline and set the exact price per passenger.</p>
+          <p className="mt-0.5 text-xs text-foreground/55">Set the airline, price, departure time, and arrival time shown on your itinerary.</p>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="preferred-airline">
             Enter airline
@@ -289,6 +295,30 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
               className="w-full rounded-xl border border-black/10 bg-white py-3 pl-7 pr-3.5 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900"
             />
           </div>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="custom-departure-time">
+            Departure time
+          </label>
+          <input
+            id="custom-departure-time"
+            type="time"
+            value={customDepartureTime}
+            onChange={(event) => setCustomDepartureTime(event.target.value)}
+            className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900"
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="custom-arrival-time">
+            Arrival time
+          </label>
+          <input
+            id="custom-arrival-time"
+            type="time"
+            value={customArrivalTime}
+            onChange={(event) => setCustomArrivalTime(event.target.value)}
+            className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900"
+          />
         </div>
         </div>
       </section>
