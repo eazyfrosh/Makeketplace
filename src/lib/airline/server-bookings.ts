@@ -32,6 +32,17 @@ function bookingFromData(data: FirebaseFirestore.DocumentData | undefined): Book
   return value as Booking;
 }
 
+function bookingStatusSummary(booking: Booking): BookingStatusSummary {
+  return {
+    bookingReference: normalizeBookingReference(booking.bookingReference),
+    status: booking.status,
+    flights: booking.flights,
+    gate: booking.gate,
+    terminal: booking.terminal,
+    boardingTime: booking.boardingTime,
+  };
+}
+
 export async function listBookingsForUser(userId: string): Promise<Booking[]> {
   const snapshot = await dbOrThrow().collection(BOOKINGS).where("userId", "==", userId).get();
   return snapshot.docs
@@ -75,14 +86,26 @@ export async function findOwnedBookingStatusByReference(
   if (!pointer.exists || pointer.data()?.userId !== userId) return null;
   const booking = await getOwnedBooking(String(pointer.data()?.bookingId ?? ""), userId);
   if (!booking) return null;
-  return {
-    bookingReference: normalizeBookingReference(booking.bookingReference),
-    status: booking.status,
-    flights: booking.flights,
-    gate: booking.gate,
-    terminal: booking.terminal,
-    boardingTime: booking.boardingTime,
-  };
+  return bookingStatusSummary(booking);
+}
+
+/**
+ * Public cross-app lookup used by the standalone FlightBook status page.
+ * Only itinerary and operational fields are returned; passenger, contact,
+ * payment, and account data never leave EazyTool.
+ */
+export async function findPublicBookingStatusByReference(
+  reference: string,
+): Promise<BookingStatusSummary | null> {
+  const db = dbOrThrow();
+  const ref = normalizeBookingReference(reference);
+  const pointer = await db.collection(REFERENCES).doc(ref).get();
+  if (!pointer.exists) return null;
+  const bookingId = String(pointer.data()?.bookingId ?? "");
+  if (!bookingId) return null;
+  const snapshot = await db.collection(BOOKINGS).doc(bookingId).get();
+  const booking = bookingFromData(snapshot.data());
+  return booking ? bookingStatusSummary(booking) : null;
 }
 
 export async function saveOwnedBooking(
