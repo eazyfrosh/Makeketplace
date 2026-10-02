@@ -23,6 +23,22 @@ function todayISO(offsetDays = 0) {
   d.setDate(d.getDate() + offsetDays);
   return d.toISOString().slice(0, 10);
 }
+function parseDuration(hoursValue: string, minutesValue: string): number | undefined | null {
+  if (!hoursValue.trim() && !minutesValue.trim()) return undefined;
+  const hours = hoursValue.trim() ? Number(hoursValue) : 0;
+  const minutes = minutesValue.trim() ? Number(minutesValue) : 0;
+  const total = hours * 60 + minutes;
+  if (
+    !Number.isInteger(hours) ||
+    !Number.isInteger(minutes) ||
+    hours < 0 ||
+    minutes < 0 ||
+    minutes > 59 ||
+    total < 30 ||
+    total > 72 * 60
+  ) return null;
+  return total;
+}
 interface MultiSegment {
   from: string;
   to: string;
@@ -50,6 +66,10 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
   const [customArrivalTime, setCustomArrivalTime] = useState("");
   const [customDurationHours, setCustomDurationHours] = useState("");
   const [customDurationMinutes, setCustomDurationMinutes] = useState("");
+  const [returnDepartureTime, setReturnDepartureTime] = useState("");
+  const [returnArrivalTime, setReturnArrivalTime] = useState("");
+  const [returnDurationHours, setReturnDurationHours] = useState("");
+  const [returnDurationMinutes, setReturnDurationMinutes] = useState("");
   const [segments, setSegments] = useState<MultiSegment[]>(blankSegments);
   const [autoFocusFrom, setAutoFocusFrom] = useState(false);
 
@@ -75,20 +95,9 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
       toast.error("Enter a flight price between $1 and $1,000,000.");
       return;
     }
-    const hasCustomDuration = Boolean(customDurationHours.trim() || customDurationMinutes.trim());
-    const durationHours = customDurationHours.trim() ? Number(customDurationHours) : 0;
-    const durationMinutes = customDurationMinutes.trim() ? Number(customDurationMinutes) : 0;
-    const durationTotal = hasCustomDuration ? durationHours * 60 + durationMinutes : undefined;
-    if (
-      durationTotal !== undefined &&
-      (!Number.isInteger(durationHours) ||
-        !Number.isInteger(durationMinutes) ||
-        durationHours < 0 ||
-        durationMinutes < 0 ||
-        durationMinutes > 59 ||
-        durationTotal < 30 ||
-        durationTotal > 72 * 60)
-    ) {
+    const durationTotal = parseDuration(customDurationHours, customDurationMinutes);
+    const returnDurationTotal = parseDuration(returnDurationHours, returnDurationMinutes);
+    if (durationTotal === null || (tripType === "round_trip" && returnDurationTotal === null)) {
       toast.error("Enter a flight duration between 30 minutes and 72 hours.");
       return;
     }
@@ -124,6 +133,13 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
     if (customDepartureTime) params.set("departureTime", customDepartureTime);
     if (customArrivalTime) params.set("arrivalTime", customArrivalTime);
     if (durationTotal !== undefined) params.set("duration", String(durationTotal));
+    if (tripType === "round_trip") {
+      if (returnDepartureTime) params.set("returnDepartureTime", returnDepartureTime);
+      if (returnArrivalTime) params.set("returnArrivalTime", returnArrivalTime);
+      if (returnDurationTotal !== undefined && returnDurationTotal !== null) {
+        params.set("returnDuration", String(returnDurationTotal));
+      }
+    }
 
     if (tripType === "multi_city") {
       params.set("segments", JSON.stringify(segments));
@@ -146,6 +162,9 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
         customDepartureTime: customDepartureTime || undefined,
         customArrivalTime: customArrivalTime || undefined,
         customDurationMinutes: durationTotal,
+        returnDepartureTime: tripType === "round_trip" ? returnDepartureTime || undefined : undefined,
+        returnArrivalTime: tripType === "round_trip" ? returnArrivalTime || undefined : undefined,
+        returnDurationMinutes: tripType === "round_trip" ? returnDurationTotal ?? undefined : undefined,
         timestamp: Date.now(),
       });
     }
@@ -319,7 +338,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="custom-departure-time">
-            Departure time
+            {tripType === "round_trip" ? "Outbound departure time" : "Departure time"}
           </label>
           <input
             id="custom-departure-time"
@@ -331,7 +350,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="custom-arrival-time">
-            Arrival time
+            {tripType === "round_trip" ? "Outbound arrival time" : "Arrival time"}
           </label>
           <input
             id="custom-arrival-time"
@@ -349,7 +368,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">
-            Flight duration
+            {tripType === "round_trip" ? "Outbound duration" : "Flight duration"}
           </label>
           <div className="grid grid-cols-2 gap-2">
             <input
@@ -385,6 +404,44 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
         </div>
+        {tripType === "round_trip" && (
+          <div className="mt-4 border-t border-brand-200 pt-4 dark:border-brand-500/20">
+            <h4 className="mb-3 text-sm font-semibold">Returning ticket</h4>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="return-departure-time">
+                  Return departure time
+                </label>
+                <input id="return-departure-time" type="time" value={returnDepartureTime} onChange={(event) => setReturnDepartureTime(event.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900" />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="return-arrival-time">
+                  Return arrival time
+                </label>
+                <input
+                  id="return-arrival-time"
+                  type="time"
+                  value={returnArrivalTime}
+                  onChange={(event) => {
+                    setReturnArrivalTime(event.target.value);
+                    if (event.target.value) {
+                      setReturnDurationHours("");
+                      setReturnDurationMinutes("");
+                    }
+                  }}
+                  className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">Return duration</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input aria-label="Return flight duration hours" type="number" inputMode="numeric" min="0" max="72" step="1" value={returnDurationHours} onChange={(event) => { setReturnDurationHours(event.target.value); if (event.target.value) setReturnArrivalTime(""); }} placeholder="Hours" className="w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900" />
+                  <input aria-label="Return flight duration minutes" type="number" inputMode="numeric" min="0" max="59" step="1" value={returnDurationMinutes} onChange={(event) => { setReturnDurationMinutes(event.target.value); if (event.target.value) setReturnArrivalTime(""); }} placeholder="Minutes" className="w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto]">
