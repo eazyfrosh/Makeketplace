@@ -128,6 +128,11 @@ export interface Booking {
   boardingTime?: string;
 }
 
+export type BookingStatusSummary = Pick<
+  Booking,
+  "bookingReference" | "status" | "flights" | "gate" | "terminal" | "boardingTime"
+>;
+
 export interface RecentSearch {
   from: string;
   to: string;
