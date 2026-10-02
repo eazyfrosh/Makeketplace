@@ -66,14 +66,14 @@ export function generateFlights(params: FlightSearchParams, count = 12): Flight[
   const destinationAirport = findAirport(params.to);
   if (!originAirport || !destinationAirport) return [];
 
-  const seedKey = `${params.from}-${params.to}-${params.departureDate}-${params.cabin}-${params.preferredAirlineId ?? "any"}-${params.customPrice ?? "generated"}-${params.customDepartureTime ?? "generated"}-${params.customArrivalTime ?? "generated"}`;
+  const seedKey = `${params.from}-${params.to}-${params.departureDate}-${params.cabin}-${params.preferredAirlineId ?? "any"}-${params.customPrice ?? "generated"}-${params.customDepartureTime ?? "generated"}-${params.customArrivalTime ?? "generated"}-${params.customDurationMinutes ?? "generated"}`;
   const rand = seedRandom(hashString(seedKey) || 1);
 
   const flights: Flight[] = [];
   const baseDate = new Date(`${params.departureDate}T00:00:00`);
 
   for (let i = 0; i < count; i++) {
-    const stops = rand() < 0.42 ? 0 : rand() < 0.75 ? 1 : 2;
+    const stops = params.customDurationMinutes ? 0 : rand() < 0.42 ? 0 : rand() < 0.75 ? 1 : 2;
     const departureHour = 4 + Math.floor(rand() * 19);
     const departureMinute = Math.floor(rand() * 12) * 5;
     const departure = timeOnDate(baseDate, params.customDepartureTime) ?? new Date(baseDate);
@@ -98,7 +98,13 @@ export function generateFlights(params: FlightSearchParams, count = 12): Flight[
     }
 
     const requestedArrival = timeOnDate(baseDate, params.customArrivalTime);
-    if (requestedArrival) {
+    if (params.customDurationMinutes) {
+      const segment = segments[0];
+      segment.arrivalTime = new Date(
+        new Date(segment.departureTime).getTime() + params.customDurationMinutes * 60000
+      ).toISOString();
+      segment.durationMinutes = params.customDurationMinutes;
+    } else if (requestedArrival) {
       const finalSegment = segments[segments.length - 1];
       const finalDeparture = new Date(finalSegment.departureTime);
       while (requestedArrival.getTime() <= finalDeparture.getTime()) {
