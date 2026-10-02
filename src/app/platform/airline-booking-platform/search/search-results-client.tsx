@@ -15,7 +15,7 @@ import { Button } from "@/components/airline/ui/button";
 import { EmptyState } from "@/components/airline/ui/empty-state";
 import { useBookingStore } from "@/lib/airline/store/booking-store";
 import { RebookingBanner } from "@/components/airline/booking/rebooking-banner";
-import { formatCurrency, formatDateLong } from "@/lib/airline/utils";
+import { formatCurrency, formatDateLong, formatDuration } from "@/lib/airline/utils";
 import { resolveAirline } from "@/lib/airline/data/airlines";
 import { useEffect } from "react";
 
@@ -29,6 +29,12 @@ interface Leg {
 function validCustomTime(value: string | null): string | undefined {
   if (!value || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value)) return undefined;
   return value;
+}
+
+function validCustomDuration(value: string | null): number | undefined {
+  if (!value) return undefined;
+  const duration = Number(value);
+  return Number.isInteger(duration) && duration >= 30 && duration <= 72 * 60 ? duration : undefined;
 }
 function sortFlights(flights: Flight[], key: SortKey): Flight[] {
   const sorted = [...flights];
@@ -67,6 +73,7 @@ export function SearchResultsClient() {
     : undefined;
   const customDepartureTime = validCustomTime(params.get("departureTime"));
   const customArrivalTime = validCustomTime(params.get("arrivalTime"));
+  const customDurationMinutes = validCustomDuration(params.get("duration"));
   const passengers: PassengerCounts = useMemo(() => {
     try {
       return JSON.parse(params.get("passengers") || "") as PassengerCounts;
@@ -136,6 +143,7 @@ export function SearchResultsClient() {
       customPrice,
       customDepartureTime,
       customArrivalTime,
+      customDurationMinutes,
     });
     clearItinerary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -164,9 +172,10 @@ export function SearchResultsClient() {
       customPrice,
       customDepartureTime,
       customArrivalTime,
+      customDurationMinutes,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLeg?.from, currentLeg?.to, currentLeg?.date, cabin, preferredAirlineId, customPrice, customDepartureTime, customArrivalTime]);
+  }, [currentLeg?.from, currentLeg?.to, currentLeg?.date, cabin, preferredAirlineId, customPrice, customDepartureTime, customArrivalTime, customDurationMinutes]);
 
   const priceCeiling = useMemo(
     () => Math.max(500, ...rawFlights.map((f) => Math.ceil(f.price / 50) * 50)),
@@ -222,7 +231,7 @@ export function SearchResultsClient() {
           {formatDateLong(`${currentLeg.date}T00:00:00`)} · {passengers.adults + passengers.children + passengers.infants} passenger
           {passengers.adults + passengers.children + passengers.infants !== 1 ? "s" : ""}
         </p>
-        {(preferredAirline || customPrice !== undefined || customDepartureTime || customArrivalTime) && (
+        {(preferredAirline || customPrice !== undefined || customDepartureTime || customArrivalTime || customDurationMinutes) && (
           <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium">
             {preferredAirline && (
               <span className="rounded-full bg-brand-50 px-2.5 py-1 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
@@ -242,6 +251,11 @@ export function SearchResultsClient() {
             {customArrivalTime && (
               <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
                 Arrives {customArrivalTime}
+              </span>
+            )}
+            {customDurationMinutes && (
+              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
+                Duration {formatDuration(customDurationMinutes)}
               </span>
             )}
           </div>

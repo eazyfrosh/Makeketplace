@@ -48,6 +48,8 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
   const [customPrice, setCustomPrice] = useState("");
   const [customDepartureTime, setCustomDepartureTime] = useState("");
   const [customArrivalTime, setCustomArrivalTime] = useState("");
+  const [customDurationHours, setCustomDurationHours] = useState("");
+  const [customDurationMinutes, setCustomDurationMinutes] = useState("");
   const [segments, setSegments] = useState<MultiSegment[]>(blankSegments);
   const [autoFocusFrom, setAutoFocusFrom] = useState(false);
 
@@ -71,6 +73,23 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
     const parsedPrice = enteredPrice === undefined ? undefined : Math.round(enteredPrice * 100) / 100;
     if (parsedPrice !== undefined && (!Number.isFinite(parsedPrice) || parsedPrice <= 0 || parsedPrice > 1_000_000)) {
       toast.error("Enter a flight price between $1 and $1,000,000.");
+      return;
+    }
+    const hasCustomDuration = Boolean(customDurationHours.trim() || customDurationMinutes.trim());
+    const durationHours = customDurationHours.trim() ? Number(customDurationHours) : 0;
+    const durationMinutes = customDurationMinutes.trim() ? Number(customDurationMinutes) : 0;
+    const durationTotal = hasCustomDuration ? durationHours * 60 + durationMinutes : undefined;
+    if (
+      durationTotal !== undefined &&
+      (!Number.isInteger(durationHours) ||
+        !Number.isInteger(durationMinutes) ||
+        durationHours < 0 ||
+        durationMinutes < 0 ||
+        durationMinutes > 59 ||
+        durationTotal < 30 ||
+        durationTotal > 72 * 60)
+    ) {
+      toast.error("Enter a flight duration between 30 minutes and 72 hours.");
       return;
     }
 
@@ -104,6 +123,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
     if (parsedPrice !== undefined) params.set("price", parsedPrice.toFixed(2));
     if (customDepartureTime) params.set("departureTime", customDepartureTime);
     if (customArrivalTime) params.set("arrivalTime", customArrivalTime);
+    if (durationTotal !== undefined) params.set("duration", String(durationTotal));
 
     if (tripType === "multi_city") {
       params.set("segments", JSON.stringify(segments));
@@ -125,6 +145,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
         customPrice: parsedPrice,
         customDepartureTime: customDepartureTime || undefined,
         customArrivalTime: customArrivalTime || undefined,
+        customDurationMinutes: durationTotal,
         timestamp: Date.now(),
       });
     }
@@ -253,9 +274,9 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
       <section className="mt-4 rounded-2xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-500/20 dark:bg-brand-500/5">
         <div className="mb-3">
           <h3 className="text-sm font-semibold">Customize your flight</h3>
-          <p className="mt-0.5 text-xs text-foreground/55">Set the airline, price, departure time, and arrival time shown on your itinerary.</p>
+          <p className="mt-0.5 text-xs text-foreground/55">Set the airline, price, departure time, arrival time, and flight duration shown on your itinerary.</p>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="preferred-airline">
             Enter airline
@@ -316,9 +337,52 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
             id="custom-arrival-time"
             type="time"
             value={customArrivalTime}
-            onChange={(event) => setCustomArrivalTime(event.target.value)}
+            onChange={(event) => {
+              setCustomArrivalTime(event.target.value);
+              if (event.target.value) {
+                setCustomDurationHours("");
+                setCustomDurationMinutes("");
+              }
+            }}
             className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900"
           />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">
+            Flight duration
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              aria-label="Flight duration hours"
+              type="number"
+              inputMode="numeric"
+              min="0"
+              max="72"
+              step="1"
+              value={customDurationHours}
+              onChange={(event) => {
+                setCustomDurationHours(event.target.value);
+                if (event.target.value) setCustomArrivalTime("");
+              }}
+              placeholder="Hours"
+              className="w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900"
+            />
+            <input
+              aria-label="Flight duration minutes"
+              type="number"
+              inputMode="numeric"
+              min="0"
+              max="59"
+              step="1"
+              value={customDurationMinutes}
+              onChange={(event) => {
+                setCustomDurationMinutes(event.target.value);
+                if (event.target.value) setCustomArrivalTime("");
+              }}
+              placeholder="Minutes"
+              className="w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900"
+            />
+          </div>
         </div>
         </div>
       </section>
