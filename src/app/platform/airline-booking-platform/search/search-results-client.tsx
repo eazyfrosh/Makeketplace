@@ -74,6 +74,9 @@ export function SearchResultsClient() {
   const customDepartureTime = validCustomTime(params.get("departureTime"));
   const customArrivalTime = validCustomTime(params.get("arrivalTime"));
   const customDurationMinutes = validCustomDuration(params.get("duration"));
+  const returnDepartureTime = validCustomTime(params.get("returnDepartureTime"));
+  const returnArrivalTime = validCustomTime(params.get("returnArrivalTime"));
+  const returnDurationMinutes = validCustomDuration(params.get("returnDuration"));
   const passengers: PassengerCounts = useMemo(() => {
     try {
       return JSON.parse(params.get("passengers") || "") as PassengerCounts;
@@ -144,6 +147,9 @@ export function SearchResultsClient() {
       customDepartureTime,
       customArrivalTime,
       customDurationMinutes,
+      returnDepartureTime,
+      returnArrivalTime,
+      returnDurationMinutes,
     });
     clearItinerary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,6 +164,10 @@ export function SearchResultsClient() {
   const currentLeg = legs[activeLeg];
   const originAirport = currentLeg ? findAirport(currentLeg.from) : undefined;
   const destinationAirport = currentLeg ? findAirport(currentLeg.to) : undefined;
+  const isReturnLeg = tripType === "round_trip" && activeLeg === 1;
+  const legDepartureTime = isReturnLeg ? returnDepartureTime : customDepartureTime;
+  const legArrivalTime = isReturnLeg ? returnArrivalTime : customArrivalTime;
+  const legDurationMinutes = isReturnLeg ? returnDurationMinutes : customDurationMinutes;
 
   const rawFlights = useMemo(() => {
     if (!currentLeg || !originAirport || !destinationAirport) return [];
@@ -170,12 +180,12 @@ export function SearchResultsClient() {
       cabin,
       preferredAirlineId,
       customPrice,
-      customDepartureTime,
-      customArrivalTime,
-      customDurationMinutes,
+      customDepartureTime: legDepartureTime,
+      customArrivalTime: legArrivalTime,
+      customDurationMinutes: legDurationMinutes,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLeg?.from, currentLeg?.to, currentLeg?.date, cabin, preferredAirlineId, customPrice, customDepartureTime, customArrivalTime, customDurationMinutes]);
+  }, [currentLeg?.from, currentLeg?.to, currentLeg?.date, cabin, preferredAirlineId, customPrice, legDepartureTime, legArrivalTime, legDurationMinutes]);
 
   const priceCeiling = useMemo(
     () => Math.max(500, ...rawFlights.map((f) => Math.ceil(f.price / 50) * 50)),
@@ -231,7 +241,7 @@ export function SearchResultsClient() {
           {formatDateLong(`${currentLeg.date}T00:00:00`)} · {passengers.adults + passengers.children + passengers.infants} passenger
           {passengers.adults + passengers.children + passengers.infants !== 1 ? "s" : ""}
         </p>
-        {(preferredAirline || customPrice !== undefined || customDepartureTime || customArrivalTime || customDurationMinutes) && (
+        {(preferredAirline || customPrice !== undefined || legDepartureTime || legArrivalTime || legDurationMinutes) && (
           <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium">
             {preferredAirline && (
               <span className="rounded-full bg-brand-50 px-2.5 py-1 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
@@ -243,19 +253,19 @@ export function SearchResultsClient() {
                 {formatCurrency(customPrice)} per passenger
               </span>
             )}
-            {customDepartureTime && (
+            {legDepartureTime && (
               <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
-                Departs {customDepartureTime}
+                Departs {legDepartureTime}
               </span>
             )}
-            {customArrivalTime && (
+            {legArrivalTime && (
               <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
-                Arrives {customArrivalTime}
+                Arrives {legArrivalTime}
               </span>
             )}
-            {customDurationMinutes && (
+            {legDurationMinutes && (
               <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
-                Duration {formatDuration(customDurationMinutes)}
+                Duration {formatDuration(legDurationMinutes)}
               </span>
             )}
           </div>
