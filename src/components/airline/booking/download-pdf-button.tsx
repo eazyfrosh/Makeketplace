@@ -21,6 +21,8 @@ interface PdfImageOverlay {
   height: number;
 }
 
+const DESKTOP_EXPORT_WIDTH_PX = 718;
+
 function readBlobAsDataUrl(blob: Blob) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -125,10 +127,15 @@ export function DownloadPdfButton({
       exportRoot.classList.remove("print:block");
       exportRoot.classList.remove("print:bg-white", "print:text-black");
       captureViewport = document.createElement("div");
-      captureViewport.style.position = "fixed";
-      captureViewport.style.left = "0";
-      captureViewport.style.top = "0";
-      captureViewport.style.width = "190mm";
+      // Use an explicit desktop-sized pixel surface. Mobile Safari can clamp a
+      // fixed element that is wider than its visual viewport, which previously
+      // captured only the left side of the itinerary.
+      captureViewport.style.position = "absolute";
+      captureViewport.style.left = `${window.scrollX}px`;
+      captureViewport.style.top = `${window.scrollY}px`;
+      captureViewport.style.width = `${DESKTOP_EXPORT_WIDTH_PX}px`;
+      captureViewport.style.minWidth = `${DESKTOP_EXPORT_WIDTH_PX}px`;
+      captureViewport.style.maxWidth = `${DESKTOP_EXPORT_WIDTH_PX}px`;
       captureViewport.style.overflow = "hidden";
       captureViewport.style.backgroundColor = "#ffffff";
       captureViewport.style.zIndex = "9999";
@@ -136,7 +143,10 @@ export function DownloadPdfButton({
       exportRoot.style.position = "absolute";
       exportRoot.style.left = "0";
       exportRoot.style.top = "0";
-      exportRoot.style.width = "190mm";
+      exportRoot.style.width = `${DESKTOP_EXPORT_WIDTH_PX}px`;
+      exportRoot.style.minWidth = `${DESKTOP_EXPORT_WIDTH_PX}px`;
+      exportRoot.style.maxWidth = `${DESKTOP_EXPORT_WIDTH_PX}px`;
+      exportRoot.style.boxSizing = "border-box";
       if (source.classList.contains("printable-itinerary")) {
         exportRoot.style.backgroundColor = "#ffffff";
         exportRoot.style.color = "#000000";
@@ -161,11 +171,12 @@ export function DownloadPdfButton({
       await document.fonts.ready;
       await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      pdf.setDisplayMode("fullpage", "single", null);
       const horizontalMargin = 15;
       const verticalMargin = 10;
       const pageWidth = 210 - horizontalMargin * 2;
       const pageHeight = 297 - verticalMargin * 2;
-      const widthPx = Math.ceil(exportRoot.getBoundingClientRect().width);
+      const widthPx = DESKTOP_EXPORT_WIDTH_PX;
       const contentHeightPx = Math.ceil(Math.max(exportRoot.scrollHeight, exportRoot.getBoundingClientRect().height));
       if (!widthPx || !contentHeightPx) throw new Error("PDF content has no visible dimensions");
       const pageHeightPx = Math.floor((widthPx * pageHeight) / pageWidth);
@@ -185,6 +196,15 @@ export function DownloadPdfButton({
           pixelRatio: 2,
           skipAutoScale: true,
           cacheBust: true,
+          style: {
+            position: "relative",
+            left: "0",
+            top: "0",
+            width: `${widthPx}px`,
+            minWidth: `${widthPx}px`,
+            maxWidth: `${widthPx}px`,
+            overflow: "hidden",
+          },
         });
         if (page > 0) pdf.addPage();
         pdf.addImage(imageData, "PNG", horizontalMargin, verticalMargin, pageWidth, pageHeight);
