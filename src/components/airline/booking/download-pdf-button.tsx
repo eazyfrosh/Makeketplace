@@ -139,6 +139,7 @@ async function flattenPageImages(
 
   return canvas.toDataURL("image/png");
 }
+
 export function DownloadPdfButton({
   label = "Download PDF",
   targetSelector = ".printable-itinerary",
