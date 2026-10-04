@@ -1,23 +1,19 @@
 import type { Airline } from "@/lib/airline/types";
 
-const LOGO_DEV_TOKEN = process.env.NEXT_PUBLIC_LOGO_DEV_TOKEN;
-
 /**
- * Real airline logos via logo.dev's Logo API, looked up by each carrier's
- * official domain. Falls back to no logoSrc (AirlineLogo then shows the
- * brand-color monogram badge) if no token is configured, and again if
- * logo.dev itself can't resolve a logo (fallback=404 so our own onError
- * handler takes over instead of logo.dev's built-in monogram).
+ * Bundled square artwork keeps airline branding deterministic everywhere it
+ * is rendered, including Safari's client-side PDF canvas. It also removes a
+ * network request from the download path and prevents upstream logo variants
+ * from changing shape between bookings.
  */
-function logoDevUrl(domain: string): string {
-  if (!LOGO_DEV_TOKEN) return "";
-  return `/api/airline-logo?domain=${encodeURIComponent(domain)}`;
+function airlineLogo(id: string): string {
+  return `/airline-logos/${id}.png`;
 }
 
 export const airlines: Airline[] = [
   {
     id: "aa",
-    logoSrc: logoDevUrl("aa.com"),
+    logoSrc: airlineLogo("aa"),
     name: "American Airlines",
     code: "AA",
     logoColor: "#0078D2",
@@ -30,7 +26,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "ba",
-    logoSrc: logoDevUrl("britishairways.com"),
+    logoSrc: airlineLogo("ba"),
     name: "British Airways",
     code: "BA",
     logoColor: "#075AAA",
@@ -43,7 +39,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "dl",
-    logoSrc: logoDevUrl("delta.com"),
+    logoSrc: airlineLogo("dl"),
     name: "Delta Air Lines",
     code: "DL",
     logoColor: "#C01933",
@@ -56,7 +52,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "ua",
-    logoSrc: logoDevUrl("united.com"),
+    logoSrc: airlineLogo("ua"),
     name: "United Airlines",
     code: "UA",
     logoColor: "#005DAA",
@@ -69,7 +65,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "lh",
-    logoSrc: logoDevUrl("lufthansa.com"),
+    logoSrc: airlineLogo("lh"),
     name: "Lufthansa",
     code: "LH",
     logoColor: "#05164D",
@@ -82,7 +78,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "af",
-    logoSrc: logoDevUrl("airfrance.com"),
+    logoSrc: airlineLogo("af"),
     name: "Air France",
     code: "AF",
     logoColor: "#002157",
@@ -95,7 +91,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "ek",
-    logoSrc: logoDevUrl("emirates.com"),
+    logoSrc: airlineLogo("ek"),
     name: "Emirates",
     code: "EK",
     logoColor: "#D71920",
@@ -108,7 +104,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "qr",
-    logoSrc: logoDevUrl("qatarairways.com"),
+    logoSrc: airlineLogo("qr"),
     name: "Qatar Airways",
     code: "QR",
     logoColor: "#5C0632",
@@ -121,7 +117,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "tk",
-    logoSrc: logoDevUrl("turkishairlines.com"),
+    logoSrc: airlineLogo("tk"),
     name: "Turkish Airlines",
     code: "TK",
     logoColor: "#E81932",
@@ -134,7 +130,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "kl",
-    logoSrc: logoDevUrl("klm.com"),
+    logoSrc: airlineLogo("kl"),
     name: "KLM",
     code: "KL",
     logoColor: "#00A1DE",
@@ -147,7 +143,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "vs",
-    logoSrc: logoDevUrl("virginatlantic.com"),
+    logoSrc: airlineLogo("vs"),
     name: "Virgin Atlantic",
     code: "VS",
     logoColor: "#DA0530",
@@ -160,7 +156,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "sq",
-    logoSrc: logoDevUrl("singaporeair.com"),
+    logoSrc: airlineLogo("sq"),
     name: "Singapore Airlines",
     code: "SQ",
     logoColor: "#F99F1E",
@@ -173,7 +169,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "ey",
-    logoSrc: logoDevUrl("etihad.com"),
+    logoSrc: airlineLogo("ey"),
     name: "Etihad Airways",
     code: "EY",
     logoColor: "#BD8B13",
@@ -186,7 +182,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "cx",
-    logoSrc: logoDevUrl("cathaypacific.com"),
+    logoSrc: airlineLogo("cx"),
     name: "Cathay Pacific",
     code: "CX",
     logoColor: "#006564",
@@ -199,7 +195,7 @@ export const airlines: Airline[] = [
   },
   {
     id: "jl",
-    logoSrc: logoDevUrl("jal.co.jp"),
+    logoSrc: airlineLogo("jl"),
     name: "Japan Airlines",
     code: "JL",
     logoColor: "#C8102E",
