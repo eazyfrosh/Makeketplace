@@ -68,20 +68,20 @@ export function PrintableItinerary({ booking }: { booking: Booking }) {
               const first = flight.segments[0];
               const last = flight.segments[flight.segments.length - 1];
               return (
-                <div key={idx} className="overflow-hidden rounded-lg border border-neutral-300" style={{ breakInside: "avoid" }}>
+                <div key={idx} data-pdf-keep-together className="overflow-hidden rounded-lg border border-neutral-300" style={{ breakInside: "avoid" }}>
                   <div className="h-1" style={{ background: first.airline.logoColor }} />
                   <div className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex min-w-0 items-center gap-2.5">
                         <AirlineLogo airline={first.airline} size={30} />
-                        <div>
-                          <p className="text-sm font-bold">{first.airline.name}</p>
-                          <p className="text-[10px] text-neutral-500">
+                        <div className="min-w-0">
+                          <p className="whitespace-nowrap text-sm font-bold leading-tight">{first.airline.name}</p>
+                          <p className="mt-0.5 whitespace-nowrap text-[10px] leading-tight text-neutral-500">
                             {flight.segments.map((s) => s.flightNumber).join(", ")} · {first.aircraft}
                           </p>
                         </div>
                       </div>
-                      <span className="rounded-full border border-neutral-400 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+                      <span className="shrink-0 rounded-full border border-neutral-400 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
                         {cabinLabel(flight.cabin)}
                       </span>
                     </div>
@@ -112,7 +112,7 @@ export function PrintableItinerary({ booking }: { booking: Booking }) {
           </div>
         </section>
 
-        <section className="mt-6">
+        <section data-pdf-keep-together className="mt-6">
           <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-500">Extras &amp; Price</h2>
           <div className="mt-2 space-y-1.5 text-sm">
             {extraItems.length === 0 ? (
@@ -136,7 +136,7 @@ export function PrintableItinerary({ booking }: { booking: Booking }) {
           </div>
         </section>
 
-        <section className="relative mt-8" style={{ breakInside: "avoid" }}>
+        <section data-pdf-keep-together className="relative mt-8" style={{ breakInside: "avoid" }}>
           <div className="flex items-center gap-2 pb-2">
             <div className="h-px flex-1 border-t border-dashed border-neutral-400" />
             <span className="text-[9px] uppercase tracking-[0.2em] text-neutral-400">Boarding Pass</span>
@@ -146,7 +146,7 @@ export function PrintableItinerary({ booking }: { booking: Booking }) {
             <div className="flex-1 p-4">
               <div className="flex items-center gap-2.5">
                 <AirlineLogo airline={primaryFirst.airline} size={26} />
-                <p className="text-sm font-bold">{primaryFirst.airline.name}</p>
+                <p className="whitespace-nowrap text-[13px] font-bold leading-tight">{primaryFirst.airline.name}</p>
               </div>
               <div className="mt-3 grid grid-cols-4 gap-3 text-xs">
                 <div>

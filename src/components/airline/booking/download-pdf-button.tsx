@@ -21,6 +21,11 @@ interface PdfImageOverlay {
   objectFit: string;
 }
 
+interface PdfPageRange {
+  start: number;
+  height: number;
+}
+
 const DESKTOP_EXPORT_WIDTH_PX = 718;
 
 function readBlobAsDataUrl(blob: Blob) {
@@ -109,6 +114,35 @@ function loadDataUrlImage(dataUrl: string) {
   });
 }
 
+function planPdfPages(root: HTMLElement, contentHeightPx: number, maxPageHeightPx: number): PdfPageRange[] {
+  const rootRect = root.getBoundingClientRect();
+  const keepTogetherBlocks = [...root.querySelectorAll<HTMLElement>("[data-pdf-keep-together]")]
+    .map((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        start: rect.top - rootRect.top,
+        end: rect.bottom - rootRect.top,
+      };
+    })
+    .filter((block) => block.end > block.start && block.end - block.start <= maxPageHeightPx)
+    .sort((a, b) => a.start - b.start);
+  const pages: PdfPageRange[] = [];
+  let pageStart = 0;
+
+  while (pageStart < contentHeightPx) {
+    let pageEnd = Math.min(pageStart + maxPageHeightPx, contentHeightPx);
+    const splitBlock = keepTogetherBlocks.find(
+      (block) => block.start > pageStart + 1 && block.start < pageEnd && block.end > pageEnd
+    );
+    if (splitBlock) pageEnd = splitBlock.start;
+    if (pageEnd <= pageStart + 1) pageEnd = Math.min(pageStart + maxPageHeightPx, contentHeightPx);
+    pages.push({ start: pageStart, height: pageEnd - pageStart });
+    pageStart = pageEnd;
+  }
+
+  return pages;
+}
+
 async function flattenPageImages(
   backgroundDataUrl: string,
   overlays: PdfImageOverlay[],
@@ -123,6 +157,8 @@ async function flattenPageImages(
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Unable to create PDF canvas");
 
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
   context.drawImage(background, 0, 0);
   const scaleX = canvas.width / pageWidthPx;
   const scaleY = canvas.height / pageHeightPx;
@@ -237,17 +273,18 @@ export function DownloadPdfButton({
       const contentHeightPx = Math.ceil(Math.max(exportRoot.scrollHeight, exportRoot.getBoundingClientRect().height));
       if (!widthPx || !contentHeightPx) throw new Error("PDF content has no visible dimensions");
       const pageHeightPx = Math.floor((widthPx * pageHeight) / pageWidth);
-      const pageCount = Math.ceil(contentHeightPx / pageHeightPx);
+      const pages = planPdfPages(exportRoot, contentHeightPx, pageHeightPx);
       const imageOverlays = preparePdfImageOverlays(exportRoot);
       captureViewport.style.width = `${widthPx}px`;
-      captureViewport.style.height = `${pageHeightPx}px`;
 
-      for (let page = 0; page < pageCount; page += 1) {
-        exportRoot.style.top = `${-page * pageHeightPx}px`;
+      for (let page = 0; page < pages.length; page += 1) {
+        const pageRange = pages[page];
+        captureViewport.style.height = `${pageRange.height}px`;
+        exportRoot.style.top = `${-pageRange.start}px`;
         await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
         const imageData = await toPng(captureViewport, {
           width: widthPx,
-          height: pageHeightPx,
+          height: pageRange.height,
           backgroundColor: "#ffffff",
           pixelRatio: 2,
           skipAutoScale: true,
@@ -262,10 +299,16 @@ export function DownloadPdfButton({
             overflow: "hidden",
           },
         });
-        const pageStartPx = page * pageHeightPx;
-        const flattenedPage = await flattenPageImages(imageData, imageOverlays, pageStartPx, widthPx, pageHeightPx);
+        const flattenedPage = await flattenPageImages(
+          imageData,
+          imageOverlays,
+          pageRange.start,
+          widthPx,
+          pageRange.height
+        );
         if (page > 0) pdf.addPage();
-        pdf.addImage(flattenedPage, "PNG", horizontalMargin, verticalMargin, pageWidth, pageHeight);
+        const renderedHeight = (pageRange.height / pageHeightPx) * pageHeight;
+        pdf.addImage(flattenedPage, "PNG", horizontalMargin, verticalMargin, pageWidth, renderedHeight);
       }
 
       pdf.save(filename);
