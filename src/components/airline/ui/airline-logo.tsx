@@ -89,15 +89,7 @@ export function AirlineLogo({ airline, size = 40, className }: { airline: Airlin
           data-airline-logo-image
           src={current.logoSrc}
           alt={`${current.name} logo`}
-          className="relative block object-contain"
-          style={{
-            width: "78%",
-            height: "78%",
-            flex: "0 0 auto",
-            objectFit: "contain",
-            objectPosition: "center",
-            margin: "0 auto",
-          }}
+          className="relative h-[78%] w-[78%] object-contain"
           decoding="async"
         />
       )}

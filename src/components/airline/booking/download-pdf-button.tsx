@@ -59,27 +59,6 @@ function showAirlineFallback(image: HTMLImageElement) {
   return true;
 }
 
-function normalizeExportLogos(root: HTMLElement) {
-  root.querySelectorAll<HTMLElement>("[data-airline-logo]").forEach((logo) => {
-    logo.style.display = "inline-flex";
-    logo.style.alignItems = "center";
-    logo.style.justifyContent = "center";
-    logo.style.verticalAlign = "middle";
-    logo.style.overflow = "hidden";
-  });
-  root.querySelectorAll<HTMLImageElement>("[data-airline-logo-image]").forEach((image) => {
-    image.style.display = "block";
-    image.style.position = "relative";
-    image.style.inset = "auto";
-    image.style.width = "78%";
-    image.style.height = "78%";
-    image.style.margin = "0 auto";
-    image.style.objectFit = "contain";
-    image.style.objectPosition = "center";
-    image.style.transform = "none";
-  });
-}
-
 async function embedExportImage(image: HTMLImageElement) {
   const src = image.currentSrc || image.src;
   if (!src) throw new Error("Image has no source");
@@ -213,7 +192,6 @@ export function DownloadPdfButton({
       }
       captureViewport.appendChild(exportRoot);
       document.body.appendChild(captureViewport);
-      normalizeExportLogos(exportRoot);
 
       // Embed every image before html-to-image serializes the page. iOS Safari
       // can omit images fetched while it rasterizes the temporary SVG. If an
