@@ -12,6 +12,15 @@ interface DownloadPdfButtonProps {
   filename?: string;
 }
 
+interface PdfImageOverlay {
+  dataUrl: string;
+  format: "PNG" | "JPEG" | "WEBP";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 function readBlobAsDataUrl(blob: Blob) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -62,6 +71,33 @@ async function embedExportImage(image: HTMLImageElement) {
   }
 
   await waitForImage(image);
+}
+
+function preparePdfImageOverlays(root: HTMLElement): PdfImageOverlay[] {
+  const rootRect = root.getBoundingClientRect();
+
+  return [...root.querySelectorAll<HTMLImageElement>("img")].flatMap((image) => {
+    const dataUrl = image.src;
+    const match = /^data:image\/(png|jpe?g|webp)[;,]/i.exec(dataUrl);
+    const rect = image.getBoundingClientRect();
+    if (!match || rect.width <= 0 || rect.height <= 0) return [];
+
+    const mime = match[1].toLowerCase();
+    const format = mime === "jpg" || mime === "jpeg" ? "JPEG" : mime === "webp" ? "WEBP" : "PNG";
+
+    // Safari can drop <img> elements while html-to-image rasterizes its SVG.
+    // Keep their layout space, hide them from that raster, and add the exact
+    // embedded bytes to the PDF directly after the page background is drawn.
+    image.style.opacity = "0";
+    return [{
+      dataUrl,
+      format,
+      x: rect.left - rootRect.left,
+      y: rect.top - rootRect.top,
+      width: rect.width,
+      height: rect.height,
+    }];
+  });
 }
 export function DownloadPdfButton({
   label = "Download PDF",
@@ -134,6 +170,8 @@ export function DownloadPdfButton({
       if (!widthPx || !contentHeightPx) throw new Error("PDF content has no visible dimensions");
       const pageHeightPx = Math.floor((widthPx * pageHeight) / pageWidth);
       const pageCount = Math.ceil(contentHeightPx / pageHeightPx);
+      const imageOverlays = preparePdfImageOverlays(exportRoot);
+      const pxToMm = pageWidth / widthPx;
       captureViewport.style.width = `${widthPx}px`;
       captureViewport.style.height = `${pageHeightPx}px`;
 
@@ -150,6 +188,19 @@ export function DownloadPdfButton({
         });
         if (page > 0) pdf.addPage();
         pdf.addImage(imageData, "PNG", horizontalMargin, verticalMargin, pageWidth, pageHeight);
+        const pageStartPx = page * pageHeightPx;
+        const pageEndPx = pageStartPx + pageHeightPx;
+        for (const overlay of imageOverlays) {
+          if (overlay.y + overlay.height <= pageStartPx || overlay.y >= pageEndPx) continue;
+          pdf.addImage(
+            overlay.dataUrl,
+            overlay.format,
+            horizontalMargin + overlay.x * pxToMm,
+            verticalMargin + (overlay.y - pageStartPx) * pxToMm,
+            overlay.width * pxToMm,
+            overlay.height * pxToMm
+          );
+        }
       }
 
       pdf.save(filename);
