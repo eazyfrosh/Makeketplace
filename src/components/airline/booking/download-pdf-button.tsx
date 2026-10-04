@@ -18,6 +18,7 @@ interface PdfImageOverlay {
   y: number;
   width: number;
   height: number;
+  objectFit: string;
 }
 
 const DESKTOP_EXPORT_WIDTH_PX = 718;
@@ -82,6 +83,7 @@ function preparePdfImageOverlays(root: HTMLElement): PdfImageOverlay[] {
     const match = /^data:image\/(png|jpe?g|webp)[;,]/i.exec(dataUrl);
     const rect = image.getBoundingClientRect();
     if (!match || rect.width <= 0 || rect.height <= 0) return [];
+    const objectFit = window.getComputedStyle(image).objectFit;
 
     // Safari can drop <img> elements while html-to-image rasterizes its SVG.
     // Keep their layout space, hide them from that raster, and add the exact
@@ -93,6 +95,7 @@ function preparePdfImageOverlays(root: HTMLElement): PdfImageOverlay[] {
       y: rect.top - rootRect.top,
       width: rect.width,
       height: rect.height,
+      objectFit,
     }];
   });
 }
@@ -128,13 +131,28 @@ async function flattenPageImages(
   for (const overlay of overlays) {
     if (overlay.y + overlay.height <= pageStartPx || overlay.y >= pageEndPx) continue;
     const image = await loadDataUrlImage(overlay.dataUrl);
-    context.drawImage(
-      image,
-      overlay.x * scaleX,
-      (overlay.y - pageStartPx) * scaleY,
-      overlay.width * scaleX,
-      overlay.height * scaleY
-    );
+    const boxX = overlay.x * scaleX;
+    const boxY = (overlay.y - pageStartPx) * scaleY;
+    const boxWidth = overlay.width * scaleX;
+    const boxHeight = overlay.height * scaleY;
+
+    // Match the browser's object-contain layout when repainting logos. Drawing
+    // every source into the full square box distorts wide airline marks on
+    // iOS and moves the artwork away from the position shown on screen.
+    if (overlay.objectFit === "contain") {
+      const imageScale = Math.min(boxWidth / image.naturalWidth, boxHeight / image.naturalHeight);
+      const drawWidth = image.naturalWidth * imageScale;
+      const drawHeight = image.naturalHeight * imageScale;
+      context.drawImage(
+        image,
+        boxX + (boxWidth - drawWidth) / 2,
+        boxY + (boxHeight - drawHeight) / 2,
+        drawWidth,
+        drawHeight
+      );
+    } else {
+      context.drawImage(image, boxX, boxY, boxWidth, boxHeight);
+    }
   }
 
   return canvas.toDataURL("image/png");
