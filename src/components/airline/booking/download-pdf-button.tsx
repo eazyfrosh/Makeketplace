@@ -14,7 +14,6 @@ interface DownloadPdfButtonProps {
 
 interface PdfImageOverlay {
   dataUrl: string;
-  format: "PNG" | "JPEG" | "WEBP";
   x: number;
   y: number;
   width: number;
@@ -84,22 +83,61 @@ function preparePdfImageOverlays(root: HTMLElement): PdfImageOverlay[] {
     const rect = image.getBoundingClientRect();
     if (!match || rect.width <= 0 || rect.height <= 0) return [];
 
-    const mime = match[1].toLowerCase();
-    const format = mime === "jpg" || mime === "jpeg" ? "JPEG" : mime === "webp" ? "WEBP" : "PNG";
-
     // Safari can drop <img> elements while html-to-image rasterizes its SVG.
     // Keep their layout space, hide them from that raster, and add the exact
     // embedded bytes to the PDF directly after the page background is drawn.
     image.style.opacity = "0";
     return [{
       dataUrl,
-      format,
       x: rect.left - rootRect.left,
       y: rect.top - rootRect.top,
       width: rect.width,
       height: rect.height,
     }];
   });
+}
+
+function loadDataUrlImage(dataUrl: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Unable to compose PDF image"));
+    image.src = dataUrl;
+  });
+}
+
+async function flattenPageImages(
+  backgroundDataUrl: string,
+  overlays: PdfImageOverlay[],
+  pageStartPx: number,
+  pageWidthPx: number,
+  pageHeightPx: number
+) {
+  const background = await loadDataUrlImage(backgroundDataUrl);
+  const canvas = document.createElement("canvas");
+  canvas.width = background.naturalWidth;
+  canvas.height = background.naturalHeight;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Unable to create PDF canvas");
+
+  context.drawImage(background, 0, 0);
+  const scaleX = canvas.width / pageWidthPx;
+  const scaleY = canvas.height / pageHeightPx;
+  const pageEndPx = pageStartPx + pageHeightPx;
+
+  for (const overlay of overlays) {
+    if (overlay.y + overlay.height <= pageStartPx || overlay.y >= pageEndPx) continue;
+    const image = await loadDataUrlImage(overlay.dataUrl);
+    context.drawImage(
+      image,
+      overlay.x * scaleX,
+      (overlay.y - pageStartPx) * scaleY,
+      overlay.width * scaleX,
+      overlay.height * scaleY
+    );
+  }
+
+  return canvas.toDataURL("image/png");
 }
 export function DownloadPdfButton({
   label = "Download PDF",
@@ -182,7 +220,6 @@ export function DownloadPdfButton({
       const pageHeightPx = Math.floor((widthPx * pageHeight) / pageWidth);
       const pageCount = Math.ceil(contentHeightPx / pageHeightPx);
       const imageOverlays = preparePdfImageOverlays(exportRoot);
-      const pxToMm = pageWidth / widthPx;
       captureViewport.style.width = `${widthPx}px`;
       captureViewport.style.height = `${pageHeightPx}px`;
 
@@ -206,21 +243,10 @@ export function DownloadPdfButton({
             overflow: "hidden",
           },
         });
-        if (page > 0) pdf.addPage();
-        pdf.addImage(imageData, "PNG", horizontalMargin, verticalMargin, pageWidth, pageHeight);
         const pageStartPx = page * pageHeightPx;
-        const pageEndPx = pageStartPx + pageHeightPx;
-        for (const overlay of imageOverlays) {
-          if (overlay.y + overlay.height <= pageStartPx || overlay.y >= pageEndPx) continue;
-          pdf.addImage(
-            overlay.dataUrl,
-            overlay.format,
-            horizontalMargin + overlay.x * pxToMm,
-            verticalMargin + (overlay.y - pageStartPx) * pxToMm,
-            overlay.width * pxToMm,
-            overlay.height * pxToMm
-          );
-        }
+        const flattenedPage = await flattenPageImages(imageData, imageOverlays, pageStartPx, widthPx, pageHeightPx);
+        if (page > 0) pdf.addPage();
+        pdf.addImage(flattenedPage, "PNG", horizontalMargin, verticalMargin, pageWidth, pageHeight);
       }
 
       pdf.save(filename);
