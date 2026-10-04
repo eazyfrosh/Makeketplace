@@ -11,14 +11,7 @@ const LOGO_DEV_TOKEN = process.env.NEXT_PUBLIC_LOGO_DEV_TOKEN;
  */
 function logoDevUrl(domain: string): string {
   if (!LOGO_DEV_TOKEN) return "";
-  const params = new URLSearchParams({
-    token: LOGO_DEV_TOKEN,
-    size: "128",
-    format: "png",
-    fallback: "404",
-    retina: "true",
-  });
-  return `https://img.logo.dev/${domain}?${params.toString()}`;
+  return `/api/airline-logo?domain=${encodeURIComponent(domain)}`;
 }
 
 export const airlines: Airline[] = [
