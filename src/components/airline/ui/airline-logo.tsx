@@ -63,6 +63,7 @@ export function AirlineLogo({ airline, size = 40, className }: { airline: Airlin
 
   return (
     <span
+      data-airline-logo
       className={cn(
         "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/10 dark:ring-white/15",
         className
@@ -70,6 +71,7 @@ export function AirlineLogo({ airline, size = 40, className }: { airline: Airlin
       style={{ width: size, height: size }}
     >
       <span
+        data-airline-logo-fallback
         aria-hidden={state === "loaded"}
         className="absolute inset-0 flex items-center justify-center font-bold text-white transition-opacity duration-200"
         style={{
@@ -84,6 +86,7 @@ export function AirlineLogo({ airline, size = 40, className }: { airline: Airlin
       {current.logoSrc && state === "loaded" && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          data-airline-logo-image
           src={current.logoSrc}
           alt={`${current.name} logo`}
           className="relative h-[78%] w-[78%] object-contain"
