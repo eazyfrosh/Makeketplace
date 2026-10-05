@@ -85,7 +85,7 @@ export default function BookingDetailPage() {
           </Badge>
         </div>
         <div className="flex flex-wrap gap-2">
-          <DownloadPdfButton label="Download PDF itinerary" />
+          <DownloadPdfButton label="Download PDF itinerary" booking={booking} />
           <Link href={`/platform/airline-booking-platform/booking/confirmation/${booking.id}/email-preview`}>
             <Button variant="outline"><Mail size={15} /> Preview Email</Button>
           </Link>

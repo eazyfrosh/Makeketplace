@@ -5,11 +5,14 @@ import { Download, Loader2 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/airline/ui/button";
+import { downloadItineraryPdf } from "./itinerary-pdf";
+import type { Booking } from "@/lib/airline/types";
 
 interface DownloadPdfButtonProps {
   label?: string;
   targetSelector?: string;
   filename?: string;
+  booking?: Booking;
 }
 
 interface PdfImageOverlay {
@@ -198,11 +201,24 @@ export function DownloadPdfButton({
   label = "Download PDF",
   targetSelector = ".printable-itinerary",
   filename = "skybook-itinerary.pdf",
+  booking,
 }: DownloadPdfButtonProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
   async function downloadPdf() {
     if (isDownloading) return;
+    if (booking) {
+      setIsDownloading(true);
+      try {
+        await downloadItineraryPdf(booking, filename);
+      } catch (error) {
+        console.error("Unable to download itinerary PDF", error);
+        window.alert("The PDF could not be downloaded. Please try again.");
+      } finally {
+        setIsDownloading(false);
+      }
+      return;
+    }
     const source = document.querySelector<HTMLElement>(targetSelector);
     if (!source) {
       window.alert("The PDF content is not available yet. Please try again.");
