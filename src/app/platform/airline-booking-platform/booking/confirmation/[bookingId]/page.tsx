@@ -155,7 +155,7 @@ export default function ConfirmationPage() {
       </Card>
 
       <div className="flex flex-wrap justify-center gap-3">
-        <DownloadPdfButton label="Download PDF itinerary" />
+        <DownloadPdfButton label="Download PDF itinerary" booking={booking} />
         <Link href={`/platform/airline-booking-platform/boarding-pass/${booking.id}`}>
           <Button variant="secondary">
             <Ticket size={16} /> View boarding pass
