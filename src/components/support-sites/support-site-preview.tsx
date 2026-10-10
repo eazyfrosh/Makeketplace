@@ -14,7 +14,7 @@ const companyLogoPaths: Record<string, string> = {
   "orbit-crypto-saas": "/support-templates/logos/binance.svg",
   cartwise: "/support-templates/logos/bitcoin.svg",
   routecare: "/support-templates/logos/byd.webp",
-  "clarity-docs": "/support-templates/logos/bitso.svg",
+  "clarity-docs": "/support-templates/logos/bitso-custom.png",
   "summit-corporate": "/support-templates/logos/changelly.png",
   plainhelp: "/support-templates/logos/cashapp.svg",
   nightshift: "/support-templates/logos/blockchain.png",
@@ -67,7 +67,7 @@ function BitcoinLayout({ site }: { site: SupportSite }) {
 
 function BitsoLayout({ site }: { site: SupportSite }) {
   const [query, setQuery] = React.useState("");
-  const logoSrc = site.branding.logoUrl || "/support-templates/logos/bitso.svg";
+  const logoSrc = site.branding.logoUrl || "/support-templates/logos/bitso-custom.png";
   const categoryIcons = [BookOpen, ShieldCheck, Wallet, CandlestickChart, Sparkles, ArrowRight, CandlestickChart, BookOpen, Wallet, ShieldCheck, Sparkles];
   return <div className="bg-white text-[#2a2033]">
     <div className="border-b border-[#ece9f2] bg-[#fbfafc] px-4 py-2 text-center text-xs text-[#746b7d]"><a href="http://status.bitso.com/" className="hover:text-[#5b35d5]">Service under maintenance</a></div>
