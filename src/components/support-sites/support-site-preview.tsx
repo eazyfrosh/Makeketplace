@@ -65,7 +65,45 @@ function BitcoinLayout({ site }: { site: SupportSite }) {
   ];
   return <><Header site={site} /><section className="mx-auto max-w-5xl px-6 py-16 text-center"><h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{site.heroTitle}</h1><p className="mx-auto mt-4 max-w-xl text-lg opacity-65">{site.heroSubtitle}</p><div className="mx-auto mt-10 max-w-2xl"><SearchBox site={site} query={""} setQuery={() => undefined} /></div></section><main className="mx-auto max-w-5xl px-6 pb-20"><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{site.categories.map((category, i) => { const [icon, description, metadata] = categoryDetails[i] ?? ["📚", `Learn how to use Bitcoin.com ${category.toLowerCase()}.`, "1 author · 1 article"]; return <article key={category} className="min-h-[250px] rounded-2xl border border-[#e4e7ec] bg-white p-6 shadow-sm transition-shadow hover:shadow-lg"><div className="flex size-8 items-center justify-center text-[25px] leading-none" role="img" aria-label={`${category} icon`}>{icon}</div><h2 className="mt-5 text-lg font-semibold">{category}</h2><p className="mt-2 text-sm leading-5 text-[#667085]">{description}</p><p className="mt-6 text-xs text-[#667085]"><span className="mr-1 inline-flex size-5 items-center justify-center rounded-full bg-[#f7931a] text-[13px] text-white">₿</span>{metadata}</p></article>; })}</div><div className="mx-auto mt-14 max-w-2xl rounded-2xl bg-[#f2f5fa] p-8 text-center"><MessageCircle className="mx-auto size-8" style={{ color: site.branding.primary }} /><h2 className="mt-4 text-2xl font-semibold">Need more help?</h2><p className="mt-2 text-sm text-muted-foreground">Chat with our support team and get help with your Bitcoin.com account.</p>{site.contact.enabled.liveChat && <a href={site.contact.liveChatUrl || "#live-chat"} className="mt-5 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white" style={{ background: site.branding.primary }}><MessageCircle className="size-4" /> Start live chat</a>}</div><div className="mt-16 flex items-center justify-between border-t pt-8"><span className="font-semibold">{site.branding.businessName}</span><span className="text-sm text-muted-foreground">Download the app · English</span></div></main></>; }
 
-function BitsoLayout({ site }: { site: SupportSite }) { const [query, setQuery] = React.useState(""); return <><Header site={site} /><section className="px-6 py-20 text-center"><h1 className="text-5xl font-semibold tracking-tight">{site.heroTitle}</h1><p className="mx-auto mt-4 max-w-lg text-lg opacity-65">{site.heroSubtitle}</p><SearchBox site={site} query={query} setQuery={setQuery} /></section><main className="mx-auto max-w-3xl px-6 pb-20"><div className="rounded-3xl bg-[#f7f7fb] p-8 text-center"><MessageCircle className="mx-auto size-8" style={{ color: site.branding.primary }} /><h2 className="mt-4 text-2xl font-semibold">Didn&apos;t find what you were looking for?</h2><p className="mt-3 text-sm text-muted-foreground">For a faster and more efficient service, open a chat where an expert will assist you.</p><button className="mt-6 rounded-full px-6 py-3 text-sm font-semibold text-white" style={{ background: site.branding.primary }}>Open a chat</button></div><h2 className="mt-16 text-2xl font-semibold">Promoted articles</h2><div className="mt-5 divide-y">{site.articles.map((article) => <article key={article.id} className="flex items-center justify-between py-5"><div><p className="font-medium">{article.title}</p><p className="mt-1 text-sm text-muted-foreground">{article.description}</p></div><ArrowRight className="size-4 text-muted-foreground" /></article>)}</div></main><Footer site={site} /></>; }
+function BitsoLayout({ site }: { site: SupportSite }) {
+  const [query, setQuery] = React.useState("");
+  const logoSrc = site.branding.logoUrl || "/support-templates/logos/bitso.svg";
+  const categoryIcons = [BookOpen, ShieldCheck, Wallet, CandlestickChart, Sparkles, ArrowRight, CandlestickChart, BookOpen, Wallet, ShieldCheck, Sparkles];
+  return <div className="bg-white text-[#2a2033]">
+    <div className="border-b border-[#ece9f2] bg-[#fbfafc] px-4 py-2 text-center text-xs text-[#746b7d]"><a href="http://status.bitso.com/" className="hover:text-[#5b35d5]">Service under maintenance</a></div>
+    <header className="border-b border-[#ece9f2] bg-white px-4 py-4 sm:px-6 lg:px-10">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-5">
+        <a href="#home" className="shrink-0" aria-label={`${site.branding.businessName} home`}><img src={logoSrc} alt={site.branding.businessName} className="h-8 w-auto max-w-36 object-contain object-left" /></a>
+        <div className="flex items-center gap-4 text-xs text-[#746b7d] sm:gap-7">
+          <a href="#home" className="hidden hover:text-[#5b35d5] sm:inline">Take me back to the home page</a>
+          <button type="button" className="inline-flex items-center gap-1.5 rounded-md border border-[#e3deea] px-2.5 py-1.5 font-medium text-[#4d4357]">en-us <ChevronDown className="size-3" /></button>
+        </div>
+      </div>
+    </header>
+    <main>
+      <section className="bg-[#f8f6ff] px-5 py-16 text-center sm:px-6 sm:py-20 lg:py-24">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7d718b]">{site.branding.businessName}</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-[#241b35] sm:text-5xl">{site.heroTitle}</h1>
+        <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-[#6f6679]">{site.heroSubtitle}</p>
+        <div className="mx-auto mt-8 max-w-2xl"><SearchBox site={site} query={query} setQuery={setQuery} /></div>
+      </section>
+      <section className="mx-auto max-w-6xl px-5 py-12 sm:px-6 lg:px-10 lg:py-16">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {site.categories.map((category, index) => { const Icon = categoryIcons[index % categoryIcons.length]; return <a key={category} href="#category" className="group flex min-h-32 items-start gap-4 rounded-2xl border border-[#ebe7f1] bg-white p-5 shadow-[0_2px_10px_rgba(42,32,51,0.03)] transition hover:-translate-y-0.5 hover:border-[#cfc2ef] hover:shadow-md"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#f0ebff] text-[#5b35d5]"><Icon className="size-5" /></span><span className="min-w-0 flex-1"><span className="block font-semibold text-[#30253d]">{category}</span><span className="mt-2 block text-sm leading-5 text-[#82788b]">Browse helpful articles and answers</span></span><ArrowRight className="mt-1 size-4 shrink-0 text-[#a69bb2] transition group-hover:translate-x-0.5 group-hover:text-[#5b35d5]" /></a>; })}
+        </div>
+        <div className="mx-auto mt-14 max-w-3xl rounded-2xl border border-[#ebe7f1] bg-[#f8f6ff] px-6 py-9 text-center sm:px-10">
+          <MessageCircle className="mx-auto size-8 text-[#5b35d5]" />
+          <h2 className="mt-4 text-2xl font-semibold text-[#30253d]">Didn&apos;t find what you were looking for?</h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-[#746b7d]">For a faster and more efficient service, we recommend that you open a chat, where an expert will assist you as soon as possible.</p>
+          {site.contact.enabled.liveChat && <a href={site.contact.liveChatUrl || "#live-chat"} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#5b35d5] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#4d2bc2]"><MessageCircle className="size-4" /> Open a chat</a>}
+        </div>
+      </section>
+    </main>
+    <footer className="border-t border-[#ece9f2] bg-white px-5 py-10 text-sm text-[#746b7d] sm:px-6 lg:px-10">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"><div><img src={logoSrc} alt="" className="h-7 w-auto max-w-32 object-contain object-left" /><p className="mt-4 text-xs">2014 - {new Date().getFullYear()} ©Bitso - all rights reserved Bitso®</p></div><div className="flex gap-5 text-xs"><a href="https://www.facebook.com/bitsoex" className="hover:text-[#5b35d5]">Facebook</a><a href="https://twitter.com/bitsoex" className="hover:text-[#5b35d5]">Twitter</a><a href="https://www.youtube.com/channel/UCZABh3s-GwEYRZeba2wHZPQ" className="hover:text-[#5b35d5]">YouTube</a></div></div>
+    </footer>
+  </div>;
+}
 
 function ChangellyLayout({ site }: { site: SupportSite }) {
   const [query, setQuery] = React.useState("");
