@@ -65,10 +65,23 @@ function BitcoinLayout({ site }: { site: SupportSite }) {
   ];
   return <><Header site={site} /><section className="mx-auto max-w-5xl px-6 py-16 text-center"><h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{site.heroTitle}</h1><p className="mx-auto mt-4 max-w-xl text-lg opacity-65">{site.heroSubtitle}</p><div className="mx-auto mt-10 max-w-2xl"><SearchBox site={site} query={""} setQuery={() => undefined} /></div></section><main className="mx-auto max-w-5xl px-6 pb-20"><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{site.categories.map((category, i) => { const [icon, description, metadata] = categoryDetails[i] ?? ["📚", `Learn how to use Bitcoin.com ${category.toLowerCase()}.`, "1 author · 1 article"]; return <article key={category} className="min-h-[250px] rounded-2xl border border-[#e4e7ec] bg-white p-6 shadow-sm transition-shadow hover:shadow-lg"><div className="flex size-8 items-center justify-center text-[25px] leading-none" role="img" aria-label={`${category} icon`}>{icon}</div><h2 className="mt-5 text-lg font-semibold">{category}</h2><p className="mt-2 text-sm leading-5 text-[#667085]">{description}</p><p className="mt-6 text-xs text-[#667085]"><span className="mr-1 inline-flex size-5 items-center justify-center rounded-full bg-[#f7931a] text-[13px] text-white">₿</span>{metadata}</p></article>; })}</div><div className="mx-auto mt-14 max-w-2xl rounded-2xl bg-[#f2f5fa] p-8 text-center"><MessageCircle className="mx-auto size-8" style={{ color: site.branding.primary }} /><h2 className="mt-4 text-2xl font-semibold">Need more help?</h2><p className="mt-2 text-sm text-muted-foreground">Chat with our support team and get help with your Bitcoin.com account.</p>{site.contact.enabled.liveChat && <a href={site.contact.liveChatUrl || "#live-chat"} className="mt-5 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white" style={{ background: site.branding.primary }}><MessageCircle className="size-4" /> Start live chat</a>}</div><div className="mt-16 flex items-center justify-between border-t pt-8"><span className="font-semibold">{site.branding.businessName}</span><span className="text-sm text-muted-foreground">Download the app · English</span></div></main></>; }
 
+const bitsoCategoryIcons: Record<string, string> = {
+  "Your Bitso Account": "/support-templates/bitso-icons/account.png",
+  "Account Security": "/support-templates/bitso-icons/security.png",
+  "Deposits and Withdrawals": "/support-templates/bitso-icons/deposits.png",
+  "Buy and Sell Crypto": "/support-templates/bitso-icons/buy-sell.png",
+  Stocks: "/support-templates/bitso-icons/stocks.png",
+  Earnings: "/support-templates/bitso-icons/earnings.png",
+  "Advanced Trading": "/support-templates/bitso-icons/trading.png",
+  "Taxes and Reports": "/support-templates/bitso-icons/taxes.png",
+  "Crypto and Market": "/support-templates/bitso-icons/crypto-market.png",
+  "Trust and Transparency": "/support-templates/bitso-icons/trust.png",
+  "News and Announcements": "/support-templates/bitso-icons/news.png",
+};
+
 function BitsoLayout({ site }: { site: SupportSite }) {
   const [query, setQuery] = React.useState("");
   const logoSrc = site.branding.logoUrl || "/support-templates/logos/bitso-custom.png";
-  const categoryIcons = [BookOpen, ShieldCheck, Wallet, CandlestickChart, Sparkles, ArrowRight, CandlestickChart, BookOpen, Wallet, ShieldCheck, Sparkles];
   return <div className="bg-white text-[#2a2033]">
     <div className="border-b border-[#ece9f2] bg-[#fbfafc] px-4 py-2 text-center text-xs text-[#746b7d]"><a href="http://status.bitso.com/" className="hover:text-[#5b35d5]">Service under maintenance</a></div>
     <header className="border-b border-[#ece9f2] bg-white px-4 py-4 sm:px-6 lg:px-10">
@@ -88,8 +101,8 @@ function BitsoLayout({ site }: { site: SupportSite }) {
         <div className="mx-auto mt-8 max-w-2xl"><SearchBox site={site} query={query} setQuery={setQuery} /></div>
       </section>
       <section className="mx-auto max-w-6xl px-5 py-12 sm:px-6 lg:px-10 lg:py-16">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {site.categories.map((category, index) => { const Icon = categoryIcons[index % categoryIcons.length]; return <a key={category} href="#category" className="group flex min-h-32 items-start gap-4 rounded-2xl border border-[#ebe7f1] bg-white p-5 shadow-[0_2px_10px_rgba(42,32,51,0.03)] transition hover:-translate-y-0.5 hover:border-[#cfc2ef] hover:shadow-md"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#f0ebff] text-[#5b35d5]"><Icon className="size-5" /></span><span className="min-w-0 flex-1"><span className="block font-semibold text-[#30253d]">{category}</span><span className="mt-2 block text-sm leading-5 text-[#82788b]">Browse helpful articles and answers</span></span><ArrowRight className="mt-1 size-4 shrink-0 text-[#a69bb2] transition group-hover:translate-x-0.5 group-hover:text-[#5b35d5]" /></a>; })}
+        <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-10 lg:gap-x-14 lg:gap-y-12">
+          {site.categories.map((category) => <a key={category} href="#category" className="group flex min-h-36 flex-col items-center justify-center rounded-xl px-2 py-3 text-center transition hover:bg-[#f7f6fb]"><img src={bitsoCategoryIcons[category] || "/support-templates/bitso-icons/account.png"} alt="" className="h-24 w-24 object-contain" /><span className="mt-2 text-[13px] font-medium leading-5 text-[#241b35] underline-offset-2 group-hover:underline">{category}</span></a>)}
         </div>
         <div className="mx-auto mt-14 max-w-3xl rounded-2xl border border-[#ebe7f1] bg-[#f8f6ff] px-6 py-9 text-center sm:px-10">
           <MessageCircle className="mx-auto size-8 text-[#5b35d5]" />
