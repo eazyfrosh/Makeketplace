@@ -1,11 +1,11 @@
 export const SMS_TEMPLATES = [
   {
-    id: "otp-code",
-    title: "OTP code",
-    category: "Verification",
-    description: "Send a short one-time verification code message.",
+    id: "banking-template",
+    title: "Banking template",
+    category: "Banking",
+    description: "Share a concise transaction notification with a customer.",
     message:
-      "Your MyCompany verification code is: 870207. Do not share this code with anyone.",
+      "Txn:CREDIT\nAc:2XX..37X\nAmt:USD 2,048.00\nDes:Atlas\nDate:16-09-2026 20:13\nBal:USD *******",
   },
   {
     id: "order-update",
@@ -16,12 +16,12 @@ export const SMS_TEMPLATES = [
       "Hello [Name], your order [Order number] is now [Status]. View the latest update here: [Secure link]. Thank you, [Business name].",
   },
   {
-    id: "event-invitation",
-    title: "Event invitation",
-    category: "Invitation",
-    description: "Invite a customer to an event and request a reply.",
+    id: "otp-code",
+    title: "OTP code",
+    category: "Verification",
+    description: "Send a short one-time verification code message.",
     message:
-      "Hello [Name], you are invited to [Event name] on [Date] at [Time]. Venue: [Location]. Reply YES to confirm your attendance.",
+      "Your MyCompany verification code is: 870207. Do not share this code with anyone.",
   },
   {
     id: "support-update",
