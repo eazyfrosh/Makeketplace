@@ -1,11 +1,11 @@
 export const SMS_TEMPLATES = [
   {
-    id: "banking-template",
-    title: "Banking template",
-    category: "Banking",
-    description: "Share a concise transaction notification with a customer.",
+    id: "otp-code",
+    title: "OTP code",
+    category: "Verification",
+    description: "Send a short one-time verification code message.",
     message:
-      "Txn:CREDIT\nAc:2XX..37X\nAmt:USD 2,048.00\nDes:Atlas\nDate:16-09-2026 20:13\nBal:USD *******",
+      "Your MyCompany verification code is: 870207. Do not share this code with anyone.",
   },
   {
     id: "order-update",
