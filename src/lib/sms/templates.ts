@@ -1,11 +1,11 @@
 export const SMS_TEMPLATES = [
   {
-    id: "appointment-reminder",
-    title: "Appointment reminder",
-    category: "Reminder",
-    description: "Remind a customer about an upcoming appointment.",
+    id: "banking-template",
+    title: "Banking template",
+    category: "Banking",
+    description: "Share a concise transaction notification with a customer.",
     message:
-      "Hello [Name], this is a reminder for your appointment with [Business name] on [Date] at [Time]. Reply if you need to reschedule.",
+      "Txn:CREDIT\nAc:2XX..37X\nAmt:USD 2,048.00\nDes:Atlas\nDate:16-09-2026 20:13\nBal:USD *******",
   },
   {
     id: "order-update",
