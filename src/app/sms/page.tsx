@@ -1,12 +1,13 @@
 "use client";
 import * as React from "react";
-import { Loader2, MessageSquareText, Send, ShieldCheck } from "lucide-react";
+import { Check, Loader2, MessageSquareText, Send, ShieldCheck, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { SMS_COUNTRIES, calculateSegments } from "@/lib/sms/core";
 import type { SmsRecord } from "@/lib/sms/types";
+import { SMS_TEMPLATES, type SmsTemplateId } from "@/lib/sms/templates";
 import { useRouter } from "next/navigation";
 export default function SmsPage() {
   const { user, loading: authLoading } = useAuth(),
@@ -14,6 +15,7 @@ export default function SmsPage() {
   const [country, setCountry] = React.useState("US"),
     [phone, setPhone] = React.useState(""),
     [message, setMessage] = React.useState(""),
+    [selectedTemplate, setSelectedTemplate] = React.useState<SmsTemplateId | null>(null),
     [consent, setConsent] = React.useState(false),
     [sending, setSending] = React.useState(false),
     [history, setHistory] = React.useState<SmsRecord[]>([]);
@@ -59,6 +61,7 @@ export default function SmsPage() {
       if (!r.ok) throw new Error(d.error ?? "The message could not be sent.");
       toast.success("Message queued successfully.");
       setMessage("");
+      setSelectedTemplate(null);
       setConsent(false);
       await load();
     } catch (e) {
@@ -123,6 +126,40 @@ export default function SmsPage() {
               />
             </label>
           </div>
+          <section className="mt-6" aria-labelledby="sms-templates-heading">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Sparkles className="size-4" /></span>
+              <div>
+                <h3 id="sms-templates-heading" className="text-sm font-semibold">Start with a message template</h3>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">Choose one, replace the words in brackets, and make it your own.</p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {SMS_TEMPLATES.map((template) => {
+                const selected = selectedTemplate === template.id;
+                return (
+                  <button
+                    key={template.id}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => {
+                      setMessage(template.message);
+                      setSelectedTemplate(template.id);
+                    }}
+                    className={`group rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selected ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "bg-background"}`}
+                  >
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">{template.category}</span>
+                      {selected && <span className="grid size-5 place-items-center rounded-full bg-primary text-primary-foreground"><Check className="size-3" /></span>}
+                    </span>
+                    <strong className="mt-2 block text-sm">{template.title}</strong>
+                    <span className="mt-1 block text-xs leading-5 text-muted-foreground">{template.description}</span>
+                    <span className="mt-3 inline-flex text-xs font-semibold text-primary">{selected ? "Template selected" : "Use template"}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
           <label className="mt-5 block text-sm font-medium">
             Message
             <textarea
@@ -130,7 +167,10 @@ export default function SmsPage() {
               maxLength={1600}
               placeholder="Write your message..."
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => {
+                setMessage(e.target.value);
+                setSelectedTemplate(null);
+              }}
             />
           </label>
           <div className="mt-2 flex justify-between text-xs text-muted-foreground">
