@@ -43,11 +43,12 @@ export async function POST(request: Request) {
   const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: subscription.id });
 
   if (serviceSlug === "premium-templates" && templateId === "novabank-dashboard") {
-    if (destination !== "preview") {
-      return NextResponse.json({ error: "The NovaBank private editor and owner admin are still being connected." }, { status: 409 });
-    }
     const novaBankOrigin = process.env.NOVABANK_TEMPLATE_APP_ORIGIN?.replace(/\/$/, "") ?? "https://novabank-dashboard.vercel.app";
-    return NextResponse.json({ redirectUrl: novaBankOrigin });
+    const accessUrl = new URL(`${novaBankOrigin}/api/eazytools/sso`);
+    accessUrl.searchParams.set("token", token);
+    accessUrl.searchParams.set("template", templateId);
+    accessUrl.searchParams.set("destination", destination);
+    return NextResponse.json({ redirectUrl: accessUrl.toString() });
   }
 
   // Only the explicitly trusted Volterra deployment may receive marketplace

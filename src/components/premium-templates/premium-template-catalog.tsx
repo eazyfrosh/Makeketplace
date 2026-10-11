@@ -6,7 +6,7 @@ import { getAuthHeaders } from "@/lib/licensing/client-auth";
 const templates = [
   { id: "elite-broker", name: "ELITE BROKER", url: "https://premium-broker-platform.vercel.app", accent: "text-emerald-400", description: "A premium dark investment-dashboard design with customer-specific branding and private owner controls.", workspaceReady: true },
   { id: "volterra", name: "Volterra", url: "https://tesla-blush-nine.vercel.app", accent: "text-rose-400", description: "A cinematic electric-vehicle and market-simulation experience with customer-specific branding and private owner controls.", workspaceReady: true },
-  { id: "novabank-dashboard", name: "NovaBank Dashboard", url: "https://novabank-dashboard.vercel.app", accent: "text-cyan-300", description: "A polished digital-banking dashboard with accounts, transfers, transaction history, settings, and responsive dark-mode screens.", workspaceReady: false },
+  { id: "novabank-dashboard", name: "NovaBank Dashboard", url: "https://novabank-dashboard.vercel.app", accent: "text-cyan-300", description: "A polished digital-banking dashboard with private branding, colors, logo, chat widgets, copyright controls, and a customer-specific preview.", workspaceReady: true },
 ] as const;
 type Destination = "admin" | "editor" | "preview";
 
