@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null);
   const serviceSlug = body?.serviceSlug as string | undefined;
-  const templateId = body?.templateId === "elite-broker" ? "elite-broker" : "volterra";
+  const templateId = body?.templateId;
   const destination = body?.destination === "editor" || body?.destination === "preview" ? body.destination : "admin";
   if (!serviceSlug) {
     return NextResponse.json({ error: "Missing serviceSlug." }, { status: 400 });
@@ -29,6 +29,10 @@ export async function POST(request: Request) {
   if (!service) {
     return NextResponse.json({ error: "Unknown service." }, { status: 404 });
   }
+  const premiumTemplateIds = new Set(["elite-broker", "volterra", "novabank-dashboard"]);
+  if (serviceSlug === "premium-templates" && !premiumTemplateIds.has(templateId)) {
+    return NextResponse.json({ error: "Unknown premium template." }, { status: 400 });
+  }
 
   const subscription = await getSubscriptionForUser(caller.uid);
   if (!subscription || !["active", "non_renewing"].includes(subscription.status)) return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
@@ -37,6 +41,14 @@ export async function POST(request: Request) {
   if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes(serviceSlug))) return NextResponse.json({ error: "This service is not included in your subscription." }, { status: 403 });
 
   const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: subscription.id });
+
+  if (serviceSlug === "premium-templates" && templateId === "novabank-dashboard") {
+    if (destination !== "preview") {
+      return NextResponse.json({ error: "The NovaBank private editor and owner admin are still being connected." }, { status: 409 });
+    }
+    const novaBankOrigin = process.env.NOVABANK_TEMPLATE_APP_ORIGIN?.replace(/\/$/, "") ?? "https://novabank-dashboard.vercel.app";
+    return NextResponse.json({ redirectUrl: novaBankOrigin });
+  }
 
   // Only the explicitly trusted Volterra deployment may receive marketplace
   // access tokens. Other external service URLs keep their legacy direct-link

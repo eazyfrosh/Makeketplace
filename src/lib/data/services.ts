@@ -313,12 +313,13 @@ export const services: Service[] = [
     category: "templates",
     tagline: "Hosted, editable websites with owner admin controls.",
     description:
-      "Launch ELITE BROKER or Volterra, edit your branding and contact details from a private owner admin page, and publish without touching code.",
+      "Explore ELITE BROKER, Volterra, and NovaBank Dashboard. Workspace-ready templates include private branding tools and owner controls.",
     heroImage: "/service-previews/premium-templates.png",
     screenshots: ["templates-saas", "templates-portfolio", "templates-store"],
     features: [
       "ELITE BROKER investment platform template",
       "Hosted Volterra EV marketplace template",
+      "NovaBank digital-banking dashboard template",
       "Fully responsive & accessible",
       "Dark/light mode built in",
       "Private owner admin editor",
