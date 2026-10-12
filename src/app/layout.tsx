@@ -29,9 +29,14 @@ export const metadata: Metadata = {
   description:
     "EazyTool gives professionals fast, dependable digital tools for receipts, platforms, websites, templates, and everyday business work.",
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    shortcut: "/favicon.svg",
+    icon: [
+      { url: "/favicon-32.png?v=20261012", type: "image/png", sizes: "32x32" },
+      { url: "/favicon.svg?v=20261012", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon-32.png?v=20261012",
+    apple: [{ url: "/apple-touch-icon.png?v=20261012", sizes: "180x180", type: "image/png" }],
   },
+  manifest: "/site.webmanifest?v=20261012",
   keywords: [
     "digital services marketplace",
     "QR Code Generator",
