@@ -28,6 +28,10 @@ export const metadata: Metadata = {
   },
   description:
     "EazyTool gives professionals fast, dependable digital tools for receipts, platforms, websites, templates, and everyday business work.",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.svg",
+  },
   keywords: [
     "digital services marketplace",
     "QR Code Generator",
