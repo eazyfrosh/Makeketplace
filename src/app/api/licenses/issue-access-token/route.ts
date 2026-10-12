@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   if (!service) {
     return NextResponse.json({ error: "Unknown service." }, { status: 404 });
   }
-  const premiumTemplateIds = new Set(["elite-broker", "volterra", "novabank-dashboard"]);
+  const premiumTemplateIds = new Set(["elite-broker", "volterra", "novabank-dashboard", "swiftstream-cargo"]);
   if (serviceSlug === "premium-templates" && !premiumTemplateIds.has(templateId)) {
     return NextResponse.json({ error: "Unknown premium template." }, { status: 400 });
   }
@@ -41,6 +41,13 @@ export async function POST(request: Request) {
   if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes(serviceSlug))) return NextResponse.json({ error: "This service is not included in your subscription." }, { status: 403 });
 
   const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: subscription.id });
+
+  // SwiftStream Cargo currently exposes a public template preview only. Its
+  // existing /admin area is the operator console for the original deployment,
+  // so it must never receive marketplace customers or EazyTool access tokens.
+  if (serviceSlug === "premium-templates" && templateId === "swiftstream-cargo") {
+    return NextResponse.json({ redirectUrl: "https://swiftstreamcargo.vercel.app" });
+  }
 
   if (serviceSlug === "premium-templates" && templateId === "novabank-dashboard") {
     const novaBankOrigin = process.env.NOVABANK_TEMPLATE_APP_ORIGIN?.replace(/\/$/, "") ?? "https://novabank-dashboard.vercel.app";

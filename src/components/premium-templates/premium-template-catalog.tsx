@@ -7,6 +7,7 @@ const templates = [
   { id: "elite-broker", name: "ELITE BROKER", url: "https://premium-broker-platform.vercel.app", accent: "text-emerald-400", description: "A premium dark investment-dashboard design with customer-specific branding and private owner controls.", workspaceReady: true },
   { id: "volterra", name: "Volterra", url: "https://tesla-blush-nine.vercel.app", accent: "text-rose-400", description: "A cinematic electric-vehicle and market-simulation experience with customer-specific branding and private owner controls.", workspaceReady: true },
   { id: "novabank-dashboard", name: "NovaBank Dashboard", url: "https://novabank-dashboard.vercel.app", previewImage: "/premium-templates/novabank-dashboard-preview.png", accent: "text-cyan-300", description: "A polished digital-banking dashboard with private branding, colors, logo, chat widgets, copyright controls, and a customer-specific preview.", workspaceReady: true },
+  { id: "swiftstream-cargo", name: "SwiftStream Cargo", url: "https://swiftstreamcargo.vercel.app", accent: "text-orange-300", description: "A modern logistics and freight website with shipment tracking, service pages, quote requests, responsive layouts, and polished cargo-focused presentation.", workspaceReady: false },
 ] as const;
 type Destination = "admin" | "editor" | "preview";
 
