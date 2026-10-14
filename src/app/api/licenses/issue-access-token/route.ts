@@ -42,11 +42,15 @@ export async function POST(request: Request) {
 
   const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: subscription.id });
 
-  // SwiftStream Cargo currently exposes a public template preview only. Its
-  // existing /admin area is the operator console for the original deployment,
-  // so it must never receive marketplace customers or EazyTool access tokens.
+  // SwiftStream customers are provisioned into a separate owner workspace;
+  // the original deployment's /admin operator console remains isolated.
   if (serviceSlug === "premium-templates" && templateId === "swiftstream-cargo") {
-    return NextResponse.json({ redirectUrl: "https://swiftstreamcargo.vercel.app" });
+    const swiftstreamOrigin = process.env.SWIFTSTREAM_CARGO_APP_ORIGIN?.replace(/\/$/, "") ?? "https://swiftstreamcargo.vercel.app";
+    const accessUrl = new URL(`${swiftstreamOrigin}/api/eazytools/sso`);
+    accessUrl.searchParams.set("token", token);
+    accessUrl.searchParams.set("template", templateId);
+    accessUrl.searchParams.set("destination", destination);
+    return NextResponse.json({ redirectUrl: accessUrl.toString() });
   }
 
   if (serviceSlug === "premium-templates" && templateId === "novabank-dashboard") {
