@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   if (!service) {
     return NextResponse.json({ error: "Unknown service." }, { status: 404 });
   }
-  const premiumTemplateIds = new Set(["elite-broker", "volterra", "novabank-dashboard", "swiftstream-cargo"]);
+  const premiumTemplateIds = new Set(["elite-broker", "volterra", "novabank-dashboard", "swiftstream-cargo", "tradeflow"]);
   if (serviceSlug === "premium-templates" && !premiumTemplateIds.has(templateId)) {
     return NextResponse.json({ error: "Unknown premium template." }, { status: 400 });
   }
@@ -56,6 +56,21 @@ export async function POST(request: Request) {
   if (serviceSlug === "premium-templates" && templateId === "novabank-dashboard") {
     const novaBankOrigin = process.env.NOVABANK_TEMPLATE_APP_ORIGIN?.replace(/\/$/, "") ?? "https://novabank-dashboard.vercel.app";
     const accessUrl = new URL(`${novaBankOrigin}/api/eazytools/sso`);
+    accessUrl.searchParams.set("token", token);
+    accessUrl.searchParams.set("template", templateId);
+    accessUrl.searchParams.set("destination", destination);
+    return NextResponse.json({ redirectUrl: accessUrl.toString() });
+  }
+
+  if (serviceSlug === "premium-templates" && templateId === "tradeflow") {
+    const tradeFlowOrigin = process.env.TRADING_PLATFORM_APP_ORIGIN?.replace(/\/$/, "");
+    if (!tradeFlowOrigin) {
+      return NextResponse.json(
+        { error: "TradeFlow is awaiting its deployment URL. Add TRADING_PLATFORM_APP_ORIGIN in Vercel, then redeploy." },
+        { status: 503 },
+      );
+    }
+    const accessUrl = new URL(`${tradeFlowOrigin}/api/eazytools/sso`);
     accessUrl.searchParams.set("token", token);
     accessUrl.searchParams.set("template", templateId);
     accessUrl.searchParams.set("destination", destination);
