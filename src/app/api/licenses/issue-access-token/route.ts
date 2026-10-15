@@ -63,13 +63,7 @@ export async function POST(request: Request) {
   }
 
   if (serviceSlug === "premium-templates" && templateId === "tradeflow") {
-    const tradeFlowOrigin = process.env.TRADING_PLATFORM_APP_ORIGIN?.replace(/\/$/, "");
-    if (!tradeFlowOrigin) {
-      return NextResponse.json(
-        { error: "TradeFlow is awaiting its deployment URL. Add TRADING_PLATFORM_APP_ORIGIN in Vercel, then redeploy." },
-        { status: 503 },
-      );
-    }
+    const tradeFlowOrigin = process.env.TRADING_PLATFORM_APP_ORIGIN?.replace(/\/$/, "") ?? "https://trading-platform-phi-hazel.vercel.app";
     const accessUrl = new URL(`${tradeFlowOrigin}/api/eazytools/sso`);
     accessUrl.searchParams.set("token", token);
     accessUrl.searchParams.set("template", templateId);
