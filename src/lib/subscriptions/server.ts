@@ -3,7 +3,9 @@ import {
   commitInitialSubscriptionPayment,
   commitRenewalPayment,
   findSubscriptionByProvider,
+  findPendingSubscriptionPaymentIntent,
   getPlan,
+  getPaymentByReference,
   getSubscriptionForUser,
   getSubscriptionPaymentIntent,
   saveSubscription,
@@ -47,37 +49,67 @@ function paymentRecord(input: { subscription: Subscription; reference: string; p
 
 export async function activateSubscription({ userId, reference }: { userId: string; reference: string }) {
   if (!PAYSTACK_SECRET_KEY) throw new Error("Paystack is not configured.");
-  const intent = await getSubscriptionPaymentIntent(reference);
-  if (!intent || intent.userId !== userId || intent.purpose !== "subscription") throw new Error("Subscription payment request not found.");
+  const verified = await verifyPaystackTransaction(reference, PAYSTACK_SECRET_KEY);
+  const verifiedEmail = verified.customer?.email?.trim().toLowerCase();
+  const directIntent = await getSubscriptionPaymentIntent(reference);
+  const intent = directIntent ?? (verifiedEmail && verified.amount && verified.currency === "NGN"
+    ? await findPendingSubscriptionPaymentIntent({ email: verifiedEmail, amountMinor: verified.amount, currency: "NGN" })
+    : null);
+  if (!intent) {
+    const existingPayment = await getPaymentByReference(reference);
+    if (existingPayment?.userId === userId && existingPayment.status === "paid") {
+      const existingSubscription = await getSubscriptionForUser(userId);
+      const existingPlan = existingSubscription ? await getPlan(existingSubscription.planId) : null;
+      return { subscription: existingSubscription, plan: existingPlan };
+    }
+    throw new Error("Subscription payment request not found. Make sure you paid with your EazyTool account email.");
+  }
+  if (intent.userId !== userId || intent.purpose !== "subscription") throw new Error("Subscription payment request not found. Make sure you paid with your EazyTool account email.");
   const plan = await getPlan(intent.planId);
   if (!plan?.active) throw new Error("That subscription plan is not available.");
   if (intent.status === "paid") return { subscription: await getSubscriptionForUser(userId), plan };
   if (intent.status !== "pending") throw new Error("This subscription payment is no longer pending.");
 
-  const verified = await verifyPaystackTransaction(reference, PAYSTACK_SECRET_KEY);
   const expectedPlanCode = intent.billingCycle === "yearly" ? plan.yearlyPlanCode : plan.monthlyPlanCode;
+  const metadataPurpose = String(verified.metadata?.purpose ?? "");
+  const isPaymentPageCheckout = intent.reference !== reference;
   if (
-    verified.status !== "success" || verified.reference !== intent.reference || verified.amount !== intent.amountMinor || verified.currency !== intent.currency ||
-    verified.metadata?.purpose !== "subscription" || verified.metadata?.userId !== intent.userId || verified.metadata?.planId !== intent.planId ||
-    verified.metadata?.billingCycle !== intent.billingCycle || (planCode(verified.plan) && expectedPlanCode && planCode(verified.plan) !== expectedPlanCode)
+    verified.status !== "success" || verified.reference !== reference || verified.amount !== intent.amountMinor || verified.currency !== intent.currency ||
+    !verifiedEmail || verifiedEmail !== intent.email.trim().toLowerCase() ||
+    (isPaymentPageCheckout && metadataPurpose && metadataPurpose !== "subscription") ||
+    (!isPaymentPageCheckout && (metadataPurpose !== "subscription" || verified.metadata?.userId !== intent.userId || verified.metadata?.planId !== intent.planId || verified.metadata?.billingCycle !== intent.billingCycle)) ||
+    (planCode(verified.plan) && expectedPlanCode && planCode(verified.plan) !== expectedPlanCode)
   ) throw new Error("Verified Paystack payment details do not match this subscription request.");
 
   const paidAt = new Date(verified.paid_at ?? Date.now());
-  const nextBilling = addBillingPeriod(paidAt, intent.billingCycle);
   const previous = await getSubscriptionForUser(userId);
+  const previousExpiry = previous?.expiresAt ? new Date(previous.expiresAt) : null;
+  const periodStart = previousExpiry && previousExpiry.getTime() > paidAt.getTime() ? previousExpiry : paidAt;
+  const expiresAt = addBillingPeriod(periodStart, "monthly");
   const subscription: Subscription = {
-    id: previous?.id ?? generateId("sub"), userId: intent.userId, email: intent.email, planId: plan.id, planName: plan.name, billingCycle: intent.billingCycle,
-    status: "active", startedAt: previous?.startedAt ?? paidAt.toISOString(), nextBillingAt: nextBilling.toISOString(), expiresAt: nextBilling.toISOString(),
+    id: previous?.id ?? generateId("sub"), userId: intent.userId, email: intent.email, planId: plan.id, planName: plan.name, billingCycle: "monthly",
+    status: "active", startedAt: previous?.startedAt ?? paidAt.toISOString(), nextBillingAt: null, expiresAt: expiresAt.toISOString(),
     usageThisMonth: previous?.planId === plan.id ? previous.usageThisMonth : 0, usageLimit: plan.monthlyUsageLimit,
     paystackCustomerCode: verified.customer?.customer_code ?? previous?.paystackCustomerCode ?? null,
-    paystackSubscriptionCode: verified.subscription_code ?? previous?.paystackSubscriptionCode ?? null,
-    paystackEmailToken: verified.email_token ?? previous?.paystackEmailToken ?? null,
+    paystackSubscriptionCode: null,
+    paystackEmailToken: null,
     paystackAuthorizationCode: verified.authorization?.authorization_code ?? previous?.paystackAuthorizationCode ?? null,
     createdAt: previous?.createdAt ?? paidAt.toISOString(), updatedAt: new Date().toISOString(),
   };
   const payment = paymentRecord({ subscription, reference, providerTransactionId: String(verified.id ?? reference), amountMinor: intent.amountMinor, paidAt: verified.paid_at });
-  await commitInitialSubscriptionPayment({ intentReference: intent.reference, subscription, payment });
+  await commitInitialSubscriptionPayment({ intentReference: intent.reference, subscription, payment: { ...payment, reference } });
   return { subscription: await getSubscriptionForUser(userId), plan };
+}
+
+export async function activateSubscriptionFromWebhook(reference: string) {
+  if (!PAYSTACK_SECRET_KEY) throw new Error("Paystack is not configured.");
+  const verified = await verifyPaystackTransaction(reference, PAYSTACK_SECRET_KEY);
+  const email = verified.customer?.email?.trim().toLowerCase();
+  if (!email || verified.currency !== "NGN" || typeof verified.amount !== "number") return false;
+  const intent = await getSubscriptionPaymentIntent(reference) ?? await findPendingSubscriptionPaymentIntent({ email, amountMinor: verified.amount, currency: "NGN" });
+  if (!intent) return false;
+  await activateSubscription({ userId: intent.userId, reference });
+  return true;
 }
 
 export async function processSubscriptionRenewal(reference: string) {

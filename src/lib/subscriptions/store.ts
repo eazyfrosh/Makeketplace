@@ -66,8 +66,17 @@ export async function getSubscriptionForUser(userId: string): Promise<Subscripti
   );
 }
 
+function normalizeSubscription(subscription: Subscription, now = Date.now()): Subscription {
+    const expiry = subscription.expiresAt ? Date.parse(subscription.expiresAt) : Number.NaN;
+    if (["active", "non_renewing"].includes(String(subscription.status).toLowerCase()) && Number.isFinite(expiry) && expiry < now) {
+      return { ...subscription, status: "expired" as const, nextBillingAt: null };
+    }
+    return subscription;
+}
+
 function selectCurrentSubscription(subscriptions: Subscription[]): Subscription | null {
   const now = Date.now();
+  const normalized = subscriptions.map((subscription) => normalizeSubscription(subscription, now));
   const isUsable = (subscription: Subscription) =>
     ["active", "non_renewing"].includes(String(subscription.status).toLowerCase()) &&
     (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= now);
@@ -76,7 +85,7 @@ function selectCurrentSubscription(subscriptions: Subscription[]): Subscription 
     return Number.isFinite(value) ? value : 0;
   };
 
-  return [...subscriptions].sort((a, b) => {
+  return normalized.sort((a, b) => {
     const usableDifference = Number(isUsable(b)) - Number(isUsable(a));
     return usableDifference || timestamp(b) - timestamp(a);
   })[0] ?? null;
@@ -93,9 +102,9 @@ export async function saveSubscription(subscription: Subscription): Promise<void
 export async function listSubscriptions(): Promise<Subscription[]> {
   if (adminDb) {
     const snap = await adminDb.collection(SUBSCRIPTIONS).get();
-    return snap.docs.map((doc) => doc.data() as Subscription);
+    return snap.docs.map((doc) => normalizeSubscription(doc.data() as Subscription));
   }
-  return Array.from(demoStore().subscriptions.values());
+  return Array.from(demoStore().subscriptions.values()).map((subscription) => normalizeSubscription(subscription));
 }
 
 export async function listPaymentsForUser(userId: string): Promise<SubscriptionPayment[]> {
@@ -142,6 +151,27 @@ export async function getSubscriptionPaymentIntent(reference: string): Promise<S
     return snap.exists ? snap.data() as SubscriptionPaymentIntent : null;
   }
   return demoStore().intents.get(reference) ?? null;
+}
+
+export async function findPendingSubscriptionPaymentIntent(input: { email: string; amountMinor: number; currency: "NGN" }): Promise<SubscriptionPaymentIntent | null> {
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+  let intents: SubscriptionPaymentIntent[];
+  if (adminDb) {
+    const snap = await adminDb.collection(PAYMENT_INTENTS).where("email", "==", normalizedEmail).get();
+    intents = snap.docs.map((doc) => doc.data() as SubscriptionPaymentIntent);
+  } else {
+    intents = Array.from(demoStore().intents.values());
+  }
+  return intents
+    .filter((intent) =>
+      intent.email.trim().toLowerCase() === normalizedEmail &&
+      intent.status === "pending" &&
+      intent.amountMinor === input.amountMinor &&
+      intent.currency === input.currency &&
+      Date.parse(intent.createdAt) >= cutoff,
+    )
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0] ?? null;
 }
 
 export async function failSubscriptionPaymentIntent(reference: string): Promise<void> {

@@ -186,7 +186,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary"><CheckCircle2 className="size-4" /> Access plan</div>
             <h2 id="subscription-heading" className="mt-2 text-2xl font-semibold">{subscriptionPlan?.name ?? "Free plan"}</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-              {subscription ? `Your plan is ${subscription.status.replace("_", " ")}${subscription.nextBillingAt ? ` and renews on ${new Date(subscription.nextBillingAt).toLocaleDateString()}.` : "."}` : "Choose a subscription when you want access to more tools in one place."}
+              {subscription ? `Your plan is ${subscription.status.replace("_", " ")}${subscription.expiresAt ? ` until ${new Date(subscription.expiresAt).toLocaleDateString()}. Payments do not renew automatically.` : "."}` : "Choose a subscription when you want access to more tools in one place."}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

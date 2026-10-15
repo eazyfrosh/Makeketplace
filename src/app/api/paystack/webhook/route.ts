@@ -10,7 +10,7 @@ import {
   markSubscriptionPaymentRefunded,
   recordPaystackProviderEvent,
 } from "@/lib/subscriptions/store";
-import { activateSubscription, processSubscriptionRenewal, updateSubscriptionFromProvider } from "@/lib/subscriptions/server";
+import { activateSubscription, activateSubscriptionFromWebhook, processSubscriptionRenewal, updateSubscriptionFromProvider } from "@/lib/subscriptions/server";
 import { creditVerifiedDeposit, failFundingIntent, getFundingIntent, reverseVerifiedDeposit } from "@/lib/wallet/store";
 import { verifyPaystackSignature, verifyPaystackTransaction } from "@/lib/wallet/paystack";
 
@@ -82,7 +82,9 @@ export async function POST(request: Request) {
               await registerPaidDomain(reference, order.userId, order.registrant);
             }
           } else {
-            await processSubscriptionRenewal(reference);
+            const activated = await activateSubscriptionFromWebhook(reference);
+            const recurringSubscriptionCode = data.subscription_code ?? data.subscription?.subscription_code;
+            if (!activated && recurringSubscriptionCode) await processSubscriptionRenewal(reference);
           }
         }
       }
