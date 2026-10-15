@@ -50,7 +50,6 @@ export function PricingClient() {
         <Badge variant="soft"><Sparkles className="mr-1 size-3" /> EazyTool All Access</Badge>
         <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">Simple Pricing. One Subscription. All Your Tools.</h1>
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">One subscription unlocks every EazyTool service, template, and new tool we add.</p>
-        <p className="mx-auto mt-6 max-w-xl rounded-2xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-muted-foreground">Pay once for 1 month of access. Bank transfer and other available Paystack methods are shown at checkout. This payment does not renew automatically.</p>
       </div>
 
       {loading ? <div className="flex justify-center py-20"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div> : (
@@ -65,7 +64,7 @@ export function PricingClient() {
                 <div className="mt-7 flex items-baseline gap-2"><span className="text-4xl font-semibold tracking-tight">{formatPrice(price)}</span><span className="text-sm text-muted-foreground">/month</span></div>
                 <div className="mt-3 text-sm font-medium text-primary">Full platform access</div>
                 <Button className="mt-7 w-full" variant={plan.popular ? "default" : "secondary"} disabled={!user || starting === plan.id} onClick={() => subscribe(plan)}>
-                  {starting === plan.id ? <Loader2 className="size-4 animate-spin" /> : user ? "Pay for 1 month" : "Sign in to subscribe"}
+                  {starting === plan.id ? <Loader2 className="size-4 animate-spin" /> : user ? "Subscribe" : "Sign in to subscribe"}
                 </Button>
                 {!user && <Link href="/auth/login?next=/pricing" className="mt-3 text-center text-xs text-muted-foreground underline underline-offset-4">Already have an account? Sign in</Link>}
                 <div className="mt-8 border-t border-border/70 pt-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Included</p><ul className="mt-4 space-y-3">{plan.features.map((feature) => <li key={feature} className="flex gap-2 text-sm"><Check className="mt-0.5 size-4 shrink-0 text-emerald-500" />{feature}</li>)}</ul></div>
