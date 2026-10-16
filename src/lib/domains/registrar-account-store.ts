@@ -4,7 +4,7 @@ import { adminDb } from "@/lib/licensing/admin-db";
 
 export interface RegistrarAccountRecord {
   userId: string;
-  provider: "resellerclub";
+  provider: "resellerclub" | "domainnameapi" | "namesilo";
   providerCustomerId: string;
   providerContactId?: string;
   customerEmail: string;

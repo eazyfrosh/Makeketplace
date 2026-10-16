@@ -2,9 +2,10 @@ export type DomainStatus = "active" | "pending" | "expired" | "suspended" | "reg
 export type DomainPaymentStatus = "pending" | "confirmed" | "paid" | "failed" | "refunded" | "refund_pending" | "admin_review";
 export type DomainRegistrationStatus = "payment_pending" | "payment_confirmed" | "registration_pending" | "pending" | "registered" | "dns_pending" | "email_verification_pending" | "email_ready" | "failed" | "needs_review";
 export type DnsRecordType = "A" | "AAAA" | "CNAME" | "MX" | "TXT";
+export type DomainRegistrar = "domainnameapi" | "resellerclub" | "namesilo";
 
 export interface DomainRecord {
-  id: string; userId: string; domain: string; tld: string; registrar: "resellerclub";
+  id: string; userId: string; domain: string; tld: string; registrar: DomainRegistrar;
   registrarOrderId: string | null; status: DomainStatus; registeredAt: string | null; expiresAt: string | null;
   autoRenew: boolean; nameservers: string[]; customerPriceCents: number; currency: "NGN";
   providerDomainId?: string | null; purchasePriceMinor?: number; paymentReference?: string | null;
@@ -16,23 +17,15 @@ export interface DomainRecord {
 export interface DomainOrder {
   id: string; userId: string; domain: string; tld: string; amountCents: number; currency: "NGN";
   paystackReference: string; paymentStatus: DomainPaymentStatus; registrationStatus: DomainRegistrationStatus;
-  registrarOrderId: string | null; providerDomainId?: string | null; idempotencyKey?: string; refundState?: "not_required" | "pending" | "completed" | "admin_review";
+  registrarOrderId: string | null; provider?: DomainRegistrar; providerDomainId?: string | null; idempotencyKey?: string; refundState?: "not_required" | "pending" | "completed" | "admin_review";
+  wholesaleAmountMinor?: number; wholesaleCurrency?: string; premium?: boolean; reconciliationRequired?: boolean;
   registrant?: Registrant; registrarTermsAcceptedAt?: string; templateId?: "elite-broker" | "volterra"; templateSiteId?: string; templateSiteUrl?: string; errorMessage?: string; createdAt: string; updatedAt: string;
 }
-export interface DomainAvailability { domain: string; tld: string; available: boolean; priceCents: number; currency: "NGN"; registrationYears?: number; }
+export interface DomainAvailability { domain: string; tld: string; available: boolean; premium?: boolean; priceCents: number; renewalPriceCents?: number; currency: "NGN"; }
 export interface DnsRecord { host: string; type: DnsRecordType; value: string; ttl: number; priority?: number; }
 export interface Registrant { name: string; email: string; phone?: string; organization?: string; address?: string; city?: string; state?: string; country?: string; postalCode?: string; }
 export interface DomainDetails { domain: string; status: string; expiryDate: string | null; nameservers: string[]; dnsRecords: DnsRecord[]; registrant?: Registrant; }
-export interface DomainPricing {
-  tld: string;
-  registrarCostCents: number;
-  markupCents: number;
-  minimumProfitCents: number;
-  fixedRegistrationPriceMinor?: number;
-  fixedRenewalPriceMinor?: number;
-  minimumRegistrationYears?: number;
-  minimumRenewalYears?: number;
-}
+export interface DomainPricing { tld: string; registrationPriceMinor: number; renewalPriceMinor: number; transferPriceMinor: number | null; enabled: boolean; minimumProfitMinor: number; updatedAt?: string; }
 export interface ResellerClubOptions { resellerId: string; apiKey: string; baseUrl: string; }
 
 export const COMMON_TLDS = [".com", ".net", ".org", ".co", ".io", ".ai", ".app", ".dev", ".me", ".xyz"];
@@ -46,9 +39,9 @@ export const sanitizeRegistrant = (v: Partial<Registrant>): Registrant => ({ nam
 export const isCompleteRegistrant = (v: Registrant) => Boolean(v.name && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email) && v.phone && v.address && v.city && v.state && /^[A-Z]{2}$/.test(v.country ?? "") && v.postalCode);
 export const isValidNameserver = (v: string) => /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(v);
 export const domainCurrency = "NGN" as const;
-export const domainRegistrar = "resellerclub" as const;
+export const domainRegistrar = "domainnameapi" as const;
 export const domainMaxNameservers = 6;
 export const domainMaxDnsRecords = 100;
 export const domainWebhookRoute = "/api/paystack/webhook";
-export const domainDocs = { resellerClub: "https://manage.resellerclub.com/kb/answer/744", paystackWebhook: "https://paystack.com/docs/payments/webhooks/" } as const;
-export const domainEnvironmentKeys = ["RESELLERCLUB_RESELLER_ID", "RESELLERCLUB_API_KEY", "RESELLERCLUB_API_BASE_URL", "RESELLERCLUB_DEFAULT_NAMESERVERS", "PAYSTACK_SECRET_KEY", "NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY"] as const;
+export const domainDocs = { domainNameApi: "https://www.domainnameapi.com/api-integration", resellerClub: "https://manage.resellerclub.com/kb/answer/744", paystackWebhook: "https://paystack.com/docs/payments/webhooks/" } as const;
+export const domainEnvironmentKeys = ["DOMAINNAMEAPI_RESELLER_ID", "DOMAINNAMEAPI_API_KEY", "DOMAINNAMEAPI_ENVIRONMENT", "DOMAINNAMEAPI_DEFAULT_NAMESERVERS", "DOMAINNAMEAPI_LIVE_OPERATIONS_ENABLED", "PAYSTACK_SECRET_KEY", "NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY"] as const;

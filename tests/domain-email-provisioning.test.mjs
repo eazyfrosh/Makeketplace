@@ -26,8 +26,8 @@ test("automated tests may use a mock provider without adding mock behavior to pr
 test("provider availability is checked before wallet debit or Paystack checkout", () => {
   const wallet = read("../src/app/api/domains/checkout/wallet/route.ts");
   const paystack = read("../src/app/api/domains/checkout/initialize/route.ts");
-  assert.ok(wallet.indexOf("!areDomainPurchasesEnabled()") < wallet.indexOf("purchaseWithWallet({"));
-  assert.ok(paystack.indexOf("!areDomainPurchasesEnabled()") < paystack.indexOf("transaction/initialize"));
+  assert.ok(wallet.indexOf("!areNewDomainPurchasesEnabled()") < wallet.indexOf("purchaseWithWallet({"));
+  assert.ok(paystack.indexOf("!areNewDomainPurchasesEnabled()") < paystack.indexOf("transaction/initialize"));
   for (const source of [wallet, paystack]) assert.match(source, /DOMAIN_PURCHASES_DISABLED/);
 });
 
@@ -71,27 +71,27 @@ test("production UI has no fake registrar success and manual DNS cannot claim an
   assert.match(domainPage, /Domain service is being configured/); assert.ok(!manage.includes("saveDomain(")); assert.match(manage, /No DNS change was made/);
 });
 
-test("availability uses the signed connector while every purchase path stays feature-flagged", () => {
-  const connector = read("../src/lib/domains/connector-client.ts");
+test("Domain Name API is the default only for new registrations and every chargeable path stays gated", () => {
+  const provider = read("../src/lib/domains/domainnameapi-provider.ts");
+  const registry = read("../src/lib/domains/registry.ts");
   const search = read("../src/app/api/domains/search/route.ts");
-  assert.match(connector, /createHmac\("sha256"/);
-  assert.match(connector, /X-EazyTool-Timestamp/);
-  assert.match(connector, /X-EazyTool-Nonce/);
-  assert.match(search, /isResellerClubAvailabilityConfigured/);
-  const facade = read("../src/lib/resellerclub.ts");
-  assert.match(facade, /DOMAIN_REGISTRATION_CERTIFIED/);
-  assert.match(facade, /connectorDomainProvider\.isConfigured/);
+  assert.match(provider, /X-API-KEY/);
+  assert.match(provider, /__reseller/);
+  assert.match(provider, /PROVIDER_OUTCOME_UNKNOWN/);
+  assert.match(registry, /DOMAINNAMEAPI_LIVE_OPERATIONS_ENABLED/);
+  assert.match(registry, /providers\[name\]/);
+  assert.match(search, /defaultDomainProvider/);
   for (const route of ["initialize", "wallet", "verify"]) {
-    assert.match(read(`../src/app/api/domains/checkout/${route}/route.ts`), /areDomainPurchasesEnabled/);
+    assert.match(read(`../src/app/api/domains/checkout/${route}/route.ts`), /areNewDomainPurchasesEnabled/);
   }
 });
 
-test("connector registration uses an independent Droplet kill switch and idempotency store", () => {
-  const connector = read("../scripts/resellerclub-connector/connector.py");
-  const server = read("../scripts/resellerclub-connector/server.py");
-  assert.match(connector, /RESELLERCLUB_REGISTRATION_ENABLED/);
-  assert.match(connector, /REGISTRATION_DISABLED/);
-  assert.match(connector, /CREATE TABLE IF NOT EXISTS operations/);
-  assert.match(server, /X-EazyTool-Signature/);
-  assert.ok(!server.includes("api-key"));
+test("standard pricing is server-side and premium or loss-making orders are blocked", () => {
+  const pricing = read("../src/lib/domain-pricing.ts");
+  const service = read("../src/lib/domains/service.ts");
+  assert.match(pricing, /registrationPriceMinor: 2_400_000/);
+  assert.match(pricing, /renewalPriceMinor: 3_000_000/);
+  assert.match(pricing, /DOMAIN_PRICE_BELOW_MINIMUM_MARGIN/);
+  assert.match(service, /PREMIUM_DOMAIN/);
+  assert.match(service, /assertProfitable/);
 });

@@ -1,8 +1,9 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 
-import { getDomainOrderByReference } from "@/lib/domains/store";
+import { getDomainOrderByReference, saveDomainOrder } from "@/lib/domains/store";
 import { registerPaidDomain } from "@/lib/domains/service";
+import { areNewDomainPurchasesEnabled } from "@/lib/domains/registry";
 import {
   getSubscriptionPaymentIntent,
   failSubscriptionPaymentIntent,
@@ -76,7 +77,9 @@ export async function POST(request: Request) {
         } else {
           const order = await getDomainOrderByReference(reference);
           if (order) {
-            if (order.paymentStatus !== "paid") {
+            if (!areNewDomainPurchasesEnabled()) {
+              await saveDomainOrder({ ...order, paymentStatus: "admin_review", registrationStatus: "needs_review", refundState: "admin_review", reconciliationRequired: true, errorMessage: "Payment received while domain registration was disabled.", updatedAt: new Date().toISOString() });
+            } else if (order.paymentStatus !== "paid") {
               if (verified.status !== "success" || verified.amount !== order.amountCents || verified.currency !== order.currency || verified.metadata?.userId !== order.userId) throw new Error("Verified payment details do not match the domain order.");
               if (!order.registrant || !order.registrarTermsAcceptedAt) throw new Error("Domain order is missing registrant details or consent.");
               await registerPaidDomain(reference, order.userId, order.registrant);

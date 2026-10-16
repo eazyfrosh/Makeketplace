@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { emailDomainProvider } from "@/lib/email-domains/provider";
 import { getEmailDomainByDomainId, saveEmailDomain } from "@/lib/email-domains/store";
 import type { EmailDomainRecord, EmailProviderDnsRecord } from "@/lib/email-domains/types";
-import { resellerClubDomainProvider } from "@/lib/domains/resellerclub-provider";
+import { getDomainProvider } from "@/lib/domains/registry";
 import { requireDomainProvider } from "@/lib/domains/provider";
 import type { DomainRecord, DnsRecord } from "@/types/domains";
 import { getDomain, saveDomain } from "@/lib/domains/store";
@@ -17,7 +17,7 @@ function ensureDmarc(records: EmailProviderDnsRecord[], domain: string): EmailPr
 export async function provisionEmailDomain(domain: DomainRecord) {
   if (domain.status !== "active" || domain.registrationStatus !== "registered" || !domain.providerDomainId) throw new Error("DOMAIN_NOT_REGISTERED");
   if (!emailDomainProvider.isConfigured()) throw new Error("EMAIL_PROVIDER_NOT_CONFIGURED");
-  const registrar = requireDomainProvider(resellerClubDomainProvider);
+  const registrar = requireDomainProvider(getDomainProvider(domain.registrar));
   const existing = await getEmailDomainByDomainId(domain.id);
   const now = new Date().toISOString();
   let record: EmailDomainRecord = existing ?? { id: `email_domain_${randomUUID()}`, userId: domain.userId, domainId: domain.id, domain: domain.domain, provider: "resend", providerDomainId: null, status: "setting_up", dnsRecords: [], dnsConfiguredAt: null, verifiedAt: null, suspended: false, suspensionReason: null, sentCount: 0, deliveredCount: 0, bouncedCount: 0, complaintCount: 0, lastError: null, lastCheckedAt: null, createdAt: now, updatedAt: now };
