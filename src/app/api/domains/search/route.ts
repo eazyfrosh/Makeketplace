@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { getDomainPricing } from "@/lib/domain-pricing";
 import { domainServiceUnavailableMessage } from "@/lib/domains/provider";
-import { areNewDomainPurchasesEnabled, defaultDomainProvider } from "@/lib/domains/registry";
+import { areNewDomainPurchasesEnabled, canCallerPurchaseDomains, defaultDomainProvider } from "@/lib/domains/registry";
 import { COMMON_TLDS, normalizeDomain } from "@/types/domains";
 
 export async function POST(request: Request) {
@@ -18,5 +18,5 @@ export async function POST(request: Request) {
     try { const found = await provider.searchAvailability(domain); return { domain, tld, available: found.available, premium: Boolean(found.premium), priceCents: pricing!.registrationPriceMinor, renewalPriceCents: pricing!.renewalPriceMinor, currency: "NGN" as const }; }
     catch { return { domain, tld, available: false, premium: false, priceCents: pricing!.registrationPriceMinor, renewalPriceCents: pricing!.renewalPriceMinor, currency: "NGN" as const }; }
   }));
-  return NextResponse.json({ results, configured: true, provider: provider.name, purchasesEnabled: areNewDomainPurchasesEnabled(), suggestions: [`${name}hq.com`, `${name}online.com`, `${name}app.com`] });
+  return NextResponse.json({ results, configured: true, provider: provider.name, purchasesEnabled: areNewDomainPurchasesEnabled() && canCallerPurchaseDomains(caller), suggestions: [`${name}hq.com`, `${name}online.com`, `${name}app.com`] });
 }

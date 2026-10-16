@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { assertProfitable, calculateDomainPrice, getDomainPricing } from "@/lib/domain-pricing";
-import { areNewDomainPurchasesEnabled, defaultDomainProvider } from "@/lib/domains/registry";
+import { areNewDomainPurchasesEnabled, canCallerPurchaseDomains, defaultDomainProvider } from "@/lib/domains/registry";
 import { getTld, isCompleteRegistrant, isValidDomain, normalizeDomain, sanitizeRegistrant } from "@/types/domains";
 import { saveDomainOrder } from "@/lib/domains/store";
 import { generateId } from "@/lib/licensing/keys";
@@ -10,9 +10,9 @@ const secret = process.env.PAYSTACK_SECRET_KEY;
 const origins = { "elite-broker": "https://premium-broker-platform.vercel.app", volterra: "https://tesla-blush-nine.vercel.app" } as const;
 
 export async function POST(request: Request) {
-  if (!areNewDomainPurchasesEnabled()) return NextResponse.json({ error: "Domain purchases are not available yet. No payment was taken.", code: "DOMAIN_PURCHASES_DISABLED" }, { status: 503 });
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in to buy a domain." }, { status: 401 });
+  if (!areNewDomainPurchasesEnabled() || !canCallerPurchaseDomains(caller)) return NextResponse.json({ error: "Domain purchases are not available yet. No payment was taken.", code: "DOMAIN_PURCHASES_DISABLED" }, { status: 503 });
   const body = await request.json().catch(() => ({}));
   const domain = normalizeDomain(String(body.domain ?? ""));
   if (!isValidDomain(domain)) return NextResponse.json({ error: "Enter a valid domain name." }, { status: 400 });
