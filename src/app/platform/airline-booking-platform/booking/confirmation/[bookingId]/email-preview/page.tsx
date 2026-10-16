@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Mail, Plane, Send } from "lucide-react";
+import { ArrowLeft, Loader2, Mail, Plane, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/airline/ui/button";
 import { AirlineLogo } from "@/components/airline/ui/airline-logo";
 import { LoadingState } from "@/components/airline/ui/loading-state";
 import { getBooking } from "@/lib/airline/services/bookings";
+import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { extrasLineItems } from "@/lib/airline/data/extras-pricing";
 import { cabinLabel, formatCurrency, formatDateLong, formatTime } from "@/lib/airline/utils";
 import type { Booking } from "@/lib/airline/types";
@@ -18,6 +19,7 @@ export default function EmailPreviewPage() {
   const router = useRouter();
   const [booking, setBooking] = useState<Booking | null | undefined>(undefined);
   const [recipientEmail, setRecipientEmail] = useState("");
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     getBooking(bookingId).then((foundBooking) => {
@@ -39,7 +41,7 @@ export default function EmailPreviewPage() {
 
   const extraLineItems = extrasLineItems(booking.extras);
 
-  function sendEmail() {
+  async function sendEmail() {
     if (!booking) return;
     const recipient = recipientEmail.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
@@ -47,28 +49,22 @@ export default function EmailPreviewPage() {
       return;
     }
 
-    const flightSummary = booking.flights
-      .map((flight) => {
-        const first = flight.segments[0];
-        const last = flight.segments[flight.segments.length - 1];
-        return `${first.airline.name}: ${first.originCode} to ${last.destinationCode} on ${formatDateLong(first.departureTime)}`;
-      })
-      .join("\n");
-    const subject = `Your SkyBook itinerary — confirmation ${booking.bookingReference}`;
-    const body = [
-      `Hi ${booking.passengers[0]?.firstName ?? "traveler"},`,
-      "",
-      `Your SkyBook booking ${booking.bookingReference} is confirmed.`,
-      "",
-      flightSummary,
-      "",
-      `Total: ${formatCurrency(booking.totalPrice, booking.currency)}`,
-      "",
-      "Safe travels!",
-      "The SkyBook team",
-    ].join("\n");
-
-    window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setSending(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch("/api/airline/email/itinerary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...headers },
+        body: JSON.stringify({ recipient, bookingId: booking.id, requestId: crypto.randomUUID() }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(payload?.error ?? "The confirmation email could not be sent.");
+      toast.success(`Itinerary sent to ${recipient}.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "The confirmation email could not be sent.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -105,9 +101,10 @@ export default function EmailPreviewPage() {
             <Button
               type="button"
               onClick={sendEmail}
+              disabled={sending}
               className="w-full bg-[#07599f] px-5 text-white shadow-lg shadow-blue-900/20 hover:bg-[#043f75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07599f] focus-visible:ring-offset-2 dark:bg-[#07599f] dark:text-white dark:hover:bg-[#043f75] sm:w-auto"
             >
-              <Send size={16} /> Send Email
+              {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />} {sending ? "Sending…" : "Send Email"}
             </Button>
           </div>
         </section>

@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+import { Resend, type Attachment } from "resend";
 
 export const isEmailConfigured = Boolean(process.env.RESEND_API_KEY);
 
@@ -32,10 +32,10 @@ export function getRecentDemoEmails(limit = 20): SentEmailRecord[] {
  * the flow stays fully testable with zero email-provider setup, matching the
  * app's existing "demo mode" fallback pattern for payments.
  */
-export async function sendEmail(params: { to: string; subject: string; html: string; text?: string; idempotencyKey?: string; from?: string }): Promise<{ id: string; provider: "resend" | "demo" }> {
+export async function sendEmail(params: { to: string; subject: string; html: string; text?: string; idempotencyKey?: string; from?: string; attachments?: Attachment[] }): Promise<{ id: string; provider: "resend" | "demo" }> {
   if (isEmailConfigured && resend) {
     const result = await resend.emails.send(
-      { from: params.from ?? FROM, to: params.to, subject: params.subject, html: params.html, text: params.text },
+      { from: params.from ?? FROM, to: params.to, subject: params.subject, html: params.html, text: params.text, attachments: params.attachments },
       params.idempotencyKey ? { idempotencyKey: params.idempotencyKey } : undefined,
     );
     if (result.error || !result.data?.id) throw new Error(result.error?.message ?? "Email provider rejected the message.");
