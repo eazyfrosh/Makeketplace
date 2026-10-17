@@ -5,9 +5,20 @@ import type { DomainPriceQuote } from "@/lib/domains/provider";
 import { COMMON_TLDS, type DomainPricing } from "@/types/domains";
 
 const COLLECTION = "domainPricing";
-const DEFAULTS: Record<string, DomainPricing> = Object.fromEntries(COMMON_TLDS.map((tld) => [tld, tld === ".com"
-  ? { tld, registrationPriceMinor: 2_400_000, renewalPriceMinor: 3_000_000, transferPriceMinor: null, enabled: true, minimumProfitMinor: 200_000 }
-  : { tld, registrationPriceMinor: 0, renewalPriceMinor: 0, transferPriceMinor: null, enabled: false, minimumProfitMinor: 200_000 }]));
+const DEFAULTS: Record<string, DomainPricing> = Object.fromEntries(COMMON_TLDS.map((tld) => {
+  const configured: Partial<Record<string, Pick<DomainPricing, "registrationPriceMinor" | "renewalPriceMinor" | "minimumProfitMinor">>> = {
+    ".com": { registrationPriceMinor: 2_400_000, renewalPriceMinor: 3_000_000, minimumProfitMinor: 200_000 },
+    ".org": { registrationPriceMinor: 2_700_000, renewalPriceMinor: 3_700_000, minimumProfitMinor: 1_200_000 },
+    ".net": { registrationPriceMinor: 3_700_000, renewalPriceMinor: 3_700_000, minimumProfitMinor: 1_200_000 },
+    ".uk": { registrationPriceMinor: 2_900_000, renewalPriceMinor: 2_900_000, minimumProfitMinor: 1_200_000 },
+    ".co": { registrationPriceMinor: 4_700_000, renewalPriceMinor: 8_000_000, minimumProfitMinor: 1_200_000 },
+    ".info": { registrationPriceMinor: 2_100_000, renewalPriceMinor: 6_100_000, minimumProfitMinor: 1_200_000 },
+  };
+  const price = configured[tld];
+  return [tld, price
+    ? { tld, ...price, transferPriceMinor: null, enabled: true }
+    : { tld, registrationPriceMinor: 0, renewalPriceMinor: 0, transferPriceMinor: null, enabled: false, minimumProfitMinor: 1_200_000 }];
+}));
 
 export function normalizeTld(tld: string) { const value = tld.trim().toLowerCase(); return value.startsWith(".") ? value : `.${value}`; }
 export async function getDomainPricing(tld: string): Promise<DomainPricing | null> {

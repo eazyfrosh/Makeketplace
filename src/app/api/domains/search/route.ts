@@ -5,7 +5,7 @@ import { domainServiceUnavailableMessage } from "@/lib/domains/provider";
 import { areNewDomainPurchasesEnabled, canCallerPurchaseDomains, defaultDomainProvider } from "@/lib/domains/registry";
 import { COMMON_TLDS, normalizeDomain } from "@/types/domains";
 
-const DEFAULT_SEARCH_TLDS = [".com", ".org", ".ai", ".io"];
+const DEFAULT_SEARCH_TLDS = [".com", ".org", ".net", ".uk", ".co", ".info", ".io"];
 
 export async function POST(request: Request) {
   const caller = await verifyCaller(request); if (!caller) return NextResponse.json({ error: "Sign in to search for domains." }, { status: 401 });

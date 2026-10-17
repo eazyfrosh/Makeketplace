@@ -37,7 +37,7 @@ export interface DomainDetails { domain: string; status: string; expiryDate: str
 export interface DomainPricing { tld: string; registrationPriceMinor: number; renewalPriceMinor: number; transferPriceMinor: number | null; enabled: boolean; minimumProfitMinor: number; updatedAt?: string; }
 export interface ResellerClubOptions { resellerId: string; apiKey: string; baseUrl: string; }
 
-export const COMMON_TLDS = [".com", ".net", ".org", ".co", ".io", ".ai", ".app", ".dev", ".me", ".xyz"];
+export const COMMON_TLDS = [".com", ".net", ".org", ".uk", ".co", ".info", ".io", ".app", ".dev", ".me", ".xyz"];
 export const DOMAIN_WARNING_DAYS = [30, 14, 7, 1];
 export const domainDaysRemaining = (expiresAt: string | null) => expiresAt ? Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86400000) : null;
 export const normalizeDomain = (input: string) => input.trim().toLowerCase().replace(/^https?:\/\//, "").split("/")[0].replace(/^www\./, "");
