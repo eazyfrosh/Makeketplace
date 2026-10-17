@@ -8,7 +8,7 @@ import { getTld, type DomainRecord, type Registrant } from "@/types/domains";
 export async function registerPaidDomain(reference: string, userId: string, registrant: Registrant) {
   const order = await getDomainOrderByReference(reference);
   if (!order || order.userId !== userId) throw new Error("Domain order not found.");
-  if (order.registrationStatus === "registered" || order.registrationStatus === "email_ready") return order;
+  if (["registered", "dns_pending", "email_verification_pending", "email_ready"].includes(order.registrationStatus)) return order;
   if (await getDomainForUser(order.domain, userId)) return order;
   const now = new Date().toISOString();
   let provider;
@@ -39,7 +39,7 @@ export async function registerPaidDomain(reference: string, userId: string, regi
     const done = { ...pending, provider: "domainnameapi" as const, wholesaleAmountMinor: quote.amountMinor, wholesaleCurrency: quote.currency, premium: false, registrationStatus: "registered" as const, registrarOrderId: providerReference, providerDomainId: response.providerDomainId, refundState: "not_required" as const, updatedAt: new Date().toISOString() };
     await saveDomainOrder(done);
     if (process.env.RESEND_API_KEY) {
-      try { const emailDomain = await provisionEmailDomain(domain); await saveDomain({ ...domain, registrationStatus: emailDomain.status === "ready" ? "email_ready" : "email_verification_pending", dnsStatus: emailDomain.dnsConfiguredAt ? "configured" : "pending", emailVerificationStatus: emailDomain.status === "ready" ? "verified" : "pending", updatedAt: new Date().toISOString() }); }
+      try { const emailDomain = await provisionEmailDomain(domain); await saveDomain({ ...domain, registrationStatus: "registered", dnsStatus: emailDomain.dnsConfiguredAt ? "configured" : "pending", emailVerificationStatus: emailDomain.status === "ready" ? "verified" : "pending", updatedAt: new Date().toISOString() }); }
       catch (error) { await saveDomain({ ...domain, dnsStatus: "failed", emailVerificationStatus: "failed", provisioningErrors: [{ code: "EMAIL_PROVISIONING_FAILED", message: error instanceof Error ? error.message : "Email setup failed.", occurredAt: new Date().toISOString() }], updatedAt: new Date().toISOString() }); }
     }
     return done;
