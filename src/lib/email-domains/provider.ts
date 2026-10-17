@@ -30,7 +30,22 @@ function mapPurpose(record: ResendRecord): EmailProviderDnsRecord["purpose"] {
 }
 
 function mapRecords(records: ResendRecord[] = []): EmailProviderDnsRecord[] {
-  return records.filter((record) => record.name && record.type && record.value).map((record) => ({ host: String(record.name), type: String(record.type).toUpperCase() as EmailProviderDnsRecord["type"], value: String(record.value), ttl: Number(record.ttl ?? 3600), priority: record.priority, purpose: mapPurpose(record) }));
+  return records.filter((record) => record.name && record.type && record.value).map((record) => {
+    const mapped: EmailProviderDnsRecord = {
+      host: String(record.name),
+      type: String(record.type).toUpperCase() as EmailProviderDnsRecord["type"],
+      value: String(record.value),
+      ttl: Number(record.ttl ?? 3600),
+      purpose: mapPurpose(record),
+    };
+
+    // Firestore rejects explicit `undefined` values. Resend only supplies a
+    // priority for records that need one (typically MX), so omit the optional
+    // property entirely for all other DNS records.
+    if (Number.isFinite(record.priority)) mapped.priority = record.priority;
+
+    return mapped;
+  });
 }
 
 export class ResendEmailDomainProvider implements EmailDomainProvider {
