@@ -7,6 +7,7 @@ import { normalizeDomain, type DnsRecord, type Registrant } from "@/types/domain
 type Environment = "test" | "production";
 type Config = { resellerId: string; apiKey: string; baseUrl: string; environment: Environment; nameservers: string[] };
 type Json = Record<string, unknown>;
+type ZoneRecordSet = { name?: unknown; ttl?: unknown; type?: unknown; records?: unknown };
 
 const PROD_URL = "https://api.domainresellerapi.com/api/v1";
 const TEST_URL = "https://ote.domainresellerapi.com/api/v1";
@@ -101,6 +102,53 @@ function mapDomain(domain: string, payload: Json): RegisteredDomain {
 
 function tldParts(domain: string) { const normalized = normalizeDomain(domain); const pieces = normalized.split("."); return { name: pieces[0], tld: pieces.slice(1).join(".") }; }
 
+const SUPPORTED_DNS_TYPES = new Set<DnsRecord["type"]>(["A", "AAAA", "CNAME", "MX", "TXT"]);
+
+function relativeDnsHost(host: string, domain: string) {
+  const normalizedHost = host.trim().replace(/\.$/, "").toLowerCase();
+  const normalizedDomain = normalizeDomain(domain);
+  if (!normalizedHost || normalizedHost === "@" || normalizedHost === normalizedDomain) return "";
+  const suffix = `.${normalizedDomain}`;
+  return normalizedHost.endsWith(suffix) ? normalizedHost.slice(0, -suffix.length) : normalizedHost;
+}
+
+function qualifiedDnsHost(host: string, domain: string) {
+  const relative = relativeDnsHost(host, domain);
+  return relative ? `${relative}.${normalizeDomain(domain)}` : normalizeDomain(domain);
+}
+
+function providerDnsContent(record: DnsRecord) {
+  if (record.type === "MX" && Number.isFinite(record.priority) && !/^\d+\s+/.test(record.value.trim())) return `${record.priority} ${record.value.trim()}`;
+  return record.value.trim();
+}
+
+function parseDnsContent(type: DnsRecord["type"], content: string) {
+  if (type !== "MX") return { value: content };
+  const match = content.trim().match(/^(\d+)\s+(.+)$/);
+  return match ? { value: match[2], priority: Number(match[1]) } : { value: content };
+}
+
+function parseZoneRecords(domain: string, payload: unknown): DnsRecord[] {
+  if (!Array.isArray(payload)) return [];
+  const result: DnsRecord[] = [];
+  for (const rawSet of payload) {
+    const set = rawSet as ZoneRecordSet;
+    const type = String(set.type ?? "").toUpperCase() as DnsRecord["type"];
+    if (!SUPPORTED_DNS_TYPES.has(type)) continue;
+    const ttlValue = Number(set.ttl ?? 3600);
+    const ttl = Number.isFinite(ttlValue) ? Math.min(86400, Math.max(1, Math.trunc(ttlValue))) : 3600;
+    const host = relativeDnsHost(String(set.name ?? ""), domain);
+    if (!Array.isArray(set.records)) continue;
+    for (const rawRecord of set.records) {
+      const row = asObject(rawRecord);
+      if (row.disabled === true || typeof row.content !== "string" || !row.content.trim()) continue;
+      const parsed = parseDnsContent(type, row.content.trim());
+      result.push({ host, type, value: parsed.value, ttl, ...(parsed.priority === undefined ? {} : { priority: parsed.priority }) });
+    }
+  }
+  return result;
+}
+
 export class DomainNameApiProvider implements DomainProvider {
   readonly name = "domainnameapi";
   isConfigured() { return config() !== null; }
@@ -125,10 +173,52 @@ export class DomainNameApiProvider implements DomainProvider {
   }
   async getRegistrationStatus(providerDomainId: string) { const result = await request<Json>("GET", "domains/info", { DomainName: providerDomainId }); return mapDomain(providerDomainId, result); }
   async getNameservers(providerDomainId: string) { const result = await request<Json>("GET", "domains/info", { DomainName: providerDomainId }); const values = result.nameservers ?? result.nameServers ?? result.NameServers; return Array.isArray(values) ? values.map(String) : []; }
-  async createDnsRecord(providerDomainId: string, record: DnsRecord) { void providerDomainId; void record; throw new DomainProviderError("UNSUPPORTED_OPERATION", "DNS record management must be enabled from the Domain Name API account API Library before use."); }
-  async updateDnsRecord(providerDomainId: string, current: DnsRecord, next: DnsRecord) { void providerDomainId; void current; void next; throw new DomainProviderError("UNSUPPORTED_OPERATION", "DNS record management must be enabled from the Domain Name API account API Library before use."); }
-  async removeDnsRecord(providerDomainId: string, record: DnsRecord) { void providerDomainId; void record; throw new DomainProviderError("UNSUPPORTED_OPERATION", "DNS record management must be enabled from the Domain Name API account API Library before use."); }
-  async getDnsStatus(providerDomainId: string) { void providerDomainId; return [] as DnsRecord[]; }
+  private async applyDnsRecords(domain: string) { await request<Json>("POST", `domains/zones/apply?domainName=${encodeURIComponent(normalizeDomain(domain))}`, {}); }
+  private async setDnsRecordSet(domain: string, host: string, type: DnsRecord["type"], records: DnsRecord[], ttl: number) {
+    if (!SUPPORTED_DNS_TYPES.has(type)) throw new DomainProviderError("UNSUPPORTED_OPERATION", `DNS record type ${type} is not supported.`);
+    const contents = records.map(providerDnsContent).filter(Boolean);
+    if (!contents.length) return;
+    await request<Json>("POST", `domains/zones?domainName=${encodeURIComponent(normalizeDomain(domain))}`, { zoneStruct: { name: relativeDnsHost(host, domain), ttl: Math.min(86400, Math.max(1, Math.trunc(ttl || 3600))), type, contents: [...new Set(contents)] } });
+  }
+  async createDnsRecord(providerDomainId: string, record: DnsRecord) {
+    const domain = normalizeDomain(providerDomainId);
+    const existing = await this.getDnsStatus(domain);
+    const sameSet = existing.filter((item) => relativeDnsHost(item.host, domain) === relativeDnsHost(record.host, domain) && item.type === record.type);
+    const content = providerDnsContent(record);
+    if (sameSet.some((item) => providerDnsContent(item) === content)) return;
+    await this.setDnsRecordSet(domain, record.host, record.type, [...sameSet, record], record.ttl);
+    await this.applyDnsRecords(domain);
+  }
+  async updateDnsRecord(providerDomainId: string, current: DnsRecord, next: DnsRecord) {
+    const domain = normalizeDomain(providerDomainId);
+    const currentHost = relativeDnsHost(current.host, domain);
+    const nextHost = relativeDnsHost(next.host, domain);
+    if (currentHost !== nextHost || current.type !== next.type) {
+      await this.removeDnsRecord(domain, current);
+      await this.createDnsRecord(domain, next);
+      return;
+    }
+    const existing = await this.getDnsStatus(domain);
+    const values = existing.filter((item) => relativeDnsHost(item.host, domain) === currentHost && item.type === current.type && providerDnsContent(item) !== providerDnsContent(current));
+    await this.setDnsRecordSet(domain, next.host, next.type, [...values, next], next.ttl);
+    await this.applyDnsRecords(domain);
+  }
+  async removeDnsRecord(providerDomainId: string, record: DnsRecord) {
+    const domain = normalizeDomain(providerDomainId);
+    const host = relativeDnsHost(record.host, domain);
+    const existing = await this.getDnsStatus(domain);
+    const sameSet = existing.filter((item) => relativeDnsHost(item.host, domain) === host && item.type === record.type);
+    const remaining = sameSet.filter((item) => providerDnsContent(item) !== providerDnsContent(record));
+    if (remaining.length === sameSet.length) return;
+    if (remaining.length) await this.setDnsRecordSet(domain, host, record.type, remaining, remaining[0].ttl);
+    else await request<Json>("DELETE", "domains/zones", { domainName: domain, Name: qualifiedDnsHost(host, domain), Record: providerDnsContent(record), RecordType: record.type });
+    await this.applyDnsRecords(domain);
+  }
+  async getDnsStatus(providerDomainId: string) {
+    const domain = normalizeDomain(providerDomainId);
+    const result = await request<unknown>("GET", "domains/zones", { domainName: domain });
+    return parseZoneRecords(domain, result);
+  }
   async renewDomain(input: { providerDomainId: string; domain: string; years: number }) { const result = await request<Json>("POST", "domains/renew", { domainName: input.domain, period: input.years }, true); return mapDomain(input.domain, { ...result, id: input.providerDomainId }); }
   async getExpiration(providerDomainId: string) { return (await this.getRegistrationStatus(providerDomainId)).expiresAt; }
   async transferDomain(input: { domain: string; authCode: string; years: number; registrant: Registrant; idempotencyKey: string }) { void input.idempotencyKey; const result = await request<Json>("POST", "domains/transfer", { domainName: normalizeDomain(input.domain), authCode: input.authCode, period: input.years, contacts: contacts(input.registrant) }, true); return mapDomain(input.domain, result); }
