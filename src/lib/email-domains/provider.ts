@@ -55,7 +55,38 @@ export class ResendEmailDomainProvider implements EmailDomainProvider {
   // webhook secret is validated separately when delivery events arrive.
   isConfigured() { return Boolean(this.client); }
   private requireClient() { if (!this.client) throw new EmailDomainProviderError("EMAIL_PROVIDER_NOT_CONFIGURED", "Email-domain provisioning is not configured."); return this.client; }
-  async addDomain(domain: string, _idempotencyKey: string): Promise<EmailProviderDomain> { void _idempotencyKey; const result = await this.requireClient().domains.create({ name: domain, customReturnPath: "eazytool" }); if (result.error || !result.data?.id) throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", result.error?.message ?? "The email provider rejected the domain."); const data = result.data as ResendDomain; return { providerDomainId: String(data.id), domain, status: data.status === "verified" ? "verified" : "pending", records: mapRecords(data.records) }; }
+  private async findDomain(domain: string): Promise<EmailProviderDomain | null> {
+    const client = this.requireClient();
+    const normalized = domain.trim().toLowerCase();
+    let after: string | undefined;
+
+    while (true) {
+      const listed = await client.domains.list(after ? { limit: 100, after } : { limit: 100 });
+      if (listed.error || !listed.data) throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", listed.error?.message ?? "Existing email domains could not be checked.");
+      const match = listed.data.data.find((item) => item.name.trim().toLowerCase() === normalized);
+      if (match) return this.getVerificationStatus(match.id);
+      const last = listed.data.data.at(-1);
+      if (!listed.data.has_more || !last) return null;
+      after = last.id;
+    }
+  }
+  async addDomain(domain: string, _idempotencyKey: string): Promise<EmailProviderDomain> {
+    void _idempotencyKey;
+    const existing = await this.findDomain(domain);
+    if (existing) return existing;
+
+    const result = await this.requireClient().domains.create({ name: domain, customReturnPath: "eazytool" });
+    if (result.error || !result.data?.id) {
+      // A previous or concurrent attempt may have created the Resend domain
+      // before EazyTool persisted its provider ID. Reconcile it instead of
+      // treating the harmless duplicate as a terminal setup failure.
+      const recovered = await this.findDomain(domain);
+      if (recovered) return recovered;
+      throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", result.error?.message ?? "The email provider rejected the domain.");
+    }
+    const data = result.data as ResendDomain;
+    return { providerDomainId: String(data.id), domain, status: data.status === "verified" ? "verified" : "pending", records: mapRecords(data.records) };
+  }
   async getVerificationRecords(providerDomainId: string) { return (await this.getVerificationStatus(providerDomainId)).records; }
   async getVerificationStatus(providerDomainId: string): Promise<EmailProviderDomain> { const result = await this.requireClient().domains.get(providerDomainId); if (result.error || !result.data) throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", result.error?.message ?? "Email-domain status is unavailable."); const data = result.data as ResendDomain; return { providerDomainId, domain: String(data.name ?? ""), status: data.status === "verified" ? "verified" : data.status === "failed" ? "failed" : "pending", records: mapRecords(data.records) }; }
   async sendEmail(input: { from: string; fromName: string; replyTo: string; to: string; subject: string; html: string; text: string; idempotencyKey: string }) { const result = await this.requireClient().emails.send({ from: `${input.fromName.replace(/[<>\r\n]/g, "")} <${input.from}>`, replyTo: input.replyTo, to: input.to, subject: input.subject, html: input.html, text: input.text }, { idempotencyKey: input.idempotencyKey }); if (result.error || !result.data?.id) throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", result.error?.message ?? "The email provider rejected this message."); return { messageId: result.data.id }; }
