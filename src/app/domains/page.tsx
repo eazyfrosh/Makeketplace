@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { CheckCircle2, Globe2, Loader2, Search, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { HelpCallout } from "@/components/ui/help-callout";
@@ -72,7 +73,17 @@ export default function DomainsPage() {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error ?? "We could not complete the domain purchase. Your wallet was not charged.");
       if (data.authorizationUrl) window.location.href = data.authorizationUrl;
-      else setMessage(method === "wallet" ? "Payment confirmed and your domain registration has started." : data.message ?? "Secure checkout will be available when the payment service is ready.");
+      else if (method === "wallet" && response.status === 202) {
+        const pendingMessage = data.error ?? "Your payment is confirmed and domain registration is being verified.";
+        setMessage(pendingMessage);
+        toast.info("Domain registration is being verified", { description: pendingMessage, duration: 8000 });
+      } else if (method === "wallet") {
+        const successMessage = `${domain} was purchased and registered successfully.`;
+        setMessage(successMessage);
+        toast.success("Domain purchase successful!", { description: successMessage, duration: 8000 });
+      } else {
+        setMessage(data.message ?? "Secure checkout will be available when the payment service is ready.");
+      }
     } catch (error) {
       setMessage(userFacingError(error, "We could not start the domain purchase. No payment was taken."));
     } finally {
