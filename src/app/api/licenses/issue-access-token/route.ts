@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 import { getServiceBySlug } from "@/lib/data/services";
 import { signAccessToken } from "@/lib/licensing/jwt";
+import { resolveServiceAccess } from "@/lib/licensing/service-access";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
-import { getPlan, getSubscriptionForUser } from "@/lib/subscriptions/store";
 
 /**
  * Called when a customer clicks "Access" in their dashboard. Confirms they
@@ -34,13 +34,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unknown premium template." }, { status: 400 });
   }
 
-  const subscription = await getSubscriptionForUser(caller.uid);
-  if (!subscription || !["active", "non_renewing"].includes(subscription.status)) return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
-  if (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now()) return NextResponse.json({ error: "Your subscription has expired." }, { status: 403 });
-  const plan = await getPlan(subscription.planId);
-  if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes(serviceSlug))) return NextResponse.json({ error: "This service is not included in your subscription." }, { status: 403 });
+  const access = await resolveServiceAccess(caller.uid, caller.role, serviceSlug);
+  if (!access.allowed || !access.entitlementId) return NextResponse.json({ error: "An active subscription or service license is required." }, { status: 403 });
 
-  const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: subscription.id });
+  const token = await signAccessToken({ sub: caller.uid, serviceId: serviceSlug, licenseId: access.entitlementId });
 
   // SwiftStream customers are provisioned into a separate owner workspace;
   // the original deployment's /admin operator console remains isolated.

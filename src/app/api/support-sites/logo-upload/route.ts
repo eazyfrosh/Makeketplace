@@ -1,7 +1,7 @@
 import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
+import { resolveServiceAccess } from "@/lib/licensing/service-access";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
-import { getPlan, getSubscriptionForUser } from "@/lib/subscriptions/store";
 
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -9,14 +9,8 @@ const MAX_BYTES = 2 * 1024 * 1024;
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-  if (caller.role !== "admin") {
-    const subscription = await getSubscriptionForUser(caller.uid);
-    const active = Boolean(subscription && ["active", "non_renewing"].includes(subscription.status) && (!subscription.expiresAt || new Date(subscription.expiresAt).getTime() >= Date.now()));
-    const plan = active && subscription ? await getPlan(subscription.planId) : null;
-    if (!plan || (!plan.includedTools.includes("*") && !plan.includedTools.includes("support-website-templates"))) {
-      return NextResponse.json({ error: "An active EazyTool subscription is required to upload template assets." }, { status: 403 });
-    }
-  }
+  const access = await resolveServiceAccess(caller.uid, caller.role, "support-website-templates");
+  if (!access.allowed) return NextResponse.json({ error: "An active subscription or service license is required to upload template assets." }, { status: 403 });
   const form = await request.formData().catch(() => null);
   const file = form?.get("file");
   const siteId = String(form?.get("siteId") || "site").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80);

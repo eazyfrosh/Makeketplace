@@ -1,7 +1,7 @@
 import { del, list, put } from "@vercel/blob";
 import { NextResponse } from "next/server";
+import { resolveServiceAccess } from "@/lib/licensing/service-access";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
-import { getPlan, getSubscriptionForUser } from "@/lib/subscriptions/store";
 import type { SupportSite } from "@/lib/support-sites/types";
 
 const SITE_PREFIX = "support-data/sites/";
@@ -15,11 +15,7 @@ async function readSite(url: string): Promise<SupportSite | null> {
 async function findSite(id: string) { const result = await list({ prefix: `${SITE_PREFIX}${safeId(id)}.json`, limit: 1 }); return result.blobs[0] ? readSite(result.blobs[0].url) : null; }
 async function listSites() { const result = await list({ prefix: SITE_PREFIX, limit: 1000 }); const sites = await Promise.all(result.blobs.map((blob) => readSite(blob.url))); return sites.filter((site): site is SupportSite => Boolean(site)); }
 async function canCustomize(uid: string, role: string) {
-  if (role === "admin") return true;
-  const subscription = await getSubscriptionForUser(uid);
-  if (!subscription || !["active", "non_renewing"].includes(subscription.status) || (subscription.expiresAt && new Date(subscription.expiresAt).getTime() < Date.now())) return false;
-  const plan = await getPlan(subscription.planId);
-  return Boolean(plan && (plan.includedTools.includes("*") || plan.includedTools.includes("support-website-templates")));
+  return (await resolveServiceAccess(uid, role, "support-website-templates")).allowed;
 }
 
 export async function GET(request: Request) {
