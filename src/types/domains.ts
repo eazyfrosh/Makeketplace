@@ -25,6 +25,7 @@ export interface DomainAvailability {
   domain: string;
   tld: string;
   available: boolean;
+  lookupFailed?: boolean;
   premium?: boolean;
   purchasable: boolean;
   priceCents?: number;

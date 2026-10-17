@@ -37,6 +37,7 @@ export async function POST(request: Request) {
         domain,
         tld,
         available: false,
+        lookupFailed: true,
         premium: false,
         purchasable,
         priceCents: purchasable ? pricing!.registrationPriceMinor : undefined,

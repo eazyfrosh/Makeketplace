@@ -97,9 +97,8 @@ export class DomainNameApiProvider implements DomainProvider {
   isConfigured() { return config() !== null; }
   async searchAvailability(domain: string) {
     const normalized = normalizeDomain(domain); const { name, tld } = tldParts(normalized);
-    const response = await request<Json | Json[]>("POST", "domains/bulk-search", [{ domainName: normalized }]);
-    const values = Array.isArray(response) ? response : Array.isArray(response.infos) ? response.infos as Json[] : [];
-    const item = asObject(values[0]); const status = String(item.status ?? "unknown").toLowerCase(); const price = Number(item.price);
+    const response = await request<Json>("POST", "domains/search", { domainName: normalized });
+    const item = asObject(response.info); const status = String(item.status ?? "unknown").trim().toLowerCase(); const price = Number(item.price);
     return { domain: normalized, available: ["available", "1", "true"].includes(status), providerStatus: status, premium: Boolean(item.isPremium), providerPriceMinor: Number.isFinite(price) ? Math.round(price * 100) : undefined, providerCurrency: typeof item.currency === "string" ? item.currency : undefined, name, tld };
   }
   async getPrice(domain: string, years = 1) {
