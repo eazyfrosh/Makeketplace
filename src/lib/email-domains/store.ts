@@ -20,6 +20,17 @@ export async function getSenderIdentity(id: string) { const snap = await db().co
 export async function listSenderIdentities(userId: string) { const snap = await db().collection(SENDERS).where("userId", "==", userId).get(); return snap.docs.map((doc) => doc.data() as SenderIdentity).filter((item) => item.enabled); }
 export async function listAllSenderIdentities() { const snap = await db().collection(SENDERS).limit(1000).get(); return snap.docs.map((doc) => doc.data() as SenderIdentity); }
 export async function createSenderIdentity(value: SenderIdentity) { const database = db(); await database.runTransaction(async (tx) => { const domainRef = database.collection(DOMAINS).doc(value.emailDomainId); const defaultQuery = database.collection(SENDERS).where("userId", "==", value.userId).where("isDefault", "==", true); const [domainSnap, existing] = await Promise.all([tx.get(domainRef), value.isDefault ? tx.get(defaultQuery) : Promise.resolve(null)]); const emailDomain = domainSnap.data() as EmailDomainRecord | undefined; if (!domainSnap.exists || emailDomain?.userId !== value.userId || emailDomain.status !== "ready" || emailDomain.suspended) throw new Error("EMAIL_DOMAIN_NOT_READY"); existing?.docs.forEach((doc) => tx.update(doc.ref, { isDefault: false, updatedAt: value.updatedAt })); tx.create(database.collection(SENDERS).doc(value.id), value); }); return value; }
+export async function ensureDefaultSenderIdentity(emailDomain: EmailDomainRecord, input: { displayName: string; replyTo: string }) {
+  const database = db(); const now = new Date().toISOString(); const id = `sender_default_${emailDomain.id}`; const senderRef = database.collection(SENDERS).doc(id);
+  return database.runTransaction(async (tx) => {
+    const [domainSnap, senderSnap] = await Promise.all([tx.get(database.collection(DOMAINS).doc(emailDomain.id)), tx.get(senderRef)]);
+    if (senderSnap.exists) return senderSnap.data() as SenderIdentity;
+    const current = domainSnap.data() as EmailDomainRecord | undefined;
+    if (!domainSnap.exists || current?.status !== "ready" || current.suspended) throw new Error("EMAIL_DOMAIN_NOT_READY");
+    const sender: SenderIdentity = { id, userId: emailDomain.userId, domainId: emailDomain.domainId, emailDomainId: emailDomain.id, domain: emailDomain.domain, localPart: "hello", address: `hello@${emailDomain.domain}`, displayName: input.displayName.trim() || emailDomain.domain, replyTo: input.replyTo.toLowerCase(), isDefault: true, enabled: true, createdAt: now, updatedAt: now };
+    tx.create(senderRef, sender); return sender;
+  });
+}
 export async function isRecipientSuppressed(userId: string, recipient: string) { return (await db().collection(SUPPRESSIONS).doc(`${userId}_${recipient.toLowerCase()}`).get()).exists; }
 export async function suppressRecipient(userId: string, recipient: string, reason: string) { await db().collection(SUPPRESSIONS).doc(`${userId}_${recipient.toLowerCase()}`).set({ userId, recipient: recipient.toLowerCase(), reason, createdAt: new Date().toISOString() }, { merge: true }); }
 export async function claimProviderEvent(eventId: string, type: string) { const ref = db().collection(EVENTS).doc(eventId); try { await ref.create({ eventId, type, createdAt: new Date().toISOString() }); return true; } catch (error) { if ((error as { code?: number }).code === 6 || String(error).includes("ALREADY_EXISTS")) return false; throw error; } }

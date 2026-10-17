@@ -36,7 +36,9 @@ function mapRecords(records: ResendRecord[] = []): EmailProviderDnsRecord[] {
 export class ResendEmailDomainProvider implements EmailDomainProvider {
   readonly name = "resend";
   private readonly client = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-  isConfigured() { return Boolean(this.client && process.env.RESEND_WEBHOOK_SECRET); }
+  // Domain provisioning and sending only require the Resend API key. The
+  // webhook secret is validated separately when delivery events arrive.
+  isConfigured() { return Boolean(this.client); }
   private requireClient() { if (!this.client) throw new EmailDomainProviderError("EMAIL_PROVIDER_NOT_CONFIGURED", "Email-domain provisioning is not configured."); return this.client; }
   async addDomain(domain: string, _idempotencyKey: string): Promise<EmailProviderDomain> { void _idempotencyKey; const result = await this.requireClient().domains.create({ name: domain, customReturnPath: "eazytool" }); if (result.error || !result.data?.id) throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", result.error?.message ?? "The email provider rejected the domain."); const data = result.data as ResendDomain; return { providerDomainId: String(data.id), domain, status: data.status === "verified" ? "verified" : "pending", records: mapRecords(data.records) }; }
   async getVerificationRecords(providerDomainId: string) { return (await this.getVerificationStatus(providerDomainId)).records; }

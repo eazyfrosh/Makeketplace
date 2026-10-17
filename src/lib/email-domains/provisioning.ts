@@ -2,16 +2,22 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import { emailDomainProvider } from "@/lib/email-domains/provider";
-import { getEmailDomainByDomainId, saveEmailDomain } from "@/lib/email-domains/store";
+import { ensureDefaultSenderIdentity, getEmailDomainByDomainId, saveEmailDomain } from "@/lib/email-domains/store";
 import type { EmailDomainRecord, EmailProviderDnsRecord } from "@/lib/email-domains/types";
 import { getDomainProvider } from "@/lib/domains/registry";
-import { requireDomainProvider } from "@/lib/domains/provider";
+import { DomainProviderError, requireDomainProvider } from "@/lib/domains/provider";
 import type { DomainRecord, DnsRecord } from "@/types/domains";
 import { getDomain, saveDomain } from "@/lib/domains/store";
 
 function ensureDmarc(records: EmailProviderDnsRecord[], domain: string): EmailProviderDnsRecord[] {
   if (records.some((record) => record.purpose === "dmarc")) return records;
   return [...records, { host: `_dmarc.${domain}`, type: "TXT", value: "v=DMARC1; p=none; adkim=s; aspf=s", ttl: 3600, purpose: "dmarc" }];
+}
+
+async function ensureDefaultSender(record: EmailDomainRecord, domain: DomainRecord) {
+  const replyTo = domain.registrant?.email?.trim().toLowerCase();
+  if (!replyTo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo)) return;
+  await ensureDefaultSenderIdentity(record, { displayName: domain.registrant?.organization || domain.registrant?.name || domain.domain, replyTo });
 }
 
 export async function provisionEmailDomain(domain: DomainRecord) {
@@ -36,10 +42,19 @@ export async function provisionEmailDomain(domain: DomainRecord) {
     for (const dnsRecord of providerRecords) if (!existingDns.some((current) => same(current, dnsRecord))) await registrar.createDnsRecord(domain.providerDomainId, dnsRecord);
     const status = await emailDomainProvider.getVerificationStatus(providerDomainId);
     record = { ...record, dnsRecords: providerRecords, dnsConfiguredAt: new Date().toISOString(), status: status.status === "verified" ? "ready" : "verifying", verifiedAt: status.status === "verified" ? new Date().toISOString() : record.verifiedAt, lastError: null, lastCheckedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    await saveEmailDomain(record);
     await saveDomain({ ...domain, registrationStatus: record.status === "ready" ? "email_ready" : "email_verification_pending", dnsStatus: "configured", emailVerificationStatus: record.status === "ready" ? "verified" : "pending", updatedAt: new Date().toISOString() });
-    return saveEmailDomain(record);
+    if (record.status === "ready") await ensureDefaultSender(record, domain);
+    return record;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Email-domain provisioning failed.";
+    if (error instanceof DomainProviderError && error.code === "UNSUPPORTED_OPERATION") {
+      const pendingMessage = "Automatic DNS setup is waiting for Domain Name API DNS record access. Your domain is registered and no DNS update has been reported as complete.";
+      record = { ...record, status: "setting_up", dnsConfiguredAt: null, lastError: pendingMessage, lastCheckedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      await saveEmailDomain(record);
+      await saveDomain({ ...domain, registrationStatus: "email_verification_pending", dnsStatus: "pending", emailVerificationStatus: "pending", provisioningErrors: [...(domain.provisioningErrors ?? []).filter((item) => item.code !== "DNS_AUTOMATION_PENDING"), { code: "DNS_AUTOMATION_PENDING", message: pendingMessage, occurredAt: new Date().toISOString() }], updatedAt: new Date().toISOString() });
+      return record;
+    }
     record = { ...record, status: "failed", lastError: message, lastCheckedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     await saveEmailDomain(record);
     await saveDomain({ ...domain, dnsStatus: "failed", emailVerificationStatus: "failed", provisioningErrors: [...(domain.provisioningErrors ?? []), { code: "EMAIL_PROVISIONING_FAILED", message, occurredAt: new Date().toISOString() }], updatedAt: new Date().toISOString() });
@@ -54,6 +69,9 @@ export async function checkEmailDomainVerification(record: EmailDomainRecord) {
   const updated: EmailDomainRecord = { ...record, status: result.status === "verified" ? "ready" : result.status === "failed" ? "failed" : "verifying", verifiedAt: result.status === "verified" ? record.verifiedAt ?? now : record.verifiedAt, lastCheckedAt: now, lastError: result.status === "failed" ? "The email provider could not verify the DNS records." : null, updatedAt: now };
   await saveEmailDomain(updated);
   const domain = await getDomain(record.domainId);
-  if (domain) await saveDomain({ ...domain, registrationStatus: updated.status === "ready" ? "email_ready" : "email_verification_pending", dnsStatus: domain.dnsStatus === "failed" ? "pending" : domain.dnsStatus, emailVerificationStatus: updated.status === "ready" ? "verified" : updated.status === "failed" ? "failed" : "pending", updatedAt: now });
+  if (domain) {
+    await saveDomain({ ...domain, registrationStatus: updated.status === "ready" ? "email_ready" : "email_verification_pending", dnsStatus: domain.dnsStatus === "failed" ? "pending" : domain.dnsStatus, emailVerificationStatus: updated.status === "ready" ? "verified" : updated.status === "failed" ? "failed" : "pending", updatedAt: now });
+    if (updated.status === "ready") await ensureDefaultSender(updated, domain);
+  }
   return updated;
 }

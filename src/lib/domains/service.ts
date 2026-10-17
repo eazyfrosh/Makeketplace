@@ -38,7 +38,7 @@ export async function registerPaidDomain(reference: string, userId: string, regi
     await saveDomain(domain);
     const done = { ...pending, provider: "domainnameapi" as const, wholesaleAmountMinor: quote.amountMinor, wholesaleCurrency: quote.currency, premium: false, registrationStatus: "registered" as const, registrarOrderId: providerReference, providerDomainId: response.providerDomainId, refundState: "not_required" as const, updatedAt: new Date().toISOString() };
     await saveDomainOrder(done);
-    if (process.env.RESEND_API_KEY && process.env.RESEND_WEBHOOK_SECRET) {
+    if (process.env.RESEND_API_KEY) {
       try { const emailDomain = await provisionEmailDomain(domain); await saveDomain({ ...domain, registrationStatus: emailDomain.status === "ready" ? "email_ready" : "email_verification_pending", dnsStatus: emailDomain.dnsConfiguredAt ? "configured" : "pending", emailVerificationStatus: emailDomain.status === "ready" ? "verified" : "pending", updatedAt: new Date().toISOString() }); }
       catch (error) { await saveDomain({ ...domain, dnsStatus: "failed", emailVerificationStatus: "failed", provisioningErrors: [{ code: "EMAIL_PROVISIONING_FAILED", message: error instanceof Error ? error.message : "Email setup failed.", occurredAt: new Date().toISOString() }], updatedAt: new Date().toISOString() }); }
     }
