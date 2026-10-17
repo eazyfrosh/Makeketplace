@@ -21,7 +21,16 @@ export interface DomainOrder {
   wholesaleAmountMinor?: number; wholesaleCurrency?: string; premium?: boolean; reconciliationRequired?: boolean;
   registrant?: Registrant; registrarTermsAcceptedAt?: string; templateId?: "elite-broker" | "volterra"; templateSiteId?: string; templateSiteUrl?: string; errorMessage?: string; createdAt: string; updatedAt: string;
 }
-export interface DomainAvailability { domain: string; tld: string; available: boolean; premium?: boolean; priceCents: number; renewalPriceCents?: number; currency: "NGN"; }
+export interface DomainAvailability {
+  domain: string;
+  tld: string;
+  available: boolean;
+  premium?: boolean;
+  purchasable: boolean;
+  priceCents?: number;
+  renewalPriceCents?: number;
+  currency: "NGN";
+}
 export interface DnsRecord { host: string; type: DnsRecordType; value: string; ttl: number; priority?: number; }
 export interface Registrant { name: string; email: string; phone?: string; organization?: string; address?: string; city?: string; state?: string; country?: string; postalCode?: string; }
 export interface DomainDetails { domain: string; status: string; expiryDate: string | null; nameservers: string[]; dnsRecords: DnsRecord[]; registrant?: Registrant; }
