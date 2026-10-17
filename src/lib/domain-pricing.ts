@@ -7,7 +7,7 @@ import { COMMON_TLDS, type DomainPricing } from "@/types/domains";
 const COLLECTION = "domainPricing";
 const DEFAULTS: Record<string, DomainPricing> = Object.fromEntries(COMMON_TLDS.map((tld) => {
   const configured: Partial<Record<string, Pick<DomainPricing, "registrationPriceMinor" | "renewalPriceMinor" | "minimumProfitMinor">>> = {
-    ".com": { registrationPriceMinor: 2_400_000, renewalPriceMinor: 3_000_000, minimumProfitMinor: 200_000 },
+    ".com": { registrationPriceMinor: 2_700_000, renewalPriceMinor: 3_000_000, minimumProfitMinor: 200_000 },
     ".org": { registrationPriceMinor: 2_700_000, renewalPriceMinor: 3_700_000, minimumProfitMinor: 1_200_000 },
     ".net": { registrationPriceMinor: 3_700_000, renewalPriceMinor: 3_700_000, minimumProfitMinor: 1_200_000 },
     ".uk": { registrationPriceMinor: 2_900_000, renewalPriceMinor: 2_900_000, minimumProfitMinor: 1_200_000 },

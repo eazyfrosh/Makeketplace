@@ -58,22 +58,28 @@ async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: strin
   const current = config();
   if (!current) throw new DomainProviderError("PROVIDER_NOT_CONFIGURED", "Domain Name API credentials are not configured.");
   const url = new URL(`${current.baseUrl}/${path.replace(/^\//, "")}`);
-  const options: RequestInit = { method, cache: "no-store", headers: { "X-API-KEY": current.apiKey, "__reseller": current.resellerId, Accept: "application/json", "Content-Type": "application/json" }, signal: AbortSignal.timeout(20_000) };
+  const options: RequestInit = { method, cache: "no-store", headers: { "X-API-KEY": current.apiKey, "__reseller": current.resellerId, Accept: "application/json", "Content-Type": "application/json" } };
   if (method === "GET" || method === "DELETE") {
     if (data && typeof data === "object") for (const [key, value] of Object.entries(data as Json)) if (value !== undefined) url.searchParams.set(key, String(value));
   } else if (data !== undefined) options.body = JSON.stringify(data);
-  await paceRequest(chargeable);
-  let response: Response;
-  try { response = await fetch(url, options); }
-  catch { throw new DomainProviderError(chargeable ? "PROVIDER_OUTCOME_UNKNOWN" : "PROVIDER_UNREACHABLE", chargeable ? "The provider response is uncertain and requires reconciliation." : "Domain Name API could not be reached."); }
-  const body = await response.json().catch(() => null) as T & Json | null;
-  if (!response.ok || !body || providerEnvelopeError(body)) {
+  const attempts = chargeable ? 1 : 2;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    await paceRequest(chargeable);
+    let response: Response;
+    try { response = await fetch(url, { ...options, signal: AbortSignal.timeout(20_000) }); }
+    catch {
+      if (!chargeable && attempt + 1 < attempts) continue;
+      throw new DomainProviderError(chargeable ? "PROVIDER_OUTCOME_UNKNOWN" : "PROVIDER_UNREACHABLE", chargeable ? "The provider response is uncertain and requires reconciliation." : "Domain Name API could not be reached.");
+    }
+    const body = await response.json().catch(() => null) as T & Json | null;
+    if (response.ok && body && !providerEnvelopeError(body)) return body as T;
     const message = providerMessage(response.status, body);
+    if (!chargeable && attempt + 1 < attempts && (response.status === 429 || /temporarily busy/i.test(message))) continue;
     if (/insufficient funds/i.test(message)) throw new DomainProviderError("INSUFFICIENT_PROVIDER_FUNDS", message);
     if (/premium domain/i.test(message)) throw new DomainProviderError("PREMIUM_DOMAIN", message);
     throw new DomainProviderError("PROVIDER_REJECTED", message);
   }
-  return body as T;
+  throw new DomainProviderError("PROVIDER_UNREACHABLE", "Domain Name API could not be reached.");
 }
 
 function contact(registrant: Registrant, type: "Administrative" | "Billing" | "Technical" | "Registrant") {
