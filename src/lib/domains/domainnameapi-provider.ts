@@ -48,7 +48,10 @@ function providerEnvelopeError(body: Json) {
   const nestedError = asObject(body.error);
   const rawCode = body.errorCode ?? body.code ?? nestedError.code;
   const success = body.success ?? body.isSuccess ?? body.IsSuccess;
-  return String(body.result ?? "").toUpperCase() === "ERROR" || String(body.OperationResult ?? "").toUpperCase() === "FAILED" || success === false || (rawCode !== undefined && String(rawCode) !== "0" && String(rawCode).toLowerCase() !== "success");
+  const explicitFailure = String(body.result ?? "").toUpperCase() === "ERROR" || String(body.OperationResult ?? "").toUpperCase() === "FAILED" || success === false;
+  if (explicitFailure) return true;
+  if (success === true) return false;
+  return rawCode !== undefined && String(rawCode) !== "0" && String(rawCode).toLowerCase() !== "success";
 }
 
 async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: string, data?: unknown, chargeable = false): Promise<T> {
