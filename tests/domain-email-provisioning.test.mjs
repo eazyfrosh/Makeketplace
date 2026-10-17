@@ -89,7 +89,7 @@ test("Domain Name API is the default only for new registrations and every charge
 test("standard pricing is server-side and premium or loss-making orders are blocked", () => {
   const pricing = read("../src/lib/domain-pricing.ts");
   const service = read("../src/lib/domains/service.ts");
-  assert.match(pricing, /registrationPriceMinor: 2_400_000/);
+  assert.match(pricing, /registrationPriceMinor: 2_700_000/);
   assert.match(pricing, /renewalPriceMinor: 3_000_000/);
   assert.match(pricing, /DOMAIN_PRICE_BELOW_MINIMUM_MARGIN/);
   assert.match(service, /PREMIUM_DOMAIN/);

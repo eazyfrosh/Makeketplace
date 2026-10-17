@@ -73,7 +73,9 @@ async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: strin
       throw new DomainProviderError(chargeable ? "PROVIDER_OUTCOME_UNKNOWN" : "PROVIDER_UNREACHABLE", chargeable ? "The provider response is uncertain and requires reconciliation." : "Domain Name API could not be reached.");
     }
     const body = await response.json().catch(() => null) as T & Json | null;
-    if (response.ok && body && !providerEnvelopeError(body)) return body as T;
+    // Several successful DNS write endpoints intentionally return HTTP 200
+    // without a JSON response body. The HTTP status is authoritative there.
+    if (response.ok && (body === null || !providerEnvelopeError(body))) return (body ?? {}) as T;
     const message = providerMessage(response.status, body);
     if (!chargeable && attempt + 1 < attempts && (response.status === 429 || /temporarily busy/i.test(message))) continue;
     if (/insufficient funds/i.test(message)) throw new DomainProviderError("INSUFFICIENT_PROVIDER_FUNDS", message);
@@ -185,7 +187,12 @@ export class DomainNameApiProvider implements DomainProvider {
     const existing = await this.getDnsStatus(domain);
     const sameSet = existing.filter((item) => relativeDnsHost(item.host, domain) === relativeDnsHost(record.host, domain) && item.type === record.type);
     const content = providerDnsContent(record);
-    if (sameSet.some((item) => providerDnsContent(item) === content)) return;
+    if (sameSet.some((item) => providerDnsContent(item) === content)) {
+      // A previous request may have staged the record but stopped before the
+      // provider's separate apply step. Applying here makes retries recover.
+      await this.applyDnsRecords(domain);
+      return;
+    }
     await this.setDnsRecordSet(domain, record.host, record.type, [...sameSet, record], record.ttl);
     await this.applyDnsRecords(domain);
   }
