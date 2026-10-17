@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { HelpCircle, Search, Sparkles } from "lucide-react";
+import { Globe2, HelpCircle, Search, Sparkles } from "lucide-react";
 
 import { services, categories } from "@/lib/data/services";
 import type { ServiceCategory } from "@/types";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ServiceCard } from "@/components/marketing/service-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export function ServicesClient() {
   const searchParams = useSearchParams();
@@ -51,6 +53,17 @@ export function ServicesClient() {
           <div><h2 className="font-semibold">Not sure which tool to choose?</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">Use the Help button at the bottom of the screen for a simple list of common tasks.</p></div>
         </div>
       </div>
+
+      <section className="mt-6 flex flex-col justify-between gap-5 rounded-2xl border border-primary/25 bg-primary/[0.06] p-5 sm:flex-row sm:items-center" aria-labelledby="domains-service-title">
+        <div className="flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Globe2 className="size-5" aria-hidden="true" /></span>
+          <div>
+            <div className="flex flex-wrap items-center gap-2"><h2 id="domains-service-title" className="font-semibold">Domain Registration</h2><Badge variant="outline">Pay as you go</Badge><Badge>No subscription required</Badge></div>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">Search and buy a business domain from a free EazyTool account. You only pay for the domain you choose.</p>
+          </div>
+        </div>
+        <Button className="shrink-0" asChild><Link href="/domains">Search domains</Link></Button>
+      </section>
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative max-w-sm flex-1">
