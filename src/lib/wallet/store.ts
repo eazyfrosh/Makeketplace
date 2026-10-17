@@ -58,6 +58,17 @@ export async function getFundingIntent(reference: string) {
   return snap.exists ? snap.data() as WalletFundingIntent : null;
 }
 
+export async function listPendingFundingIntents(userId: string, limit = 10) {
+  const snapshot = await requireDb().collection(INTENTS)
+    .where("userId", "==", userId)
+    .limit(Math.min(Math.max(limit, 1), 25))
+    .get();
+
+  return snapshot.docs
+    .map((doc) => doc.data() as WalletFundingIntent)
+    .filter((intent) => intent.status === "pending");
+}
+
 export async function getDailyCompletedDeposits(userId: string) {
   const start = new Date(); start.setHours(0, 0, 0, 0);
   const snapshot = await requireDb().collection(TRANSACTIONS)
