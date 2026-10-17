@@ -48,8 +48,8 @@ export default function DomainsPage() {
     try {
       const headers = await getAuthHeaders();
       const response = await fetch("/api/domains/search", { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ domain: query.trim() }) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error ?? "The domain search service returned an invalid response.");
       setResults(data.results ?? []);
       setPurchasesEnabled(data.purchasesEnabled === true);
       if (!data.configured) setMessage(data.message ?? "Domain service is being configured. Please try again later.");
@@ -69,8 +69,8 @@ export default function DomainsPage() {
       const headers = await getAuthHeaders();
       const endpoint = method === "wallet" ? "/api/domains/checkout/wallet" : "/api/domains/checkout/initialize";
       const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ domain, registrant, acceptRegistrarTerms, templateId: linking ? templateId : undefined, templateSiteId: linking ? templateSiteId : undefined, idempotencyKey: crypto.randomUUID() }) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error ?? "We could not complete the domain purchase. Your wallet was not charged.");
       if (data.authorizationUrl) window.location.href = data.authorizationUrl;
       else setMessage(method === "wallet" ? "Payment confirmed and your domain registration has started." : data.message ?? "Secure checkout will be available when the payment service is ready.");
     } catch (error) {

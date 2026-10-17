@@ -13,16 +13,19 @@ const origins = { "elite-broker": "https://premium-broker-platform.vercel.app", 
 
 async function recoverOrphanedDomainDebit(userId: string, domain: string) {
   if (await getDomainForUser(domain, userId)) return;
-  const { transactions } = await listWalletTransactions(userId, { limit: 50, type: "purchase", status: "completed" });
+  // Keep this query on the existing userId + createdAt index. Filtering by
+  // type/status in Firestore would require another composite index and could
+  // prevent checkout before any financial work begins.
+  const { transactions } = await listWalletTransactions(userId, { limit: 50 });
   const cutoff = Date.now() - 24 * 60 * 60 * 1_000;
   for (const transaction of transactions) {
-    if (transaction.serviceType !== "domain" || transaction.serviceId !== domain || new Date(transaction.createdAt).getTime() < cutoff) continue;
+    if (transaction.type !== "purchase" || transaction.status !== "completed" || transaction.serviceType !== "domain" || transaction.serviceId !== domain || new Date(transaction.createdAt).getTime() < cutoff) continue;
     if (await getDomainOrderByReference(transaction.reference)) continue;
     await refundTransaction({ transactionId: transaction.id, actorUserId: "system", reason: "Automatic recovery for a domain debit whose order was not created.", type: "reversal" });
   }
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   const caller = await verifyCaller(request); if (!caller) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   if (!areNewDomainPurchasesEnabled() || !canCallerPurchaseDomains(caller)) return NextResponse.json({ error: "Domain purchases are not available yet. Your wallet was not charged.", code: "DOMAIN_PURCHASES_DISABLED" }, { status: 503 });
   const body = await request.json().catch(() => ({})); const domain = normalizeDomain(String(body.domain ?? ""));
@@ -57,5 +60,19 @@ export async function POST(request: Request) {
     }
     console.error("[domains/wallet] Domain checkout failed", { userId: caller.uid, domain, error: message });
     return NextResponse.json({ error: message === "INSUFFICIENT_BALANCE" ? "Insufficient wallet balance. Add funds to continue." : message }, { status: message === "INSUFFICIENT_BALANCE" ? 402 : 400 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handlePost(request);
+  } catch (error) {
+    console.error("[domains/wallet] Unhandled checkout failure", {
+      error: error instanceof Error ? error.message : "unknown",
+    });
+    return NextResponse.json(
+      { error: "We could not complete the domain purchase. Your wallet was not charged." },
+      { status: 500 },
+    );
   }
 }
