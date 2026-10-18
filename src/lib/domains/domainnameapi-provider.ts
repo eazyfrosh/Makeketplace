@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
+import { isDomainConnectorConfigured, signedConnectorRequest } from "@/lib/domains/connector-client";
 import { DomainProviderError, type DomainProvider, type DomainProviderStatus, type RegisteredDomain } from "@/lib/domains/provider";
 import { normalizeDomain, type DnsRecord, type Registrant } from "@/types/domains";
 
@@ -8,6 +9,7 @@ type Environment = "test" | "production";
 type Config = { resellerId: string; apiKey: string; baseUrl: string; environment: Environment; nameservers: string[] };
 type Json = Record<string, unknown>;
 type ZoneRecordSet = { name?: unknown; ttl?: unknown; type?: unknown; records?: unknown };
+type ConnectorProviderResponse = { providerStatus?: unknown; body?: unknown };
 
 const PROD_URL = "https://api.domainresellerapi.com/api/v1";
 const TEST_URL = "https://ote.domainresellerapi.com/api/v1";
@@ -66,23 +68,64 @@ async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: strin
   const attempts = chargeable ? 1 : 2;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     await paceRequest(chargeable);
-    let response: Response;
-    try { response = await fetch(url, { ...options, signal: AbortSignal.timeout(20_000) }); }
-    catch {
+    let responseStatus = 0;
+    let responseOk = false;
+    let body: T & Json | null = null;
+    try {
+      if (isDomainConnectorConfigured()) {
+        const operation = connectorOperation(method, url.pathname.replace(/^\/api\/v1\//, ""));
+        const result = await signedConnectorRequest("/v1/domainnameapi", {
+          operation,
+          resellerId: current.resellerId,
+          apiKey: current.apiKey,
+          environment: current.environment,
+          params: Object.fromEntries(url.searchParams.entries()),
+          body: method === "GET" || method === "DELETE" ? null : data ?? null,
+        }) as ConnectorProviderResponse;
+        responseStatus = Number(result.providerStatus ?? 0);
+        responseOk = responseStatus >= 200 && responseStatus < 300;
+        body = (result.body ?? null) as T & Json | null;
+      } else {
+        const response = await fetch(url, { ...options, signal: AbortSignal.timeout(20_000) });
+        responseStatus = response.status;
+        responseOk = response.ok;
+        body = await response.json().catch(() => null) as T & Json | null;
+      }
+    } catch (error) {
+      if (error instanceof DomainProviderError) throw error;
       if (!chargeable && attempt + 1 < attempts) continue;
       throw new DomainProviderError(chargeable ? "PROVIDER_OUTCOME_UNKNOWN" : "PROVIDER_UNREACHABLE", chargeable ? "The provider response is uncertain and requires reconciliation." : "Domain Name API could not be reached.");
     }
-    const body = await response.json().catch(() => null) as T & Json | null;
     // Several successful DNS write endpoints intentionally return HTTP 200
     // without a JSON response body. The HTTP status is authoritative there.
-    if (response.ok && (body === null || !providerEnvelopeError(body))) return (body ?? {}) as T;
-    const message = providerMessage(response.status, body);
-    if (!chargeable && attempt + 1 < attempts && (response.status === 429 || /temporarily busy/i.test(message))) continue;
+    if (responseOk && (body === null || !providerEnvelopeError(body))) return (body ?? {}) as T;
+    const message = providerMessage(responseStatus, body);
+    if (!chargeable && attempt + 1 < attempts && (responseStatus === 429 || /temporarily busy/i.test(message))) continue;
     if (/insufficient funds/i.test(message)) throw new DomainProviderError("INSUFFICIENT_PROVIDER_FUNDS", message);
     if (/premium domain/i.test(message)) throw new DomainProviderError("PREMIUM_DOMAIN", message);
     throw new DomainProviderError("PROVIDER_REJECTED", message);
   }
   throw new DomainProviderError("PROVIDER_UNREACHABLE", "Domain Name API could not be reached.");
+}
+
+function connectorOperation(method: string, path: string) {
+  const key = `${method} ${path}`;
+  const operations: Record<string, string> = {
+    "GET deposit/accounts/me": "account",
+    "POST domains/search": "search",
+    "POST domains/register-with-contacts": "register",
+    "GET domains/info": "info",
+    "GET domains/zones": "dns_list",
+    "POST domains/zones": "dns_create",
+    "PUT domains/zones": "dns_update",
+    "DELETE domains/zones": "dns_delete",
+    "POST domains/zones/apply": "dns_apply",
+    "POST domains/renew": "renew",
+    "POST domains/transfer": "transfer",
+  };
+  const operation = operations[key];
+  if (!operation) throw new DomainProviderError("UNSUPPORTED_OPERATION", "This registrar operation is not available through the fixed-IP connector.");
+  return operation;
 }
 
 function contact(registrant: Registrant, type: "Administrative" | "Billing" | "Technical" | "Registrant") {

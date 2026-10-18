@@ -6,6 +6,7 @@ API_BASE = os.environ.get("RESELLERCLUB_API_BASE_URL", "https://httpapi.com").rs
 DOMAIN_RE = re.compile(r"^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$")
 ID_RE = re.compile(r"^[0-9]{1,30}$")
 MUTATIONS_ENABLED = os.environ.get("RESELLERCLUB_REGISTRATION_ENABLED", "false").lower() == "true"
+DNA_MUTATIONS_ENABLED = os.environ.get("DOMAINNAMEAPI_LIVE_OPERATIONS_ENABLED", "false").lower() == "true"
 DB_PATH = os.environ.get("RESELLERCLUB_CONNECTOR_DB", "/var/lib/eazytool-resellerclub/idempotency.sqlite")
 
 class ConnectorError(Exception):
@@ -160,8 +161,70 @@ def renew(payload):
     except ValueError: raise ConnectorError("INVALID_RENEWAL", 400)
     data = _request("api/domains/renew.json", "POST", {"order-id": provider_id, "years": years, "exp-date": exp_date, "invoice-option": "KeepInvoice"}); return _mapped(provider_id, domain, data)
 
+DNA_OPERATIONS = {
+    "account": ("GET", "deposit/accounts/me", {"currency"}),
+    "search": ("POST", "domains/search", set()),
+    "register": ("POST", "domains/register-with-contacts", set()),
+    "info": ("GET", "domains/info", {"DomainName"}),
+    "dns_list": ("GET", "domains/zones", {"domainName"}),
+    "dns_create": ("POST", "domains/zones", {"domainName"}),
+    "dns_update": ("PUT", "domains/zones", {"domainName", "recordName"}),
+    "dns_delete": ("DELETE", "domains/zones", {"domainName", "Name", "Record", "RecordType"}),
+    "dns_apply": ("POST", "domains/zones/apply", {"domainName"}),
+    "renew": ("POST", "domains/renew", set()),
+    "transfer": ("POST", "domains/transfer", set()),
+}
+DNA_CHARGEABLE = {"register", "renew", "transfer"}
+DNA_RESELLER_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
+
+def _dna_domain(params, body):
+    value = params.get("domainName") or params.get("DomainName") or (body.get("domainName") if isinstance(body, dict) else None)
+    return _domain(value) if value else None
+
+def _dna_request(reseller_id, api_key, environment, method, path, params, body):
+    base = "https://api.domainresellerapi.com/api/v1" if environment == "production" else "https://ote.domainresellerapi.com/api/v1"
+    query = urllib.parse.urlencode([(key, str(value)) for key, value in params.items() if value is not None])
+    url = f"{base}/{path}" + (f"?{query}" if query else "")
+    encoded = json.dumps(body, separators=(",", ":")).encode() if method in ("POST", "PUT") and body is not None else None
+    request = urllib.request.Request(url, data=encoded, method=method, headers={"X-API-KEY": api_key, "__reseller": reseller_id, "Accept": "application/json", "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(request, timeout=25) as response:
+            raw = response.read().decode("utf-8")
+            try: parsed = json.loads(raw) if raw else None
+            except json.JSONDecodeError: parsed = None
+            return {"providerStatus": response.status, "body": parsed}
+    except urllib.error.HTTPError as error:
+        raw = error.read().decode("utf-8", errors="replace")
+        try: parsed = json.loads(raw) if raw else None
+        except json.JSONDecodeError: parsed = {"error": {"message": "The domain provider returned an unreadable error."}}
+        return {"providerStatus": error.code, "body": parsed}
+    except (urllib.error.URLError, TimeoutError) as error:
+        raise ConnectorError("PROVIDER_UNREACHABLE", 502, "Domain Name API could not be reached from the fixed-IP connector.") from error
+
+def domainnameapi(payload):
+    operation = str(payload.get("operation", ""))
+    definition = DNA_OPERATIONS.get(operation)
+    if not definition: raise ConnectorError("OPERATION_NOT_ALLOWED", 404)
+    if operation in DNA_CHARGEABLE and not DNA_MUTATIONS_ENABLED:
+        raise ConnectorError("REGISTRATION_DISABLED", 503, "Chargeable Domain Name API operations are disabled on the connector.")
+    reseller_id = str(payload.get("resellerId", "")).strip(); api_key = str(payload.get("apiKey", "")).strip()
+    if not DNA_RESELLER_RE.fullmatch(reseller_id) or not 16 <= len(api_key) <= 512 or any(char.isspace() for char in api_key):
+        raise ConnectorError("PROVIDER_NOT_CONFIGURED", 503, "Domain Name API credentials are missing or invalid.")
+    environment = str(payload.get("environment", "test"))
+    if environment not in ("test", "production"): raise ConnectorError("INVALID_REQUEST", 400)
+    method, path, allowed_params = definition
+    params = payload.get("params") or {}; body = payload.get("body")
+    if not isinstance(params, dict) or any(key not in allowed_params for key in params): raise ConnectorError("INVALID_REQUEST", 400)
+    if body is not None and not isinstance(body, dict): raise ConnectorError("INVALID_REQUEST", 400)
+    domain = _dna_domain(params, body)
+    if operation != "account" and not domain: raise ConnectorError("INVALID_DOMAIN", 400)
+    if "domainName" in params: params["domainName"] = domain
+    if "DomainName" in params: params["DomainName"] = domain
+    if isinstance(body, dict) and "domainName" in body: body["domainName"] = domain
+    return _dna_request(reseller_id, api_key, environment, method, path, params, body)
+
 READ_OPERATIONS = {"availability": availability, "price": price, "status": status, "nameservers": nameservers, "dns_list": dns_list}
-MUTATION_OPERATIONS = {"ensure_buyer": ensure_buyer, "register": register, "dns_create": dns_create, "dns_update": dns_update, "dns_remove": dns_remove, "renew": renew}
+MUTATION_OPERATIONS = {"ensure_buyer": ensure_buyer, "register": register, "dns_create": dns_create, "dns_update": dns_update, "dns_remove": dns_remove, "renew": renew, "domainnameapi": domainnameapi}
 
 def dispatch(operation, payload):
     handler = READ_OPERATIONS.get(operation) or MUTATION_OPERATIONS.get(operation)

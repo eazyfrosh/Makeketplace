@@ -15,7 +15,7 @@ function configuration() {
 
 export function isDomainConnectorConfigured() { return configuration() !== null; }
 
-async function connectorRequest(path: string, payload: Record<string, unknown>) {
+export async function signedConnectorRequest(path: string, payload: Record<string, unknown>) {
   const config = configuration();
   if (!config) throw new DomainProviderError("PROVIDER_NOT_CONFIGURED", "Domain service is not configured.");
   const body = JSON.stringify(payload);
@@ -42,7 +42,7 @@ async function connectorRequest(path: string, payload: Record<string, unknown>) 
 }
 
 export async function checkAvailabilityThroughConnector(domain: string) {
-  const normalized = normalizeDomain(domain); const data = await connectorRequest("/v1/domains/availability", { domain: normalized });
+  const normalized = normalizeDomain(domain); const data = await signedConnectorRequest("/v1/domains/availability", { domain: normalized });
   if (data.domain !== normalized) throw new DomainProviderError("PROVIDER_REJECTED", "The registrar returned an unexpected domain.");
   return data.status === "available";
 }
@@ -56,22 +56,22 @@ function registeredDomain(data: ConnectorResponse, fallbackDomain = ""): Registe
 export class ConnectorDomainProvider implements DomainProvider {
   readonly name = "resellerclub";
   isConfigured() { return isDomainConnectorConfigured(); }
-  async searchAvailability(domain: string) { const normalized = normalizeDomain(domain); const data = await connectorRequest("/v1/domains/availability", { domain: normalized }); return { domain: normalized, available: data.status === "available", providerStatus: String(data.status ?? "unknown") }; }
-  async getPrice(domain: string, years = 1) { const normalized = normalizeDomain(domain); const data = await connectorRequest("/v1/domains/price", { domain: normalized, years }); const amountMinor = Number(data.amountMinor); if (!Number.isSafeInteger(amountMinor) || amountMinor < 0) throw new DomainProviderError("PROVIDER_REJECTED", "The registrar returned an invalid price."); return { domain: normalized, years, currency: String(data.currency ?? ""), amountMinor }; }
+  async searchAvailability(domain: string) { const normalized = normalizeDomain(domain); const data = await signedConnectorRequest("/v1/domains/availability", { domain: normalized }); return { domain: normalized, available: data.status === "available", providerStatus: String(data.status ?? "unknown") }; }
+  async getPrice(domain: string, years = 1) { const normalized = normalizeDomain(domain); const data = await signedConnectorRequest("/v1/domains/price", { domain: normalized, years }); const amountMinor = Number(data.amountMinor); if (!Number.isSafeInteger(amountMinor) || amountMinor < 0) throw new DomainProviderError("PROVIDER_REJECTED", "The registrar returned an invalid price."); return { domain: normalized, years, currency: String(data.currency ?? ""), amountMinor }; }
   async ensureBuyerAccount(input: { userId: string; registrant: Registrant }): Promise<DomainProviderBuyer> {
     const existing = await getRegistrarAccount(input.userId); if (existing?.providerCustomerId && existing.providerContactId) return { providerCustomerId: existing.providerCustomerId, providerContactId: existing.providerContactId };
-    const data = await connectorRequest("/v1/domains/buyers/ensure", { registrant: input.registrant }); const providerCustomerId = String(data.providerCustomerId ?? ""); const providerContactId = String(data.providerContactId ?? "");
+    const data = await signedConnectorRequest("/v1/domains/buyers/ensure", { registrant: input.registrant }); const providerCustomerId = String(data.providerCustomerId ?? ""); const providerContactId = String(data.providerContactId ?? "");
     if (!providerCustomerId || !providerContactId) throw new DomainProviderError("PROVIDER_REJECTED", "The registrar did not return buyer contact IDs.");
     const now = new Date().toISOString(); await saveRegistrarAccount({ userId: input.userId, provider: "resellerclub", providerCustomerId, providerContactId, customerEmail: input.registrant.email, createdAt: existing?.createdAt ?? now, updatedAt: now }); return { providerCustomerId, providerContactId };
   }
-  async registerDomain(input: { domain: string; years: number; registrant: Registrant; buyer: DomainProviderBuyer; idempotencyKey: string }) { const domain = normalizeDomain(input.domain); return registeredDomain(await connectorRequest("/v1/domains/register", { domain, years: input.years, buyer: input.buyer, idempotencyKey: input.idempotencyKey }), domain); }
-  async getRegistrationStatus(providerDomainId: string) { return registeredDomain(await connectorRequest("/v1/domains/status", { providerDomainId })); }
-  async getNameservers(providerDomainId: string) { const data = await connectorRequest("/v1/domains/nameservers", { providerDomainId }); return Array.isArray(data.nameservers) ? data.nameservers.map(String) : []; }
-  async createDnsRecord(providerDomainId: string, record: DnsRecord) { await connectorRequest("/v1/domains/dns/create", { providerDomainId, record }); }
-  async updateDnsRecord(providerDomainId: string, current: DnsRecord, next: DnsRecord) { await connectorRequest("/v1/domains/dns/update", { providerDomainId, current, next }); }
-  async removeDnsRecord(providerDomainId: string, record: DnsRecord) { await connectorRequest("/v1/domains/dns/remove", { providerDomainId, record }); }
-  async getDnsStatus(providerDomainId: string) { const data = await connectorRequest("/v1/domains/dns/list", { providerDomainId }); return Array.isArray(data.records) ? data.records as DnsRecord[] : []; }
-  async renewDomain(input: { providerDomainId: string; domain: string; years: number; currentExpiration: string }) { return registeredDomain(await connectorRequest("/v1/domains/renew", input), input.domain); }
+  async registerDomain(input: { domain: string; years: number; registrant: Registrant; buyer: DomainProviderBuyer; idempotencyKey: string }) { const domain = normalizeDomain(input.domain); return registeredDomain(await signedConnectorRequest("/v1/domains/register", { domain, years: input.years, buyer: input.buyer, idempotencyKey: input.idempotencyKey }), domain); }
+  async getRegistrationStatus(providerDomainId: string) { return registeredDomain(await signedConnectorRequest("/v1/domains/status", { providerDomainId })); }
+  async getNameservers(providerDomainId: string) { const data = await signedConnectorRequest("/v1/domains/nameservers", { providerDomainId }); return Array.isArray(data.nameservers) ? data.nameservers.map(String) : []; }
+  async createDnsRecord(providerDomainId: string, record: DnsRecord) { await signedConnectorRequest("/v1/domains/dns/create", { providerDomainId, record }); }
+  async updateDnsRecord(providerDomainId: string, current: DnsRecord, next: DnsRecord) { await signedConnectorRequest("/v1/domains/dns/update", { providerDomainId, current, next }); }
+  async removeDnsRecord(providerDomainId: string, record: DnsRecord) { await signedConnectorRequest("/v1/domains/dns/remove", { providerDomainId, record }); }
+  async getDnsStatus(providerDomainId: string) { const data = await signedConnectorRequest("/v1/domains/dns/list", { providerDomainId }); return Array.isArray(data.records) ? data.records as DnsRecord[] : []; }
+  async renewDomain(input: { providerDomainId: string; domain: string; years: number; currentExpiration: string }) { return registeredDomain(await signedConnectorRequest("/v1/domains/renew", input), input.domain); }
   async getExpiration(providerDomainId: string) { return (await this.getRegistrationStatus(providerDomainId)).expiresAt; }
 }
 

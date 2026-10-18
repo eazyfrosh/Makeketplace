@@ -7,7 +7,7 @@ from connector import ConnectorError, dispatch
 
 SECRET = os.environ.get("RESELLERCLUB_CONNECTOR_SECRET", "").encode(); MAX_BODY, MAX_SKEW_SECONDS, MAX_REQUESTS_PER_MINUTE = 16384, 300, 120
 NONCE_RE = re.compile(r"^[a-f0-9-]{20,80}$", re.I)
-ROUTES = {"/v1/domains/availability": "availability", "/v1/domains/price": "price", "/v1/domains/buyers/ensure": "ensure_buyer", "/v1/domains/register": "register", "/v1/domains/status": "status", "/v1/domains/nameservers": "nameservers", "/v1/domains/dns/list": "dns_list", "/v1/domains/dns/create": "dns_create", "/v1/domains/dns/update": "dns_update", "/v1/domains/dns/remove": "dns_remove", "/v1/domains/renew": "renew"}
+ROUTES = {"/v1/domains/availability": "availability", "/v1/domains/price": "price", "/v1/domains/buyers/ensure": "ensure_buyer", "/v1/domains/register": "register", "/v1/domains/status": "status", "/v1/domains/nameservers": "nameservers", "/v1/domains/dns/list": "dns_list", "/v1/domains/dns/create": "dns_create", "/v1/domains/dns/update": "dns_update", "/v1/domains/dns/remove": "dns_remove", "/v1/domains/renew": "renew", "/v1/domainnameapi": "domainnameapi"}
 seen_nonces, request_times, lock = {}, deque(), threading.Lock()
 
 class Handler(BaseHTTPRequestHandler):
