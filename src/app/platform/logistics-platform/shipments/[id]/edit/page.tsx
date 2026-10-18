@@ -23,6 +23,7 @@ function shipmentToFormInput(s: Shipment): Partial<ShipmentFormInput> {
     heightCm: s.package.heightCm,
     packageType: s.package.packageType,
     description: s.package.description,
+    contentImageUrl: s.package.contentImageUrl,
     specialInstructions: s.specialInstructions,
     estimatedDeliveryDate: s.estimatedDeliveryDate.slice(0, 10),
     shippingCost: s.shippingCost,

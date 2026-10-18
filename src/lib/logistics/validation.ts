@@ -23,6 +23,10 @@ export const shipmentSchema = z.object({
   heightCm: z.coerce.number().positive("Must be greater than 0"),
   packageType: z.enum(PACKAGE_TYPES),
   description: z.string().optional(),
+  contentImageUrl: z
+    .url("Invalid package image URL")
+    .refine((value) => new URL(value).hostname.endsWith(".blob.vercel-storage.com"), "Invalid package image URL")
+    .optional(),
   specialInstructions: z.string().optional(),
   estimatedDeliveryDate: z.string().min(1, "Required"),
   shippingCost: z.coerce.number().min(0, "Must be 0 or greater"),

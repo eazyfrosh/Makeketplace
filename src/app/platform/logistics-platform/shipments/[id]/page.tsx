@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2, Mail, MessageCircle, Pencil, PlusCircle, Send } from "lucide-react";
@@ -355,6 +356,14 @@ export default function ShipmentDetailPage() {
             <p className="text-xs text-foreground/50">Shipping cost</p>
             <p className="font-medium">{formatCurrency(shipment.shippingCost)}</p>
           </div>
+          {shipment.package.contentImageUrl && (
+            <div className="col-span-2 border-t border-foreground/10 pt-4 sm:col-span-4">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-foreground/50">Package content image</p>
+              <div className="relative h-56 w-full max-w-lg overflow-hidden rounded-xl bg-black/5 dark:bg-white/5">
+                <Image src={shipment.package.contentImageUrl} alt="Package contents" fill sizes="(max-width: 768px) 100vw, 512px" className="object-contain" unoptimized />
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

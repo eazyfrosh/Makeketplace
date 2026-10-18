@@ -19,6 +19,20 @@ export function createShipment(values: ShipmentFormValues): Promise<{ shipment: 
   return api("/api/logistics/shipments", { method: "POST", body: JSON.stringify(values) });
 }
 
+export async function uploadShipmentContentImage(file: File): Promise<{ url: string }> {
+  const headers = await getAuthHeaders();
+  const form = new FormData();
+  form.set("file", file);
+  const response = await fetch("/api/logistics/content-image", {
+    method: "POST",
+    headers,
+    body: form,
+  });
+  const data = (await response.json().catch(() => ({}))) as { url?: string; error?: string };
+  if (!response.ok || !data.url) throw new Error(data.error ?? "The package image could not be uploaded.");
+  return { url: data.url };
+}
+
 export function getMyShipments(): Promise<{ shipments: Shipment[] }> {
   return api("/api/logistics/shipments");
 }

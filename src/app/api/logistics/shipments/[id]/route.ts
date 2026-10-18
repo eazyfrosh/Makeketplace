@@ -63,6 +63,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       heightCm: values.heightCm,
       packageType: values.packageType,
       description: values.description,
+      contentImageUrl: values.contentImageUrl,
     },
     specialInstructions: values.specialInstructions,
     estimatedDeliveryDate: values.estimatedDeliveryDate,

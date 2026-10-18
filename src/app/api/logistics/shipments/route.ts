@@ -90,6 +90,7 @@ export async function POST(request: Request) {
       heightCm: values.heightCm,
       packageType: values.packageType,
       description: values.description,
+      contentImageUrl: values.contentImageUrl,
     },
     specialInstructions: values.specialInstructions,
     estimatedDeliveryDate: values.estimatedDeliveryDate,

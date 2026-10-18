@@ -48,6 +48,10 @@ const packageSchema = z.object({
   heightCm: z.coerce.number().positive("Must be greater than 0"),
   packageType: z.enum(PACKAGE_TYPES),
   description: z.string().optional(),
+  contentImageUrl: z
+    .url()
+    .refine((value) => new URL(value).hostname.endsWith(".blob.vercel-storage.com"))
+    .optional(),
 });
 
 // Edits the shipment's own core fields — separate from the tracking-events

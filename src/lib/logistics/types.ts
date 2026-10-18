@@ -71,6 +71,7 @@ export interface PackageInfo {
   heightCm: number;
   packageType: PackageType;
   description?: string;
+  contentImageUrl?: string;
 }
 
 export interface Shipment {

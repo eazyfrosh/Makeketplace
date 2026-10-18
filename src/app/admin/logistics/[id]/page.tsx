@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, MessageCircle, PlusCircle, Save, Send } from "lucide-react";
@@ -503,6 +504,14 @@ export default function AdminLogisticsShipmentPage() {
                     value={edit.insuranceValue}
                     onChange={(e) => setEdit({ ...edit, insuranceValue: e.target.value })}
                   />
+                </div>
+              )}
+              {edit.package.contentImageUrl && (
+                <div className="sm:col-span-4">
+                  <Label>Package content image</Label>
+                  <div className="relative mt-1.5 h-56 w-full max-w-lg overflow-hidden rounded-xl border bg-muted/30">
+                    <Image src={edit.package.contentImageUrl} alt="Package contents" fill sizes="(max-width: 768px) 100vw, 512px" className="object-contain" unoptimized />
+                  </div>
                 </div>
               )}
             </CardContent>
