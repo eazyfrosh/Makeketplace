@@ -8,7 +8,8 @@ import {
   getTrackingEventsForShipment,
   updateShipmentRecord,
 } from "@/lib/logistics/store";
-import { PACKAGE_TYPES, SERVICE_TYPES } from "@/lib/logistics/types";
+import { PACKAGE_TYPES, SERVICE_TYPES, type Shipment } from "@/lib/logistics/types";
+import { syncShipmentToTrackNova } from "@/lib/logistics/tracknova-sync";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const admin = await verifyAdminCaller(request);
@@ -81,14 +82,21 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const updates = parsed.data;
 
   const insured = updates.insured ?? shipment.insured;
-  const updatedShipment = {
+  const updatedShipment: Shipment = {
     ...shipment,
     ...updates,
     insured,
     insuranceValue: insured ? (updates.insuranceValue ?? shipment.insuranceValue) : undefined,
     updatedAt: new Date().toISOString(),
+    trackNovaSyncStatus: "pending",
   };
 
   await updateShipmentRecord(updatedShipment);
-  return NextResponse.json({ shipment: updatedShipment });
+  const syncResult = await syncShipmentToTrackNova(updatedShipment);
+  if (syncResult.synced) {
+    updatedShipment.trackNovaSyncStatus = "synced";
+    updatedShipment.trackNovaSyncedAt = new Date().toISOString();
+    await updateShipmentRecord(updatedShipment);
+  }
+  return NextResponse.json({ shipment: updatedShipment, trackingSync: syncResult.synced ? "synced" : "pending" });
 }

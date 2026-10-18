@@ -3,7 +3,8 @@ import { z } from "zod";
 
 import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { getShipmentById, createTrackingEvent, updateShipmentRecord } from "@/lib/logistics/store";
-import { SHIPMENT_STATUSES } from "@/lib/logistics/types";
+import { syncShipmentToTrackNova } from "@/lib/logistics/tracknova-sync";
+import { SHIPMENT_STATUSES, type Shipment } from "@/lib/logistics/types";
 
 const eventSchema = z.object({
   status: z.enum(SHIPMENT_STATUSES),
@@ -48,8 +49,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   };
 
   await createTrackingEvent(event);
-  const updatedShipment = { ...shipment, status: values.status, updatedAt: now };
+  const updatedShipment: Shipment = { ...shipment, status: values.status, updatedAt: now, trackNovaSyncStatus: "pending" };
   await updateShipmentRecord(updatedShipment);
 
-  return NextResponse.json({ event, shipment: updatedShipment }, { status: 201 });
+  const syncResult = await syncShipmentToTrackNova(updatedShipment, event);
+  if (syncResult.synced) {
+    updatedShipment.trackNovaSyncStatus = "synced";
+    updatedShipment.trackNovaSyncedAt = new Date().toISOString();
+    await updateShipmentRecord(updatedShipment);
+  }
+
+  return NextResponse.json(
+    { event, shipment: updatedShipment, trackingSync: syncResult.synced ? "synced" : "pending" },
+    { status: 201 }
+  );
 }

@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { getShipmentById, getTrackingEventsForShipment, updateShipmentRecord } from "@/lib/logistics/store";
 import { getCarrier } from "@/lib/logistics/data/carriers";
+import { syncShipmentToTrackNova } from "@/lib/logistics/tracknova-sync";
 import { shipmentSchema } from "@/lib/logistics/validation";
+import type { Shipment } from "@/lib/logistics/types";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const caller = await verifyCaller(request);
@@ -47,7 +49,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const values = parsed.data;
   const carrier = getCarrier(values.carrierCode);
 
-  const updatedShipment = {
+  const updatedShipment: Shipment = {
     ...shipment,
     referenceNumber: values.referenceNumber || undefined,
     carrierCode: carrier.code,
@@ -68,8 +70,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     insured: values.insured,
     insuranceValue: values.insured ? values.insuranceValue : undefined,
     updatedAt: new Date().toISOString(),
+    trackNovaSyncStatus: "pending",
   };
 
   await updateShipmentRecord(updatedShipment);
-  return NextResponse.json({ shipment: updatedShipment });
+  const syncResult = await syncShipmentToTrackNova(updatedShipment);
+  if (syncResult.synced) {
+    updatedShipment.trackNovaSyncStatus = "synced";
+    updatedShipment.trackNovaSyncedAt = new Date().toISOString();
+    await updateShipmentRecord(updatedShipment);
+  }
+  return NextResponse.json({ shipment: updatedShipment, trackingSync: syncResult.synced ? "synced" : "pending" });
 }
