@@ -77,10 +77,10 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "The email could not be sent.";
-    if (message === "RATE_LIMITED") return NextResponse.json({ error: "Hourly Email Designer sending limit reached. Try again later." }, { status: 429 });
+    if (message === "RATE_LIMITED") return NextResponse.json({ error: "Hourly Email Flashing sending limit reached. Try again later." }, { status: 429 });
     if (message === "DOMAIN_RATE_LIMITED") return NextResponse.json({ error: "This domain's hourly sending limit has been reached." }, { status: 429 });
     if (message === "EMAIL_DOMAIN_NOT_READY") return NextResponse.json({ error: "The selected sender domain is not ready." }, { status: 409 });
-    if (message === "ACTIVE_SUBSCRIPTION_REQUIRED") return NextResponse.json({ error: "An active subscription is required for Email Designer." }, { status: 403 });
+    if (message === "ACTIVE_SUBSCRIPTION_REQUIRED") return NextResponse.json({ error: "An active subscription is required for Email Flashing." }, { status: 403 });
     console.error("[email-designer] send failed", error);
     return NextResponse.json({ error: message }, { status: 500 });
   }

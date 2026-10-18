@@ -96,7 +96,7 @@ export const services: Service[] = [
   {
     slug: "airline-booking-platform",
     accessUrl: "/platform/airline-booking-platform",
-    name: "Airline Booking Platform",
+    name: "Flight Itinerary Booking",
     category: "platforms",
     tagline: "Search, book, and manage flights with a world-class UX.",
     description:
@@ -124,13 +124,13 @@ export const services: Service[] = [
     priceUnit: "per flight",
     rating: 4.8,
     reviewCount: 96,
-    faq: standardFaq("Airline Booking Platform"),
+    faq: standardFaq("Flight Itinerary Booking"),
     reviews: standardReviews,
   },
   {
     slug: "logistics-platform",
     accessUrl: "/platform/logistics-platform",
-    name: "Logistics Platform",
+    name: "Tracking Page",
     category: "platforms",
     tagline: "Track shipments and optimize fleets in real time.",
     description:
@@ -158,7 +158,7 @@ export const services: Service[] = [
     priceUnit: "per shipment",
     rating: 4.7,
     reviewCount: 74,
-    faq: standardFaq("Logistics Platform"),
+    faq: standardFaq("Tracking Page"),
     reviews: standardReviews,
   },
   {
@@ -226,7 +226,7 @@ export const services: Service[] = [
   {
     slug: "email-designer",
     accessUrl: "/platform/email-designer",
-    name: "Email Designer",
+    name: "Email Flashing",
     category: "ai",
     tagline: "Design and send polished, on-brand emails without touching code.",
     description:
@@ -251,7 +251,7 @@ export const services: Service[] = [
     priceUnit: "monthly",
     rating: 4.9,
     reviewCount: 0,
-    faq: standardFaq("Email Designer"),
+    faq: standardFaq("Email Flashing"),
     reviews: standardReviews,
   },
   {

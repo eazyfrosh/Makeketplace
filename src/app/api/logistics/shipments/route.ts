@@ -57,11 +57,11 @@ export async function POST(request: Request) {
   if (!caller) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
 
   // The client-side LicenseGuard is UX only — re-verify here that the caller
-  // actually holds an active Logistics Platform license before letting them
+  // actually holds an active Tracking Page license before letting them
   // create data through the API directly.
   const license = await getLicenseForUserAndService(caller.uid, "logistics-platform");
   if (!license || license.status !== "active") {
-    return NextResponse.json({ error: "An active Logistics Platform license is required." }, { status: 403 });
+    return NextResponse.json({ error: "An active Tracking Page license is required." }, { status: 403 });
   }
 
   const body = await request.json().catch(() => null);

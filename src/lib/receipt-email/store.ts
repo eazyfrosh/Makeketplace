@@ -9,7 +9,7 @@ const AUDIT = "emailDesignerAuditLogs";
 const LIMITS = "emailDesignerRateLimits";
 
 function db() {
-  if (!adminDb) throw new Error("Email Designer storage is unavailable. Configure Firebase Admin credentials.");
+  if (!adminDb) throw new Error("Email Flashing storage is unavailable. Configure Firebase Admin credentials.");
   return adminDb;
 }
 

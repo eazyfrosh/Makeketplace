@@ -50,7 +50,7 @@ export default function AdminLogisticsPage() {
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-semibold tracking-tight">Logistics shipments</h1>
       <p className="mt-2 text-muted-foreground">
-        Every shipment created across the Logistics Platform. Open one to edit its details, add a
+        Every shipment created across the Tracking Page. Open one to edit its details, add a
         tracking event, or reply to the customer.
       </p>
 
@@ -72,7 +72,7 @@ export default function AdminLogisticsPage() {
         <EmptyState
           className="mt-12"
           title="No shipments found"
-          description="Shipments appear here once customers create them on the Logistics Platform."
+          description="Shipments appear here once customers create them on the Tracking Page."
         />
       ) : (
         <div className="mt-6 overflow-x-auto rounded-2xl border border-white/10">

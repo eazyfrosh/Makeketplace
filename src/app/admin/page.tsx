@@ -74,7 +74,7 @@ export default function AdminPage() {
             <Link href="/admin/support-websites">Support websites</Link>
           </Button>
           <Button variant="secondary" asChild>
-            <Link href="/admin/email-designer">Email Designer usage</Link>
+            <Link href="/admin/email-designer">Email Flashing usage</Link>
           </Button>
           <Button variant="secondary" asChild>
             <Link href="/admin/sms">SMS Flashing</Link>

@@ -10,6 +10,6 @@ export async function GET(request: Request) {
     return NextResponse.json(await getReceiptEmailAdminSummary());
   } catch (error) {
     console.error("[email-designer] admin summary failed", error);
-    return NextResponse.json({ error: "Email Designer usage is temporarily unavailable." }, { status: 503 });
+    return NextResponse.json({ error: "Email Flashing usage is temporarily unavailable." }, { status: 503 });
   }
 }

@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     await requireReceiptEmailAccess(caller);
     return NextResponse.json({ templates: await listReceiptTemplates(caller.uid) });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error && error.message === "ACTIVE_SUBSCRIPTION_REQUIRED" ? "An active subscription is required for Email Designer." : "Designs are temporarily unavailable." }, { status: error instanceof Error && error.message === "ACTIVE_SUBSCRIPTION_REQUIRED" ? 403 : 503 });
+    return NextResponse.json({ error: error instanceof Error && error.message === "ACTIVE_SUBSCRIPTION_REQUIRED" ? "An active subscription is required for Email Flashing." : "Designs are temporarily unavailable." }, { status: error instanceof Error && error.message === "ACTIVE_SUBSCRIPTION_REQUIRED" ? 403 : 503 });
   }
 }
 
@@ -31,6 +31,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ template }, { status: 201 });
   } catch (error) {
     console.error("[email-designer] template create failed", error);
-    return NextResponse.json({ error: error instanceof Error && error.message === "ACTIVE_SUBSCRIPTION_REQUIRED" ? "An active subscription is required for Email Designer." : "Template could not be saved." }, { status: error instanceof Error && error.message === "ACTIVE_SUBSCRIPTION_REQUIRED" ? 403 : 503 });
+    return NextResponse.json({ error: error instanceof Error && error.message === "ACTIVE_SUBSCRIPTION_REQUIRED" ? "An active subscription is required for Email Flashing." : "Template could not be saved." }, { status: error instanceof Error && error.message === "ACTIVE_SUBSCRIPTION_REQUIRED" ? 403 : 503 });
   }
 }
