@@ -2857,6 +2857,38 @@
   color: #b42318;
   font-size: 9px;
 }
+.receiptlab-root .logo-size-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.receiptlab-root .logo-size-control b,
+.receiptlab-root .logo-size-control small { display: block; }
+.receiptlab-root .logo-size-control b { color: var(--text); font-size: 10px; }
+.receiptlab-root .logo-size-control small { margin-top: 3px; color: var(--muted); font-size: 8px; }
+.receiptlab-root .logo-size-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+.receiptlab-root .logo-size-buttons button {
+  width: 25px;
+  height: 25px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1;
+}
+.receiptlab-root .logo-size-buttons button:hover:not(:disabled) { border-color: var(--purple); color: var(--purple); }
+.receiptlab-root .logo-size-buttons button:disabled { cursor: not-allowed; opacity: .4; }
+.receiptlab-root .logo-size-buttons output { min-width: 38px; color: var(--muted); font-size: 10px; text-align: center; }
 .receiptlab-root .row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .receiptlab-root .receipt.invoice-aurora,
 .receiptlab-root .receipt.invoice-ledger,

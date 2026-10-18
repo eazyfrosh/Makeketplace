@@ -220,7 +220,8 @@ export default function ReceiptLab() {
     [toast, setToast] = useState(''),
     [watermarkEnabled, setWatermarkEnabled] = useState(true),
     [historyRows, setHistoryRows] = useState<HistoryRow[]>([]),
-    [invoiceLogo, setInvoiceLogo] = useState('');
+    [invoiceLogo, setInvoiceLogo] = useState(''),
+    [invoiceLogoScale, setInvoiceLogoScale] = useState(100);
   const [form, setForm] = useState<Record<string, string>>({
     merchant: 'Wright',
     item: '$Payday1080',
@@ -697,7 +698,7 @@ export default function ReceiptLab() {
         drawChaseReceipt(c, form);
       }
     } else if (isInvoiceTemplate(template.id)) {
-      await drawInvoice(c, template.id, form, invoiceLogo);
+      await drawInvoice(c, template.id, form, invoiceLogo, invoiceLogoScale);
     } else if (template.id === 'studio') {
       const img = new Image();
       img.src = '/receiptlab/studio-reference.jpg';
@@ -1296,6 +1297,8 @@ export default function ReceiptLab() {
               save={() => saveReceipt('Draft')}
               invoiceLogo={invoiceLogo}
               setInvoiceLogo={setInvoiceLogo}
+              invoiceLogoScale={invoiceLogoScale}
+              setInvoiceLogoScale={setInvoiceLogoScale}
             />
           )}{' '}
           {view === 'history' && (
@@ -1893,11 +1896,13 @@ function InvoicePreview({
   id,
   form,
   logoUrl,
+  logoScale,
   watermarkEnabled,
 }: {
   id: InvoiceTemplateId;
   form: Record<string, string>;
   logoUrl: string;
+  logoScale: number;
   watermarkEnabled: boolean;
 }) {
   const totals = invoiceTotals(form);
@@ -1955,7 +1960,7 @@ function InvoicePreview({
       <>
         <article className="aurora-payment-document">
           <header className="aurora-payment-header">
-            {logoUrl ? <img src={logoUrl} alt="Payment brand logo" /> : <div className="aurora-payment-mark" aria-hidden="true">A</div>}
+            {logoUrl ? <img src={logoUrl} alt="Payment brand logo" style={{ transform: `scale(${logoScale / 100})` }} /> : <div className="aurora-payment-mark" aria-hidden="true">A</div>}
             <b>{form.invoiceBusiness || 'Bank Template'}</b>
             <small>PAYMENT CONFIRMATION</small>
           </header>
@@ -2047,6 +2052,8 @@ type EditorProps = {
   save: () => void;
   invoiceLogo: string;
   setInvoiceLogo: (value: string) => void;
+  invoiceLogoScale: number;
+  setInvoiceLogoScale: (value: number) => void;
 };
 
 function Editor({
@@ -2062,6 +2069,8 @@ function Editor({
   save,
   invoiceLogo,
   setInvoiceLogo,
+  invoiceLogoScale,
+  setInvoiceLogoScale,
 }: EditorProps) {
   const [logoError, setLogoError] = useState('');
   const field = (k: string, l: string) => (
@@ -2174,6 +2183,16 @@ function Editor({
                       }}
                     />
                   </label>
+                  {template.id === 'invoice-aurora' && (
+                    <div className="logo-size-control" aria-label="Bank Template logo size">
+                      <span><b>Logo size</b><small>Adjust the logo in your preview and export.</small></span>
+                      <div className="logo-size-buttons">
+                        <button type="button" onClick={() => setInvoiceLogoScale(Math.max(60, invoiceLogoScale - 10))} disabled={invoiceLogoScale <= 60} aria-label="Decrease logo size">−</button>
+                        <output>{invoiceLogoScale}%</output>
+                        <button type="button" onClick={() => setInvoiceLogoScale(Math.min(160, invoiceLogoScale + 10))} disabled={invoiceLogoScale >= 160} aria-label="Increase logo size">+</button>
+                      </div>
+                    </div>
+                  )}
                   {logoError && <p className="logo-error" role="alert">{logoError}</p>}
                 </div>
               )}
@@ -2525,7 +2544,7 @@ function Editor({
                 {watermarkEnabled && <div className="watermark safety-footer">DEMO • NOT A REAL TRANSACTION</div>}
               </article>
             ) : invoice ? (
-              <InvoicePreview id={template.id as InvoiceTemplateId} form={form} logoUrl={invoiceLogo} watermarkEnabled={watermarkEnabled} />
+              <InvoicePreview id={template.id as InvoiceTemplateId} form={form} logoUrl={invoiceLogo} logoScale={invoiceLogoScale} watermarkEnabled={watermarkEnabled} />
             ) : template.id === 'studio' ? (
               <>
                 <img

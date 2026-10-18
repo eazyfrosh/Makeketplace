@@ -61,6 +61,7 @@ async function drawAuroraInvoice(
   canvas: HTMLCanvasElement,
   form: Record<string, string>,
   logoUrl: string,
+  logoScale = 100,
 ) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas is unavailable');
@@ -74,7 +75,8 @@ async function drawAuroraInvoice(
     try { loadedLogo = await loadLogo(logoUrl); } catch { /* Keep the Aurora mark fallback. */ }
   }
   if (loadedLogo) {
-    ctx.drawImage(loadedLogo, 367, 42, 76, 76);
+    const size = 76 * (logoScale / 100);
+    ctx.drawImage(loadedLogo, 405 - size / 2, 80 - size / 2, size, size);
   } else {
     ctx.fillStyle = '#159447';
     ctx.font = '800 48px Arial';
@@ -207,9 +209,10 @@ export async function drawInvoice(
   id: InvoiceTemplateId,
   form: Record<string, string>,
   logoUrl: string,
+  logoScale = 100,
 ) {
   if (id === 'invoice-aurora') {
-    await drawAuroraInvoice(canvas, form, logoUrl);
+    await drawAuroraInvoice(canvas, form, logoUrl, logoScale);
     return;
   }
   if (id === 'invoice-ledger') {
