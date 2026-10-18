@@ -95,6 +95,7 @@ export interface Shipment {
   /** Server-maintained state for the public TrackNova tracking mirror. */
   trackNovaSyncStatus?: "pending" | "synced";
   trackNovaSyncedAt?: string;
+  trackNovaEventsSyncedAt?: string;
   /** Whether either side has an unread chat message for this shipment. */
   unreadForAdmin?: boolean;
   unreadForCustomer?: boolean;

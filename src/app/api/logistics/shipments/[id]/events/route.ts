@@ -56,6 +56,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (syncResult.synced) {
     updatedShipment.trackNovaSyncStatus = "synced";
     updatedShipment.trackNovaSyncedAt = new Date().toISOString();
+    updatedShipment.trackNovaEventsSyncedAt = new Date().toISOString();
     await updateShipmentRecord(updatedShipment);
   }
 

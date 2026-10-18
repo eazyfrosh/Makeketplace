@@ -24,6 +24,7 @@ import {
   STATUS_LABELS,
 } from "@/lib/logistics/types";
 import { formatDateTime } from "@/lib/logistics/format";
+import { TRACKING_EVENT_DESCRIPTION_TEMPLATES } from "@/lib/logistics/tracking-event-templates";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -251,16 +252,27 @@ export default function AdminLogisticsShipmentPage() {
     load();
   }, [isAdmin, load]);
 
-  const { register: registerEvent, handleSubmit: handleEventSubmit, reset: resetEventForm } = useForm<EventFormValues>({
-    defaultValues: { status: "pending", location: "", description: "" },
+  const {
+    register: registerEvent,
+    handleSubmit: handleEventSubmit,
+    reset: resetEventForm,
+    watch: watchEvent,
+    setValue: setEventValue,
+  } = useForm<EventFormValues>({
+    defaultValues: { status: "pending", location: "", description: TRACKING_EVENT_DESCRIPTION_TEMPLATES.pending },
   });
+  const selectedEventStatus = watchEvent("status");
+
+  React.useEffect(() => {
+    setEventValue("description", TRACKING_EVENT_DESCRIPTION_TEMPLATES[selectedEventStatus], { shouldDirty: true });
+  }, [selectedEventStatus, setEventValue]);
 
   async function onAddEvent(values: EventFormValues) {
     setAddingEvent(true);
     try {
       await addTrackingEvent(id, values);
       toast.success("Tracking event added.");
-      resetEventForm({ status: values.status, location: "", description: "", notes: "" });
+      resetEventForm({ status: values.status, location: "", description: TRACKING_EVENT_DESCRIPTION_TEMPLATES[values.status], notes: "" });
       await load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add tracking event.");

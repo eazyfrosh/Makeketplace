@@ -79,7 +79,11 @@ export default function PublicTrackingResultPage() {
 
         <Card className="mb-6">
           <CardContent className="p-5">
-            <RouteMapPlaceholder events={events} />
+            <RouteMapPlaceholder
+              events={events}
+              origin={shipment.sender}
+              destination={shipment.receiver}
+            />
           </CardContent>
         </Card>
 

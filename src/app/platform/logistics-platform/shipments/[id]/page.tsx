@@ -21,6 +21,7 @@ import { getCarrier } from "@/lib/logistics/data/carriers";
 import { SERVICE_LABELS, SHIPMENT_STATUSES, STATUS_LABELS } from "@/lib/logistics/types";
 import { formatCurrency, formatDateLong } from "@/lib/logistics/format";
 import { LOGISTICS_EMAIL_STATUS_COPY, getShipmentEmailSubject } from "@/lib/logistics/email-templates";
+import { TRACKING_EVENT_DESCRIPTION_TEMPLATES } from "@/lib/logistics/tracking-event-templates";
 import type { Shipment, ShipmentMessage, ShipmentStatus, TrackingEvent } from "@/lib/logistics/types";
 
 interface EventFormValues {
@@ -246,16 +247,21 @@ export default function ShipmentDetailPage() {
     load();
   }, [load]);
 
-  const { register, handleSubmit, reset } = useForm<EventFormValues>({
-    defaultValues: { status: "pending", location: "", description: "" },
+  const { register, handleSubmit, reset, watch, setValue } = useForm<EventFormValues>({
+    defaultValues: { status: "pending", location: "", description: TRACKING_EVENT_DESCRIPTION_TEMPLATES.pending },
   });
+  const selectedEventStatus = watch("status");
+
+  useEffect(() => {
+    setValue("description", TRACKING_EVENT_DESCRIPTION_TEMPLATES[selectedEventStatus], { shouldDirty: true });
+  }, [selectedEventStatus, setValue]);
 
   async function onSubmit(values: EventFormValues) {
     setSubmitting(true);
     try {
       await addTrackingEvent(id, values);
       toast.success("Tracking event added");
-      reset({ status: values.status, location: "", description: "", notes: "" });
+      reset({ status: values.status, location: "", description: TRACKING_EVENT_DESCRIPTION_TEMPLATES[values.status], notes: "" });
       load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add event");
@@ -303,7 +309,11 @@ export default function ShipmentDetailPage() {
 
       <Card className="mb-6">
         <CardContent className="p-5">
-          <RouteMapPlaceholder events={events} />
+          <RouteMapPlaceholder
+            events={events}
+            origin={{ city: shipment.sender.city, country: shipment.sender.country }}
+            destination={{ city: shipment.receiver.city, country: shipment.receiver.country }}
+          />
         </CardContent>
       </Card>
 
