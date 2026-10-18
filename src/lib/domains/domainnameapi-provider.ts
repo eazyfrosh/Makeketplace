@@ -32,7 +32,7 @@ function config(): Config | null {
   const apiKey = process.env.DOMAINNAMEAPI_API_KEY?.trim();
   const environment: Environment = process.env.DOMAINNAMEAPI_ENVIRONMENT === "production" ? "production" : "test";
   const baseUrl = (process.env.DOMAINNAMEAPI_BASE_URL?.trim() || (environment === "production" ? PROD_URL : TEST_URL)).replace(/\/$/, "");
-  const nameservers = (process.env.DOMAINNAMEAPI_DEFAULT_NAMESERVERS || "ns1.domainnameapi.com,ns2.domainnameapi.com").split(",").map((value) => value.trim()).filter(Boolean);
+  const nameservers = (process.env.DOMAINNAMEAPI_DEFAULT_NAMESERVERS || "tr.apiname.com,eu.apiname.com").split(",").map((value) => value.trim()).filter(Boolean);
   if (!resellerId || !apiKey || nameservers.length < 2) return null;
   return { resellerId, apiKey, baseUrl, environment, nameservers };
 }

@@ -29,7 +29,7 @@ DOMAINNAMEAPI_RESELLER_ID=
 DOMAINNAMEAPI_API_KEY=
 DOMAINNAMEAPI_ENVIRONMENT=test
 DOMAINNAMEAPI_BASE_URL=
-DOMAINNAMEAPI_DEFAULT_NAMESERVERS=ns1.domainnameapi.com,ns2.domainnameapi.com
+DOMAINNAMEAPI_DEFAULT_NAMESERVERS=tr.apiname.com,eu.apiname.com
 DOMAIN_USD_NGN_RATE_MINOR=
 DOMAIN_PAYMENT_FEE_BPS=200
 DOMAIN_PAYMENT_FIXED_FEE_MINOR=0
@@ -75,6 +75,19 @@ fees, and blocks a loss-making order. Premium domains are never sold at a standa
 price.
 
 ## DNS note
+
+Domain Name API support confirmed that its managed DNS service uses these
+authoritative nameservers:
+
+```text
+tr.apiname.com
+eu.apiname.com
+```
+
+Keep `DOMAINNAMEAPI_DEFAULT_NAMESERVERS` set to those two hosts in Vercel. New
+registrations use them automatically. Domains registered earlier with different
+nameservers must be updated at the registrar before automatic DNS provisioning
+can succeed.
 
 Nameserver management is supported by the provider integration. DNS-record write
 operations remain guarded until the account's API Library confirms the DNS-zone
