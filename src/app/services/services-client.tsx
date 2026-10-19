@@ -58,12 +58,12 @@ export function ServicesClient() {
               <p className="absolute bottom-3 left-4 text-sm font-semibold sm:text-base">Create your own website</p>
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/15 shadow-xl">
-              <Image src="/service-previews/airline-booking-platform-v2.png" alt="Flight itinerary and travel tools" fill sizes="(min-width: 1024px) 26vw, 50vw" className="object-cover" />
+              <Image src="/service-previews/airline-booking-platform-v3.png" alt="Flight itinerary and travel tools" fill sizes="(min-width: 1024px) 26vw, 50vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
               <p className="absolute bottom-3 left-3 text-xs font-semibold sm:text-sm">Plan and preview trips</p>
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/15 shadow-xl">
-              <Image src="/service-previews/logistics-platform-v2.png" alt="Shipment tracking and logistics tools" fill sizes="(min-width: 1024px) 26vw, 50vw" className="object-cover" />
+              <Image src="/service-previews/logistics-platform-v3.png" alt="Shipment tracking and logistics tools" fill sizes="(min-width: 1024px) 26vw, 50vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
               <p className="absolute bottom-3 left-3 text-xs font-semibold sm:text-sm">Track every shipment</p>
             </div>

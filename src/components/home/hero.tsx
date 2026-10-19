@@ -14,10 +14,10 @@ const HERO_HEADLINE_BREAK = HERO_HEADLINE.indexOf("\n");
 
 const SHOWCASE_SLIDES = [
   {
-    src: "/home/young-professional-laptop.png",
-    alt: "Young professional working on a laptop in a modern office",
-    eyebrow: "Work with confidence",
-    title: "Turn ideas into action",
+    src: "/service-previews/banking-platform-v3.png",
+    alt: "A digital banking dashboard shown across laptop and mobile screens",
+    eyebrow: "Manage business tools",
+    title: "Clear dashboards, ready to use",
     accent: "bg-fuchsia-400 shadow-[0_0_12px_#e879f9]",
   },
   {
@@ -28,8 +28,8 @@ const SHOWCASE_SLIDES = [
     accent: "bg-cyan-400 shadow-[0_0_12px_#22d3ee]",
   },
   {
-    src: "/service-previews/support-websites-v2.png",
-    alt: "A friendly support professional helping a customer beside a modern help centre website",
+    src: "/service-previews/support-websites-v3.png",
+    alt: "A modern help centre shown across desktop, laptop, and mobile screens",
     eyebrow: "Help made simple",
     title: "Friendly tools for real people",
     accent: "bg-orange-300 shadow-[0_0_12px_#fdba74]",
