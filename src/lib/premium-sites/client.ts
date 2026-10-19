@@ -5,7 +5,7 @@ async function request<T>(path = "", init?: RequestInit): Promise<T> {
   const headers = { ...(await getAuthHeaders()), ...(init?.headers ?? {}) };
   const response = await fetch(`/api/premium-sites${path}`, { ...init, headers, cache: "no-store" });
   const result = await response.json().catch(() => ({})) as T & { error?: string };
-  if (!response.ok) throw new Error(result.error || "The premium website request failed.");
+  if (!response.ok) throw new Error(result.error || "The website request failed.");
   return result;
 }
 

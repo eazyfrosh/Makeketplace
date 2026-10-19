@@ -103,7 +103,7 @@ export default async function ServiceDetailPage({
                   </Button>
                 ) : isPremiumTemplates ? (
                   <Button size="lg" asChild>
-                    <Link href="#templates">Browse Premium Templates</Link>
+                    <Link href="#templates">Open Website Builder</Link>
                   </Button>
                 ) : service.comingSoon ? (
                   <Button size="lg" disabled>Coming soon</Button>
@@ -118,31 +118,50 @@ export default async function ServiceDetailPage({
               </div>
             </div>
 
-            <ServiceVisual
-              variant={service.heroImage}
-              className="aspect-[4/3]"
-              label={`eazytool / ${service.slug}`}
-            />
+            <div className="rounded-[2rem] bg-gradient-to-br from-primary/25 via-violet-500/10 to-cyan-400/20 p-2 shadow-[0_30px_90px_-35px_rgba(37,99,235,.55)]">
+              <ServiceVisual
+                variant={service.heroImage}
+                chrome={false}
+                className="aspect-[16/10] rounded-[1.55rem] border-white/15"
+                label={`${service.name} feature preview`}
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {isPremiumTemplates && <PremiumTemplateCatalog />}
 
-      {/* Screenshots */}
+      {/* Feature preview */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-semibold tracking-tight">Product screenshots</h2>
-        <div
-          className={cn(
-            "mt-6 grid gap-6",
-            service.screenshots.length === 1 && "sm:grid-cols-1 sm:max-w-2xl",
-            service.screenshots.length === 2 && "sm:grid-cols-2",
-            service.screenshots.length >= 3 && "sm:grid-cols-3",
-          )}
-        >
-          {service.screenshots.map((shot) => (
-            <ServiceVisual key={shot} variant={shot} className="aspect-video" label={screenshotLabel(shot)} />
-          ))}
+        <div className="max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Made to be simple</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Features</h2>
+          <p className="mt-3 leading-7 text-muted-foreground">See what you can do, then open the tool and follow the clear steps on screen. No technical experience is required.</p>
+        </div>
+        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1.25fr_.75fr]">
+          <div className={cn("grid gap-5", service.screenshots.length > 1 && "sm:grid-cols-2")}>
+            {service.screenshots.map((shot, index) => (
+              <figure key={shot} className="overflow-hidden rounded-3xl border bg-card shadow-[0_24px_70px_-45px_rgba(59,130,246,.75)]">
+                <ServiceVisual variant={shot} chrome={false} className="aspect-[16/10] rounded-none border-0" label={screenshotLabel(shot)} />
+                <figcaption className="border-t px-5 py-4">
+                  <p className="font-semibold">{service.features[index] ?? service.name}</p>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">A clear, responsive experience that works comfortably on phones, tablets and computers.</p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <div className="rounded-3xl border bg-primary/[0.045] p-5 sm:p-6">
+            <h3 className="text-lg font-semibold">What you can do</h3>
+            <ul className="mt-5 space-y-4">
+              {service.features.map((feature) => (
+                <li key={feature} className="flex items-start gap-3 text-sm leading-6">
+                  <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><Check className="size-3.5" /></span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 

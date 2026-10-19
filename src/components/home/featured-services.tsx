@@ -5,19 +5,21 @@ import { services } from "@/lib/data/services";
 import { ServiceCard } from "@/components/marketing/service-card";
 
 export function FeaturedServices() {
-  const featured = services.slice(0, 6);
+  const featuredOrder = ["premium-templates", "airline-booking-platform", "logistics-platform", "banking-platform", "receipt-generator", "email-designer"];
+  const featured = featuredOrder.flatMap((slug) => services.filter((service) => service.slug === slug));
 
   return (
     <section className="home-catalog relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
-      <div className="pointer-events-none absolute -left-40 top-20 -z-10 size-80 rounded-full bg-cyan-400/[0.06] blur-3xl" />
+      <div className="pointer-events-none absolute -left-40 top-20 -z-10 size-80 rounded-full bg-cyan-400/[0.08] blur-3xl" />
+      <div className="pointer-events-none absolute -right-36 bottom-20 -z-10 size-96 rounded-full bg-violet-500/[0.07] blur-3xl" />
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary"><span className="h-px w-8 bg-primary/60" />Start here</div>
           <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
-            Choose a tool and get moving.
+            Pick what you want to create.
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground">
-            Choose the job you want to complete. Each service explains what it does before you open it.
+            Start with a ready-made website, design an email, create a receipt, track a shipment, or explore another simple tool.
           </p>
         </div>
         <Link

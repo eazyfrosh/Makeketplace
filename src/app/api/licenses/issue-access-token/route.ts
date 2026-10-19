@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   }
   const premiumTemplateIds = new Set(["elite-broker", "volterra", "novabank-dashboard", "swiftstream-cargo", "tradeflow"]);
   if (serviceSlug === "premium-templates" && !premiumTemplateIds.has(templateId)) {
-    return NextResponse.json({ error: "Unknown premium template." }, { status: 400 });
+    return NextResponse.json({ error: "Unknown website design." }, { status: 400 });
   }
 
   const access = await resolveServiceAccess(caller.uid, caller.role, serviceSlug);

@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     if (!(await canManagePremiumSites(caller.uid, caller.role))) return NextResponse.json({ error: "An active EazyTool subscription is required." }, { status: 403 });
     const sites = await allSites();
     return NextResponse.json(caller.role === "admin" ? sites : sites.filter((site) => site.userId === caller.uid));
-  } catch (error) { console.error("[premium-sites] read failed", error); return NextResponse.json({ error: "Premium websites are temporarily unavailable." }, { status: 503 }); }
+  } catch (error) { console.error("[premium-sites] read failed", error); return NextResponse.json({ error: "Website Builder is temporarily unavailable." }, { status: 503 }); }
 }
 
 export async function POST(request: Request) {
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const site: PremiumSite = { ...input, id, slug, templateId: "volterra-ev", userId: existing?.userId ?? caller.uid, createdAt: existing?.createdAt ?? now, updatedAt: now };
     await put(`${PREFIX}${id}.json`, JSON.stringify(site), { access: "public", allowOverwrite: true, contentType: "application/json", cacheControlMaxAge: 60 });
     return NextResponse.json(site);
-  } catch (error) { console.error("[premium-sites] save failed", error); return NextResponse.json({ error: "The premium website could not be saved." }, { status: 503 }); }
+  } catch (error) { console.error("[premium-sites] save failed", error); return NextResponse.json({ error: "The website could not be saved." }, { status: 503 }); }
 }
 
 export async function DELETE(request: Request) {
@@ -55,5 +55,5 @@ export async function DELETE(request: Request) {
     if (site && caller.role !== "admin" && site.userId !== caller.uid) return NextResponse.json({ error: "You do not have access to this website." }, { status: 403 });
     await del(blob.url);
     return NextResponse.json({ ok: true });
-  } catch (error) { console.error("[premium-sites] delete failed", error); return NextResponse.json({ error: "The premium website could not be deleted." }, { status: 503 }); }
+  } catch (error) { console.error("[premium-sites] delete failed", error); return NextResponse.json({ error: "The website could not be deleted." }, { status: 503 }); }
 }

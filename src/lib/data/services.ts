@@ -170,7 +170,7 @@ export const services: Service[] = [
     description:
       "Bespoke, high-conversion website design and build — from wireframes to a fully responsive, animated, SEO-optimized site ready to launch.",
     heroImage: "/service-previews/website-design.png",
-    screenshots: ["website-home", "website-mobile", "website-cms"],
+    screenshots: ["/service-previews/website-design.png"],
     features: [
       "Custom UI/UX design",
       "Fully responsive layouts",
@@ -263,7 +263,7 @@ export const services: Service[] = [
     description:
       "SMS Flashing gives you a simple, secure way to compose and send individual international text messages, follow their delivery progress, and keep your messaging history in one place.",
     heroImage: "/service-previews/sms-flashing.png",
-    screenshots: ["sms-compose", "sms-tracking", "sms-history"],
+    screenshots: ["/service-previews/sms-flashing.png"],
     features: [
       "Simple international SMS composer",
       "Automatic E.164 phone number formatting",
@@ -309,13 +309,13 @@ export const services: Service[] = [
   {
     slug: "premium-templates",
     accessUrl: "https://tesla-blush-nine.vercel.app/api/eazytools/sso",
-    name: "Premium Templates",
+    name: "Website Builder",
     category: "templates",
-    tagline: "Hosted, editable websites with owner admin controls.",
+    tagline: "Choose a complete website, make it yours, and manage it with confidence.",
     description:
-      "Explore ELITE BROKER, Volterra, NovaBank Dashboard, and SwiftStream Cargo. Workspace-ready templates include private branding tools and owner controls.",
-    heroImage: "/service-previews/premium-templates.png",
-    screenshots: ["templates-saas", "templates-portfolio", "templates-store"],
+      "Start with a professionally designed website, change the name, logo, colors and content, then manage your own users and website from a private owner dashboard.",
+    heroImage: "/service-previews/website-builder-v2.png",
+    screenshots: ["/service-previews/website-builder-v2.png"],
     features: [
       "ELITE BROKER investment platform template",
       "Hosted Volterra EV marketplace template",
@@ -336,7 +336,7 @@ export const services: Service[] = [
     startingPriceCents: 4900,
     rating: 4.8,
     reviewCount: 542,
-    faq: standardFaq("Premium Templates"),
+    faq: standardFaq("Website Builder"),
     reviews: standardReviews,
   },
   {
@@ -348,7 +348,7 @@ export const services: Service[] = [
     description:
       "Generate privacy-friendly QR codes for URLs, text, email, phone calls, SMS, Wi-Fi networks, and digital contact cards, then download them as PNG or SVG.",
     heroImage: "/service-previews/qr-code-generator.png",
-    screenshots: ["qr-url", "qr-wifi", "qr-contact"],
+    screenshots: ["/service-previews/qr-code-generator.png"],
     features: [
       "URL, text, email, phone and SMS QR codes",
       "Wi-Fi network QR codes",
@@ -377,8 +377,8 @@ export const services: Service[] = [
     tagline: "Create a polished help center for your business in minutes.",
     description:
       "Choose an original support portal, customize its branding and knowledge base, then publish a customer-ready help center without touching code.",
-    heroImage: "support-studio",
-    screenshots: ["support-search", "support-knowledge", "support-editor"],
+    heroImage: "/service-previews/support-websites-v2.png",
+    screenshots: ["/service-previews/support-websites-v2.png"],
     features: [
       "Eight original responsive designs",
       "Live visual editor",

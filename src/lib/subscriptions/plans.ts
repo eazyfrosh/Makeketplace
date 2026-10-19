@@ -13,7 +13,7 @@ export const DEFAULT_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     yearlyPlanCode: null,
     monthlyUsageLimit: 1000000,
     includedTools: ["*"],
-    features: ["Every EazyTool service", "All support and premium templates", "New tools included automatically", "Priority support"],
+    features: ["Every EazyTool service", "All support templates and Website Builder designs", "New tools included automatically", "Priority support"],
     active: true,
     updatedAt: now,
   },
