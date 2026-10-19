@@ -67,8 +67,9 @@ export const services: Service[] = [
     tagline: "Full-stack digital banking, built for scale and compliance.",
     description:
       "A production-grade digital banking platform with accounts, cards, transfers, and compliance tooling baked in — the same foundation neobanks use to launch in weeks, not years.",
-    heroImage: "/service-previews/banking-platform.png",
+    heroImage: "/service-previews/banking-platform-v2.png",
     screenshots: [
+      "/service-previews/banking-platform-v2.png",
       "/services/banking/overview.png",
       "/services/banking/transfer.png",
     ],
@@ -101,8 +102,9 @@ export const services: Service[] = [
     tagline: "Search, book, and manage flights with a world-class UX.",
     description:
       "An end-to-end flight booking system — search, seat selection, passenger management, e-tickets, and an admin console — designed to feel like Expedia or Google Flights out of the box.",
-    heroImage: "/service-previews/airline-booking-platform.png",
+    heroImage: "/service-previews/airline-booking-platform-v2.png",
     screenshots: [
+      "/service-previews/airline-booking-platform-v2.png",
       "/services/airline/booking-verified.png",
       "/services/airline/email-confirmation.png",
     ],
@@ -135,8 +137,9 @@ export const services: Service[] = [
     tagline: "Track shipments and optimize fleets in real time.",
     description:
       "A logistics and fleet management platform with live shipment tracking, route optimization, and warehouse tools — everything a modern logistics operator needs in one dashboard.",
-    heroImage: "/service-previews/logistics-platform.png",
+    heroImage: "/service-previews/logistics-platform-v2.png",
     screenshots: [
+      "/service-previews/logistics-platform-v2.png",
       "/services/logistics/track-shipment.png",
       "/services/logistics/shipment-detail.png",
     ],
@@ -169,8 +172,8 @@ export const services: Service[] = [
     tagline: "Premium, conversion-focused websites crafted end-to-end.",
     description:
       "Bespoke, high-conversion website design and build — from wireframes to a fully responsive, animated, SEO-optimized site ready to launch.",
-    heroImage: "/service-previews/website-design.png",
-    screenshots: ["/service-previews/website-design.png"],
+    heroImage: "/service-previews/website-design-v2.png",
+    screenshots: ["/service-previews/website-design-v2.png"],
     features: [
       "Custom UI/UX design",
       "Fully responsive layouts",
@@ -200,8 +203,8 @@ export const services: Service[] = [
     tagline: "Create polished, professional receipts in minutes.",
     description:
       "A fast, flexible receipt builder for businesses and freelancers — customize branding, add line items, calculate taxes and discounts, preview on any device, and export client-ready PDFs.",
-    heroImage: "/service-previews/receipt-generator.png",
-    screenshots: ["/service-previews/receipt-generator.png"],
+    heroImage: "/service-previews/receipt-generator-v2.png",
+    screenshots: ["/service-previews/receipt-generator-v2.png"],
     features: [
       "Custom business branding",
       "Flexible line items and quantities",
@@ -231,8 +234,8 @@ export const services: Service[] = [
     tagline: "Design and send polished, on-brand emails without touching code.",
     description:
       "Create branded announcements, order updates, invitations, support messages, and clearly labelled status notices with live previews and delivery tracking.",
-    heroImage: "/service-previews/email-flash.svg",
-    screenshots: ["/service-previews/email-flash.svg"],
+    heroImage: "/service-previews/email-designer-v2.png",
+    screenshots: ["/service-previews/email-designer-v2.png"],
     features: [
       "Visual branded-email editor",
       "Desktop and mobile live previews",
@@ -262,8 +265,8 @@ export const services: Service[] = [
     tagline: "Send fast, consent-based SMS messages around the world.",
     description:
       "SMS Flashing gives you a simple, secure way to compose and send individual international text messages, follow their delivery progress, and keep your messaging history in one place.",
-    heroImage: "/service-previews/sms-flashing.png",
-    screenshots: ["/service-previews/sms-flashing.png"],
+    heroImage: "/service-previews/sms-messaging-v2.png",
+    screenshots: ["/service-previews/sms-messaging-v2.png"],
     features: [
       "Simple international SMS composer",
       "Automatic E.164 phone number formatting",
@@ -347,8 +350,8 @@ export const services: Service[] = [
     tagline: "Create beautiful, scannable QR codes in seconds.",
     description:
       "Generate privacy-friendly QR codes for URLs, text, email, phone calls, SMS, Wi-Fi networks, and digital contact cards, then download them as PNG or SVG.",
-    heroImage: "/service-previews/qr-code-generator.png",
-    screenshots: ["/service-previews/qr-code-generator.png"],
+    heroImage: "/service-previews/qr-code-generator-v2.png",
+    screenshots: ["/service-previews/qr-code-generator-v2.png"],
     features: [
       "URL, text, email, phone and SMS QR codes",
       "Wi-Fi network QR codes",

@@ -142,7 +142,7 @@ export default async function ServiceDetailPage({
         <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1.25fr_.75fr]">
           <div className={cn("grid gap-5", service.screenshots.length > 1 && "sm:grid-cols-2")}>
             {service.screenshots.map((shot, index) => (
-              <figure key={shot} className="overflow-hidden rounded-3xl border bg-card shadow-[0_24px_70px_-45px_rgba(59,130,246,.75)]">
+              <figure key={shot} className={cn("overflow-hidden rounded-3xl border bg-card shadow-[0_24px_70px_-45px_rgba(59,130,246,.75)]", index === 0 && service.screenshots.length > 1 && "sm:col-span-2")}>
                 <ServiceVisual variant={shot} chrome={false} className="aspect-[16/10] rounded-none border-0" label={screenshotLabel(shot)} />
                 <figcaption className="border-t px-5 py-4">
                   <p className="font-semibold">{service.features[index] ?? service.name}</p>
