@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { HandCoins, LayoutDashboard, Menu, Search, WalletCards, X } from "lucide-react";
+import { Globe2, HandCoins, LayoutDashboard, LayoutTemplate, Mail, Menu, Search, WalletCards, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,13 @@ const NAV_LINKS = [
   { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Support" },
+];
+
+const MOBILE_TASKS = [
+  { href: "/services", label: "All tools", description: "See everything you can do", icon: LayoutDashboard },
+  { href: "/services/premium-templates", label: "Build a website", description: "Choose and edit a design", icon: LayoutTemplate },
+  { href: "/platform/email-designer", label: "Design an email", description: "Create and preview a message", icon: Mail },
+  { href: "/domains", label: "Buy a domain", description: "Find your website address", icon: Globe2 },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -57,7 +64,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full">
+    <header className="sticky top-0 z-[80] w-full">
       <div className="glass border-b border-white/10">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-6 lg:px-8">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="EazyTool home">
@@ -75,7 +82,7 @@ export function SiteHeader() {
           <div className="hidden max-w-sm flex-1 md:flex">
             <form onSubmit={submitSearch} className="relative w-full" role="search">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tools and services" aria-label="Search tools and services" className="h-10 pl-9" />
+              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="What do you want to do?" aria-label="Search tools and services" className="h-10 pl-9" />
             </form>
           </div>
 
@@ -102,11 +109,18 @@ export function SiteHeader() {
           </div>
         </div>
 
-        {searchOpen && <div className="border-t border-white/10 p-3 md:hidden"><form onSubmit={submitSearch} className="relative" role="search"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tools and services" aria-label="Search tools and services" className="h-11 pl-9" /></form></div>}
+        {searchOpen && <div className="border-t border-white/10 p-3 md:hidden"><form onSubmit={submitSearch} className="relative" role="search"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="What do you want to do?" aria-label="Search tools and services" className="h-11 pl-9" /></form><p className="mt-2 px-1 text-xs text-muted-foreground">Try “website”, “email”, “receipt”, or “domain”.</p></div>}
       </div>
 
-      {mobileOpen && <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass border-b border-white/10 lg:hidden"><nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6" aria-label="Mobile navigation">
-        {NAV_LINKS.map((link) => { const active = isActive(pathname, link.href); return <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)} aria-current={active ? "page" : undefined} className={cn("rounded-xl px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground", active && "bg-accent text-foreground")}>{link.label}</Link>; })}
+      {mobileOpen && <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-border bg-background/98 shadow-2xl backdrop-blur-2xl lg:hidden"><nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4 sm:px-6" aria-label="Mobile navigation">
+        <div className="mb-3">
+          <p className="px-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">What would you like to do?</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {MOBILE_TASKS.map(({ href, label, description, icon: Icon }) => <Link key={href} href={href} onClick={() => setMobileOpen(false)} className="flex min-h-20 items-center gap-3 rounded-2xl border bg-card/75 p-3.5 text-left transition-colors hover:border-primary/30 hover:bg-accent"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" /></span><span><span className="block text-sm font-semibold">{label}</span><span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{description}</span></span></Link>)}
+          </div>
+        </div>
+        <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">More pages</p>
+        {NAV_LINKS.filter((link) => !["/services", "/domains"].includes(link.href)).map((link) => { const active = isActive(pathname, link.href); return <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)} aria-current={active ? "page" : undefined} className={cn("rounded-xl px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground", active && "bg-accent text-foreground")}>{link.label}</Link>; })}
         <div className="my-2 h-px bg-border" />
         {user ? <><Link href="/dashboard" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><LayoutDashboard className="size-4 text-primary" />Dashboard</Link><Link href="/wallet" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><WalletCards className="size-4 text-primary" />Wallet</Link><Link href="/dashboard/affiliate" className="flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium"><HandCoins className="size-4 text-primary" />Affiliate program</Link><Link href="/dashboard/profile" className="rounded-xl px-3 py-3 text-sm font-medium">Account settings</Link><button onClick={() => logout()} className="rounded-xl px-3 py-3 text-left text-sm font-medium text-muted-foreground">Log out</button></> : <div className="flex gap-2 px-1 pt-1"><Button variant="secondary" size="sm" asChild className="flex-1"><Link href="/auth/login">Log in</Link></Button><Button size="sm" asChild className="flex-1"><Link href="/auth/signup">Get started</Link></Button></div>}
       </nav></motion.div>}

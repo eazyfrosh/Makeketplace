@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { AuthProvider } from "@/context/auth-context";
 import { RefCapture } from "@/components/affiliate/ref-capture";
 import { TelegramLiveChat } from "@/components/support/telegram-live-chat";
+import { MobileTaskNav } from "@/components/layout/mobile-task-nav";
 
 import "./globals.css";
 
@@ -76,6 +77,7 @@ export default function RootLayout({
               <main id="main-content" className="flex-1">{children}</main>
               <SiteFooter />
             </div>
+            <MobileTaskNav />
             <TelegramLiveChat />
             <Toaster
               position="bottom-right"

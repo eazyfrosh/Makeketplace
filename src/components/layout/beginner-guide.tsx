@@ -57,7 +57,7 @@ export function BeginnerGuide() {
           aria-label="Open the getting started guide"
         >
           <CircleHelp className="size-4 text-primary" />
-          <span className="hidden xl:inline">Help me choose</span>
+          <span className="hidden min-[360px]:inline xl:inline">Help</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-xl">

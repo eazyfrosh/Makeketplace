@@ -11,7 +11,7 @@ const FOOTER_LINKS: { title: string; links: { label: string; href: string }[] }[
     links: [
       { label: "All services", href: "/services" },
       { label: "Deals", href: "/deals" },
-      { label: "Pricing", href: "/services" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Wishlist", href: "/wishlist" },
     ],
   },

@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, BadgeCheck, Box, Check, ChevronLeft, ChevronRight, Clock3, Star, TriangleAlert } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BadgeCheck, Check, ChevronLeft, ChevronRight, Globe2, Grid2X2, LayoutTemplate, Mail, Star, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -34,6 +34,13 @@ const SHOWCASE_SLIDES = [
     title: "Friendly tools for real people",
     accent: "bg-orange-300 shadow-[0_0_12px_#fdba74]",
   },
+];
+
+const QUICK_STARTS = [
+  { href: "/services/premium-templates", icon: LayoutTemplate, title: "Create a website", description: "Choose a design and make it yours" },
+  { href: "/platform/email-designer", icon: Mail, title: "Design an email", description: "Write, preview, and send your message" },
+  { href: "/domains", icon: Globe2, title: "Buy a domain", description: "Find an address for your business" },
+  { href: "/services", icon: Grid2X2, title: "See every tool", description: "Browse everything EazyTool can do" },
 ];
 
 export function Hero() {
@@ -176,14 +183,13 @@ export function Hero() {
         </motion.div>
       </div>
 
-      <div className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-border/70 bg-foreground/[0.06] sm:grid-cols-3 lg:grid-cols-4">
-          {[
-            { icon: Box, value: "1", label: "Choose what you want to do" },
-            { icon: Clock3, value: "2", label: "Follow the simple steps" },
-            { icon: Star, value: "3", label: "Preview and check your work" },
-            { icon: BadgeCheck, value: "4", label: "Save, download, or publish" },
-          ].map(({ icon: Icon, value, label }, index) => <div key={label} className={`flex items-center gap-3 bg-background/65 px-5 py-4 backdrop-blur-xl ${index === 3 ? "sm:col-span-3 lg:col-span-1" : ""}`}><Icon className="size-4 text-primary" /><div className="flex items-baseline gap-2"><strong className="text-sm">{value}</strong><span className="text-xs text-muted-foreground">{label}</span></div></div>)}
+      <div className="mx-auto mt-16 max-w-7xl px-4 sm:mt-20 sm:px-6 lg:px-8">
+        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div><p className="text-sm font-semibold text-primary">Start with one simple task</p><h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">What would you like to do today?</h2></div>
+          <p className="text-sm text-muted-foreground">Choose an option. We will guide you from there.</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {QUICK_STARTS.map(({ href, icon: Icon, title, description }) => <Link key={href} href={href} className="group flex min-h-28 items-center gap-4 rounded-2xl border border-border/70 bg-background/70 p-4 shadow-sm backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" /></span><span className="min-w-0 flex-1"><span className="flex items-center gap-2 font-semibold">{title}<ArrowRight className="size-4 transition-transform group-hover:translate-x-1" /></span><span className="mt-1 block text-sm leading-5 text-muted-foreground">{description}</span></span></Link>)}
         </div>
       </div>
     </section>

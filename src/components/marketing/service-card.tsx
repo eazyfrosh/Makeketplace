@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { CheckCircle2, Heart, Star } from "lucide-react";
+import { ArrowRight, CheckCircle2, Heart, Star } from "lucide-react";
 
 import type { Service } from "@/types";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,15 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
   const toggle = useWishlistStore((s) => s.toggle);
   const isSupportTemplates = service.slug === "support-website-templates";
   const primaryHref = isSupportTemplates ? "/support-templates" : `/services/${service.slug}`;
+  const categoryLabel = service.category === "ai"
+    ? "Business tool"
+    : service.category === "templates"
+      ? "Website tool"
+      : service.category === "platforms"
+        ? "Platform"
+        : service.category === "development"
+          ? "Creator tool"
+          : "Design service";
 
   return (
     <motion.div
@@ -28,13 +37,13 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
       <Link href={primaryHref} className="relative block">
         <ServiceVisual variant={service.heroImage} chrome={false} className="aspect-[16/10] rounded-none border-0 border-b" label={`${service.name} feature preview`} />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/65 to-transparent" />
-        <span className="absolute bottom-3 left-3 rounded-full border border-white/20 bg-black/45 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-md">{service.category === "ai" ? "Business tool" : service.category === "templates" ? "Website tools" : service.category}</span>
+        <span className="absolute bottom-3 left-3 rounded-full border border-white/20 bg-black/45 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-md">{categoryLabel}</span>
         {service.comingSoon && <span className="absolute left-3 top-3 rounded-full border border-amber-300/30 bg-amber-300/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-950 shadow-lg">Coming soon</span>}
       </Link>
 
       <button
         onClick={() => toggle(service.slug)}
-        aria-label="Toggle wishlist"
+        aria-label={wishlisted ? `Remove ${service.name} from saved tools` : `Save ${service.name} for later`}
         className="absolute right-3 top-3 flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md transition-colors hover:bg-black/60"
       >
         <Heart className={cn("size-4", wishlisted && "fill-rose-500 text-rose-500")} />
@@ -56,19 +65,22 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{service.tagline}</p>
         </div>
 
-        <ul className="space-y-2.5">
+        <div>
+          <p className="mb-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/70">What you can do</p>
+          <ul className="space-y-2.5">
           {service.features.slice(0, 3).map((feature) => (
             <li key={feature} className="flex items-start gap-2 text-sm leading-5 text-muted-foreground">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
               <span>{feature}</span>
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
 
         <div className="mt-auto border-t border-border/60 pt-4">
           <div className="grid w-full grid-cols-2 gap-2">
             <Button variant="secondary" size="sm" className="w-full px-2" asChild>
-              <Link href={primaryHref}>{isSupportTemplates ? "See templates" : "See how it works"}</Link>
+              <Link href={primaryHref}>{isSupportTemplates ? "See templates" : "Learn more"}<ArrowRight className="size-3.5" /></Link>
             </Button>
             {isSupportTemplates ? (
               <Button size="sm" className="w-full px-2" asChild>

@@ -10,5 +10,5 @@ export function BuyNowButton({ size = "default", variant = "default", className 
   variant?: "default" | "secondary";
   className?: string;
 }) {
-  return <Button size={size} variant={variant} className={className} asChild><Link href="/pricing">Get All Access</Link></Button>;
+  return <Button size={size} variant={variant} className={className} asChild><Link href="/pricing">Get access</Link></Button>;
 }
