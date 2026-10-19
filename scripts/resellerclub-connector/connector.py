@@ -186,7 +186,16 @@ def _dna_request(reseller_id, api_key, environment, method, path, params, body):
     query = urllib.parse.urlencode([(key, str(value)) for key, value in params.items() if value is not None])
     url = f"{base}/{path}" + (f"?{query}" if query else "")
     encoded = json.dumps(body, separators=(",", ":")).encode() if method in ("POST", "PUT") and body is not None else None
-    request = urllib.request.Request(url, data=encoded, method=method, headers={"X-API-KEY": api_key, "__reseller": reseller_id, "Accept": "application/json", "Content-Type": "application/json"})
+    request = urllib.request.Request(url, data=encoded, method=method, headers={
+        "X-API-KEY": api_key,
+        "__reseller": reseller_id,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        # Domain Name API is protected by Cloudflare, which can reject
+        # Python urllib's default user agent before the request reaches the
+        # authenticated API. Identify the restricted connector explicitly.
+        "User-Agent": "EazyTool-DomainConnector/1.0 (+https://eazytool.app)",
+    })
     try:
         with urllib.request.urlopen(request, timeout=25) as response:
             raw = response.read().decode("utf-8")
@@ -197,6 +206,12 @@ def _dna_request(reseller_id, api_key, environment, method, path, params, body):
         raw = error.read().decode("utf-8", errors="replace")
         try: parsed = json.loads(raw) if raw else None
         except json.JSONDecodeError: parsed = {"error": {"message": "The domain provider returned an unreadable error."}}
+        details = parsed.get("error", {}) if isinstance(parsed, dict) else {}
+        code = (details.get("code") or parsed.get("code")) if isinstance(parsed, dict) else ""
+        message = (details.get("message") or parsed.get("message")) if isinstance(parsed, dict) else ""
+        # Log only the provider status/code and a bounded message. Credentials,
+        # request headers and request bodies are deliberately never logged.
+        print(f"domainnameapi method={method} path={path} status={error.code} code={str(code)[:80]} message={str(message)[:240]}", flush=True)
         return {"providerStatus": error.code, "body": parsed}
     except (urllib.error.URLError, TimeoutError) as error:
         raise ConnectorError("PROVIDER_UNREACHABLE", 502, "Domain Name API could not be reached from the fixed-IP connector.") from error
