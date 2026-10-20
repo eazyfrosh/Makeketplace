@@ -43,8 +43,15 @@ function providerMessage(status: number, body: Json | null) {
   if (status === 429 || rawCode === "361") return "The domain provider is temporarily busy. Please try again shortly.";
   if (rawCode === "350") return "The domain provider account has insufficient funds.";
   if (rawCode === "362") return "This premium domain cannot be registered at the standard price.";
-  if (status === 401 || status === 403 || rawCode === "301") return "Domain provider authentication or IP authorization failed.";
+  if (rawCode === "301") return "Domain Name API rejected the connector IP address. The provider whitelist must include the connector's current outbound IP.";
+  if (status === 401) return "Domain Name API rejected the live Reseller ID or API key.";
+  if (status === 403) return "Domain Name API denied this DNS operation. Check the account's API and DNS permissions.";
   return "The domain provider rejected the request.";
+}
+
+function providerErrorCode(body: Json | null) {
+  const nestedError = asObject(body?.error);
+  return String(body?.code ?? body?.errorCode ?? nestedError.code ?? nestedError.Code ?? "unknown").replace(/^API_/i, "").slice(0, 80);
 }
 
 function providerEnvelopeError(body: Json) {
@@ -100,6 +107,12 @@ async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: strin
     // without a JSON response body. The HTTP status is authoritative there.
     if (responseOk && (body === null || !providerEnvelopeError(body))) return (body ?? {}) as T;
     const message = providerMessage(responseStatus, body);
+    console.error("Domain Name API request rejected", {
+      operation: `${method} ${path.split("?")[0]}`,
+      status: responseStatus,
+      code: providerErrorCode(body),
+      transport: isDomainConnectorConfigured() ? "fixed-ip-connector" : "direct",
+    });
     if (!chargeable && attempt + 1 < attempts && (responseStatus === 429 || /temporarily busy/i.test(message))) continue;
     if (/insufficient funds/i.test(message)) throw new DomainProviderError("INSUFFICIENT_PROVIDER_FUNDS", message);
     if (/premium domain/i.test(message)) throw new DomainProviderError("PREMIUM_DOMAIN", message);
