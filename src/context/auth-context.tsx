@@ -259,8 +259,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const remaining = await recordServerFailure(normalizedEmail);
         throw new Error(`Invalid email or password.${remaining === null ? "" : ` ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`}`);
       }
-      const token = await credential.user.getIdToken();
-      await fetch("/api/auth/login-attempts", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ action: "success", email: normalizedEmail }) });
+      // Firebase has confirmed the credentials. Let the dashboard open now;
+      // the auth observer will replace this customer-safe profile with the
+      // saved Firestore profile (including any admin role) once it loads.
+      setUser((current) => current?.uid === credential.user.uid ? current : makeProfile(credential.user.uid, credential.user.email ?? normalizedEmail, credential.user.displayName ?? ""));
+      setLoading(false);
+      // Resetting the failed-attempt counter is important, but waiting for a
+      // second server round-trip should not hold up a successful sign-in.
+      void credential.user.getIdToken().then((token) => fetch("/api/auth/login-attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: "success", email: normalizedEmail }),
+      })).catch(() => {
+        // A failed reset must not turn a valid Firebase sign-in into an error.
+      });
     },
     [isDemoMode],
   );
