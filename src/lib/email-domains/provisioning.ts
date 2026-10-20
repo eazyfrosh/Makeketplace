@@ -6,7 +6,8 @@ import { ensureDefaultSenderIdentity, getEmailDomainByDomainId, saveEmailDomain 
 import type { EmailDomainRecord, EmailProviderDnsRecord } from "@/lib/email-domains/types";
 import { getDomainProvider } from "@/lib/domains/registry";
 import { DomainProviderError, requireDomainProvider } from "@/lib/domains/provider";
-import type { DomainRecord, DnsRecord } from "@/types/domains";
+import { dnsRecordsMatch } from "@/lib/domains/dns-records";
+import type { DomainRecord } from "@/types/domains";
 import { getDomain, saveDomain } from "@/lib/domains/store";
 
 function ensureDmarc(records: EmailProviderDnsRecord[], domain: string): EmailProviderDnsRecord[] {
@@ -47,8 +48,7 @@ export async function provisionEmailDomain(domain: DomainRecord) {
     if (!providerDomainId) throw new Error("EMAIL_PROVIDER_DOMAIN_MISSING");
     const providerRecords = ensureDmarc(await emailDomainProvider.getVerificationRecords(providerDomainId), domain.domain);
     const existingDns = await registrar.getDnsStatus(domain.providerDomainId);
-    const same = (left: DnsRecord, right: DnsRecord) => left.host.toLowerCase() === right.host.toLowerCase() && left.type === right.type && left.value === right.value;
-    for (const dnsRecord of providerRecords) if (!existingDns.some((current) => same(current, dnsRecord))) await registrar.createDnsRecord(domain.providerDomainId, dnsRecord);
+    for (const dnsRecord of providerRecords) if (!existingDns.some((current) => dnsRecordsMatch(current, dnsRecord, domain.domain))) await registrar.createDnsRecord(domain.providerDomainId, dnsRecord);
     const status = await emailDomainProvider.getVerificationStatus(providerDomainId);
     record = { ...record, dnsRecords: providerRecords, dnsConfiguredAt: new Date().toISOString(), status: status.status === "verified" ? "ready" : "verifying", verifiedAt: status.status === "verified" ? new Date().toISOString() : record.verifiedAt, lastError: null, lastCheckedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     await saveEmailDomain(record);

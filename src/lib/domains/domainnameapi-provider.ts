@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHash } from "node:crypto";
 import { isDomainConnectorConfigured, signedConnectorRequest } from "@/lib/domains/connector-client";
+import { dnsRecordsMatch, relativeDnsHost } from "@/lib/domains/dns-records";
 import { DomainProviderError, type DomainProvider, type DomainProviderStatus, type RegisteredDomain } from "@/lib/domains/provider";
 import { normalizeDomain, type DnsRecord, type Registrant } from "@/types/domains";
 
@@ -16,8 +17,10 @@ const TEST_URL = "https://ote.domainresellerapi.com/api/v1";
 let requestTail: Promise<void> = Promise.resolve();
 let nextRequestAt = 0;
 
-async function paceRequest(chargeable: boolean) {
-  const minimumGap = chargeable ? 3_000 : 550;
+async function paceRequest(chargeable: boolean, path: string) {
+  // The provider's SDK spaces DNS-zone calls by one second. Provisioning
+  // performs several reads/writes in a row, so use the same conservative gap.
+  const minimumGap = chargeable ? 3_000 : path.startsWith("domains/zones") ? 1_000 : 550;
   const turn = requestTail.then(async () => {
     const wait = Math.max(0, nextRequestAt - Date.now());
     if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
@@ -74,7 +77,7 @@ async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: strin
   } else if (data !== undefined) options.body = JSON.stringify(data);
   const attempts = chargeable ? 1 : 2;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    await paceRequest(chargeable);
+    await paceRequest(chargeable, path);
     let responseStatus = 0;
     let responseOk = false;
     let body: T & Json | null = null;
@@ -107,13 +110,18 @@ async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path: strin
     // without a JSON response body. The HTTP status is authoritative there.
     if (responseOk && (body === null || !providerEnvelopeError(body))) return (body ?? {}) as T;
     const message = providerMessage(responseStatus, body);
-    console.error("Domain Name API request rejected", {
+    const duplicateDnsRecord = method === "POST" && path.split("?")[0] === "domains/zones"
+      && responseStatus === 403 && providerErrorCode(body) === "Dna.DomainService:Zone:10001";
+    if (!duplicateDnsRecord) console.error("Domain Name API request rejected", {
       operation: `${method} ${path.split("?")[0]}`,
       status: responseStatus,
       code: providerErrorCode(body),
       transport: isDomainConnectorConfigured() ? "fixed-ip-connector" : "direct",
     });
     if (!chargeable && attempt + 1 < attempts && (responseStatus === 429 || /temporarily busy/i.test(message))) continue;
+    if (duplicateDnsRecord) {
+      throw new DomainProviderError("DNS_RECORD_ALREADY_EXISTS", "The DNS record already exists at the registrar.");
+    }
     if (/insufficient funds/i.test(message)) throw new DomainProviderError("INSUFFICIENT_PROVIDER_FUNDS", message);
     if (/premium domain/i.test(message)) throw new DomainProviderError("PREMIUM_DOMAIN", message);
     throw new DomainProviderError("PROVIDER_REJECTED", message);
@@ -162,14 +170,6 @@ function tldParts(domain: string) { const normalized = normalizeDomain(domain); 
 
 const SUPPORTED_DNS_TYPES = new Set<DnsRecord["type"]>(["A", "AAAA", "CNAME", "MX", "TXT"]);
 
-function relativeDnsHost(host: string, domain: string) {
-  const normalizedHost = host.trim().replace(/\.$/, "").toLowerCase();
-  const normalizedDomain = normalizeDomain(domain);
-  if (!normalizedHost || normalizedHost === "@" || normalizedHost === normalizedDomain) return "";
-  const suffix = `.${normalizedDomain}`;
-  return normalizedHost.endsWith(suffix) ? normalizedHost.slice(0, -suffix.length) : normalizedHost;
-}
-
 function qualifiedDnsHost(host: string, domain: string) {
   const relative = relativeDnsHost(host, domain);
   return relative ? `${relative}.${normalizeDomain(domain)}` : normalizeDomain(domain);
@@ -177,7 +177,8 @@ function qualifiedDnsHost(host: string, domain: string) {
 
 function providerDnsContent(record: DnsRecord) {
   if (record.type === "MX" && Number.isFinite(record.priority) && !/^\d+\s+/.test(record.value.trim())) return `${record.priority} ${record.value.trim()}`;
-  return record.value.trim();
+  const value = record.value.trim();
+  return record.type === "TXT" && /^"[^"]*"$/.test(value) ? value.slice(1, -1) : value;
 }
 
 function parseDnsContent(type: DnsRecord["type"], content: string) {
@@ -187,7 +188,7 @@ function parseDnsContent(type: DnsRecord["type"], content: string) {
 }
 
 function parseZoneRecords(domain: string, payload: unknown): DnsRecord[] {
-  if (!Array.isArray(payload)) return [];
+  if (!Array.isArray(payload)) throw new DomainProviderError("PROVIDER_REJECTED", "Domain Name API returned an unexpected DNS zone response.");
   const result: DnsRecord[] = [];
   for (const rawSet of payload) {
     const set = rawSet as ZoneRecordSet;
@@ -232,24 +233,36 @@ export class DomainNameApiProvider implements DomainProvider {
   async getRegistrationStatus(providerDomainId: string) { const result = await request<Json>("GET", "domains/info", { DomainName: providerDomainId }); return mapDomain(providerDomainId, result); }
   async getNameservers(providerDomainId: string) { const result = await request<Json>("GET", "domains/info", { DomainName: providerDomainId }); const values = result.nameservers ?? result.nameServers ?? result.NameServers; return Array.isArray(values) ? values.map(String) : []; }
   private async applyDnsRecords(domain: string) { await request<Json>("POST", `domains/zones/apply?domainName=${encodeURIComponent(normalizeDomain(domain))}`, {}); }
-  private async setDnsRecordSet(domain: string, host: string, type: DnsRecord["type"], records: DnsRecord[], ttl: number) {
+  private async setDnsRecordSet(domain: string, host: string, type: DnsRecord["type"], records: DnsRecord[], ttl: number, existingSet: boolean) {
     if (!SUPPORTED_DNS_TYPES.has(type)) throw new DomainProviderError("UNSUPPORTED_OPERATION", `DNS record type ${type} is not supported.`);
     const contents = records.map(providerDnsContent).filter(Boolean);
     if (!contents.length) return;
-    await request<Json>("POST", `domains/zones?domainName=${encodeURIComponent(normalizeDomain(domain))}`, { zoneStruct: { name: relativeDnsHost(host, domain), ttl: Math.min(86400, Math.max(1, Math.trunc(ttl || 3600))), type, contents: [...new Set(contents)] } });
+    const label = relativeDnsHost(host, domain);
+    const query = `domainName=${encodeURIComponent(normalizeDomain(domain))}`;
+    const path = existingSet ? `domains/zones?${query}&recordName=${encodeURIComponent(label)}` : `domains/zones?${query}`;
+    await request<Json>(existingSet ? "PUT" : "POST", path, { zoneStruct: { name: label, ttl: Math.min(86400, Math.max(1, Math.trunc(ttl || 3600))), type, contents: [...new Set(contents)] } });
   }
   async createDnsRecord(providerDomainId: string, record: DnsRecord) {
     const domain = normalizeDomain(providerDomainId);
     const existing = await this.getDnsStatus(domain);
     const sameSet = existing.filter((item) => relativeDnsHost(item.host, domain) === relativeDnsHost(record.host, domain) && item.type === record.type);
-    const content = providerDnsContent(record);
-    if (sameSet.some((item) => providerDnsContent(item) === content)) {
+    if (sameSet.some((item) => dnsRecordsMatch(item, record, domain))) {
       // A previous request may have staged the record but stopped before the
       // provider's separate apply step. Applying here makes retries recover.
       await this.applyDnsRecords(domain);
       return;
     }
-    await this.setDnsRecordSet(domain, record.host, record.type, [...sameSet, record], record.ttl);
+    try {
+      await this.setDnsRecordSet(domain, record.host, record.type, [...sameSet, record], record.ttl, sameSet.length > 0);
+    } catch (error) {
+      if (!(error instanceof DomainProviderError && error.code === "DNS_RECORD_ALREADY_EXISTS")) throw error;
+      // A concurrent setup or an earlier partial attempt can create the record
+      // after our first read. Never accept the duplicate error without proof.
+      const confirmed = await this.getDnsStatus(domain);
+      if (!confirmed.some((item) => dnsRecordsMatch(item, record, domain))) {
+        throw new DomainProviderError("PROVIDER_REJECTED", "The registrar reported a duplicate DNS record, but the expected value could not be confirmed.");
+      }
+    }
     await this.applyDnsRecords(domain);
   }
   async updateDnsRecord(providerDomainId: string, current: DnsRecord, next: DnsRecord) {
@@ -262,8 +275,8 @@ export class DomainNameApiProvider implements DomainProvider {
       return;
     }
     const existing = await this.getDnsStatus(domain);
-    const values = existing.filter((item) => relativeDnsHost(item.host, domain) === currentHost && item.type === current.type && providerDnsContent(item) !== providerDnsContent(current));
-    await this.setDnsRecordSet(domain, next.host, next.type, [...values, next], next.ttl);
+    const values = existing.filter((item) => relativeDnsHost(item.host, domain) === currentHost && item.type === current.type && !dnsRecordsMatch(item, current, domain));
+    await this.setDnsRecordSet(domain, next.host, next.type, [...values, next], next.ttl, existing.some((item) => relativeDnsHost(item.host, domain) === currentHost && item.type === current.type));
     await this.applyDnsRecords(domain);
   }
   async removeDnsRecord(providerDomainId: string, record: DnsRecord) {
@@ -271,9 +284,9 @@ export class DomainNameApiProvider implements DomainProvider {
     const host = relativeDnsHost(record.host, domain);
     const existing = await this.getDnsStatus(domain);
     const sameSet = existing.filter((item) => relativeDnsHost(item.host, domain) === host && item.type === record.type);
-    const remaining = sameSet.filter((item) => providerDnsContent(item) !== providerDnsContent(record));
+    const remaining = sameSet.filter((item) => !dnsRecordsMatch(item, record, domain));
     if (remaining.length === sameSet.length) return;
-    if (remaining.length) await this.setDnsRecordSet(domain, host, record.type, remaining, remaining[0].ttl);
+    if (remaining.length) await this.setDnsRecordSet(domain, host, record.type, remaining, remaining[0].ttl, true);
     else await request<Json>("DELETE", "domains/zones", { domainName: domain, Name: qualifiedDnsHost(host, domain), Record: providerDnsContent(record), RecordType: record.type });
     await this.applyDnsRecords(domain);
   }

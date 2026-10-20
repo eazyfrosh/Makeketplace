@@ -1,6 +1,6 @@
 import type { DnsRecord, Registrant } from "@/types/domains";
 
-export type DomainProviderErrorCode = "PROVIDER_NOT_CONFIGURED" | "DOMAIN_UNAVAILABLE" | "PREMIUM_DOMAIN" | "INSUFFICIENT_PROVIDER_FUNDS" | "PROVIDER_REJECTED" | "PROVIDER_UNREACHABLE" | "PROVIDER_OUTCOME_UNKNOWN" | "UNSUPPORTED_OPERATION";
+export type DomainProviderErrorCode = "PROVIDER_NOT_CONFIGURED" | "DOMAIN_UNAVAILABLE" | "PREMIUM_DOMAIN" | "INSUFFICIENT_PROVIDER_FUNDS" | "PROVIDER_REJECTED" | "PROVIDER_UNREACHABLE" | "PROVIDER_OUTCOME_UNKNOWN" | "UNSUPPORTED_OPERATION" | "DNS_RECORD_ALREADY_EXISTS";
 
 export class DomainProviderError extends Error {
   constructor(public readonly code: DomainProviderErrorCode, message: string) {
