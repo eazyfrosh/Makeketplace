@@ -12,6 +12,7 @@ export interface EmailDomainProvider {
   isConfigured(): boolean;
   addDomain(domain: string, idempotencyKey: string): Promise<EmailProviderDomain>;
   getVerificationRecords(providerDomainId: string): Promise<EmailProviderDnsRecord[]>;
+  verifyDomain(providerDomainId: string): Promise<void>;
   getVerificationStatus(providerDomainId: string): Promise<EmailProviderDomain>;
   sendEmail(input: { from: string; fromName: string; replyTo: string; to: string; subject: string; html: string; text: string; idempotencyKey: string }): Promise<{ messageId: string }>;
   verifyWebhook(payload: string, headers: Headers): Promise<unknown>;
@@ -19,6 +20,11 @@ export interface EmailDomainProvider {
 
 type ResendRecord = { record?: string; name?: string; type?: string; value?: string; ttl?: string | number; priority?: number; status?: string };
 type ResendDomain = { id?: string; name?: string; status?: string; records?: ResendRecord[] };
+
+function mapDomainStatus(status: string | undefined): EmailProviderDomain["status"] {
+  if (status === "verified" || status === "failed" || status === "not_started") return status;
+  return "pending";
+}
 
 function mapPurpose(record: ResendRecord): EmailProviderDnsRecord["purpose"] {
   const haystack = `${record.record ?? ""} ${record.name ?? ""} ${record.value ?? ""}`.toLowerCase();
@@ -85,10 +91,11 @@ export class ResendEmailDomainProvider implements EmailDomainProvider {
       throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", result.error?.message ?? "The email provider rejected the domain.");
     }
     const data = result.data as ResendDomain;
-    return { providerDomainId: String(data.id), domain, status: data.status === "verified" ? "verified" : "pending", records: mapRecords(data.records) };
+    return { providerDomainId: String(data.id), domain, status: mapDomainStatus(data.status), records: mapRecords(data.records) };
   }
   async getVerificationRecords(providerDomainId: string) { return (await this.getVerificationStatus(providerDomainId)).records; }
-  async getVerificationStatus(providerDomainId: string): Promise<EmailProviderDomain> { const result = await this.requireClient().domains.get(providerDomainId); if (result.error || !result.data) throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", result.error?.message ?? "Email-domain status is unavailable."); const data = result.data as ResendDomain; return { providerDomainId, domain: String(data.name ?? ""), status: data.status === "verified" ? "verified" : data.status === "failed" ? "failed" : "pending", records: mapRecords(data.records) }; }
+  async verifyDomain(providerDomainId: string): Promise<void> { const result = await this.requireClient().domains.verify(providerDomainId); if (result.error || !result.data) throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", "The email provider could not start domain verification. Please try again later."); }
+  async getVerificationStatus(providerDomainId: string): Promise<EmailProviderDomain> { const result = await this.requireClient().domains.get(providerDomainId); if (result.error || !result.data) throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", result.error?.message ?? "Email-domain status is unavailable."); const data = result.data as ResendDomain; return { providerDomainId, domain: String(data.name ?? ""), status: mapDomainStatus(data.status), records: mapRecords(data.records) }; }
   async sendEmail(input: { from: string; fromName: string; replyTo: string; to: string; subject: string; html: string; text: string; idempotencyKey: string }) { const result = await this.requireClient().emails.send({ from: `${input.fromName.replace(/[<>\r\n]/g, "")} <${input.from}>`, replyTo: input.replyTo, to: input.to, subject: input.subject, html: input.html, text: input.text }, { idempotencyKey: input.idempotencyKey }); if (result.error || !result.data?.id) throw new EmailDomainProviderError("EMAIL_PROVIDER_REJECTED", result.error?.message ?? "The email provider rejected this message."); return { messageId: result.data.id }; }
   async verifyWebhook(payload: string, headers: Headers) { const client = this.requireClient(); const secret = process.env.RESEND_WEBHOOK_SECRET; if (!secret) throw new EmailDomainProviderError("EMAIL_PROVIDER_NOT_CONFIGURED", "Email webhooks are not configured."); return client.webhooks.verify({ payload, webhookSecret: secret, headers: { id: headers.get("svix-id") ?? "", timestamp: headers.get("svix-timestamp") ?? "", signature: headers.get("svix-signature") ?? "" } }); }
 }

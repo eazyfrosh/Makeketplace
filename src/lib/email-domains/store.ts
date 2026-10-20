@@ -13,7 +13,26 @@ function db() { if (!adminDb) throw new Error("Email-domain storage is unavailab
 export async function getEmailDomain(id: string) { const snap = await db().collection(DOMAINS).doc(id).get(); return snap.exists ? snap.data() as EmailDomainRecord : null; }
 export async function getEmailDomainForUser(id: string, userId: string) { const value = await getEmailDomain(id); return value?.userId === userId ? value : null; }
 export async function getEmailDomainByDomainId(domainId: string) { const snap = await db().collection(DOMAINS).where("domainId", "==", domainId).limit(1).get(); return snap.empty ? null : snap.docs[0].data() as EmailDomainRecord; }
-export async function saveEmailDomain(value: EmailDomainRecord) { await db().collection(DOMAINS).doc(value.id).set(value, { merge: true }); return value; }
+export async function saveEmailDomain(value: EmailDomainRecord) {
+  // Only the transaction below may change the verification claim. A stale
+  // provisioning or status poll must not erase it with a full-record write.
+  const persisted = { ...value };
+  delete persisted.verificationRequestedAt;
+  await db().collection(DOMAINS).doc(value.id).set(persisted, { merge: true });
+  return value;
+}
+export async function claimEmailDomainVerification(id: string, expectedRequestedAt: string | null, allowRetry: boolean) {
+  const database = db();
+  const ref = database.collection(DOMAINS).doc(id);
+  return database.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const current = snap.data() as EmailDomainRecord | undefined;
+    if (!current || current.status === "ready" || (current.verificationRequestedAt ?? null) !== expectedRequestedAt || (expectedRequestedAt && !allowRetry)) return null;
+    const requestedAt = new Date().toISOString();
+    tx.update(ref, { verificationRequestedAt: requestedAt, updatedAt: requestedAt });
+    return requestedAt;
+  });
+}
 export async function listEmailDomainsForUser(userId: string) { const snap = await db().collection(DOMAINS).where("userId", "==", userId).get(); return snap.docs.map((doc) => doc.data() as EmailDomainRecord); }
 export async function listEmailDomains() { const snap = await db().collection(DOMAINS).limit(500).get(); return snap.docs.map((doc) => doc.data() as EmailDomainRecord); }
 export async function getSenderIdentity(id: string) { const snap = await db().collection(SENDERS).doc(id).get(); return snap.exists ? snap.data() as SenderIdentity : null; }

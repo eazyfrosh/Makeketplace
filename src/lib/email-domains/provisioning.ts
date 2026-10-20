@@ -2,11 +2,12 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import { emailDomainProvider } from "@/lib/email-domains/provider";
-import { ensureDefaultSenderIdentity, getEmailDomainByDomainId, saveEmailDomain } from "@/lib/email-domains/store";
-import type { EmailDomainRecord, EmailProviderDnsRecord } from "@/lib/email-domains/types";
+import { claimEmailDomainVerification, ensureDefaultSenderIdentity, getEmailDomainByDomainId, saveEmailDomain } from "@/lib/email-domains/store";
+import type { EmailDomainRecord, EmailProviderDnsRecord, EmailProviderDomain } from "@/lib/email-domains/types";
 import { getDomainProvider } from "@/lib/domains/registry";
 import { DomainProviderError, requireDomainProvider } from "@/lib/domains/provider";
 import { dnsRecordsMatch } from "@/lib/domains/dns-records";
+import { EMAIL_DOMAIN_VERIFICATION_RETRY_DELAY_MS, shouldRequestEmailDomainVerification } from "@/lib/email-domains/verification-decision";
 import type { DomainRecord } from "@/types/domains";
 import { getDomain, saveDomain } from "@/lib/domains/store";
 
@@ -28,6 +29,18 @@ const confirmedRegistrationStatuses = new Set([
   "email_ready",
 ]);
 
+async function startVerificationIfNeeded(record: EmailDomainRecord, status: EmailProviderDomain, allowRetry: boolean) {
+  if (!shouldRequestEmailDomainVerification(record, status.status, allowRetry)) return status;
+  const retry = allowRetry && (status.status === "failed" || status.status === "not_started");
+  const claimedAt = await claimEmailDomainVerification(record.id, record.verificationRequestedAt ?? null, retry);
+  if (!claimedAt) return status;
+  // Resend verification is asynchronous. Never call it again on ordinary
+  // status checks: a repeat request resets its status to pending.
+  await emailDomainProvider.verifyDomain(status.providerDomainId);
+  record.verificationRequestedAt = claimedAt;
+  return { ...status, status: "pending" as const };
+}
+
 export async function provisionEmailDomain(domain: DomainRecord) {
   // Older records stored email-provisioning progress in registrationStatus.
   // Accept those records here, then normalize them back to `registered` below.
@@ -36,7 +49,7 @@ export async function provisionEmailDomain(domain: DomainRecord) {
   const registrar = requireDomainProvider(getDomainProvider(domain.registrar));
   const existing = await getEmailDomainByDomainId(domain.id);
   const now = new Date().toISOString();
-  let record: EmailDomainRecord = existing ?? { id: `email_domain_${randomUUID()}`, userId: domain.userId, domainId: domain.id, domain: domain.domain, provider: "resend", providerDomainId: null, status: "setting_up", dnsRecords: [], dnsConfiguredAt: null, verifiedAt: null, suspended: false, suspensionReason: null, sentCount: 0, deliveredCount: 0, bouncedCount: 0, complaintCount: 0, lastError: null, lastCheckedAt: null, createdAt: now, updatedAt: now };
+  let record: EmailDomainRecord = existing ?? { id: `email_domain_${randomUUID()}`, userId: domain.userId, domainId: domain.id, domain: domain.domain, provider: "resend", providerDomainId: null, status: "setting_up", dnsRecords: [], dnsConfiguredAt: null, verificationRequestedAt: null, verifiedAt: null, suspended: false, suspensionReason: null, sentCount: 0, deliveredCount: 0, bouncedCount: 0, complaintCount: 0, lastError: null, lastCheckedAt: null, createdAt: now, updatedAt: now };
   await saveEmailDomain(record);
   try {
     if (!record.providerDomainId) {
@@ -49,8 +62,9 @@ export async function provisionEmailDomain(domain: DomainRecord) {
     const providerRecords = ensureDmarc(await emailDomainProvider.getVerificationRecords(providerDomainId), domain.domain);
     const existingDns = await registrar.getDnsStatus(domain.providerDomainId);
     for (const dnsRecord of providerRecords) if (!existingDns.some((current) => dnsRecordsMatch(current, dnsRecord, domain.domain))) await registrar.createDnsRecord(domain.providerDomainId, dnsRecord);
-    const status = await emailDomainProvider.getVerificationStatus(providerDomainId);
-    record = { ...record, dnsRecords: providerRecords, dnsConfiguredAt: new Date().toISOString(), status: status.status === "verified" ? "ready" : "verifying", verifiedAt: status.status === "verified" ? new Date().toISOString() : record.verifiedAt, lastError: null, lastCheckedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    record = { ...record, dnsRecords: providerRecords, dnsConfiguredAt: new Date().toISOString() };
+    const status = await startVerificationIfNeeded(record, await emailDomainProvider.getVerificationStatus(providerDomainId), true);
+    record = { ...record, status: status.status === "verified" ? "ready" : "verifying", verifiedAt: status.status === "verified" ? new Date().toISOString() : record.verifiedAt, lastError: null, lastCheckedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     await saveEmailDomain(record);
     await saveDomain({ ...domain, registrationStatus: "registered", dnsStatus: "configured", emailVerificationStatus: record.status === "ready" ? "verified" : "pending", updatedAt: new Date().toISOString() });
     if (record.status === "ready") await ensureDefaultSender(record, domain);
@@ -73,9 +87,11 @@ export async function provisionEmailDomain(domain: DomainRecord) {
 
 export async function checkEmailDomainVerification(record: EmailDomainRecord) {
   if (!record.providerDomainId || !emailDomainProvider.isConfigured()) throw new Error("EMAIL_PROVIDER_NOT_CONFIGURED");
-  const result = await emailDomainProvider.getVerificationStatus(record.providerDomainId);
+  const result = await startVerificationIfNeeded(record, await emailDomainProvider.getVerificationStatus(record.providerDomainId), false);
   const now = new Date().toISOString();
-  const updated: EmailDomainRecord = { ...record, status: result.status === "verified" ? "ready" : result.status === "failed" ? "failed" : "verifying", verifiedAt: result.status === "verified" ? record.verifiedAt ?? now : record.verifiedAt, lastCheckedAt: now, lastError: result.status === "failed" ? "The email provider could not verify the DNS records." : null, updatedAt: now };
+  const verificationNeverStarted = result.status === "not_started" && Boolean(record.verificationRequestedAt) && Date.now() - Date.parse(record.verificationRequestedAt ?? "") > EMAIL_DOMAIN_VERIFICATION_RETRY_DELAY_MS;
+  const failed = result.status === "failed" || verificationNeverStarted;
+  const updated: EmailDomainRecord = { ...record, status: result.status === "verified" ? "ready" : failed ? "failed" : "verifying", verifiedAt: result.status === "verified" ? record.verifiedAt ?? now : record.verifiedAt, lastCheckedAt: now, lastError: failed ? "The email provider could not verify the DNS records. Retry email setup." : null, updatedAt: now };
   await saveEmailDomain(updated);
   const domain = await getDomain(record.domainId);
   if (domain) {

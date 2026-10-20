@@ -48,6 +48,28 @@ test("delivery webhook is signed and idempotent and can suppress abusive recipie
   for (const marker of ["verifyWebhook", "claimProviderEvent", "duplicate: true", "releaseProviderEvent", "suppressRecipient", "recordEmailDomainDelivery"]) assert.ok(webhook.includes(marker), marker);
 });
 
+test("email verification starts after DNS setup and status checks do not restart it", async () => {
+  const { shouldRequestEmailDomainVerification } = await importTs("../src/lib/email-domains/verification-decision.ts");
+  const pending = { dnsConfiguredAt: "2026-10-20T00:00:00.000Z", verificationRequestedAt: null, status: "verifying" };
+  assert.equal(shouldRequestEmailDomainVerification({ ...pending, dnsConfiguredAt: null }, "pending", false), false);
+  assert.equal(shouldRequestEmailDomainVerification(pending, "verified", false), false);
+  assert.equal(shouldRequestEmailDomainVerification(pending, "not_started", false), true);
+  assert.equal(shouldRequestEmailDomainVerification(pending, "pending", false), false);
+  const requested = { ...pending, verificationRequestedAt: "2026-10-20T00:01:00.000Z" };
+  assert.equal(shouldRequestEmailDomainVerification(requested, "pending", false), false);
+  assert.equal(shouldRequestEmailDomainVerification(requested, "not_started", false), false);
+  assert.equal(shouldRequestEmailDomainVerification(requested, "failed", false), false);
+  assert.equal(shouldRequestEmailDomainVerification(requested, "not_started", true), true);
+  assert.equal(shouldRequestEmailDomainVerification(requested, "failed", true), true);
+  assert.equal(shouldRequestEmailDomainVerification({ ...requested, verificationRequestedAt: new Date().toISOString() }, "not_started", true), false);
+  const provider = read("../src/lib/email-domains/provider.ts");
+  const provisioning = read("../src/lib/email-domains/provisioning.ts");
+  const store = read("../src/lib/email-domains/store.ts");
+  assert.match(provider, /domains\.verify\(providerDomainId\)/);
+  assert.match(provisioning, /claimEmailDomainVerification/);
+  assert.match(store, /runTransaction/);
+});
+
 test("Firestore denies direct access to registrar and email-domain security records", () => {
   const rules = read("../firestore.rules");
   for (const collection of ["domains", "domainOrders", "domainRegistrarAccounts", "emailDomains", "emailSenderIdentities", "emailProviderEvents", "emailSuppressions", "emailDomainAuditLogs"]) assert.match(rules, new RegExp(`match /${collection}\\/\\{[^}]+\\} \\{ allow read, write: if false; \\}`));

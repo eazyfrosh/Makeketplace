@@ -13,6 +13,7 @@ export interface EmailDomainRecord {
   status: EmailDomainStatus;
   dnsRecords: DnsRecord[];
   dnsConfiguredAt: string | null;
+  verificationRequestedAt?: string | null;
   verifiedAt: string | null;
   suspended: boolean;
   suspensionReason: string | null;
@@ -47,6 +48,6 @@ export interface EmailProviderDnsRecord extends DnsRecord { purpose: "spf" | "dk
 export interface EmailProviderDomain {
   providerDomainId: string;
   domain: string;
-  status: "pending" | "verified" | "failed";
+  status: "not_started" | "pending" | "verified" | "failed";
   records: EmailProviderDnsRecord[];
 }
