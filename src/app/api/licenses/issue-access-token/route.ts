@@ -29,6 +29,9 @@ export async function POST(request: Request) {
   if (!service) {
     return NextResponse.json({ error: "Unknown service." }, { status: 404 });
   }
+  if (service.comingSoon) {
+    return NextResponse.json({ error: `${service.name} is coming soon.` }, { status: 503 });
+  }
   const premiumTemplateIds = new Set(["elite-broker", "volterra", "novabank-dashboard", "swiftstream-cargo", "tradeflow"]);
   if (serviceSlug === "premium-templates" && !premiumTemplateIds.has(templateId)) {
     return NextResponse.json({ error: "Unknown website design." }, { status: 400 });

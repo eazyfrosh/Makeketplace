@@ -84,7 +84,7 @@ export default async function ServiceDetailPage({
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">{service.tagline}</p>
 
-              <div className="mt-6 flex items-center gap-4">
+              {!service.comingSoon && <div className="mt-6 flex items-center gap-4">
                 <div className="flex items-center gap-1 text-sm">
                   <Star className="size-4 fill-amber-400 text-amber-400" />
                   <span className="font-medium">{service.rating}</span>
@@ -94,7 +94,7 @@ export default async function ServiceDetailPage({
                 </div>
                 <div className="h-4 w-px bg-white/10" />
                 <div className="text-sm font-medium text-primary">Included with EazyTool All Access</div>
-              </div>
+              </div>}
 
               <div className="mt-8 flex flex-wrap gap-3">
                 {isSupportTemplates ? (
@@ -137,7 +137,7 @@ export default async function ServiceDetailPage({
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Made to be simple</p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Features</h2>
-          <p className="mt-3 leading-7 text-muted-foreground">See what you can do, then open the tool and follow the clear steps on screen. No technical experience is required.</p>
+          <p className="mt-3 leading-7 text-muted-foreground">{service.comingSoon ? "A preview of the features we are preparing. This tool is not available yet." : "See what you can do, then open the tool and follow the clear steps on screen. No technical experience is required."}</p>
         </div>
         <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1.25fr_.75fr]">
           <div className={cn("grid gap-5", service.screenshots.length > 1 && "sm:grid-cols-2")}>
@@ -169,7 +169,7 @@ export default async function ServiceDetailPage({
       <section className="border-y border-white/10 bg-white/[0.015] py-16">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight">What&apos;s included</h2>
+            <h2 className="text-2xl font-semibold tracking-tight">{service.comingSoon ? "Planned features" : "What’s included"}</h2>
             <p className="mt-2 text-muted-foreground">{service.description}</p>
             <ul className="mt-6 space-y-3">
               {service.features.map((f) => (
@@ -200,7 +200,7 @@ export default async function ServiceDetailPage({
       </section>
 
       {/* Reviews */}
-      <section className="border-y border-white/10 bg-white/[0.015] py-16">
+      {!service.comingSoon && service.reviews.length > 0 && <section className="border-y border-white/10 bg-white/[0.015] py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-semibold tracking-tight">Customer reviews</h2>
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
@@ -232,7 +232,7 @@ export default async function ServiceDetailPage({
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* FAQ */}
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">

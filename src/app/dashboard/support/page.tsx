@@ -80,7 +80,7 @@ export default function SupportPage() {
             required
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            placeholder="Issue with my Website Design order"
+            placeholder="Issue with a service or order"
           />
         </div>
         <div className="space-y-2">

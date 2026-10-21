@@ -57,10 +57,10 @@ export function ServiceCard({ service, index = 0 }: { service: Service; index?: 
                 {service.name}
               </h3>
             </Link>
-            <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+            {!service.comingSoon && service.reviewCount > 0 && <div className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
               <Star className="size-3.5 fill-amber-400 text-amber-400" />
               {service.rating}
-            </div>
+            </div>}
           </div>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{service.tagline}</p>
         </div>

@@ -2,7 +2,6 @@ import type { Service, ServiceCategory, Testimonial } from "@/types";
 
 export const categories: { id: ServiceCategory; label: string }[] = [
   { id: "platforms", label: "Platforms" },
-  { id: "design", label: "Design" },
   { id: "ai", label: "Business Tools" },
   { id: "templates", label: "Templates" },
   { id: "development", label: "Development" },
@@ -165,37 +164,6 @@ export const services: Service[] = [
     reviews: standardReviews,
   },
   {
-    slug: "website-design",
-    accessUrl: "/platform/website-builder",
-    name: "Website Design",
-    category: "design",
-    tagline: "Premium, conversion-focused websites crafted end-to-end.",
-    description:
-      "Bespoke, high-conversion website design and build — from wireframes to a fully responsive, animated, SEO-optimized site ready to launch.",
-    heroImage: "/service-previews/website-design-v3.png",
-    screenshots: ["/service-previews/website-design-v3.png"],
-    features: [
-      "Custom UI/UX design",
-      "Fully responsive layouts",
-      "CMS integration",
-      "SEO & performance optimization",
-      "Micro-interactions & animations",
-      "Analytics setup",
-    ],
-    benefits: [
-      "Stand out with a premium, custom look",
-      "Faster load times and higher conversion",
-      "Easy content updates without a developer",
-      "Built on modern, maintainable code",
-    ],
-    startingPriceCents: 149900,
-    comingSoon: true,
-    rating: 4.9,
-    reviewCount: 213,
-    faq: standardFaq("Website Design"),
-    reviews: standardReviews,
-  },
-  {
     slug: "receipt-generator",
     accessUrl: "/platform/ai-automation",
     name: "Receipt Generator",
@@ -262,9 +230,9 @@ export const services: Service[] = [
     accessUrl: "/sms",
     name: "SMS Flashing",
     category: "platforms",
-    tagline: "Send fast, consent-based SMS messages around the world.",
+    tagline: "International SMS messaging is coming soon.",
     description:
-      "SMS Flashing gives you a simple, secure way to compose and send individual international text messages, follow their delivery progress, and keep your messaging history in one place.",
+      "We are preparing a simple, secure way to send consent-based international text messages and follow their delivery progress.",
     heroImage: "/service-previews/sms-messaging-v3.png",
     screenshots: ["/service-previews/sms-messaging-v3.png"],
     features: [
@@ -283,8 +251,9 @@ export const services: Service[] = [
       "Keep each user's messages and history isolated",
     ],
     startingPriceCents: 89900,
-    rating: 4.9,
-    reviewCount: 301,
+    comingSoon: true,
+    rating: 0,
+    reviewCount: 0,
     faq: [
       {
         question: "What is SMS Flashing?",
@@ -294,12 +263,12 @@ export const services: Service[] = [
       {
         question: "Can I send messages internationally?",
         answer:
-          "Yes. Select a supported country, enter the recipient's phone number, and EazyTools will format it into the correct international format.",
+          "International sending is planned. The service is not available yet.",
       },
       {
         question: "How do I know whether a message was delivered?",
         answer:
-          "A new message first appears as queued. Its status is updated when Twilio reports that it was sent, delivered, undelivered, or failed.",
+          "Once SMS Flashing launches, message status will be updated when the provider reports delivery or failure.",
       },
       {
         question: "Who can I send messages to?",
@@ -307,7 +276,7 @@ export const services: Service[] = [
           "Only send messages to people who have clearly consented. Spam, harassment, impersonation, and unsolicited bulk messaging are prohibited.",
       },
     ],
-    reviews: standardReviews,
+    reviews: [],
   },
   {
     slug: "premium-templates",
