@@ -4,7 +4,7 @@ import { PricingClient } from "@/components/subscriptions/pricing-client";
 
 export const metadata: Metadata = {
   title: "Simple Pricing. One Subscription. All Your Tools.",
-  description: "Get every EazyTool service for ₦35,000 monthly or ₦250,000 yearly.",
+  description: "See the tools and templates included with EazyTool All Access.",
 };
 
 export default function PricingPage() {
