@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,7 +28,8 @@ const serviceBenefits: Record<string, string> = {
 const includedServices = services.filter((service) => !service.comingSoon && service.slug !== "sms-messaging");
 
 export function PricingClient() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [plans, setPlans] = React.useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [starting, setStarting] = React.useState<string | null>(null);
@@ -40,7 +42,11 @@ export function PricingClient() {
   }, []);
 
   async function subscribe(plan: SubscriptionPlan) {
-    if (!user) return;
+    if (authLoading) return;
+    if (!user) {
+      router.push("/auth/login?next=/pricing");
+      return;
+    }
     setStarting(plan.id);
     try {
       const headers = await getAuthHeaders();
@@ -79,10 +85,10 @@ export function PricingClient() {
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{plan.description}</p>
                     <div className="mt-7 flex items-baseline gap-2"><span className="text-4xl font-semibold tracking-tight">{formatPrice(price)}</span><span className="text-sm text-muted-foreground">/month</span></div>
                     <p className="mt-3 text-sm font-medium text-primary">Access to the services below while your subscription is active</p>
-                    <Button className="mt-7 w-full" variant={plan.popular ? "default" : "secondary"} disabled={!user || starting === plan.id} onClick={() => subscribe(plan)}>
-                      {starting === plan.id ? <Loader2 className="size-4 animate-spin" /> : user ? "Subscribe" : "Sign in to subscribe"}
+                    <Button className="mt-7 w-full" variant={plan.popular ? "default" : "secondary"} disabled={authLoading || starting === plan.id} onClick={() => subscribe(plan)}>
+                      {starting === plan.id ? <Loader2 className="size-4 animate-spin" /> : "Subscribe"}
                     </Button>
-                    {!user && <Link href="/auth/login?next=/pricing" className="mt-3 text-center text-xs text-muted-foreground underline underline-offset-4">Already have an account? Sign in</Link>}
+                    {!user && !authLoading && <p className="mt-3 text-center text-xs text-muted-foreground">You&apos;ll be asked to log in before subscribing.</p>}
                   </div>
                   <div className="rounded-2xl bg-muted/50 p-5 sm:p-6">
                     <h3 className="font-semibold">What your subscription gives you</h3>
