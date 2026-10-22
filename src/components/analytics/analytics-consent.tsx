@@ -29,6 +29,7 @@ export function AnalyticsConsent() {
   const searchParams = useSearchParams();
   const search = searchParams.toString();
   const [choice, setChoice] = React.useState<ConsentChoice | "loading">("loading");
+  const [scriptReady, setScriptReady] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const initialCampaign = React.useRef("");
   const lastPageView = React.useRef("");
@@ -44,7 +45,10 @@ export function AnalyticsConsent() {
       if (event.key && event.key !== analyticsConsentStorageKey) return;
       const updated = readAnalyticsConsent();
       setAnalyticsEnabled(updated === "accepted", initialCampaign.current);
-      if (updated !== "accepted") lastPageView.current = "";
+      if (updated !== "accepted") {
+        lastPageView.current = "";
+        setScriptReady(false);
+      }
       setChoice(updated);
     };
     window.addEventListener(settingsEvent, openSettings);
@@ -56,7 +60,7 @@ export function AnalyticsConsent() {
   }, []);
 
   React.useEffect(() => {
-    if (choice !== "accepted") return;
+    if (choice !== "accepted" || !scriptReady) return;
     const currentCampaign = safeCampaignFromSearch(search);
     const campaign = currentCampaign || (!lastPageView.current ? initialCampaign.current : "");
     // Keep the raw route only in memory so two different detail pages count as
@@ -65,20 +69,23 @@ export function AnalyticsConsent() {
     if (lastPageView.current === routeKey) return;
     trackPageView(pathname, campaign);
     lastPageView.current = routeKey;
-  }, [choice, pathname, search]);
+  }, [choice, pathname, search, scriptReady]);
 
   if (!ga4Configured()) return null;
 
   function select(next: Exclude<ConsentChoice, null>) {
     saveAnalyticsConsent(next);
     setAnalyticsEnabled(next === "accepted", initialCampaign.current);
-    if (next === "rejected") lastPageView.current = "";
+    if (next === "rejected") {
+      lastPageView.current = "";
+      setScriptReady(false);
+    }
     setChoice(next);
     setSettingsOpen(false);
   }
 
   return <>
-    {choice === "accepted" && <Script id="eazytool-ga4" src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`} strategy="afterInteractive" />}
+    {choice === "accepted" && <Script id="eazytool-ga4" src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`} strategy="afterInteractive" onReady={() => setScriptReady(true)} onError={() => setScriptReady(false)} />}
     {(choice === null || settingsOpen) && <section role="dialog" aria-labelledby="analytics-consent-title" aria-describedby="analytics-consent-description" className="fixed inset-x-4 bottom-4 z-[100] mx-auto max-w-xl rounded-2xl border bg-background p-5 shadow-2xl sm:bottom-6 sm:p-6">
       <h2 id="analytics-consent-title" className="text-lg font-semibold">Choose your analytics cookies</h2>
       <p id="analytics-consent-description" className="mt-2 text-sm leading-6 text-muted-foreground">With your permission, EazyTool uses Google Analytics to understand visits and which tools are useful. We do not send your name, email, payment details, or domain name. You can change this choice later in the footer. <Link href="/legal/privacy" className="font-medium text-primary underline underline-offset-2">Privacy details</Link></p>

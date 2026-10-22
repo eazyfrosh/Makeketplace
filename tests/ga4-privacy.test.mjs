@@ -39,9 +39,14 @@ test("no page view or conversion is queued without consent; conversions are dedu
   ga4.trackServiceUsage("random-user-input");
 
   const calls = globalThis.window.dataLayer;
+  const consentUpdateIndex = calls.findIndex((call) => call[0] === "consent" && call[1] === "update");
+  const configIndex = calls.findIndex((call) => call[0] === "config");
+  assert.ok(consentUpdateIndex >= 0 && consentUpdateIndex < configIndex);
+  assert.equal(calls[consentUpdateIndex][2].analytics_storage, "granted");
   const config = calls.find((call) => call[0] === "config");
   assert.equal(config[2].send_page_view, false);
   const events = calls.filter((call) => call[0] === "event");
+  assert.ok(events.every((call) => call[2].send_to === "G-X7HVGP5ZR2"));
   assert.equal(events.filter((call) => call[1] === "page_view").length, 1);
   assert.equal(events.filter((call) => call[1] === "subscription_purchase").length, 1);
   assert.equal(events.filter((call) => call[1] === "domain_purchase").length, 1);
@@ -57,7 +62,13 @@ test("no page view or conversion is queued without consent; conversions are dedu
 
 test("the consent UI only mounts the tag after permission", () => {
   const consent = readFileSync(new URL("../src/components/analytics/analytics-consent.tsx", import.meta.url), "utf8");
+  const layout = readFileSync(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
   assert.match(consent, /choice === "accepted" && <Script/);
+  assert.match(consent, /choice !== "accepted" \|\| !scriptReady/);
+  assert.match(consent, /onReady=\{\(\) => setScriptReady\(true\)\}/);
+  assert.match(consent, /lastPageView\.current === routeKey/);
+  assert.match(layout, /<head>[\s\S]*id="eazytool-ga4-consent-default"/);
+  assert.match(layout, /analytics_storage: 'denied'/);
   assert.match(consent, /Reject analytics/);
   assert.match(consent, /Allow analytics/);
 });

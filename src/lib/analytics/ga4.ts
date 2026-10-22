@@ -96,12 +96,6 @@ export function configureAnalytics(campaign = "") {
   browser.dataLayer = browser.dataLayer ?? [];
   browser.gtag = browser.gtag ?? ((...args: unknown[]) => { browser.dataLayer?.push(args); });
   (browser as unknown as Record<string, unknown>)[`ga-disable-${measurementId}`] = false;
-  browser.gtag("consent", "default", {
-    analytics_storage: "granted",
-    ad_storage: "denied",
-    ad_user_data: "denied",
-    ad_personalization: "denied",
-  });
   browser.gtag("js", new Date());
   browser.gtag("config", measurementId, {
     ...pageContext(campaign),
@@ -130,10 +124,22 @@ export function setAnalyticsEnabled(enabled: boolean, campaign = "") {
   const browser = analyticsWindow();
   (browser as unknown as Record<string, unknown>)[`ga-disable-${measurementId}`] = !enabled;
   if (enabled) {
+    browser.dataLayer = browser.dataLayer ?? [];
+    browser.gtag = browser.gtag ?? ((...args: unknown[]) => { browser.dataLayer?.push(args); });
+    browser.gtag("consent", "update", {
+      analytics_storage: "granted",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
     configureAnalytics(campaign);
-    if (tagConfigured) browser.gtag?.("consent", "update", { analytics_storage: "granted" });
   } else {
-    if (tagConfigured) browser.gtag?.("consent", "update", { analytics_storage: "denied" });
+    if (tagConfigured) browser.gtag?.("consent", "update", {
+      analytics_storage: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
     previousPageLocation = null;
     removeAnalyticsCookies();
   }
@@ -145,13 +151,13 @@ export function trackPageView(pathname: string, campaign = "") {
   context.page_location = safePageLocation(pathname, campaign);
   context.page_referrer = previousPageLocation ?? context.page_referrer;
   analyticsWindow().gtag?.("set", context);
-  analyticsWindow().gtag?.("event", "page_view", context);
+  analyticsWindow().gtag?.("event", "page_view", { ...context, send_to: measurementId });
   previousPageLocation = context.page_location;
 }
 
 function track(name: string, parameters: Record<string, string> = {}) {
   if (!consentGranted || !tagConfigured) return false;
-  analyticsWindow().gtag?.("event", name, { ...pageContext(safeCampaignFromSearch(window.location.search)), ...parameters });
+  analyticsWindow().gtag?.("event", name, { ...pageContext(safeCampaignFromSearch(window.location.search)), ...parameters, send_to: measurementId });
   return true;
 }
 
