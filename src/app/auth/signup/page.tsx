@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { authDestination } from "@/lib/auth/destination";
 import { trackRegistration } from "@/lib/analytics/ga4";
+import { trackTikTokRegistration } from "@/lib/analytics/tiktok";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function SignupPage() {
     try {
       await signup(email.trim().toLowerCase(), password, name.trim());
       trackRegistration();
+      trackTikTokRegistration();
       toast.success("Account created!");
       router.replace(authDestination(window.location.search));
     } catch (err) {

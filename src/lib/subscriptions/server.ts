@@ -60,14 +60,17 @@ export async function activateSubscription({ userId, reference }: { userId: stri
     if (existingPayment?.userId === userId && existingPayment.status === "paid") {
       const existingSubscription = await getSubscriptionForUser(userId);
       const existingPlan = existingSubscription ? await getPlan(existingSubscription.planId) : null;
-      return { subscription: existingSubscription, plan: existingPlan };
+      return { subscription: existingSubscription, plan: existingPlan, verifiedPayment: { amountMinor: existingPayment.amountCents, currency: existingPayment.currency } };
     }
     throw new Error("Subscription payment request not found. Make sure you paid with your EazyTool account email.");
   }
   if (intent.userId !== userId || intent.purpose !== "subscription") throw new Error("Subscription payment request not found. Make sure you paid with your EazyTool account email.");
   const plan = await getPlan(intent.planId);
   if (!plan?.active) throw new Error("That subscription plan is not available.");
-  if (intent.status === "paid") return { subscription: await getSubscriptionForUser(userId), plan };
+  if (intent.status === "paid") {
+    const paidPayment = await getPaymentByReference(reference);
+    return { subscription: await getSubscriptionForUser(userId), plan, verifiedPayment: paidPayment?.userId === userId && paidPayment.status === "paid" ? { amountMinor: paidPayment.amountCents, currency: paidPayment.currency } : null };
+  }
   if (intent.status !== "pending") throw new Error("This subscription payment is no longer pending.");
 
   const expectedPlanCode = intent.billingCycle === "yearly" ? plan.yearlyPlanCode : plan.monthlyPlanCode;
@@ -98,7 +101,7 @@ export async function activateSubscription({ userId, reference }: { userId: stri
   };
   const payment = paymentRecord({ subscription, reference, providerTransactionId: String(verified.id ?? reference), amountMinor: intent.amountMinor, paidAt: verified.paid_at });
   await commitInitialSubscriptionPayment({ intentReference: intent.reference, subscription, payment: { ...payment, reference } });
-  return { subscription: await getSubscriptionForUser(userId), plan };
+  return { subscription: await getSubscriptionForUser(userId), plan, verifiedPayment: { amountMinor: payment.amountCents, currency: payment.currency } };
 }
 
 export async function activateSubscriptionFromWebhook(reference: string) {

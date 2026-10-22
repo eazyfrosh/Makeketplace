@@ -69,6 +69,6 @@ test("the consent UI only mounts the tag after permission", () => {
   assert.match(consent, /lastPageView\.current === routeKey/);
   assert.match(layout, /<head>[\s\S]*id="eazytool-ga4-consent-default"/);
   assert.match(layout, /analytics_storage: 'denied'/);
-  assert.match(consent, /Reject analytics/);
-  assert.match(consent, /Allow analytics/);
+  assert.match(consent, /Reject optional cookies/);
+  assert.match(consent, /Save choices/);
 });
