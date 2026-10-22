@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth, DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD } from "@/context/auth-context";
 import { authDestination } from "@/lib/auth/destination";
+import { trackLogin } from "@/lib/analytics/ga4";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(email.trim(), password);
+      trackLogin();
       toast.success("Welcome back!");
       router.replace(authDestination(window.location.search));
     } catch (err) {

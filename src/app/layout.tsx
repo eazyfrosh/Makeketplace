@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 
@@ -9,6 +10,7 @@ import { AuthProvider } from "@/context/auth-context";
 import { RefCapture } from "@/components/affiliate/ref-capture";
 import { TelegramLiveChat } from "@/components/support/telegram-live-chat";
 import { MobileTaskNav } from "@/components/layout/mobile-task-nav";
+import { AnalyticsConsent } from "@/components/analytics/analytics-consent";
 
 import "./globals.css";
 
@@ -79,6 +81,7 @@ export default function RootLayout({
             </div>
             <MobileTaskNav />
             <TelegramLiveChat />
+            <Suspense fallback={null}><AnalyticsConsent /></Suspense>
             <Toaster
               position="bottom-right"
               theme="dark"

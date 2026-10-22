@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
 import { services } from "@/lib/data/services";
+import { trackSubscriptionSelection } from "@/lib/analytics/ga4";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { formatPrice } from "@/lib/utils";
 import type { SubscriptionPlan } from "@/types/subscriptions";
@@ -43,6 +44,7 @@ export function PricingClient() {
 
   async function subscribe(plan: SubscriptionPlan) {
     if (authLoading) return;
+    trackSubscriptionSelection(plan.id);
     if (!user) {
       router.push("/auth/login?next=/pricing");
       return;

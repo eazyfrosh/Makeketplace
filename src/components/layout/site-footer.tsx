@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, CircleHelp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { AnalyticsSettingsButton } from "@/components/analytics/analytics-consent";
 import { categories } from "@/lib/data/services";
 
 const FOOTER_LINKS: { title: string; links: { label: string; href: string }[] }[] = [
@@ -105,6 +106,7 @@ export function SiteFooter() {
             <Link href="/legal/privacy" className="hover:text-foreground">
               Privacy
             </Link>
+            <AnalyticsSettingsButton />
           </div>
         </div>
       </div>

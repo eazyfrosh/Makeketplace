@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { authDestination } from "@/lib/auth/destination";
+import { trackRegistration } from "@/lib/analytics/ga4";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function SignupPage() {
     setError(null);
     try {
       await signup(email.trim().toLowerCase(), password, name.trim());
+      trackRegistration();
       toast.success("Account created!");
       router.replace(authDestination(window.location.search));
     } catch (err) {

@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/auth-context";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
+import { trackServiceUsage } from "@/lib/analytics/ga4";
 /**
  * Client-side UX gate backed by the server-side subscription access endpoint.
  * The endpoint verifies the authenticated user, active subscription, expiry,
@@ -15,6 +16,7 @@ export function useRequireLicense(serviceSlug: string) {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
+  const trackedService = useRef<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -34,6 +36,10 @@ export function useRequireLicense(serviceSlug: string) {
         if (!allowed) {
           router.push("/dashboard?error=subscription-required");
           return;
+        }
+        if (trackedService.current !== serviceSlug) {
+          trackServiceUsage(serviceSlug);
+          trackedService.current = serviceSlug;
         }
         setHasAccess(true);
       } finally {

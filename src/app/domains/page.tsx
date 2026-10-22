@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/auth-context";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { userFacingError } from "@/lib/user-error";
+import { trackDomainPurchase } from "@/lib/analytics/ga4";
 import { domainPriceNaira, COMMON_TLDS, type DomainAvailability } from "@/types/domains";
 
 const ownerFields = [
@@ -108,6 +109,7 @@ export default function DomainsPage() {
         setMessage(pendingMessage);
         toast.info("Domain registration is being verified", { description: pendingMessage, duration: 8000 });
       } else if (method === "wallet") {
+        trackDomainPurchase(data.order?.paystackReference ?? data.order?.id ?? "", domain.split(".").at(-1) ?? "");
         const successMessage = `${domain} was purchased and registered successfully.`;
         setMessage(successMessage);
         toast.success("Domain purchase successful!", { description: successMessage, duration: 8000 });

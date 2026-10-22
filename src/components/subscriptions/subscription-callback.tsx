@@ -8,6 +8,7 @@ import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { Button } from "@/components/ui/button";
+import { trackSubscriptionPurchase } from "@/lib/analytics/ga4";
 
 export function SubscriptionCallback() {
   const params = useSearchParams();
@@ -34,6 +35,7 @@ export function SubscriptionCallback() {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data?.error ?? "Paystack payment verification failed.");
+        trackSubscriptionPurchase(reference, data.plan?.id ?? "custom");
         setState("success");
         setMessage(`Your ${data.plan.name} subscription is active.`);
         window.setTimeout(() => router.replace("/dashboard"), 900);

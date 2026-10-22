@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { ExternalLink, Eye, Loader2, Pencil, Settings } from "lucide-react";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
+import { trackServiceUsage } from "@/lib/analytics/ga4";
 
 const templates = [
   { id: "elite-broker", name: "ELITE BROKER", url: "https://premium-broker-platform.vercel.app", accent: "text-emerald-400", description: "A premium dark investment-dashboard design with customer-specific branding and private owner controls.", workspaceReady: true },
@@ -23,6 +24,7 @@ export function PremiumTemplateCatalog() {
       const response = await fetch("/api/licenses/issue-access-token", { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ serviceSlug: "premium-templates", templateId, destination }) });
       const data = await response.json();
       if (!response.ok || !data.redirectUrl) throw new Error(data.error || "Unable to open the template.");
+      trackServiceUsage("premium-templates");
       window.location.assign(data.redirectUrl);
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to open the template."); setBusy(null); }
   }
