@@ -25,18 +25,20 @@ Only after completing these steps, set `NEXT_PUBLIC_TIKTOK_PRIVACY_REVIEWED=true
 | Action | TikTok event | When it fires | Parameters |
 | --- | --- | --- | --- |
 | Approved public page visit | `Pageview` | Initial visit and each safe client-side navigation after marketing consent | No custom parameters |
+| Pricing viewed | `ViewContent` | Once per consented `/pricing` visit, including client-side navigation | None |
+| Checkout started | `InitiateCheckout` | Only after the authenticated subscription initialization endpoint returns a valid checkout reference and URL | None |
 | Registration | `CompleteRegistration` | Only after `signup()` succeeds | None |
 | Subscription purchase | `Purchase` | Only after `/api/subscriptions/activate` verifies Paystack payment and returns a paid server record | `value` in major NGN units; `currency: NGN` |
 
-The official base script is installed once using Next.js `Script`, only after marketing consent. TikTok's automatic SPA history observer is disabled (`historyObserver: false`), and EazyTool deduplicates manual page views. Pixel loading and manual events are restricted to fixed public routes with no unsafe URL parameters. Private account, wallet, domain, and dashboard routes are not sent to TikTok. The Paystack callback URL contains a payment reference, so the pixel never loads there; the verified purchase is queued in memory and sent from the clean `/subscription/confirmed` page. If the browser closes before that page loads, no browser conversion is sent. Firestore/Paystack remain the source of truth.
+The official base script is installed once using Next.js `Script`, only after marketing consent. TikTok's automatic SPA history observer is disabled (`historyObserver: false`), and EazyTool deduplicates manual page views and pricing `ViewContent`. Pixel loading and manual events are restricted to fixed public routes with no unsafe URL parameters. Private account, wallet, domain, and dashboard routes are not sent to TikTok. A visible **Cookie preferences** button lets visitors change Marketing consent without scrolling to the footer. The Paystack callback URL contains a payment reference, so the pixel never loads there; the verified purchase is queued in memory and sent from the clean `/subscription/confirmed` page. If the browser closes before that page loads, no browser conversion is sent. Firestore/Paystack remain the source of truth.
 
 Purchase references are used only to create a browser-local deduplication key, never as TikTok event parameters. A reload or duplicate callback cannot send the same browser purchase twice. No names, emails, phone numbers, plan labels, form contents, or raw payment references are passed in event calls. TikTok can still collect its own standard browser/device information; inspect actual payloads in Events Manager before advertising.
 
 ## Verify
 
 1. Open the website in a fresh browser profile. Before choosing cookies, Network should show no request to `analytics.tiktok.com`.
-2. Save choices with **Marketing** off: still no TikTok script or event. Then enable **Marketing** in footer **Cookie settings**.
-3. In **TikTok Events Manager → Data sources → Pixel → Test events**, use a public EazyTool page. Confirm one `Pageview` for the initial page and one per public client-side navigation. TikTok Pixel Helper can show duplicate tags or errors. Check event payloads for unsafe URLs and identifiers.
+2. Save choices with **Marketing** off: still no TikTok script or event. Then enable **Marketing** via the visible **Cookie preferences** button or the footer **Cookie settings** link.
+3. In **TikTok Events Manager → Data sources → Pixel → Test events**, use a public EazyTool page. Confirm one `Pageview` for the initial page and one per public client-side navigation, plus one `ViewContent` on `/pricing`. After a real checkout initialization succeeds, expect one `InitiateCheckout`; do not complete a charge merely to test the pixel. TikTok Pixel Helper can show duplicate tags or errors. Check event payloads for unsafe URLs and identifiers.
 4. Create a fictional test account only if you have a safe test environment; expect `CompleteRegistration` only after success. Do **not** create a real paid subscription merely to test the pixel. For an existing verified purchase callback, expect one `Purchase` with `value: 35000` and `currency: NGN` for a ₦35,000 payment, not `3500000` kobo. Verify the amount against the actual server payment record.
 5. Withdraw Marketing consent. Future public navigation must send no TikTok events. Re-open Cookie settings to opt in again if desired.
 

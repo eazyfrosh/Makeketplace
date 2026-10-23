@@ -51,8 +51,10 @@ test("loads the official queue once and manually sends one pageview per safe rou
   pixel.setMarketingEnabled(true);
   pixel.markTikTokReady();
   assert.equal(calls.filter((call) => call[0] === "page").length, 1);
+  assert.equal(calls.filter((call) => call[1] === "ViewContent").length, 1);
   assert.equal(pixel.trackTikTokPageView("/pricing", ""), false);
   assert.equal(calls.filter((call) => call[0] === "page").length, 1);
+  assert.equal(calls.filter((call) => call[1] === "ViewContent").length, 1);
   window.location.pathname = "/services";
   assert.equal(pixel.trackTikTokPageView("/services", ""), true);
   assert.equal(calls.filter((call) => call[0] === "page").length, 2);
@@ -62,6 +64,29 @@ test("loads the official queue once and manually sends one pageview per safe rou
   window.location.pathname = "/services";
   assert.equal(pixel.trackTikTokPageView("/services", ""), true);
   assert.equal(calls.filter((call) => call[0] === "page").length, 3);
+  assert.equal(calls.filter((call) => call[1] === "ViewContent").length, 1);
+  window.location.pathname = "/pricing";
+  assert.equal(pixel.trackTikTokPageView("/pricing", ""), true);
+  assert.equal(calls.filter((call) => call[1] === "ViewContent").length, 2);
+  assert.equal(pixel.trackTikTokPageView("/pricing", ""), false);
+  assert.equal(calls.filter((call) => call[1] === "ViewContent").length, 2);
+});
+
+test("cookie preferences stay visible after the first choice; checkout follows successful initialization", () => {
+  const consent = readFileSync(new URL("../src/components/analytics/analytics-consent.tsx", import.meta.url), "utf8");
+  assert.match(consent, /Cookie preferences<\/button>/);
+  assert.match(consent, /!needsChoice && !settingsOpen/);
+  const pricing = readFileSync(new URL("../src/components/subscriptions/pricing-client.tsx", import.meta.url), "utf8");
+  assert.ok(pricing.indexOf("if (!response.ok) throw") < pricing.indexOf("trackTikTokInitiateCheckout(data.reference)"));
+  assert.ok(pricing.indexOf("trackTikTokInitiateCheckout(data.reference)") < pricing.indexOf("window.location.href = data.authorizationUrl"));
+  assert.match(pricing, /checkoutInProgress\.current = true/);
+
+  window.location.pathname = "/pricing";
+  window.location.search = "";
+  assert.equal(pixel.trackTikTokInitiateCheckout("private-checkout-reference"), true);
+  assert.equal(pixel.trackTikTokInitiateCheckout("private-checkout-reference"), false);
+  assert.equal(calls.filter((call) => call[1] === "InitiateCheckout").length, 1);
+  assert.ok(!JSON.stringify(calls).includes("private-checkout-reference"));
 });
 
 test("registration follows signup success; verified purchase uses naira, never raw references", () => {
@@ -98,10 +123,11 @@ test("withdrawal suppresses further TikTok events", () => {
   assert.equal(calls.at(-1)[0], "revoke");
   assert.equal(pixel.trackTikTokPageView("/pricing", ""), false);
   assert.equal(pixel.trackTikTokRegistration(), false);
+  assert.equal(pixel.trackTikTokInitiateCheckout("another-private-reference"), false);
   assert.equal(pixel.trackTikTokPurchase("new-reference", 3500000, "NGN"), false);
   assert.equal(calls.filter((call) => call[0] === "track" || call[0] === "page").length, before);
   window.location.pathname = "/pricing";
   pixel.setMarketingEnabled(true);
   pixel.activateTikTokPixel(() => {});
-  assert.equal(calls.filter((call) => call[0] === "page").length, 5);
+  assert.equal(calls.filter((call) => call[0] === "page").length, 6);
 });

@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
 import { services } from "@/lib/data/services";
 import { trackSubscriptionSelection } from "@/lib/analytics/ga4";
+import { trackTikTokInitiateCheckout } from "@/lib/analytics/tiktok";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { formatPrice } from "@/lib/utils";
 import type { SubscriptionPlan } from "@/types/subscriptions";
@@ -34,6 +35,7 @@ export function PricingClient() {
   const [plans, setPlans] = React.useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [starting, setStarting] = React.useState<string | null>(null);
+  const checkoutInProgress = React.useRef(false);
 
   React.useEffect(() => {
     fetch("/api/subscriptions/plans")
@@ -43,12 +45,13 @@ export function PricingClient() {
   }, []);
 
   async function subscribe(plan: SubscriptionPlan) {
-    if (authLoading) return;
+    if (authLoading || checkoutInProgress.current) return;
     trackSubscriptionSelection(plan.id);
     if (!user) {
       router.push("/auth/login?next=/pricing");
       return;
     }
+    checkoutInProgress.current = true;
     setStarting(plan.id);
     try {
       const headers = await getAuthHeaders();
@@ -59,9 +62,12 @@ export function PricingClient() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data?.error ?? "Could not start subscription.");
+      if (typeof data.reference !== "string" || typeof data.authorizationUrl !== "string") throw new Error("Could not start subscription.");
+      trackTikTokInitiateCheckout(data.reference);
       window.location.href = data.authorizationUrl;
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not start subscription.");
+      checkoutInProgress.current = false;
       setStarting(null);
     }
   }

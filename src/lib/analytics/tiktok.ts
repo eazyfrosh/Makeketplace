@@ -20,6 +20,7 @@ let pixelReady = false;
 let lastPageKey = "";
 const pendingEvents: Array<() => void> = [];
 const sentPurchases = new Set<string>();
+const startedCheckouts = new Set<string>();
 
 // TikTok's SDK reads the browser URL itself. Never load or fire it on a route
 // that may contain a customer's account, payment reference, or custom domain.
@@ -120,6 +121,7 @@ export function trackTikTokPageView(pathname: string, search: string) {
   const isNewPage = lastPageKey !== key;
   if (isNewPage) {
     (window as TikTokWindow).ttq?.page();
+    if (pathname === "/pricing") (window as TikTokWindow).ttq?.track("ViewContent");
     lastPageKey = key;
   }
   for (const event of pendingEvents.splice(0)) event();
@@ -138,6 +140,17 @@ function referenceHash(value: string) {
   let hash = 2166136261;
   for (const character of value) hash = Math.imul(hash ^ character.charCodeAt(0), 16777619);
   return (hash >>> 0).toString(36);
+}
+
+// The payment reference is only an in-memory deduplication key. It is never
+// included in the event sent to TikTok.
+export function trackTikTokInitiateCheckout(reference: string) {
+  if (!marketingGranted || !reference || !pixelReady || !currentPageIsSafe() || window.location.pathname !== "/pricing") return false;
+  const key = referenceHash(reference);
+  if (startedCheckouts.has(key)) return false;
+  (window as TikTokWindow).ttq?.track("InitiateCheckout");
+  startedCheckouts.add(key);
+  return true;
 }
 
 export function trackTikTokPurchase(reference: string, amountMinor: number, currency: string) {
