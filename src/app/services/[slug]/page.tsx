@@ -125,6 +125,11 @@ export default async function ServiceDetailPage({
                 className="aspect-[16/10] rounded-[1.55rem] border-white/15"
                 label={`${service.name} feature preview`}
               />
+              {service.slug === "logistics-platform" && (
+                <p className="px-3 pb-2 pt-3 text-xs text-muted-foreground">
+                  Illustrative design showcase. EazyTool is not affiliated with the carriers shown.
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -9,7 +9,7 @@ import { ArrowRight, ArrowUpRight, BadgeCheck, Check, ChevronLeft, ChevronRight,
 import { Button } from "@/components/ui/button";
 
 const TRUST_POINTS = ["Clear step-by-step guidance", "Works on phone and computer", "Help when you need it"];
-const HERO_HEADLINE = "Simple digital tools\neveryone can use";
+const HERO_HEADLINE = "Build a website and\ncreate digital demos from one workspace.";
 const HERO_HEADLINE_BREAK = HERO_HEADLINE.indexOf("\n");
 
 const SHOWCASE_SLIDES = [
@@ -88,7 +88,7 @@ export function Hero() {
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10 lg:px-8">
         <div className="max-w-2xl">
           <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }} className="mt-7 text-balance text-[clamp(2.8rem,5.5vw,4.8rem)] font-semibold leading-[0.98] tracking-[-0.05em]">
-            <span className="sr-only">Simple digital tools everyone can use</span>
+            <span className="sr-only">Build a website and create digital demos from one workspace.</span>
             <span aria-hidden="true">
               {typedHeadline.slice(0, HERO_HEADLINE_BREAK)}
               <span className="home-display mt-3 block text-gradient-brand">{typedHeadline.slice(HERO_HEADLINE_BREAK + 1)}</span>
@@ -96,7 +96,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.12 }} className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-            Create websites, design emails, manage business tasks, and use helpful digital tools—without needing to be a technology expert.
+            Customize website templates, design emails, create sample itineraries and receipts, and manage shipment tracking pages—without starting from scratch.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.18 }} className="mt-8 flex flex-col gap-3 sm:flex-row">
