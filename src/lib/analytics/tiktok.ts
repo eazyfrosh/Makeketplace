@@ -9,7 +9,6 @@ type ConsentChoice = "accepted" | "rejected" | null;
 type TikTokQueue = {
   page: () => void;
   track: (event: string, parameters?: Record<string, string | number>) => void;
-  ready: (callback: () => void) => void;
   grantConsent: () => void;
   revokeConsent: () => void;
 };
@@ -95,20 +94,21 @@ export function setMarketingEnabled(enabled: boolean) {
 }
 
 export function markTikTokReady() {
-  if (!marketingGranted || !currentPageIsSafe()) return;
+  const queue = (window as TikTokWindow).ttq;
+  if (!queue || !marketingGranted || !currentPageIsSafe()) return;
   pixelReady = true;
-  (window as TikTokWindow).ttq?.grantConsent();
+  queue.grantConsent();
   trackTikTokPageView(window.location.pathname, window.location.search);
 }
 
 export function activateTikTokPixel(onReady: () => void) {
   const queue = (window as TikTokWindow).ttq;
   if (!queue || !marketingGranted) return;
-  queue.grantConsent();
-  queue.ready(() => {
-    markTikTokReady();
-    onReady();
-  });
+  // The official base snippet queues commands before the remote SDK finishes
+  // loading. A ttq.ready callback is not needed and can leave the first visit
+  // untracked if it never runs after Marketing consent is granted on this page.
+  markTikTokReady();
+  onReady();
 }
 
 export function trackTikTokPageView(pathname: string, search: string) {
@@ -117,7 +117,8 @@ export function trackTikTokPageView(pathname: string, search: string) {
     return false;
   }
   if (!marketingGranted || !pixelReady) return false;
-  const key = `${pathname}?${search}`;
+  // Campaign/query changes on the same route are not a new page visit.
+  const key = pathname;
   const isNewPage = lastPageKey !== key;
   if (isNewPage) {
     (window as TikTokWindow).ttq?.page();

@@ -17,7 +17,7 @@ globalThis.window = {
   ttq: {
     page: () => calls.push(["page"]),
     track: (name, params) => calls.push(["track", name, params]),
-    ready: (callback) => callback(),
+    ready: () => { throw new Error("Tracking must not depend on ttq.ready"); },
     grantConsent: () => calls.push(["grant"]),
     revokeConsent: () => calls.push(["revoke"]),
   },
@@ -48,11 +48,18 @@ test("loads the official queue once and manually sends one pageview per safe rou
   assert.ok(base.indexOf("q.holdConsent()") < base.indexOf("q.load("));
   assert.doesNotMatch(base, /q\.page\(\)/);
 
+  // Consent is granted while the visitor is already on /pricing. The base
+  // queue exists, but the remote SDK has not signaled readiness.
   pixel.setMarketingEnabled(true);
-  pixel.markTikTokReady();
+  pixel.activateTikTokPixel(() => calls.push(["activated"]));
+  assert.deepEqual(calls.slice(0, 3).map((call) => call[0] === "track" ? call[1] : call[0]), ["grant", "page", "ViewContent"]);
+  assert.equal(calls.filter((call) => call[0] === "page").length, 1);
+  assert.equal(calls.filter((call) => call[1] === "ViewContent").length, 1);
+  pixel.activateTikTokPixel(() => {});
   assert.equal(calls.filter((call) => call[0] === "page").length, 1);
   assert.equal(calls.filter((call) => call[1] === "ViewContent").length, 1);
   assert.equal(pixel.trackTikTokPageView("/pricing", ""), false);
+  assert.equal(pixel.trackTikTokPageView("/pricing", "utm_source=tiktok"), false);
   assert.equal(calls.filter((call) => call[0] === "page").length, 1);
   assert.equal(calls.filter((call) => call[1] === "ViewContent").length, 1);
   window.location.pathname = "/services";
@@ -130,4 +137,5 @@ test("withdrawal suppresses further TikTok events", () => {
   pixel.setMarketingEnabled(true);
   pixel.activateTikTokPixel(() => {});
   assert.equal(calls.filter((call) => call[0] === "page").length, 6);
+  assert.equal(calls.filter((call) => call[1] === "ViewContent").length, 3);
 });
