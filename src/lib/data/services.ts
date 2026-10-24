@@ -349,8 +349,8 @@ export const services: Service[] = [
     tagline: "Create a polished help center for your business in minutes.",
     description:
       "Choose an original support portal, customize its branding and knowledge base, then publish a customer-ready help center without touching code.",
-    heroImage: "/service-previews/support-websites-v3.png",
-    screenshots: ["/service-previews/support-websites-v3.png"],
+    heroImage: "/service-previews/support-website-showcase.png",
+    screenshots: ["/service-previews/support-website-showcase.png"],
     features: [
       "Eight original responsive designs",
       "Live visual editor",

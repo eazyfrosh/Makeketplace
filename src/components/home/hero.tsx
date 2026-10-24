@@ -28,8 +28,8 @@ const SHOWCASE_SLIDES = [
     accent: "bg-cyan-400 shadow-[0_0_12px_#22d3ee]",
   },
   {
-    src: "/service-previews/support-websites-v3.png",
-    alt: "A modern help centre shown across desktop, laptop, and mobile screens",
+    src: "/service-previews/support-website-showcase.png",
+    alt: "EazyTool support website design shown on laptop and mobile screens",
     eyebrow: "Help made simple",
     title: "Friendly tools for real people",
     accent: "bg-orange-300 shadow-[0_0_12px_#fdba74]",
