@@ -136,9 +136,9 @@ export const services: Service[] = [
     tagline: "Track shipments and optimize fleets in real time.",
     description:
       "A logistics and fleet management platform with live shipment tracking, route optimization, and warehouse tools — everything a modern logistics operator needs in one dashboard.",
-    heroImage: "/services/logistics/logistics-website-showcase.png",
+    heroImage: "/services/logistics/logistics-website-showcase-branded.png",
     screenshots: [
-      "/services/logistics/logistics-website-showcase.png",
+      "/services/logistics/logistics-website-showcase-branded.png",
       "/services/logistics/track-shipment.png",
       "/services/logistics/shipment-detail.png",
     ],
@@ -171,8 +171,8 @@ export const services: Service[] = [
     tagline: "Create polished, professional receipts in minutes.",
     description:
       "A fast, flexible receipt builder for businesses and freelancers — customize branding, add line items, calculate taxes and discounts, preview on any device, and export client-ready PDFs.",
-    heroImage: "/service-previews/receipt-generator-v3.png",
-    screenshots: ["/service-previews/receipt-generator-v3.png"],
+    heroImage: "/service-previews/receipt-generator-showcase.png",
+    screenshots: ["/service-previews/receipt-generator-showcase.png"],
     features: [
       "Custom business branding",
       "Flexible line items and quantities",
@@ -202,8 +202,8 @@ export const services: Service[] = [
     tagline: "Design and send polished, on-brand emails without touching code.",
     description:
       "Create branded announcements, order updates, invitations, support messages, and clearly labelled status notices with live previews and delivery tracking.",
-    heroImage: "/service-previews/email-designer-v3.png",
-    screenshots: ["/service-previews/email-designer-v3.png"],
+    heroImage: "/service-previews/email-flashing-showcase.png",
+    screenshots: ["/service-previews/email-flashing-showcase.png"],
     features: [
       "Visual branded-email editor",
       "Desktop and mobile live previews",
@@ -233,8 +233,8 @@ export const services: Service[] = [
     tagline: "International SMS messaging is coming soon.",
     description:
       "We are preparing a simple, secure way to send consent-based international text messages and follow their delivery progress.",
-    heroImage: "/service-previews/sms-messaging-v3.png",
-    screenshots: ["/service-previews/sms-messaging-v3.png"],
+    heroImage: "/service-previews/sms-flashing-showcase.png",
+    screenshots: ["/service-previews/sms-flashing-showcase.png"],
     features: [
       "Simple international SMS composer",
       "Automatic E.164 phone number formatting",
@@ -319,8 +319,8 @@ export const services: Service[] = [
     tagline: "Create beautiful, scannable QR codes in seconds.",
     description:
       "Generate privacy-friendly QR codes for URLs, text, email, phone calls, SMS, Wi-Fi networks, and digital contact cards, then download them as PNG or SVG.",
-    heroImage: "/service-previews/qr-code-generator-v3.png",
-    screenshots: ["/service-previews/qr-code-generator-v3.png"],
+    heroImage: "/service-previews/qr-code-showcase.png",
+    screenshots: ["/service-previews/qr-code-showcase.png"],
     features: [
       "URL, text, email, phone and SMS QR codes",
       "Wi-Fi network QR codes",
