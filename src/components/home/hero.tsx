@@ -14,15 +14,15 @@ const HERO_HEADLINE_BREAK = HERO_HEADLINE.indexOf("\n");
 
 const SHOWCASE_SLIDES = [
   {
-    src: "/service-previews/banking-platform-v3.png",
-    alt: "A digital banking dashboard shown across laptop and mobile screens",
+    src: "/service-previews/banking-demo-showcase.png",
+    alt: "EazyTool banking demo shown on a laptop and phone",
     eyebrow: "Manage business tools",
     title: "Clear dashboards, ready to use",
     accent: "bg-fuchsia-400 shadow-[0_0_12px_#e879f9]",
   },
   {
-    src: "/service-previews/website-builder-v2.png",
-    alt: "A collection of polished website designs for businesses, banking, trading, property, and personal brands",
+    src: "/service-previews/website-builder-showcase.png",
+    alt: "EazyTool Website Builder design showcase",
     eyebrow: "Build your own website",
     title: "Choose a design and make it yours",
     accent: "bg-cyan-400 shadow-[0_0_12px_#22d3ee]",

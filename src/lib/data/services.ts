@@ -66,9 +66,9 @@ export const services: Service[] = [
     tagline: "Full-stack digital banking, built for scale and compliance.",
     description:
       "A production-grade digital banking platform with accounts, cards, transfers, and compliance tooling baked in — the same foundation neobanks use to launch in weeks, not years.",
-    heroImage: "/service-previews/banking-platform-v3.png",
+    heroImage: "/service-previews/banking-demo-showcase.png",
     screenshots: [
-      "/service-previews/banking-platform-v3.png",
+      "/service-previews/banking-demo-showcase.png",
       "/services/banking/overview.png",
       "/services/banking/transfer.png",
     ],
@@ -101,9 +101,9 @@ export const services: Service[] = [
     tagline: "Search, book, and manage flights with a world-class UX.",
     description:
       "An end-to-end flight booking system — search, seat selection, passenger management, e-tickets, and an admin console — designed to feel like Expedia or Google Flights out of the box.",
-    heroImage: "/service-previews/airline-booking-platform-v3.png",
+    heroImage: "/service-previews/flight-itinerary-showcase.png",
     screenshots: [
-      "/service-previews/airline-booking-platform-v3.png",
+      "/service-previews/flight-itinerary-showcase.png",
       "/services/airline/booking-verified.png",
       "/services/airline/email-confirmation.png",
     ],
@@ -286,8 +286,8 @@ export const services: Service[] = [
     tagline: "Choose a complete website, make it yours, and manage it with confidence.",
     description:
       "Start with a professionally designed website, change the name, logo, colors and content, then manage your own users and website from a private owner dashboard.",
-    heroImage: "/service-previews/website-builder-v2.png",
-    screenshots: ["/service-previews/website-builder-v2.png"],
+    heroImage: "/service-previews/website-builder-showcase.png",
+    screenshots: ["/service-previews/website-builder-showcase.png"],
     features: [
       "ELITE BROKER investment platform template",
       "Hosted Volterra EV marketplace template",

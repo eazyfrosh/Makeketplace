@@ -53,12 +53,12 @@ export function ServicesClient() {
 
           <div className="grid grid-cols-2 gap-3 sm:gap-4" aria-label="Examples of EazyTool services">
             <div className="relative col-span-2 aspect-[2/1] overflow-hidden rounded-2xl border border-white/15 shadow-2xl">
-              <Image src="/service-previews/website-builder-v2.png" alt="Website Builder designs for different businesses" fill priority sizes="(min-width: 1024px) 52vw, 100vw" className="object-cover" />
+              <Image src="/service-previews/website-builder-showcase.png" alt="EazyTool Website Builder design showcase" fill priority sizes="(min-width: 1024px) 52vw, 100vw" className="object-cover object-top" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               <p className="absolute bottom-3 left-4 text-sm font-semibold sm:text-base">Create your own website</p>
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/15 shadow-xl">
-              <Image src="/service-previews/airline-booking-platform-v3.png" alt="Flight itinerary and travel tools" fill sizes="(min-width: 1024px) 26vw, 50vw" className="object-cover" />
+              <Image src="/service-previews/flight-itinerary-showcase.png" alt="Sample Lagos-to-London flight itinerary showcase" fill sizes="(min-width: 1024px) 26vw, 50vw" className="object-cover object-top" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
               <p className="absolute bottom-3 left-3 text-xs font-semibold sm:text-sm">Plan and preview trips</p>
             </div>
