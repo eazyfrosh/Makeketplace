@@ -1,4 +1,5 @@
 import {
+  claimSubscriptionReconciliation,
   commitInitialSubscriptionPayment,
   commitRenewalPayment,
   findSubscriptionByProvider,
@@ -7,6 +8,7 @@ import {
   getPaymentByReference,
   getSubscriptionForUser,
   getSubscriptionPaymentIntent,
+  listPendingDirectIntentsForUser,
   saveSubscription,
 } from "@/lib/subscriptions/store";
 import { verifyPaystackTransaction } from "@/lib/wallet/paystack";
@@ -16,6 +18,20 @@ const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
 export class SubscriptionPaymentPendingError extends Error {
   constructor() { super("Paystack has not confirmed this payment yet."); }
+}
+
+export async function reconcilePendingSubscriptionForUser(userId: string): Promise<void> {
+  if (!PAYSTACK_SECRET_KEY) return;
+  const pending = (await listPendingDirectIntentsForUser(userId)).slice(0, 3);
+  for (const intent of pending) {
+    if (!await claimSubscriptionReconciliation(intent.reference, userId)) continue;
+    try {
+      await activateSubscription({ userId, reference: intent.reference });
+    } catch (error) {
+      if (error instanceof SubscriptionPaymentPendingError) continue;
+      console.error("[subscriptions] account reconciliation deferred", { reason: error instanceof Error ? error.name : "unknown" });
+    }
+  }
 }
 
 export function addBillingPeriod(date: Date, cycle: SubscriptionBillingCycle) {

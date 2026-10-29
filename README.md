@@ -112,6 +112,10 @@ verification, exact email/amount/currency matching, and idempotent Firestore
 transactions. Access expires one calendar month after the verified payment (or
 extends one month from the current expiry when the user pays early); payment is
 not automatically renewed.
+The return screen waits for delayed transfer confirmation. If a webhook is
+missed, the signed-in customer's next dashboard, billing, or protected-service
+visit also checks their recent pending checkouts directly with Paystack, at most
+once per minute for each checkout.
 
 If an older shared Payment Page transfer succeeded but did not activate access,
 open `/admin/subscriptions` and use **Recover a confirmed payment**. Enter the

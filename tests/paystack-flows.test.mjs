@@ -12,6 +12,8 @@ const webhook = read("../src/app/api/paystack/webhook/route.ts");
 const callback = read("../src/components/subscriptions/subscription-callback.tsx");
 const cancellation = read("../src/app/api/subscriptions/cancel/route.ts");
 const recovery = read("../src/app/api/subscriptions/admin/recover/route.ts");
+const subscriptionMe = read("../src/app/api/subscriptions/me/route.ts");
+const serviceAccess = read("../src/lib/licensing/service-access.ts");
 
 test("wallet and subscription checkouts use separate immutable payment purposes", () => {
   assert.match(walletInitialize, /purpose: "wallet_topup"/);
@@ -38,6 +40,14 @@ test("bank transfer confirmation stays pending without claiming success", () => 
   assert.match(subscriptionActivate, /status: 202/);
   assert.match(callback, /response\.status !== 202/);
   assert.match(callback, /Waiting for transfer confirmation/);
+});
+
+test("a returning customer can reconcile a delayed direct checkout", () => {
+  assert.match(subscriptionMe, /reconcilePendingSubscriptionForUser\(caller\.uid\)/);
+  assert.match(serviceAccess, /reconcilePendingSubscriptionForUser\(userId\)/);
+  assert.match(subscriptionServer, /claimSubscriptionReconciliation\(intent\.reference, userId\)/);
+  assert.match(subscriptionStore, /intent\.source === "direct" && intent\.status === "pending"/);
+  assert.match(subscriptionStore, /lastReconciledAt/);
 });
 
 test("admin recovery verifies provider payment and account before activating", () => {

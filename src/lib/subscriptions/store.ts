@@ -153,6 +153,42 @@ export async function getSubscriptionPaymentIntent(reference: string): Promise<S
   return demoStore().intents.get(reference) ?? null;
 }
 
+export async function listPendingDirectIntentsForUser(userId: string): Promise<SubscriptionPaymentIntent[]> {
+  const intents = adminDb
+    ? (await adminDb.collection(PAYMENT_INTENTS).where("userId", "==", userId).get()).docs.map((doc) => doc.data() as SubscriptionPaymentIntent)
+    : Array.from(demoStore().intents.values()).filter((intent) => intent.userId === userId);
+  const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  return intents.filter((intent) => intent.source === "direct" && intent.status === "pending" && Date.parse(intent.createdAt) >= cutoff)
+    .sort((a, b) => {
+      // Check never-reconciled intents first, then rotate through older checks.
+      // A newer abandoned checkout must not hide an earlier successful transfer.
+      const aChecked = a.lastReconciledAt ? Date.parse(a.lastReconciledAt) : 0;
+      const bChecked = b.lastReconciledAt ? Date.parse(b.lastReconciledAt) : 0;
+      return aChecked - bChecked || Date.parse(b.createdAt) - Date.parse(a.createdAt);
+    });
+}
+
+export async function claimSubscriptionReconciliation(reference: string, userId: string): Promise<boolean> {
+  const now = Date.now();
+  const eligible = (intent: SubscriptionPaymentIntent | undefined) => Boolean(
+    intent && intent.userId === userId && intent.source === "direct" && intent.status === "pending" &&
+    (!intent.lastReconciledAt || Date.parse(intent.lastReconciledAt) <= now - 60_000),
+  );
+  if (adminDb) {
+    const ref = adminDb.collection(PAYMENT_INTENTS).doc(reference);
+    return adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!eligible(snap.data() as SubscriptionPaymentIntent | undefined)) return false;
+      tx.update(ref, { lastReconciledAt: new Date(now).toISOString() });
+      return true;
+    });
+  }
+  const intent = demoStore().intents.get(reference);
+  if (!eligible(intent)) return false;
+  demoStore().intents.set(reference, { ...intent!, lastReconciledAt: new Date(now).toISOString() });
+  return true;
+}
+
 export async function findPendingSubscriptionPaymentIntent(input: { email: string; amountMinor: number; currency: "NGN" }): Promise<SubscriptionPaymentIntent | null> {
   const normalizedEmail = input.email.trim().toLowerCase();
   const cutoff = Date.now() - 24 * 60 * 60 * 1000;

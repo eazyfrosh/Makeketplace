@@ -71,6 +71,7 @@ export interface SubscriptionPaymentIntent {
   reference: string;
   status: SubscriptionPaymentStatus;
   providerTransactionId: string | null;
+  lastReconciledAt?: string;
   createdAt: string;
   updatedAt: string;
 }

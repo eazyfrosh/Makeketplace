@@ -2,6 +2,7 @@ import "server-only";
 
 import { getLicenseForUserAndService } from "@/lib/licensing/store";
 import { getPlan, getSubscriptionForUser } from "@/lib/subscriptions/store";
+import { reconcilePendingSubscriptionForUser } from "@/lib/subscriptions/server";
 
 type AccessRole = "admin" | "customer" | string;
 
@@ -38,7 +39,11 @@ export async function resolveServiceAccess(
     }
   }
 
-  const subscription = await getSubscriptionForUser(userId);
+  let subscription = await getSubscriptionForUser(userId);
+  if (!subscription || !["active", "non_renewing"].includes(subscription.status) || !isUnexpired(subscription.expiresAt)) {
+    await reconcilePendingSubscriptionForUser(userId).catch(() => undefined);
+    subscription = await getSubscriptionForUser(userId);
+  }
   const activeSubscription = Boolean(
     subscription &&
       ["active", "non_renewing"].includes(subscription.status) &&
