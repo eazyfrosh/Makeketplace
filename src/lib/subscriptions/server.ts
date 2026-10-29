@@ -1,4 +1,3 @@
-import { generateId } from "@/lib/licensing/keys";
 import {
   commitInitialSubscriptionPayment,
   commitRenewalPayment,
@@ -14,6 +13,10 @@ import { verifyPaystackTransaction } from "@/lib/wallet/paystack";
 import type { Subscription, SubscriptionBillingCycle, SubscriptionPayment } from "@/types/subscriptions";
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+
+export class SubscriptionPaymentPendingError extends Error {
+  constructor() { super("Paystack has not confirmed this payment yet."); }
+}
 
 export function addBillingPeriod(date: Date, cycle: SubscriptionBillingCycle) {
   const next = new Date(date);
@@ -59,17 +62,21 @@ export async function activateSubscription({ userId, reference }: { userId: stri
     const existingPayment = await getPaymentByReference(reference);
     if (existingPayment?.userId === userId && existingPayment.status === "paid") {
       const existingSubscription = await getSubscriptionForUser(userId);
+      if (!existingSubscription) throw new Error("Subscription payment requires manual review.");
       const existingPlan = existingSubscription ? await getPlan(existingSubscription.planId) : null;
       return { subscription: existingSubscription, plan: existingPlan, verifiedPayment: { amountMinor: existingPayment.amountCents, currency: existingPayment.currency } };
     }
     throw new Error("Subscription payment request not found. Make sure you paid with your EazyTool account email.");
   }
   if (intent.userId !== userId || intent.purpose !== "subscription") throw new Error("Subscription payment request not found. Make sure you paid with your EazyTool account email.");
+  if (["pending", "ongoing", "processing"].includes(String(verified.status))) throw new SubscriptionPaymentPendingError();
   const plan = await getPlan(intent.planId);
   if (!plan?.active) throw new Error("That subscription plan is not available.");
   if (intent.status === "paid") {
     const paidPayment = await getPaymentByReference(reference);
-    return { subscription: await getSubscriptionForUser(userId), plan, verifiedPayment: paidPayment?.userId === userId && paidPayment.status === "paid" ? { amountMinor: paidPayment.amountCents, currency: paidPayment.currency } : null };
+    const paidSubscription = await getSubscriptionForUser(userId);
+    if (!paidPayment || paidPayment.userId !== userId || paidPayment.status !== "paid" || !paidSubscription) throw new Error("Subscription payment requires manual review.");
+    return { subscription: paidSubscription, plan, verifiedPayment: { amountMinor: paidPayment.amountCents, currency: paidPayment.currency } };
   }
   if (intent.status !== "pending") throw new Error("This subscription payment is no longer pending.");
 
@@ -92,7 +99,7 @@ export async function activateSubscription({ userId, reference }: { userId: stri
   const periodStart = previousExpiry && previousExpiry.getTime() > paidAt.getTime() ? previousExpiry : paidAt;
   const expiresAt = addBillingPeriod(periodStart, "monthly");
   const subscription: Subscription = {
-    id: previous?.id ?? generateId("sub"), userId: intent.userId, email: intent.email, planId: plan.id, planName: plan.name, billingCycle: "monthly",
+    id: previous?.id ?? `sub_${intent.userId}`, userId: intent.userId, email: intent.email, planId: plan.id, planName: plan.name, billingCycle: "monthly",
     status: "active", startedAt: previous?.startedAt ?? paidAt.toISOString(), nextBillingAt: null, expiresAt: expiresAt.toISOString(),
     usageThisMonth: previous?.planId === plan.id ? previous.usageThisMonth : 0, usageLimit: plan.monthlyUsageLimit,
     paystackCustomerCode: verified.customer?.customer_code ?? previous?.paystackCustomerCode ?? null,
@@ -103,7 +110,9 @@ export async function activateSubscription({ userId, reference }: { userId: stri
   };
   const payment = paymentRecord({ subscription, reference, providerTransactionId: String(verified.id ?? reference), amountMinor: intent.amountMinor, paidAt: verified.paid_at });
   await commitInitialSubscriptionPayment({ intentReference: intent.reference, subscription, payment: { ...payment, reference } });
-  return { subscription: await getSubscriptionForUser(userId), plan, verifiedPayment: { amountMinor: payment.amountCents, currency: payment.currency } };
+  const [recordedPayment, activeSubscription] = await Promise.all([getPaymentByReference(reference), getSubscriptionForUser(userId)]);
+  if (!recordedPayment || recordedPayment.userId !== userId || recordedPayment.status !== "paid" || !activeSubscription) throw new Error("Subscription payment requires manual review.");
+  return { subscription: activeSubscription, plan, verifiedPayment: { amountMinor: recordedPayment.amountCents, currency: recordedPayment.currency } };
 }
 
 export async function activateSubscriptionFromWebhook(reference: string) {

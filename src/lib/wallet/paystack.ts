@@ -12,6 +12,7 @@ export async function verifyPaystackTransaction(reference: string, secret: strin
   const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
     headers: { Authorization: `Bearer ${secret}` },
     cache: "no-store",
+    signal: AbortSignal.timeout(10000),
   });
   const payload = await response.json().catch(() => null) as {
     status?: boolean;

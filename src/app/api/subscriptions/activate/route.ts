@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { verifyCaller } from "@/lib/licensing/verify-auth";
-import { activateSubscription } from "@/lib/subscriptions/server";
+import { activateSubscription, SubscriptionPaymentPendingError } from "@/lib/subscriptions/server";
 
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     const result = await activateSubscription({ userId: caller.uid, reference });
     return NextResponse.json(result);
   } catch (error) {
+    if (error instanceof SubscriptionPaymentPendingError) return NextResponse.json({ status: "pending", message: "Waiting for Paystack to confirm your transfer." }, { status: 202 });
     return NextResponse.json({ error: error instanceof Error ? error.message : "Subscription activation failed." }, { status: 402 });
   }
 }
