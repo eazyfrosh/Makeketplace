@@ -11,21 +11,29 @@ const subscriptionStore = read("../src/lib/subscriptions/store.ts");
 const webhook = read("../src/app/api/paystack/webhook/route.ts");
 const callback = read("../src/components/subscriptions/subscription-callback.tsx");
 const cancellation = read("../src/app/api/subscriptions/cancel/route.ts");
+const recovery = read("../src/app/api/subscriptions/admin/recover/route.ts");
 
 test("wallet and subscription checkouts use separate immutable payment purposes", () => {
   assert.match(walletInitialize, /purpose: "wallet_topup"/);
   assert.match(subscriptionInitialize, /purpose: "subscription"/);
   assert.match(subscriptionInitialize, /createSubscriptionPaymentIntent/);
-  assert.match(subscriptionInitialize, /plan: planCode/);
+  assert.match(subscriptionInitialize, /transaction\/initialize/);
+  assert.match(subscriptionInitialize, /metadata: \{ purpose: "subscription", userId: caller\.uid, planId: plan\.id, billingCycle \}/);
+  assert.match(subscriptionInitialize, /source: "direct"/);
+  assert.ok(!subscriptionInitialize.includes("PAYSTACK_SUBSCRIPTION_PAYMENT_PAGE_URL"));
   assert.ok(!subscriptionInitialize.includes("demo: true"));
 });
 
 test("subscription callback cannot choose the owner, plan, cycle, or amount", () => {
   assert.deepEqual([...subscriptionActivate.matchAll(/body\?\.(\w+)/g)].map((match) => match[1]), ["reference"]);
   assert.match(subscriptionServer, /getSubscriptionPaymentIntent\(reference\)/);
-  for (const marker of ["intent.userId !== userId", "verified.amount !== intent.amountMinor", "verified.currency !== intent.currency", "verified.metadata?.purpose !== \"subscription\"", "verified.metadata?.userId !== intent.userId"]) assert.ok(subscriptionServer.includes(marker), marker);
+  for (const marker of ["intent.userId !== userId", "verified.amount !== intent.amountMinor", "verified.currency !== intent.currency", "metadataPurpose !== \"subscription\"", "verified.metadata?.userId !== intent.userId"]) assert.ok(subscriptionServer.includes(marker), marker);
   assert.ok(!callback.includes("planId"));
   assert.ok(!callback.includes("billingCycle"));
+});
+
+test("admin recovery verifies provider payment and account before activating", () => {
+  for (const marker of ["verifyAdminCaller", "getUserByEmail", "verifyPaystackTransaction", "verified.status !== \"success\"", "verified.amount !== plan.monthlyPriceCents", "paymentEmail !== email", "getFundingIntent(reference)", "getDomainOrderByReference(reference)", "source: \"admin_recovery\"", "activateSubscription({ userId: user.uid, reference })"]) assert.ok(recovery.includes(marker), marker);
 });
 
 test("verified subscription writes and renewals are atomic and idempotent", () => {

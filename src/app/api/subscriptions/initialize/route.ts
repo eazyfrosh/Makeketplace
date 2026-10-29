@@ -5,7 +5,6 @@ import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { createSubscriptionPaymentIntent, getPlan } from "@/lib/subscriptions/store";
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
-const PAYMENT_PAGE_URL = process.env.PAYSTACK_SUBSCRIPTION_PAYMENT_PAGE_URL ?? "https://paystack.shop/pay/eazytoolsub";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
@@ -20,18 +19,27 @@ export async function POST(request: Request) {
   const reference = `EZT-SUB-${Date.now()}-${crypto.randomBytes(6).toString("hex").toUpperCase()}`;
 
   if (!PAYSTACK_SECRET_KEY) return NextResponse.json({ error: "Subscription payments are not configured. Add PAYSTACK_SECRET_KEY in Vercel." }, { status: 503 });
-  let paymentPage: URL;
-  try {
-    paymentPage = new URL(PAYMENT_PAGE_URL);
-    if (paymentPage.protocol !== "https:" || !["paystack.shop", "paystack.com"].includes(paymentPage.hostname)) throw new Error();
-  } catch {
-    return NextResponse.json({ error: "The Paystack subscription payment page is not configured correctly." }, { status: 503 });
-  }
-
   const now = new Date().toISOString();
-  await createSubscriptionPaymentIntent({ id: reference, userId: caller.uid, email: caller.email.trim().toLowerCase(), planId: plan.id, billingCycle, amountMinor, currency: "NGN", purpose: "subscription", reference, status: "pending", providerTransactionId: null, createdAt: now, updatedAt: now });
-
-  paymentPage.searchParams.set("email", caller.email.trim().toLowerCase());
-  paymentPage.searchParams.set("read-only", "email");
-  return NextResponse.json({ reference, authorizationUrl: paymentPage.toString() });
+  try {
+    await createSubscriptionPaymentIntent({ id: reference, userId: caller.uid, email: caller.email.trim().toLowerCase(), planId: plan.id, billingCycle, amountMinor, currency: "NGN", purpose: "subscription", source: "direct", reference, status: "pending", providerTransactionId: null, createdAt: now, updatedAt: now });
+    const origin = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || new URL(request.url).origin;
+    const response = await fetch("https://api.paystack.co/transaction/initialize", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: caller.email.trim().toLowerCase(), amount: amountMinor, currency: "NGN", reference,
+        callback_url: `${origin}/subscription/callback`,
+        metadata: { purpose: "subscription", userId: caller.uid, planId: plan.id, billingCycle },
+      }),
+      signal: AbortSignal.timeout(10000),
+    });
+    const payload = await response.json().catch(() => null) as { status?: boolean; data?: { authorization_url?: string } } | null;
+    if (!response.ok || !payload?.status || !payload.data?.authorization_url) throw new Error("Paystack checkout could not be started.");
+    const checkout = new URL(payload.data.authorization_url);
+    if (checkout.protocol !== "https:" || !(checkout.hostname === "paystack.com" || checkout.hostname.endsWith(".paystack.com"))) throw new Error("Invalid checkout destination.");
+    return NextResponse.json({ reference, authorizationUrl: checkout.toString() });
+  } catch (error) {
+    console.error("[subscriptions] checkout initialization failed", { reference, reason: error instanceof Error ? error.name : "unknown" });
+    return NextResponse.json({ error: "We could not start the subscription checkout. Please try again." }, { status: 502 });
+  }
 }

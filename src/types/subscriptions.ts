@@ -67,6 +67,7 @@ export interface SubscriptionPaymentIntent {
   amountMinor: number;
   currency: "NGN";
   purpose: "subscription";
+  source?: "direct" | "admin_recovery";
   reference: string;
   status: SubscriptionPaymentStatus;
   providerTransactionId: string | null;

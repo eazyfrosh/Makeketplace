@@ -75,11 +75,13 @@ export async function activateSubscription({ userId, reference }: { userId: stri
 
   const expectedPlanCode = intent.billingCycle === "yearly" ? plan.yearlyPlanCode : plan.monthlyPlanCode;
   const metadataPurpose = String(verified.metadata?.purpose ?? "");
-  const isPaymentPageCheckout = intent.reference !== reference;
+  const isPaymentPageCheckout = intent.reference !== reference || intent.source === "admin_recovery";
   if (
     verified.status !== "success" || verified.reference !== reference || verified.amount !== intent.amountMinor || verified.currency !== intent.currency ||
     !verifiedEmail || verifiedEmail !== intent.email.trim().toLowerCase() ||
-    (isPaymentPageCheckout && metadataPurpose && metadataPurpose !== "subscription") ||
+    (isPaymentPageCheckout && (metadataPurpose && metadataPurpose !== "subscription" ||
+      verified.metadata?.userId && verified.metadata.userId !== intent.userId ||
+      verified.metadata?.planId && verified.metadata.planId !== intent.planId)) ||
     (!isPaymentPageCheckout && (metadataPurpose !== "subscription" || verified.metadata?.userId !== intent.userId || verified.metadata?.planId !== intent.planId || verified.metadata?.billingCycle !== intent.billingCycle)) ||
     (planCode(verified.plan) && expectedPlanCode && planCode(verified.plan) !== expectedPlanCode)
   ) throw new Error("Verified Paystack payment details do not match this subscription request.");

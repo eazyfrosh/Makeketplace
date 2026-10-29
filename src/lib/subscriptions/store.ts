@@ -167,6 +167,7 @@ export async function findPendingSubscriptionPaymentIntent(input: { email: strin
     .filter((intent) =>
       intent.email.trim().toLowerCase() === normalizedEmail &&
       intent.status === "pending" &&
+      !intent.source &&
       intent.amountMinor === input.amountMinor &&
       intent.currency === input.currency &&
       Date.parse(intent.createdAt) >= cutoff,
