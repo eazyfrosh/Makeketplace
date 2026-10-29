@@ -368,7 +368,7 @@ export default function ReceiptLab() {
     ledgerRecipientName: 'Flash Demon',
     ledgerRecipientDetails: 'G-Xchange, Inc. / Gcash',
     ledgerRecipientAccount: '09909090909',
-    ledgerSenderName: 'Flash Demon',
+    ledgerSenderName: 'EazyTool',
     ledgerSenderAccount: '••••••5287',
     ledgerCreatedOn: 'Mar 30, 2026 7:15 AM',
     ledgerReferenceNumber: 'BN-20260330-06210034',
@@ -379,7 +379,7 @@ export default function ReceiptLab() {
     novaRecipientName: 'Jane Truong',
     novaRecipientBsb: '733132',
     novaRecipientAccount: '536139',
-    novaFrom: 'ANZ Pensioner Advantage',
+    novaFrom: 'EazyTool',
     novaMessage: 'JtTF bw bank pay wpc500',
     novaReference: '733132-536139',
     novaDate: '21 Dec 2021',
@@ -1921,7 +1921,7 @@ function InvoicePreview({
         <div className="nova-bank-amount"><strong>{form.novaCurrency || '$'}{form.novaAmount || '0.00'}</strong><b>{form.novaStatus || 'Completed'}</b></div>
         <div className="nova-bank-recipient"><strong>{form.novaRecipientName || 'Jane Truong'}</strong><span>BSB {form.novaRecipientBsb || '000000'}</span><span>Account {form.novaRecipientAccount || '000000'}</span></div>
         <div className="nova-bank-details">
-          <div><small>From</small><strong>{form.novaFrom || 'Sample account'}</strong></div>
+          <div><small>From</small><strong>{form.novaFrom || 'EazyTool'}</strong></div>
           <div><small>Message</small><strong>{form.novaMessage || 'Sample payment message'}</strong></div>
           <div><small>Ref.</small><strong>{form.novaReference || 'SAMPLE-REFERENCE'}</strong></div>
           <div><small>Date</small><strong>{form.novaDate || 'Demo date'}</strong></div>
@@ -1944,7 +1944,7 @@ function InvoicePreview({
         </div>
         <div className="ledger-payment-parties">
           <section><small>To</small><strong>{form.ledgerRecipientName || 'Flash Demon'}</strong><span>{form.ledgerRecipientDetails || 'G-Xchange, Inc. / Gcash'}</span><span>{form.ledgerRecipientAccount || '0000000000'}</span></section>
-          <section><small>From</small><strong>{form.ledgerSenderName || 'Flash Demon'}</strong><span>{form.ledgerSenderAccount || '••••••5287'}</span></section>
+          <section><small>From</small><strong>{form.ledgerSenderName || 'EazyTool'}</strong><span>{form.ledgerSenderAccount || '••••••5287'}</span></section>
         </div>
         <div className="ledger-payment-meta">
           <div><small>Created on</small><strong>{form.ledgerCreatedOn || 'Demo date'}</strong></div>
