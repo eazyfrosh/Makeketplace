@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Globe2, Rocket, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = { alternates: { canonical: "/about" } };
 
 const VALUES = [
   {

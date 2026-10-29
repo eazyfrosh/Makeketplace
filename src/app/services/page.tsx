@@ -6,6 +6,7 @@ import { ServicesClient } from "./services-client";
 export const metadata: Metadata = {
   title: "Services",
   description: "Browse EazyTool's digital products and professional services.",
+  alternates: { canonical: "/services" },
 };
 
 export default function ServicesPage() {

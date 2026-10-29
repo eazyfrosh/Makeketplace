@@ -26,6 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.eazytool.app"),
   title: {
     default: "EazyTool — Practical Digital Tools for Professionals",
     template: "%s · EazyTool",
