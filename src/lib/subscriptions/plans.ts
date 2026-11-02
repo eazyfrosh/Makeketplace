@@ -1,4 +1,4 @@
-import type { SubscriptionPlan } from "@/types/subscriptions";
+import type { SubscriptionBillingCycle, SubscriptionPlan } from "@/types/subscriptions";
 
 const now = new Date().toISOString();
 
@@ -8,7 +8,7 @@ export const DEFAULT_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: "EazyTool All Access",
     description: "One plan for EazyTool's available subscription tools and templates.",
     monthlyPriceCents: 3500000,
-    yearlyPriceCents: 25000000,
+    yearlyPriceCents: 20000000,
     monthlyPlanCode: null,
     yearlyPlanCode: null,
     monthlyUsageLimit: 1000000,
@@ -26,4 +26,8 @@ export const DEFAULT_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 
 export function getDefaultPlan(id: string) {
   return DEFAULT_SUBSCRIPTION_PLANS.find((plan) => plan.id === id) ?? null;
+}
+
+export function planPriceMinor(plan: SubscriptionPlan, cycle: SubscriptionBillingCycle): number {
+  return cycle === "yearly" ? plan.yearlyPriceCents : plan.monthlyPriceCents;
 }

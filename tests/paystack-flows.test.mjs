@@ -14,6 +14,7 @@ const cancellation = read("../src/app/api/subscriptions/cancel/route.ts");
 const recovery = read("../src/app/api/subscriptions/admin/recover/route.ts");
 const subscriptionMe = read("../src/app/api/subscriptions/me/route.ts");
 const serviceAccess = read("../src/lib/licensing/service-access.ts");
+const pricing = read("../src/components/subscriptions/pricing-client.tsx");
 
 test("wallet and subscription checkouts use separate immutable payment purposes", () => {
   assert.match(walletInitialize, /purpose: "wallet_topup"/);
@@ -34,6 +35,13 @@ test("subscription callback cannot choose the owner, plan, cycle, or amount", ()
   assert.ok(!callback.includes("billingCycle"));
 });
 
+test("yearly checkout keeps the choice and server-side amount through activation", () => {
+  assert.match(pricing, /body: JSON\.stringify\(\{ planId: plan\.id, billingCycle \}\)/);
+  assert.match(subscriptionInitialize, /planPriceMinor\(plan, billingCycle\)/);
+  assert.match(subscriptionServer, /billingCycle: intent\.billingCycle/);
+  assert.match(subscriptionStore, /paidPeriodExpiry\(input\.payment\.paidAt, current\?\.expiresAt, input\.payment\.billingCycle\)/);
+});
+
 test("bank transfer confirmation stays pending without claiming success", () => {
   assert.match(subscriptionServer, /SubscriptionPaymentPendingError/);
   assert.match(subscriptionActivate, /status: "pending"/);
@@ -51,11 +59,11 @@ test("a returning customer can reconcile a delayed direct checkout", () => {
 });
 
 test("admin recovery verifies provider payment and account before activating", () => {
-  for (const marker of ["verifyAdminCaller", "getUserByEmail", "verifyPaystackTransaction", "verified.status !== \"success\"", "verified.amount !== plan.monthlyPriceCents", "paymentEmail !== email", "getFundingIntent(reference)", "getDomainOrderByReference(reference)", "source: \"admin_recovery\"", "activateSubscription({ userId: user.uid, reference })"]) assert.ok(recovery.includes(marker), marker);
+  for (const marker of ["verifyAdminCaller", "getUserByEmail", "verifyPaystackTransaction", "verified.status !== \"success\"", "verified.amount !== expectedAmountMinor", "paymentEmail !== email", "getFundingIntent(reference)", "getDomainOrderByReference(reference)", "source: \"admin_recovery\"", "activateSubscription({ userId: user.uid, reference })"]) assert.ok(recovery.includes(marker), marker);
 });
 
 test("verified subscription writes and renewals are atomic and idempotent", () => {
-  for (const marker of ["commitInitialSubscriptionPayment", "commitRenewalPayment", "runTransaction", "paymentSnap.exists", "intentSnap.data()?.status === \"paid\"", "tx.get(subscriptionRef)", "monthlyExpiry(input.payment.paidAt, current?.expiresAt)"]) assert.ok(subscriptionStore.includes(marker), marker);
+  for (const marker of ["commitInitialSubscriptionPayment", "commitRenewalPayment", "runTransaction", "paymentSnap.exists", "intentSnap.data()?.status === \"paid\"", "tx.get(subscriptionRef)", "paidPeriodExpiry(input.payment.paidAt, current?.expiresAt, input.payment.billingCycle)"]) assert.ok(subscriptionStore.includes(marker), marker);
   assert.match(subscriptionServer, /id: `paystack_\$\{input\.providerTransactionId\}`/);
   assert.match(subscriptionServer, /`sub_\$\{intent\.userId\}`/);
   assert.match(subscriptionServer, /recordedPayment\.userId !== userId/);

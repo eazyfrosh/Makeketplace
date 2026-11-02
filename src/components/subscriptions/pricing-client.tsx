@@ -14,7 +14,7 @@ import { trackSubscriptionSelection } from "@/lib/analytics/ga4";
 import { trackTikTokInitiateCheckout } from "@/lib/analytics/tiktok";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { formatPrice } from "@/lib/utils";
-import type { SubscriptionPlan } from "@/types/subscriptions";
+import type { SubscriptionBillingCycle, SubscriptionPlan } from "@/types/subscriptions";
 
 const serviceBenefits: Record<string, string> = {
   "premium-templates": "Customize a website template and manage it from your private owner dashboard.",
@@ -44,21 +44,21 @@ export function PricingClient() {
       .finally(() => setLoading(false));
   }, []);
 
-  async function subscribe(plan: SubscriptionPlan) {
+  async function subscribe(plan: SubscriptionPlan, billingCycle: SubscriptionBillingCycle) {
     if (authLoading || checkoutInProgress.current) return;
-    trackSubscriptionSelection(plan.id);
+    trackSubscriptionSelection(`${plan.id}_${billingCycle}`);
     if (!user) {
       router.push("/auth/login?next=/pricing");
       return;
     }
     checkoutInProgress.current = true;
-    setStarting(plan.id);
+    setStarting(`${plan.id}:${billingCycle}`);
     try {
       const headers = await getAuthHeaders();
       const response = await fetch("/api/subscriptions/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...headers },
-        body: JSON.stringify({ planId: plan.id }),
+        body: JSON.stringify({ planId: plan.id, billingCycle }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data?.error ?? "Could not start subscription.");
@@ -83,7 +83,6 @@ export function PricingClient() {
       {loading ? <div className="flex justify-center py-20"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div> : (
         <div className="mx-auto mt-14 grid max-w-5xl gap-5">
           {plans.map((plan) => {
-            const price = plan.monthlyPriceCents;
             return (
               <article key={plan.id} className={`relative flex flex-col rounded-3xl border p-6 sm:p-8 ${plan.popular ? "border-primary bg-primary/[0.07] shadow-[0_25px_80px_-40px_rgba(99,102,241,0.75)]" : "border-border bg-card/60"}`}>
                 {plan.popular && <div className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary-foreground">Most popular</div>}
@@ -91,11 +90,23 @@ export function PricingClient() {
                   <div className="flex flex-col">
                     <h2 className="text-xl font-semibold">{plan.name}</h2>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{plan.description}</p>
-                    <div className="mt-7 flex items-baseline gap-2"><span className="text-4xl font-semibold tracking-tight">{formatPrice(price)}</span><span className="text-sm text-muted-foreground">/month</span></div>
-                    <p className="mt-3 text-sm font-medium text-primary">Access to the services below while your subscription is active</p>
-                    <Button className="mt-7 w-full" variant={plan.popular ? "default" : "secondary"} disabled={authLoading || starting === plan.id} onClick={() => subscribe(plan)}>
-                      {starting === plan.id ? <Loader2 className="size-4 animate-spin" /> : "Subscribe"}
-                    </Button>
+                    <div className="mt-7 grid gap-3">
+                      {(["monthly", "yearly"] as const).map((cycle) => {
+                        const price = cycle === "yearly" ? plan.yearlyPriceCents : plan.monthlyPriceCents;
+                        const isStarting = starting === `${plan.id}:${cycle}`;
+                        return <div key={cycle} className="rounded-2xl border bg-background/60 p-4">
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div><h3 className="font-semibold">{cycle === "yearly" ? "Yearly" : "Monthly"}</h3><p className="mt-1 text-xs text-muted-foreground">{cycle === "yearly" ? "12 months of access" : "1 month of access"}</p></div>
+                            {cycle === "yearly" && <Badge variant="soft">Best value</Badge>}
+                          </div>
+                          <p className="mt-4 text-3xl font-semibold tracking-tight">{formatPrice(price)}<span className="ml-1 text-sm font-normal text-muted-foreground">/{cycle === "yearly" ? "year" : "month"}</span></p>
+                          <Button className="mt-4 w-full" variant={cycle === "yearly" ? "default" : "secondary"} disabled={authLoading || Boolean(starting)} aria-label={`Subscribe ${cycle} for ${formatPrice(price)}`} onClick={() => subscribe(plan, cycle)}>
+                            {isStarting ? <Loader2 className="size-4 animate-spin" /> : "Subscribe"}
+                          </Button>
+                        </div>;
+                      })}
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">Pay once for the period you choose. Access does not renew automatically.</p>
                     {!user && !authLoading && <p className="mt-3 text-center text-xs text-muted-foreground">You&apos;ll be asked to log in before subscribing.</p>}
                   </div>
                   <div className="rounded-2xl bg-muted/50 p-5 sm:p-6">

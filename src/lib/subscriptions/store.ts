@@ -1,5 +1,6 @@
 import { adminDb, isAdminDbConfigured } from "@/lib/licensing/admin-db";
 import { DEFAULT_SUBSCRIPTION_PLANS } from "@/lib/subscriptions/plans";
+import { paidPeriodExpiry } from "@/lib/subscriptions/billing-period";
 import type { Subscription, SubscriptionPayment, SubscriptionPaymentIntent, SubscriptionPlan } from "@/types/subscriptions";
 
 export const isSubscriptionBackendDurable = isAdminDbConfigured;
@@ -225,15 +226,6 @@ export async function failSubscriptionPaymentIntent(reference: string): Promise<
   if (intent?.status === "pending") demoStore().intents.set(reference, { ...intent, status: "failed", updatedAt: now });
 }
 
-function monthlyExpiry(paidAt: string | null, currentExpiry: string | null | undefined): string {
-  const paid = new Date(paidAt ?? Date.now());
-  const current = currentExpiry ? new Date(currentExpiry) : null;
-  const start = current && Number.isFinite(current.getTime()) && current.getTime() > paid.getTime() ? current : paid;
-  const next = new Date(start);
-  next.setMonth(next.getMonth() + 1);
-  return next.toISOString();
-}
-
 export async function commitInitialSubscriptionPayment(input: { intentReference: string; subscription: Subscription; payment: SubscriptionPayment }): Promise<boolean> {
   if (adminDb) {
     const intentRef = adminDb.collection(PAYMENT_INTENTS).doc(input.intentReference);
@@ -245,13 +237,14 @@ export async function commitInitialSubscriptionPayment(input: { intentReference:
       if (paymentSnap.exists || intentSnap.data()?.status === "paid") return false;
       if (intentSnap.data()?.status !== "pending") throw new Error("Subscription payment is no longer pending.");
       if (intentSnap.data()?.userId !== input.subscription.userId) throw new Error("Subscription payment owner mismatch.");
+      if (intentSnap.data()?.billingCycle !== input.payment.billingCycle || input.subscription.billingCycle !== input.payment.billingCycle || intentSnap.data()?.amountMinor !== input.payment.amountCents) throw new Error("Subscription payment terms do not match the request.");
       const current = subscriptionSnap.exists ? subscriptionSnap.data() as Subscription : null;
       tx.set(subscriptionRef, {
         ...input.subscription,
         startedAt: current?.startedAt ?? input.subscription.startedAt,
         createdAt: current?.createdAt ?? input.subscription.createdAt,
         usageThisMonth: current?.planId === input.subscription.planId ? current.usageThisMonth : input.subscription.usageThisMonth,
-        expiresAt: monthlyExpiry(input.payment.paidAt, current?.expiresAt),
+        expiresAt: paidPeriodExpiry(input.payment.paidAt, current?.expiresAt, input.payment.billingCycle),
       }, { merge: true });
       tx.create(paymentRef, input.payment);
       tx.update(intentRef, { status: "paid", providerTransactionId: input.payment.providerTransactionId, updatedAt: input.payment.updatedAt });
@@ -262,13 +255,14 @@ export async function commitInitialSubscriptionPayment(input: { intentReference:
   if (!intent) throw new Error("Subscription payment intent not found.");
   if (demoStore().payments.has(input.payment.id) || intent.status === "paid") return false;
   if (intent.userId !== input.subscription.userId) throw new Error("Subscription payment owner mismatch.");
+  if (intent.billingCycle !== input.payment.billingCycle || input.subscription.billingCycle !== input.payment.billingCycle || intent.amountMinor !== input.payment.amountCents) throw new Error("Subscription payment terms do not match the request.");
   const current = demoStore().subscriptions.get(input.subscription.id);
   demoStore().subscriptions.set(input.subscription.id, {
     ...input.subscription,
     startedAt: current?.startedAt ?? input.subscription.startedAt,
     createdAt: current?.createdAt ?? input.subscription.createdAt,
     usageThisMonth: current?.planId === input.subscription.planId ? current.usageThisMonth : input.subscription.usageThisMonth,
-    expiresAt: monthlyExpiry(input.payment.paidAt, current?.expiresAt),
+    expiresAt: paidPeriodExpiry(input.payment.paidAt, current?.expiresAt, input.payment.billingCycle),
   });
   demoStore().payments.set(input.payment.id, input.payment);
   demoStore().intents.set(intent.id, { ...intent, status: "paid", providerTransactionId: input.payment.providerTransactionId, updatedAt: input.payment.updatedAt });

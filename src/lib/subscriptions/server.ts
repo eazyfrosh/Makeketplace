@@ -11,8 +11,9 @@ import {
   listPendingDirectIntentsForUser,
   saveSubscription,
 } from "@/lib/subscriptions/store";
+import { addBillingPeriod, paidPeriodExpiry } from "@/lib/subscriptions/billing-period";
 import { verifyPaystackTransaction } from "@/lib/wallet/paystack";
-import type { Subscription, SubscriptionBillingCycle, SubscriptionPayment } from "@/types/subscriptions";
+import type { Subscription, SubscriptionPayment } from "@/types/subscriptions";
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
@@ -32,13 +33,6 @@ export async function reconcilePendingSubscriptionForUser(userId: string): Promi
       console.error("[subscriptions] account reconciliation deferred", { reason: error instanceof Error ? error.name : "unknown" });
     }
   }
-}
-
-export function addBillingPeriod(date: Date, cycle: SubscriptionBillingCycle) {
-  const next = new Date(date);
-  if (cycle === "yearly") next.setFullYear(next.getFullYear() + 1);
-  else next.setMonth(next.getMonth() + 1);
-  return next;
 }
 
 function planCode(value: string | { plan_code?: string } | undefined) {
@@ -104,19 +98,18 @@ export async function activateSubscription({ userId, reference }: { userId: stri
     !verifiedEmail || verifiedEmail !== intent.email.trim().toLowerCase() ||
     (isPaymentPageCheckout && (metadataPurpose && metadataPurpose !== "subscription" ||
       verified.metadata?.userId && verified.metadata.userId !== intent.userId ||
-      verified.metadata?.planId && verified.metadata.planId !== intent.planId)) ||
+      verified.metadata?.planId && verified.metadata.planId !== intent.planId ||
+      verified.metadata?.billingCycle && verified.metadata.billingCycle !== intent.billingCycle)) ||
     (!isPaymentPageCheckout && (metadataPurpose !== "subscription" || verified.metadata?.userId !== intent.userId || verified.metadata?.planId !== intent.planId || verified.metadata?.billingCycle !== intent.billingCycle)) ||
     (planCode(verified.plan) && expectedPlanCode && planCode(verified.plan) !== expectedPlanCode)
   ) throw new Error("Verified Paystack payment details do not match this subscription request.");
 
   const paidAt = new Date(verified.paid_at ?? Date.now());
   const previous = await getSubscriptionForUser(userId);
-  const previousExpiry = previous?.expiresAt ? new Date(previous.expiresAt) : null;
-  const periodStart = previousExpiry && previousExpiry.getTime() > paidAt.getTime() ? previousExpiry : paidAt;
-  const expiresAt = addBillingPeriod(periodStart, "monthly");
+  const expiresAt = paidPeriodExpiry(paidAt.toISOString(), previous?.expiresAt, intent.billingCycle);
   const subscription: Subscription = {
-    id: previous?.id ?? `sub_${intent.userId}`, userId: intent.userId, email: intent.email, planId: plan.id, planName: plan.name, billingCycle: "monthly",
-    status: "active", startedAt: previous?.startedAt ?? paidAt.toISOString(), nextBillingAt: null, expiresAt: expiresAt.toISOString(),
+    id: previous?.id ?? `sub_${intent.userId}`, userId: intent.userId, email: intent.email, planId: plan.id, planName: plan.name, billingCycle: intent.billingCycle,
+    status: "active", startedAt: previous?.startedAt ?? paidAt.toISOString(), nextBillingAt: null, expiresAt,
     usageThisMonth: previous?.planId === plan.id ? previous.usageThisMonth : 0, usageLimit: plan.monthlyUsageLimit,
     paystackCustomerCode: verified.customer?.customer_code ?? previous?.paystackCustomerCode ?? null,
     paystackSubscriptionCode: null,

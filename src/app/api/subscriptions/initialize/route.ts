@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { verifyCaller } from "@/lib/licensing/verify-auth";
+import { planPriceMinor } from "@/lib/subscriptions/plans";
 import { createSubscriptionPaymentIntent, getPlan } from "@/lib/subscriptions/store";
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
@@ -12,10 +13,14 @@ export async function POST(request: Request) {
   if (!caller) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   const body = await request.json().catch(() => null);
   const planId = String(body?.planId ?? "");
-  const billingCycle = "monthly" as const;
+  if (body?.billingCycle !== undefined && body.billingCycle !== "monthly" && body.billingCycle !== "yearly") {
+    return NextResponse.json({ error: "Choose a monthly or yearly subscription." }, { status: 400 });
+  }
+  const billingCycle = body?.billingCycle === "yearly" ? "yearly" : "monthly";
   const plan = await getPlan(planId);
   if (!plan || !plan.active) return NextResponse.json({ error: "Plan not found." }, { status: 404 });
-  const amountMinor = plan.monthlyPriceCents;
+  const amountMinor = planPriceMinor(plan, billingCycle);
+  if (!Number.isSafeInteger(amountMinor) || amountMinor <= 0) return NextResponse.json({ error: "This subscription price is unavailable." }, { status: 503 });
   const reference = `EZT-SUB-${Date.now()}-${crypto.randomBytes(6).toString("hex").toUpperCase()}`;
 
   if (!PAYSTACK_SECRET_KEY) return NextResponse.json({ error: "Subscription payments are not configured. Add PAYSTACK_SECRET_KEY in Vercel." }, { status: 503 });
