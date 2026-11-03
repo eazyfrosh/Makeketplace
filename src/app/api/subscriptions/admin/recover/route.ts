@@ -37,8 +37,8 @@ export async function POST(request: Request) {
     const [walletIntent, domainOrder] = await Promise.all([getFundingIntent(reference), getDomainOrderByReference(reference)]);
     const paymentEmail = verified.customer?.email?.trim().toLowerCase();
     const metadataPurpose = String(verified.metadata?.purpose ?? "");
-    const billingCycle = intent?.billingCycle ?? (verified.amount === plan.yearlyPriceCents ? "yearly" : verified.amount === plan.monthlyPriceCents ? "monthly" : null);
-    const expectedAmountMinor = intent?.amountMinor ?? (billingCycle === "yearly" ? plan.yearlyPriceCents : plan.monthlyPriceCents);
+    const billingCycle = intent?.billingCycle ?? (verified.amount === plan.yearlyPriceCents ? "yearly" : verified.amount === plan.sixMonthPriceCents ? "six_months" : verified.amount === plan.monthlyPriceCents ? "monthly" : null);
+    const expectedAmountMinor = intent?.amountMinor ?? (billingCycle === "yearly" ? plan.yearlyPriceCents : billingCycle === "six_months" ? plan.sixMonthPriceCents : plan.monthlyPriceCents);
 
     if (payment?.status === "paid" && payment.userId === user.uid) {
       return NextResponse.json({ state: "already_applied", reference, email, amountMinor: payment.amountCents, currency: payment.currency, billingCycle: payment.billingCycle });
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       verified.metadata?.userId && verified.metadata.userId !== user.uid ||
       verified.metadata?.planId && verified.metadata.planId !== plan.id ||
       verified.metadata?.billingCycle && verified.metadata.billingCycle !== billingCycle) {
-      return NextResponse.json({ error: "Paystack payment details do not match this account and subscription price. Review the payment manually.", paymentAmountMinor: verified.amount, expectedAmountsMinor: [plan.monthlyPriceCents, plan.yearlyPriceCents], currency: verified.currency, paymentEmail }, { status: 409 });
+      return NextResponse.json({ error: "Paystack payment details do not match this account and subscription price. Review the payment manually.", paymentAmountMinor: verified.amount, expectedAmountsMinor: [plan.monthlyPriceCents, plan.sixMonthPriceCents, plan.yearlyPriceCents], currency: verified.currency, paymentEmail }, { status: 409 });
     }
 
     if (action === "inspect") {

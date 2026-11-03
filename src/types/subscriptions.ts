@@ -1,5 +1,5 @@
 export type SubscriptionPlanId = "all-access";
-export type SubscriptionBillingCycle = "monthly" | "yearly";
+export type SubscriptionBillingCycle = "monthly" | "six_months" | "yearly";
 export type SubscriptionStatus = "free" | "active" | "non_renewing" | "past_due" | "cancelled" | "expired";
 export type SubscriptionPaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
@@ -8,6 +8,7 @@ export interface SubscriptionPlan {
   name: string;
   description: string;
   monthlyPriceCents: number;
+  sixMonthPriceCents: number;
   yearlyPriceCents: number;
   monthlyPlanCode: string | null;
   yearlyPlanCode: string | null;

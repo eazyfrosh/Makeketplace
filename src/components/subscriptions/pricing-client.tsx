@@ -91,16 +91,16 @@ export function PricingClient() {
                     <h2 className="text-xl font-semibold">{plan.name}</h2>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{plan.description}</p>
                     <div className="mt-7 grid gap-3">
-                      {(["monthly", "yearly"] as const).map((cycle) => {
-                        const price = cycle === "yearly" ? plan.yearlyPriceCents : plan.monthlyPriceCents;
+                      {(["monthly", "six_months", "yearly"] as const).map((cycle) => {
+                        const price = cycle === "yearly" ? plan.yearlyPriceCents : cycle === "six_months" ? plan.sixMonthPriceCents : plan.monthlyPriceCents;
                         const isStarting = starting === `${plan.id}:${cycle}`;
                         return <div key={cycle} className="rounded-2xl border bg-background/60 p-4">
                           <div className="flex flex-wrap items-start justify-between gap-2">
-                            <div><h3 className="font-semibold">{cycle === "yearly" ? "Yearly" : "Monthly"}</h3><p className="mt-1 text-xs text-muted-foreground">{cycle === "yearly" ? "12 months of access" : "1 month of access"}</p></div>
-                            {cycle === "yearly" && <Badge variant="soft">Best value</Badge>}
+                            <div><h3 className="font-semibold">{cycle === "yearly" ? "Yearly" : cycle === "six_months" ? "6 months" : "Monthly"}</h3><p className="mt-1 text-xs text-muted-foreground">{cycle === "yearly" ? "12 months of access" : cycle === "six_months" ? "6 months of access" : "1 month of access"}</p></div>
+                            {cycle === "yearly" && <Badge variant="soft">12 months</Badge>}
                           </div>
-                          <p className="mt-4 text-3xl font-semibold tracking-tight">{formatPrice(price)}<span className="ml-1 text-sm font-normal text-muted-foreground">/{cycle === "yearly" ? "year" : "month"}</span></p>
-                          <Button className="mt-4 w-full" variant={cycle === "yearly" ? "default" : "secondary"} disabled={authLoading || Boolean(starting)} aria-label={`Subscribe ${cycle} for ${formatPrice(price)}`} onClick={() => subscribe(plan, cycle)}>
+                          <p className="mt-4 text-3xl font-semibold tracking-tight">{formatPrice(price)}<span className="ml-1 text-sm font-normal text-muted-foreground">/{cycle === "yearly" ? "year" : cycle === "six_months" ? "6 months" : "month"}</span></p>
+                          <Button className="mt-4 w-full" variant={cycle === "yearly" ? "default" : "secondary"} disabled={authLoading || Boolean(starting)} aria-label={`Subscribe for ${cycle === "yearly" ? "12 months" : cycle === "six_months" ? "6 months" : "1 month"} at ${formatPrice(price)}`} onClick={() => subscribe(plan, cycle)}>
                             {isStarting ? <Loader2 className="size-4 animate-spin" /> : "Subscribe"}
                           </Button>
                         </div>;

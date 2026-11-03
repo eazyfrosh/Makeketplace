@@ -87,7 +87,7 @@ export async function POST(request: Request) {
           } else {
             const activated = await activateSubscriptionFromWebhook(reference);
             const recurringSubscriptionCode = data.subscription_code ?? data.subscription?.subscription_code;
-            if (!activated && recurringSubscriptionCode) await processSubscriptionRenewal(reference);
+            if (!activated && recurringSubscriptionCode) await processSubscriptionRenewal(reference, recurringSubscriptionCode);
           }
         }
       }

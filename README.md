@@ -92,11 +92,11 @@ npm run lint
 EazyTool uses two separate Paystack purposes through one signed webhook:
 
 - `wallet_topup` credits the authenticated user's closed-loop wallet only after Paystack verification.
-- `subscription` activates EazyTool All Access for the selected one-month or 12-month period after a verified one-time Paystack payment.
+- `subscription` activates EazyTool All Access for the selected one-month, six-month, or 12-month period after a verified one-time Paystack payment.
 
 Configure `PAYSTACK_SECRET_KEY` and `NEXT_PUBLIC_APP_URL` in Vercel. The
 subscription checkout now initializes a Paystack transaction for each customer
-with an EazyTool reference and the server-side monthly (₦35,000) or yearly (₦200,000) price. Paystack shows
+with an EazyTool reference and the server-side monthly (₦35,000), six-month (₦100,000), or yearly (₦200,000) price. Paystack shows
 the payment methods enabled for your account, including transfer when available.
 The old `PAYSTACK_SUBSCRIPTION_PAYMENT_PAGE_URL` variable is no longer used.
 Configure the webhook URL as:

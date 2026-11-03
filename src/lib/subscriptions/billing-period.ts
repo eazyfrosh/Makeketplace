@@ -5,7 +5,7 @@ export function addBillingPeriod(date: Date, cycle: SubscriptionBillingCycle): D
   const day = next.getUTCDate();
   next.setUTCDate(1);
   if (cycle === "yearly") next.setUTCFullYear(next.getUTCFullYear() + 1);
-  else next.setUTCMonth(next.getUTCMonth() + 1);
+  else next.setUTCMonth(next.getUTCMonth() + (cycle === "six_months" ? 6 : 1));
   const lastDay = new Date(Date.UTC(next.getUTCFullYear(), next.getUTCMonth() + 1, 0)).getUTCDate();
   next.setUTCDate(Math.min(day, lastDay));
   return next;

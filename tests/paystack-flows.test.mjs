@@ -35,8 +35,10 @@ test("subscription callback cannot choose the owner, plan, cycle, or amount", ()
   assert.ok(!callback.includes("billingCycle"));
 });
 
-test("yearly checkout keeps the choice and server-side amount through activation", () => {
+test("each subscription period keeps its choice and server-side amount through activation", () => {
   assert.match(pricing, /body: JSON\.stringify\(\{ planId: plan\.id, billingCycle \}\)/);
+  assert.match(pricing, /\["monthly", "six_months", "yearly"\]/);
+  assert.match(subscriptionInitialize, /body\.billingCycle !== "six_months"/);
   assert.match(subscriptionInitialize, /planPriceMinor\(plan, billingCycle\)/);
   assert.match(subscriptionServer, /billingCycle: intent\.billingCycle/);
   assert.match(subscriptionStore, /paidPeriodExpiry\(input\.payment\.paidAt, current\?\.expiresAt, input\.payment\.billingCycle\)/);

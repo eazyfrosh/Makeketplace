@@ -1,6 +1,7 @@
 import {
   claimSubscriptionReconciliation,
   commitInitialSubscriptionPayment,
+  commitProviderSubscriptionStatus,
   commitRenewalPayment,
   findSubscriptionByProvider,
   findPendingSubscriptionPaymentIntent,
@@ -9,7 +10,6 @@ import {
   getSubscriptionForUser,
   getSubscriptionPaymentIntent,
   listPendingDirectIntentsForUser,
-  saveSubscription,
 } from "@/lib/subscriptions/store";
 import { addBillingPeriod, paidPeriodExpiry } from "@/lib/subscriptions/billing-period";
 import { verifyPaystackTransaction } from "@/lib/wallet/paystack";
@@ -90,7 +90,7 @@ export async function activateSubscription({ userId, reference }: { userId: stri
   }
   if (intent.status !== "pending") throw new Error("This subscription payment is no longer pending.");
 
-  const expectedPlanCode = intent.billingCycle === "yearly" ? plan.yearlyPlanCode : plan.monthlyPlanCode;
+  const expectedPlanCode = intent.billingCycle === "yearly" ? plan.yearlyPlanCode : intent.billingCycle === "monthly" ? plan.monthlyPlanCode : null;
   const metadataPurpose = String(verified.metadata?.purpose ?? "");
   const isPaymentPageCheckout = intent.reference !== reference || intent.source === "admin_recovery";
   if (
@@ -135,16 +135,17 @@ export async function activateSubscriptionFromWebhook(reference: string) {
   return true;
 }
 
-export async function processSubscriptionRenewal(reference: string) {
+export async function processSubscriptionRenewal(reference: string, subscriptionCode: string) {
   if (!PAYSTACK_SECRET_KEY) throw new Error("Paystack is not configured.");
   const verified = await verifyPaystackTransaction(reference, PAYSTACK_SECRET_KEY);
   if (verified.status !== "success" || verified.reference !== reference || verified.currency !== "NGN") throw new Error("Paystack renewal verification failed.");
-  const subscription = await findSubscriptionByProvider({ email: verified.customer?.email, customerCode: verified.customer?.customer_code, subscriptionCode: verified.subscription_code });
+  const subscription = await findSubscriptionByProvider({ subscriptionCode });
   if (!subscription) return false;
+  if (subscription.paystackSubscriptionCode !== subscriptionCode || verified.subscription_code && verified.subscription_code !== subscriptionCode) throw new Error("Paystack renewal does not match this subscription.");
   const plan = await getPlan(subscription.planId);
   if (!plan) throw new Error("Subscription plan not found.");
-  const expectedAmount = subscription.billingCycle === "yearly" ? plan.yearlyPriceCents : plan.monthlyPriceCents;
-  const expectedPlanCode = subscription.billingCycle === "yearly" ? plan.yearlyPlanCode : plan.monthlyPlanCode;
+  const expectedAmount = subscription.billingCycle === "yearly" ? plan.yearlyPriceCents : subscription.billingCycle === "six_months" ? plan.sixMonthPriceCents : plan.monthlyPriceCents;
+  const expectedPlanCode = subscription.billingCycle === "yearly" ? plan.yearlyPlanCode : subscription.billingCycle === "monthly" ? plan.monthlyPlanCode : null;
   if (verified.amount !== expectedAmount || (planCode(verified.plan) && expectedPlanCode && planCode(verified.plan) !== expectedPlanCode)) throw new Error("Verified renewal details do not match the subscription.");
   const paidAt = new Date(verified.paid_at ?? Date.now());
   const nextBilling = addBillingPeriod(paidAt, subscription.billingCycle);
@@ -154,8 +155,8 @@ export async function processSubscriptionRenewal(reference: string) {
 }
 
 export async function updateSubscriptionFromProvider(input: { email?: string; customerCode?: string; subscriptionCode?: string; status: Subscription["status"]; nextBillingAt?: string | null; emailToken?: string | null }) {
-  const subscription = await findSubscriptionByProvider(input);
+  if (!input.subscriptionCode) return false;
+  const subscription = await findSubscriptionByProvider({ subscriptionCode: input.subscriptionCode });
   if (!subscription) return false;
-  await saveSubscription({ ...subscription, status: input.status, paystackSubscriptionCode: input.subscriptionCode ?? subscription.paystackSubscriptionCode, paystackCustomerCode: input.customerCode ?? subscription.paystackCustomerCode, paystackEmailToken: input.emailToken ?? subscription.paystackEmailToken, nextBillingAt: input.nextBillingAt ?? subscription.nextBillingAt, updatedAt: new Date().toISOString() });
-  return true;
+  return commitProviderSubscriptionStatus({ subscriptionId: subscription.id, subscriptionCode: input.subscriptionCode, status: input.status, customerCode: input.customerCode ?? null, emailToken: input.emailToken ?? null, nextBillingAt: input.nextBillingAt ?? null });
 }

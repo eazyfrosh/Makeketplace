@@ -15,7 +15,7 @@ type RecoveryResult = {
   currency?: string;
   paidAt?: string | null;
   planName?: string;
-  billingCycle?: "monthly" | "yearly";
+  billingCycle?: "monthly" | "six_months" | "yearly";
   paymentStatus?: string;
   expiresAt?: string | null;
 };
@@ -70,7 +70,7 @@ export function AdminPaymentRecovery({ onActivated }: { onActivated: () => void 
       <p className="mt-2">Account: {result.email}</p>
       <p>Amount: {formatPrice(result.amountMinor ?? 0)} {result.currency}</p>
       <p>Plan: {result.planName}</p>
-      <p>Access period: {result.billingCycle === "yearly" ? "12 months" : "1 month"}</p>
+      <p>Access period: {result.billingCycle === "yearly" ? "12 months" : result.billingCycle === "six_months" ? "6 months" : "1 month"}</p>
       {result.paidAt && <p>Paid: {new Date(result.paidAt).toLocaleString()}</p>}
       <Button className="mt-4" disabled={busy} onClick={() => submit("activate")}>{busy ? "Activating…" : "Activate this verified subscription"}</Button>
     </div>}

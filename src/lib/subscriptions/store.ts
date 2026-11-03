@@ -270,30 +270,55 @@ export async function commitInitialSubscriptionPayment(input: { intentReference:
 }
 
 export async function commitRenewalPayment(input: { subscription: Subscription; payment: SubscriptionPayment }): Promise<boolean> {
+  const subscriptionCode = input.subscription.paystackSubscriptionCode;
+  if (!subscriptionCode || input.payment.subscriptionId !== input.subscription.id || input.payment.userId !== input.subscription.userId || input.payment.billingCycle !== input.subscription.billingCycle) return false;
   if (adminDb) {
     const paymentRef = adminDb.collection(PAYMENTS).doc(input.payment.id);
     const subscriptionRef = adminDb.collection(SUBSCRIPTIONS).doc(input.subscription.id);
     return adminDb.runTransaction(async (tx) => {
-      const paymentSnap = await tx.get(paymentRef);
+      const [paymentSnap, subscriptionSnap] = await Promise.all([tx.get(paymentRef), tx.get(subscriptionRef)]);
       if (paymentSnap.exists) return false;
-      tx.set(subscriptionRef, input.subscription, { merge: true });
+      const current = subscriptionSnap.exists ? subscriptionSnap.data() as Subscription : null;
+      if (!current || current.paystackSubscriptionCode !== subscriptionCode || current.userId !== input.payment.userId || current.billingCycle !== input.payment.billingCycle) return false;
+      const expiresAt = paidPeriodExpiry(input.payment.paidAt, current.expiresAt, input.payment.billingCycle);
+      tx.set(subscriptionRef, { ...current, status: "active", nextBillingAt: expiresAt, expiresAt, updatedAt: new Date().toISOString() }, { merge: true });
       tx.create(paymentRef, input.payment);
       return true;
     });
   }
   if (demoStore().payments.has(input.payment.id)) return false;
-  demoStore().subscriptions.set(input.subscription.id, input.subscription);
+  const current = demoStore().subscriptions.get(input.subscription.id);
+  if (!current || current.paystackSubscriptionCode !== subscriptionCode || current.userId !== input.payment.userId || current.billingCycle !== input.payment.billingCycle) return false;
+  const expiresAt = paidPeriodExpiry(input.payment.paidAt, current.expiresAt, input.payment.billingCycle);
+  demoStore().subscriptions.set(input.subscription.id, { ...current, status: "active", nextBillingAt: expiresAt, expiresAt, updatedAt: new Date().toISOString() });
   demoStore().payments.set(input.payment.id, input.payment);
   return true;
 }
 
 export async function findSubscriptionByProvider(input: { email?: string; customerCode?: string; subscriptionCode?: string }): Promise<Subscription | null> {
   const subscriptions = await listSubscriptions();
+  if (input.subscriptionCode) return subscriptions.find((item) => item.paystackSubscriptionCode === input.subscriptionCode) ?? null;
   return subscriptions.find((item) =>
-    Boolean(input.subscriptionCode && item.paystackSubscriptionCode === input.subscriptionCode) ||
     Boolean(input.customerCode && item.paystackCustomerCode === input.customerCode) ||
     Boolean(input.email && item.email.toLowerCase() === input.email.toLowerCase()),
   ) ?? null;
+}
+
+export async function commitProviderSubscriptionStatus(input: { subscriptionId: string; subscriptionCode: string; status: Subscription["status"]; customerCode: string | null; emailToken: string | null; nextBillingAt: string | null }): Promise<boolean> {
+  if (adminDb) {
+    const ref = adminDb.collection(SUBSCRIPTIONS).doc(input.subscriptionId);
+    return adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const current = snap.exists ? snap.data() as Subscription : null;
+      if (!current || current.paystackSubscriptionCode !== input.subscriptionCode) return false;
+      tx.update(ref, { status: input.status, paystackCustomerCode: input.customerCode ?? current.paystackCustomerCode, paystackEmailToken: input.emailToken ?? current.paystackEmailToken, nextBillingAt: input.nextBillingAt ?? current.nextBillingAt, updatedAt: new Date().toISOString() });
+      return true;
+    });
+  }
+  const current = demoStore().subscriptions.get(input.subscriptionId);
+  if (!current || current.paystackSubscriptionCode !== input.subscriptionCode) return false;
+  demoStore().subscriptions.set(current.id, { ...current, status: input.status, paystackCustomerCode: input.customerCode ?? current.paystackCustomerCode, paystackEmailToken: input.emailToken ?? current.paystackEmailToken, nextBillingAt: input.nextBillingAt ?? current.nextBillingAt, updatedAt: new Date().toISOString() });
+  return true;
 }
 
 export async function hasPaystackProviderEvent(eventId: string): Promise<boolean> {

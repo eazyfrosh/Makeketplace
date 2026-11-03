@@ -13,10 +13,10 @@ export async function POST(request: Request) {
   if (!caller) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   const body = await request.json().catch(() => null);
   const planId = String(body?.planId ?? "");
-  if (body?.billingCycle !== undefined && body.billingCycle !== "monthly" && body.billingCycle !== "yearly") {
-    return NextResponse.json({ error: "Choose a monthly or yearly subscription." }, { status: 400 });
+  if (body?.billingCycle !== undefined && body.billingCycle !== "monthly" && body.billingCycle !== "six_months" && body.billingCycle !== "yearly") {
+    return NextResponse.json({ error: "Choose a monthly, six-month, or yearly subscription." }, { status: 400 });
   }
-  const billingCycle = body?.billingCycle === "yearly" ? "yearly" : "monthly";
+  const billingCycle = body?.billingCycle === "yearly" ? "yearly" : body?.billingCycle === "six_months" ? "six_months" : "monthly";
   const plan = await getPlan(planId);
   if (!plan || !plan.active) return NextResponse.json({ error: "Plan not found." }, { status: 404 });
   const amountMinor = planPriceMinor(plan, billingCycle);

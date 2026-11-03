@@ -14,12 +14,23 @@ async function importTypeScript(path) {
 const { DEFAULT_SUBSCRIPTION_PLANS, planPriceMinor } = await importTypeScript("../src/lib/subscriptions/plans.ts");
 const { paidPeriodExpiry } = await importTypeScript("../src/lib/subscriptions/billing-period.ts");
 
-test("All Access lists ₦35,000 monthly and ₦200,000 yearly in Paystack minor units", () => {
+test("All Access lists ₦35,000 monthly, ₦100,000 six-month, and ₦200,000 yearly prices in Paystack minor units", () => {
   const plan = DEFAULT_SUBSCRIPTION_PLANS.find((item) => item.id === "all-access");
   assert.equal(plan?.monthlyPriceCents, 3_500_000);
+  assert.equal(plan?.sixMonthPriceCents, 10_000_000);
   assert.equal(plan?.yearlyPriceCents, 20_000_000);
   assert.equal(planPriceMinor(plan, "monthly"), 3_500_000);
+  assert.equal(planPriceMinor(plan, "six_months"), 10_000_000);
   assert.equal(planPriceMinor(plan, "yearly"), 20_000_000);
+});
+
+test("a verified six-month payment grants six calendar months", () => {
+  assert.equal(paidPeriodExpiry("2026-11-03T12:00:00.000Z", null, "six_months"), "2027-05-03T12:00:00.000Z");
+  assert.equal(paidPeriodExpiry("2026-08-31T12:00:00.000Z", null, "six_months"), "2027-02-28T12:00:00.000Z");
+});
+
+test("an early six-month payment extends from the current paid expiry", () => {
+  assert.equal(paidPeriodExpiry("2026-11-03T12:00:00.000Z", "2027-02-03T12:00:00.000Z", "six_months"), "2027-08-03T12:00:00.000Z");
 });
 
 test("a verified yearly payment grants a full calendar year", () => {
