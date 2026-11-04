@@ -340,19 +340,37 @@ export async function markSubscriptionPaymentRefunded(reference: string): Promis
   const payment = await getPaymentByReference(reference);
   if (!payment || payment.status === "refunded") return;
   const now = new Date().toISOString();
+  const hasNewerPaidPayment = (payments: SubscriptionPayment[]) => payments.some((candidate) =>
+    candidate.id !== payment.id &&
+    candidate.subscriptionId === payment.subscriptionId &&
+    candidate.userId === payment.userId &&
+    candidate.status === "paid" &&
+    Date.parse(candidate.paidAt ?? candidate.createdAt) > Date.parse(payment.paidAt ?? payment.createdAt),
+  );
   if (adminDb) {
     const database = adminDb;
     await database.runTransaction(async (tx) => {
       const paymentRef = database.collection(PAYMENTS).doc(payment.id);
       const subscriptionRef = database.collection(SUBSCRIPTIONS).doc(payment.subscriptionId);
-      const paymentSnap = await tx.get(paymentRef);
+      // A single-field query avoids a composite index and lets an old refund
+      // leave access paid for by a later transaction intact.
+      const paymentsQuery = database.collection(PAYMENTS).where("subscriptionId", "==", payment.subscriptionId);
+      const [paymentSnap, subscriptionSnap, paymentsSnap] = await Promise.all([
+        tx.get(paymentRef), tx.get(subscriptionRef), tx.get(paymentsQuery),
+      ]);
       if (!paymentSnap.exists || paymentSnap.data()?.status === "refunded") return;
       tx.update(paymentRef, { status: "refunded", updatedAt: now });
-      tx.set(subscriptionRef, { status: "cancelled", updatedAt: now }, { merge: true });
+      if (subscriptionSnap.exists && subscriptionSnap.data()?.userId === payment.userId &&
+        !hasNewerPaidPayment(paymentsSnap.docs.map((doc) => doc.data() as SubscriptionPayment))) {
+        tx.set(subscriptionRef, { status: "cancelled", updatedAt: now }, { merge: true });
+      }
     });
     return;
   }
   demoStore().payments.set(payment.id, { ...payment, status: "refunded", updatedAt: now });
   const subscription = demoStore().subscriptions.get(payment.subscriptionId);
-  if (subscription) demoStore().subscriptions.set(subscription.id, { ...subscription, status: "cancelled", updatedAt: now });
+  if (subscription?.userId === payment.userId &&
+    !hasNewerPaidPayment(Array.from(demoStore().payments.values()))) {
+    demoStore().subscriptions.set(subscription.id, { ...subscription, status: "cancelled", updatedAt: now });
+  }
 }

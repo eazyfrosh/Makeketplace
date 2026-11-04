@@ -18,14 +18,29 @@ function createStore() {
   };
   const adminDb = {
     collection(name) {
+      const query = (filters = [], max = Infinity) => ({
+        name,
+        filters,
+        max,
+        where(field, operator, value) {
+          assert.equal(operator, "==");
+          return query([...filters, [field, value]], max);
+        },
+        limit(count) { return query(filters, count); },
+        async get() {
+          const values = Array.from(docs(name).values()).filter((value) => filters.every(([field, expected]) => value[field] === expected)).slice(0, max);
+          return { docs: values.map((value) => ({ data: () => value })), empty: values.length === 0 };
+        },
+      });
       return {
+        ...query(),
         doc(id) { return { name, id }; },
-        async get() { return { docs: Array.from(docs(name).values(), (value) => ({ data: () => value })) }; },
       };
     },
     async runTransaction(callback) {
       const tx = {
         async get(ref) {
+          if (ref.filters) return ref.get();
           const value = docs(ref.name).get(ref.id);
           return { exists: value !== undefined, data: () => value };
         },
@@ -106,4 +121,40 @@ test("provider lookup and status update require the exact legacy subscription co
   docs("subscriptions").set(currentSubscription.id, newer);
   assert.equal(await store.commitProviderSubscriptionStatus({ subscriptionId: currentSubscription.id, subscriptionCode: "SUB_OLD", status: "past_due", customerCode: null, emailToken: null, nextBillingAt: null }), false);
   assert.equal(docs("subscriptions").get(currentSubscription.id), newer);
+});
+
+test("refunding an older payment preserves access from a newer paid subscription", async () => {
+  const { store, docs } = createStore();
+  const oldPayment = {
+    id: "paystack_old", reference: "OLD", subscriptionId: currentSubscription.id,
+    userId: currentSubscription.userId, status: "paid", paidAt: "2026-10-01T00:00:00.000Z", createdAt: "2026-11-02T00:00:00.000Z",
+  };
+  const newPayment = {
+    ...oldPayment, id: "paystack_new", reference: "NEW", paidAt: "2026-11-01T00:00:00.000Z", createdAt: "2026-11-01T00:00:00.000Z",
+  };
+  docs("subscriptionPayments").set(oldPayment.id, oldPayment);
+  docs("subscriptionPayments").set(newPayment.id, newPayment);
+  docs("subscriptions").set(currentSubscription.id, { ...currentSubscription, status: "active", expiresAt: "2027-05-01T00:00:00.000Z" });
+
+  await store.markSubscriptionPaymentRefunded("OLD");
+  assert.equal(docs("subscriptionPayments").get(oldPayment.id).status, "refunded");
+  assert.equal(docs("subscriptionPayments").get(newPayment.id).status, "paid");
+  assert.equal(docs("subscriptions").get(currentSubscription.id).status, "active");
+  assert.equal(docs("subscriptions").get(currentSubscription.id).expiresAt, "2027-05-01T00:00:00.000Z");
+  await store.markSubscriptionPaymentRefunded("OLD");
+  assert.equal(docs("subscriptions").get(currentSubscription.id).status, "active");
+});
+
+test("refunding the only paid subscription payment cancels its access", async () => {
+  const { store, docs } = createStore();
+  const payment = {
+    id: "paystack_only", reference: "ONLY", subscriptionId: currentSubscription.id,
+    userId: currentSubscription.userId, status: "paid", createdAt: "2026-10-01T00:00:00.000Z",
+  };
+  docs("subscriptionPayments").set(payment.id, payment);
+  docs("subscriptions").set(currentSubscription.id, { ...currentSubscription });
+
+  await store.markSubscriptionPaymentRefunded("ONLY");
+  assert.equal(docs("subscriptionPayments").get(payment.id).status, "refunded");
+  assert.equal(docs("subscriptions").get(currentSubscription.id).status, "cancelled");
 });

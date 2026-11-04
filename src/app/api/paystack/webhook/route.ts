@@ -10,6 +10,7 @@ import {
   hasPaystackProviderEvent,
   markSubscriptionPaymentRefunded,
   recordPaystackProviderEvent,
+  isSubscriptionBackendDurable,
 } from "@/lib/subscriptions/store";
 import { activateSubscription, activateSubscriptionFromWebhook, processSubscriptionRenewal, updateSubscriptionFromProvider } from "@/lib/subscriptions/server";
 import { creditVerifiedDeposit, failFundingIntent, getFundingIntent, reverseVerifiedDeposit } from "@/lib/wallet/store";
@@ -47,6 +48,9 @@ function providerIdentity(data: NonNullable<PaystackEvent["data"]>) {
 }
 
 export async function POST(request: Request) {
+  // A successful payment must never be acknowledged while financial records
+  // would only be stored in the process-local demo fallback.
+  if (!isSubscriptionBackendDurable) return NextResponse.json({ error: "Payment processing is temporarily unavailable." }, { status: 503 });
   const secret = process.env.PAYSTACK_SECRET_KEY;
   if (!secret) return NextResponse.json({ error: "Paystack webhook is not configured." }, { status: 503 });
   const rawBody = await request.text();

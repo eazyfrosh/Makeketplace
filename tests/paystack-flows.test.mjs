@@ -27,6 +27,14 @@ test("wallet and subscription checkouts use separate immutable payment purposes"
   assert.ok(!subscriptionInitialize.includes("demo: true"));
 });
 
+test("subscription checkout and webhook fail closed without durable financial storage", () => {
+  assert.match(subscriptionInitialize, /if \(!isSubscriptionBackendDurable\) return NextResponse\.json\(/);
+  assert.ok(subscriptionInitialize.indexOf("!isSubscriptionBackendDurable") < subscriptionInitialize.indexOf("transaction/initialize"));
+  assert.match(subscriptionActivate, /if \(!isSubscriptionBackendDurable\) return NextResponse\.json\(/);
+  assert.match(webhook, /if \(!isSubscriptionBackendDurable\) return NextResponse\.json\(/);
+  assert.ok(webhook.indexOf("!isSubscriptionBackendDurable") < webhook.indexOf("hasPaystackProviderEvent(eventId)"));
+});
+
 test("subscription callback cannot choose the owner, plan, cycle, or amount", () => {
   assert.deepEqual([...subscriptionActivate.matchAll(/body\?\.(\w+)/g)].map((match) => match[1]), ["reference"]);
   assert.match(subscriptionServer, /getSubscriptionPaymentIntent\(reference\)/);

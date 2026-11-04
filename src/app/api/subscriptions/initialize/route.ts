@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { planPriceMinor } from "@/lib/subscriptions/plans";
-import { createSubscriptionPaymentIntent, getPlan } from "@/lib/subscriptions/store";
+import { createSubscriptionPaymentIntent, getPlan, isSubscriptionBackendDurable } from "@/lib/subscriptions/store";
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 export const runtime = "nodejs";
@@ -11,6 +11,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  if (!isSubscriptionBackendDurable) return NextResponse.json({ error: "Subscription checkout is temporarily unavailable. Please try again later." }, { status: 503 });
   const body = await request.json().catch(() => null);
   const planId = String(body?.planId ?? "");
   if (body?.billingCycle !== undefined && body.billingCycle !== "monthly" && body.billingCycle !== "six_months" && body.billingCycle !== "yearly") {

@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 
 import { verifyCaller } from "@/lib/licensing/verify-auth";
 import { activateSubscription, SubscriptionPaymentPendingError } from "@/lib/subscriptions/server";
+import { isSubscriptionBackendDurable } from "@/lib/subscriptions/store";
 
 export async function POST(request: Request) {
   const caller = await verifyCaller(request);
   if (!caller) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  if (!isSubscriptionBackendDurable) return NextResponse.json({ error: "Subscription verification is temporarily unavailable. Please try again later." }, { status: 503 });
   const body = await request.json().catch(() => null);
   const reference = String(body?.reference ?? "");
   if (!reference) return NextResponse.json({ error: "Missing subscription payment reference." }, { status: 400 });
