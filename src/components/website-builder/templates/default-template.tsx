@@ -15,8 +15,8 @@ export function DefaultTemplate({ config }: { config: WebsiteConfig }) {
 
   return (
     <div className="min-h-full bg-white text-neutral-900">
-      <header className="flex items-center justify-between border-b border-neutral-200 px-6 py-4 sm:px-10">
-        <div className="flex items-center gap-3">
+      <header className="flex min-w-0 items-center justify-between gap-3 border-b border-neutral-200 px-4 py-4 sm:px-10">
+        <div className="flex min-w-0 items-center gap-3">
           {config.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- arbitrary user-supplied URL, not an optimizable local/remote asset
             <img src={config.logoUrl} alt={`${config.siteName} logo`} className="h-9 w-9 rounded-lg object-contain" />
@@ -28,11 +28,11 @@ export function DefaultTemplate({ config }: { config: WebsiteConfig }) {
               {initial}
             </span>
           )}
-          <span className="font-semibold tracking-tight">{config.siteName}</span>
+          <span className="min-w-0 truncate font-semibold tracking-tight">{config.siteName}</span>
         </div>
         <a
           href="#contact"
-          className="rounded-full px-4 py-1.5 text-sm font-medium text-white"
+          className="shrink-0 rounded-full px-3 py-1.5 text-xs font-medium text-white sm:px-4 sm:text-sm"
           style={{ backgroundColor: config.brandColor }}
         >
           Contact

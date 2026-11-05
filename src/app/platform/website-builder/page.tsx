@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Save } from "lucide-react";
+import { Eye, Loader2, Monitor, Save, Smartphone, Tablet } from "lucide-react";
 import { toast } from "sonner";
 
 import { getWebsiteConfig, saveWebsiteConfig } from "@/lib/website/client";
@@ -13,12 +13,17 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+type PreviewMode = "desktop" | "tablet" | "mobile";
 
 export default function WebsiteBuilderPage() {
   const [config, setConfig] = React.useState<WebsiteConfig | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
+  const [previewOpen, setPreviewOpen] = React.useState(false);
+  const [previewMode, setPreviewMode] = React.useState<PreviewMode>("desktop");
 
   React.useEffect(() => {
     getWebsiteConfig()
@@ -74,6 +79,7 @@ export default function WebsiteBuilderPage() {
   }
 
   const Template = getTemplate(config.templateId);
+  const previewWidth = previewMode === "mobile" ? "w-[390px] max-w-full" : previewMode === "tablet" ? "w-[820px] max-w-full" : "w-full";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
@@ -171,17 +177,34 @@ export default function WebsiteBuilderPage() {
         </Card>
 
         <div className="border-border/60 overflow-hidden rounded-2xl border">
-          <div className="border-border/60 bg-muted/40 flex items-center gap-1.5 border-b px-4 py-2.5">
+          <div className="border-border/60 bg-muted/40 flex flex-wrap items-center gap-1.5 border-b px-3 py-2.5 sm:px-4">
             <span className="size-2.5 rounded-full bg-red-400/70" />
             <span className="size-2.5 rounded-full bg-yellow-400/70" />
             <span className="size-2.5 rounded-full bg-green-400/70" />
-            <span className="text-muted-foreground ml-3 text-xs">Live preview</span>
+            <span className="text-muted-foreground ml-2 text-xs sm:ml-3">Live preview</span>
+            <Button type="button" size="sm" variant="secondary" className="ml-auto" onClick={() => { setPreviewMode("desktop"); setPreviewOpen(true); }}><Eye className="size-4" /> <span className="hidden sm:inline">Preview full website</span><span className="sm:hidden">Preview</span></Button>
           </div>
           <div className="max-h-[75vh] overflow-y-auto">
             <Template config={config} />
           </div>
         </div>
       </div>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="flex h-[min(94vh,960px)] max-w-[min(96vw,1440px)] flex-col gap-0 overflow-hidden p-0">
+          <DialogHeader className="shrink-0 border-b bg-background/95 px-4 py-3 pr-12 backdrop-blur sm:px-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0"><DialogTitle className="truncate text-base sm:text-lg">{config.siteName || "Your website"}</DialogTitle><DialogDescription className="mt-1 truncate">Full website preview — {previewMode} view</DialogDescription></div>
+              <div className="flex shrink-0 gap-1 rounded-xl border bg-muted/50 p-1" aria-label="Preview device size">
+                {(["desktop", "tablet", "mobile"] as const).map((value) => { const Icon = value === "desktop" ? Monitor : value === "tablet" ? Tablet : Smartphone; return <button key={value} type="button" onClick={() => setPreviewMode(value)} aria-label={`${value} preview`} aria-pressed={previewMode === value} className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold capitalize transition-colors sm:px-3 ${previewMode === value ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}><Icon className="size-3.5" />{value}</button>; })}
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="min-h-0 flex-1 overflow-auto bg-muted/60 p-2 sm:p-4">
+            <div className={`mx-auto min-h-full overflow-hidden rounded-xl bg-background shadow-xl ring-1 ring-black/10 transition-[width] duration-200 ${previewWidth}`}><Template config={config} /></div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
