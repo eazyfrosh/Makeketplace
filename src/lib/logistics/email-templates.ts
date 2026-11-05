@@ -1,4 +1,7 @@
-import { STATUS_LABELS, type Shipment, type ShipmentStatus, type TrackingEvent } from "@/lib/logistics/types";
+import { STATUS_LABELS, type ShipmentStatus, type TrackingEvent } from "@/lib/logistics/types";
+
+type EmailShipment = { trackingNumber: string; estimatedDeliveryDate: string; receiver: { name?: string } };
+type EmailEvent = Pick<TrackingEvent, "status" | "location" | "description" | "timestamp" | "notes">;
 
 interface StatusCopy {
   eyebrow: string;
@@ -26,16 +29,22 @@ function escapeHtml(value: string) {
 }
 
 function displayDate(value: string) {
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC", timeZoneName: "short" }).format(date) : "To be confirmed";
 }
 
-export function getShipmentEmailSubject(shipment: Shipment, status: ShipmentStatus) {
+function displayEstimatedDelivery(value: string) {
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? new Intl.DateTimeFormat("en", { dateStyle: "long", timeZone: "UTC" }).format(date) : "To be confirmed";
+}
+
+export function getShipmentEmailSubject(shipment: EmailShipment, status: ShipmentStatus) {
   return `${STATUS_LABELS[status]} — shipment ${shipment.trackingNumber}`;
 }
 
 export function renderShipmentStatusEmail(input: {
-  shipment: Shipment;
-  event: TrackingEvent;
+  shipment: EmailShipment;
+  event: EmailEvent;
   trackingUrl: string;
 }) {
   const { shipment, event, trackingUrl } = input;
@@ -48,7 +57,7 @@ export function renderShipmentStatusEmail(input: {
     location: escapeHtml(event.location || "Not provided"),
     description: escapeHtml(event.description || copy.message),
     notes: event.notes ? escapeHtml(event.notes) : "",
-    estimatedDelivery: escapeHtml(new Intl.DateTimeFormat("en", { dateStyle: "long" }).format(new Date(shipment.estimatedDeliveryDate))),
+    estimatedDelivery: escapeHtml(displayEstimatedDelivery(shipment.estimatedDeliveryDate)),
     eventTime: escapeHtml(displayDate(event.timestamp)),
     trackingUrl: escapeHtml(trackingUrl),
   };
@@ -60,7 +69,10 @@ export function renderShipmentStatusEmail(input: {
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #e2e8f0">
       <tr><td style="height:7px;background:${copy.color}"></td></tr>
       <tr><td style="padding:30px 30px 16px">
-        <div style="font-size:20px;font-weight:800;letter-spacing:-.02em">TrackNova</div>
+        <table role="presentation" cellspacing="0" cellpadding="0"><tr>
+          <td style="width:38px;height:38px;border-radius:10px;background:#0f172a;color:#ffffff;text-align:center;font-size:21px;font-weight:800">T</td>
+          <td style="padding-left:10px;font-size:20px;font-weight:800;letter-spacing:-.02em">Track<span style="color:#ea580c">Nova</span><div style="font-size:10px;font-weight:600;letter-spacing:.12em;color:#64748b;text-transform:uppercase">Shipment updates</div></td>
+        </tr></table>
         <div style="margin-top:28px;color:${copy.color};font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(copy.eyebrow)}</div>
         <h1 style="margin:10px 0 12px;font-size:28px;line-height:1.2;letter-spacing:-.03em">${escapeHtml(copy.heading)}</h1>
         <p style="margin:0;color:#475569;font-size:15px;line-height:1.7">Hello ${safe.recipient}, ${escapeHtml(copy.message)}</p>
@@ -84,7 +96,7 @@ export function renderShipmentStatusEmail(input: {
   </td></tr></table>
 </body></html>`;
 
-  const text = `${copy.heading}\n\nHello ${shipment.receiver.name || "Customer"},\n${copy.message}\n\nTracking number: ${shipment.trackingNumber}\nStatus: ${STATUS_LABELS[event.status]}\nLocation: ${event.location || "Not provided"}\nUpdate: ${event.description || copy.message}\nEstimated delivery: ${new Intl.DateTimeFormat("en", { dateStyle: "long" }).format(new Date(shipment.estimatedDeliveryDate))}${event.notes ? `\nNotes: ${event.notes}` : ""}\n\nTrack shipment: ${trackingUrl}`;
+  const text = `${copy.heading}\n\nHello ${shipment.receiver.name || "Customer"},\n${copy.message}\n\nTracking number: ${shipment.trackingNumber}\nStatus: ${STATUS_LABELS[event.status]}\nLocation: ${event.location || "Not provided"}\nUpdate: ${event.description || copy.message}\nEstimated delivery: ${displayEstimatedDelivery(shipment.estimatedDeliveryDate)}${event.notes ? `\nNotes: ${event.notes}` : ""}\n\nTrack shipment: ${trackingUrl}`;
 
   return { subject, html, text, copy };
 }

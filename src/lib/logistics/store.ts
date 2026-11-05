@@ -2,6 +2,7 @@
 // under its own collection names so it can never collide with anything the
 // marketplace or the licensing system already uses.
 import { adminDb, isAdminDbConfigured } from "@/lib/licensing/admin-db";
+import { createHash } from "node:crypto";
 import type { Shipment, ShipmentEmailNotification, ShipmentMessage, TrackingEvent } from "@/lib/logistics/types";
 
 export const isLogisticsBackendDurable = isAdminDbConfigured;
@@ -11,6 +12,7 @@ const EVENTS = "logisticsTrackingEvents";
 const MESSAGES = "logisticsMessages";
 const EMAILS = "logisticsEmailNotifications";
 const EMAIL_LIMITS = "logisticsEmailRateLimits";
+const PUBLIC_EMAIL_ATTEMPTS = "logisticsPublicEmailAttempts";
 
 declare global {
   var __nexovaLogisticsDemoStore:
@@ -20,16 +22,18 @@ declare global {
         messages: Map<string, ShipmentMessage>;
         emails: Map<string, ShipmentEmailNotification>;
         emailLimits: Map<string, { windowStartedAt: number; count: number }>;
+        publicEmailAttempts: Map<string, { windowStartedAt: number; count: number }>;
       }
     | undefined;
 }
 
 function demoStore() {
   if (!global.__nexovaLogisticsDemoStore) {
-    global.__nexovaLogisticsDemoStore = { shipments: new Map(), events: new Map(), messages: new Map(), emails: new Map(), emailLimits: new Map() };
+    global.__nexovaLogisticsDemoStore = { shipments: new Map(), events: new Map(), messages: new Map(), emails: new Map(), emailLimits: new Map(), publicEmailAttempts: new Map() };
   }
   global.__nexovaLogisticsDemoStore.emails ??= new Map();
   global.__nexovaLogisticsDemoStore.emailLimits ??= new Map();
+  global.__nexovaLogisticsDemoStore.publicEmailAttempts ??= new Map();
   return global.__nexovaLogisticsDemoStore;
 }
 
@@ -121,17 +125,22 @@ export async function getMessagesForShipment(shipmentId: string): Promise<Shipme
   return Array.from(demoStore().messages.values()).filter((m) => m.shipmentId === shipmentId);
 }
 
-export async function claimShipmentEmailSend(notification: ShipmentEmailNotification): Promise<"claimed" | "duplicate"> {
+export async function claimShipmentEmailSend(
+  notification: ShipmentEmailNotification,
+  options?: { limitKey?: string; maximum?: number },
+): Promise<"claimed" | "duplicate"> {
+  const configuredMaximum = Number(options?.maximum ?? process.env.LOGISTICS_EMAIL_RATE_LIMIT ?? 10);
+  const maximum = Number.isSafeInteger(configuredMaximum) ? Math.max(1, Math.min(100, configuredMaximum)) : 10;
+  const limitKey = options?.limitKey ?? notification.userId;
   if (adminDb) {
     const notificationRef = adminDb.collection(EMAILS).doc(notification.id);
-    const limitRef = adminDb.collection(EMAIL_LIMITS).doc(notification.userId);
+    const limitRef = adminDb.collection(EMAIL_LIMITS).doc(limitKey);
     return adminDb.runTransaction(async (transaction) => {
       const [existing, limitSnapshot] = await Promise.all([transaction.get(notificationRef), transaction.get(limitRef)]);
       if (existing.exists) return "duplicate";
 
       const now = Date.now();
       const windowMs = 10 * 60 * 1000;
-      const maximum = Math.max(1, Number(process.env.LOGISTICS_EMAIL_RATE_LIMIT ?? 10));
       const previous = limitSnapshot.data() as { windowStartedAt?: number; count?: number } | undefined;
       const inWindow = previous?.windowStartedAt && now - previous.windowStartedAt < windowMs;
       const count = inWindow ? Number(previous?.count ?? 0) : 0;
@@ -146,14 +155,41 @@ export async function claimShipmentEmailSend(notification: ShipmentEmailNotifica
   const store = demoStore();
   if (store.emails.has(notification.id)) return "duplicate";
   const now = Date.now();
-  const previous = store.emailLimits.get(notification.userId);
+  const previous = store.emailLimits.get(limitKey);
   const inWindow = Boolean(previous && now - previous.windowStartedAt < 10 * 60 * 1000);
   const count = inWindow ? previous!.count : 0;
-  const maximum = Math.max(1, Number(process.env.LOGISTICS_EMAIL_RATE_LIMIT ?? 10));
   if (count >= maximum) throw new Error("LOGISTICS_EMAIL_RATE_LIMITED");
   store.emails.set(notification.id, notification);
-  store.emailLimits.set(notification.userId, { windowStartedAt: inWindow ? previous!.windowStartedAt : now, count: count + 1 });
+  store.emailLimits.set(limitKey, { windowStartedAt: inWindow ? previous!.windowStartedAt : now, count: count + 1 });
   return "claimed";
+}
+
+/** Limit wrong recipient guesses for a real shipment without locking out its recipient. */
+export async function claimPublicTrackingEmailAttempt(shipmentId: string): Promise<boolean> {
+  const key = createHash("sha256").update(shipmentId).digest("hex");
+  const configuredMaximum = Number(process.env.LOGISTICS_PUBLIC_EMAIL_ATTEMPT_LIMIT ?? 8);
+  const maximum = Number.isSafeInteger(configuredMaximum) ? Math.max(1, Math.min(50, configuredMaximum)) : 8;
+  const now = Date.now();
+  const windowMs = 10 * 60 * 1000;
+  if (adminDb) {
+    const ref = adminDb.collection(PUBLIC_EMAIL_ATTEMPTS).doc(key);
+    return adminDb.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      const previous = snapshot.data() as { windowStartedAt?: number; count?: number } | undefined;
+      const inWindow = Boolean(previous?.windowStartedAt && now - previous.windowStartedAt < windowMs);
+      const count = inWindow ? Number(previous?.count ?? 0) : 0;
+      if (count >= maximum) return false;
+      transaction.set(ref, { windowStartedAt: inWindow ? previous?.windowStartedAt : now, count: count + 1, updatedAt: new Date(now).toISOString() });
+      return true;
+    });
+  }
+  const store = demoStore();
+  const previous = store.publicEmailAttempts.get(key);
+  const inWindow = Boolean(previous && now - previous.windowStartedAt < windowMs);
+  const count = inWindow ? previous!.count : 0;
+  if (count >= maximum) return false;
+  store.publicEmailAttempts.set(key, { windowStartedAt: inWindow ? previous!.windowStartedAt : now, count: count + 1 });
+  return true;
 }
 
 export async function getShipmentEmailNotification(id: string): Promise<ShipmentEmailNotification | null> {
@@ -162,6 +198,34 @@ export async function getShipmentEmailNotification(id: string): Promise<Shipment
     return snapshot.exists ? (snapshot.data() as ShipmentEmailNotification) : null;
   }
   return demoStore().emails.get(id) ?? null;
+}
+
+export async function claimPendingShipmentEmailRetry(id: string): Promise<boolean> {
+  const now = Date.now();
+  const eligible = (notification: ShipmentEmailNotification | null) => {
+    if (!notification || notification.status !== "pending") return false;
+    const created = Date.parse(notification.createdAt);
+    const attempted = Date.parse(notification.lastAttemptAt ?? notification.createdAt);
+    // Resend keeps idempotency keys for 24 hours. Leave an hour of margin so
+    // a retry cannot become a second email after that window expires.
+    return Number.isFinite(created) && Number.isFinite(attempted) &&
+      now - created >= 30_000 && now - created < 23 * 60 * 60 * 1000 && now - attempted >= 30_000;
+  };
+  if (adminDb) {
+    const ref = adminDb.collection(EMAILS).doc(id);
+    return adminDb.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      const current = snapshot.exists ? snapshot.data() as ShipmentEmailNotification : null;
+      if (!eligible(current)) return false;
+      transaction.update(ref, { lastAttemptAt: new Date(now).toISOString() });
+      return true;
+    });
+  }
+  const store = demoStore();
+  const current = store.emails.get(id) ?? null;
+  if (!eligible(current)) return false;
+  store.emails.set(id, { ...current!, lastAttemptAt: new Date(now).toISOString() });
+  return true;
 }
 
 export async function updateShipmentEmailNotification(notification: ShipmentEmailNotification): Promise<void> {

@@ -60,6 +60,9 @@ service cloud.firestore {
     match /logisticsEmailRateLimits/{userId} {
       allow read, write: if false;
     }
+    match /logisticsPublicEmailAttempts/{attemptId} {
+      allow read, write: if false;
+    }
 
     // Airline bookings contain passenger and identity-document details. They
     // are available only through authenticated, ownership-checked APIs. The

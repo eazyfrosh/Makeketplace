@@ -6,8 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, Mail, MessageCircle, Pencil, PlusCircle, Send } from "lucide-react";
-import { getShipment, addTrackingEvent, getShipmentMessages, sendShipmentMessage, sendShipmentStatusEmail } from "@/lib/logistics/client";
+import { ArrowLeft, Mail, MessageCircle, Pencil, PlusCircle, RefreshCw, Send } from "lucide-react";
+import { getShipment, addTrackingEvent, getShipmentEmailNotifications, getShipmentMessages, sendShipmentMessage, sendShipmentStatusEmail } from "@/lib/logistics/client";
 import { cn } from "@/lib/utils";
 import { CarrierThemeScope } from "@/components/logistics/carrier-theme-scope";
 import { CarrierLogo } from "@/components/logistics/carrier-logo";
@@ -21,9 +21,9 @@ import { LoadingState } from "@/components/logistics/ui/loading-state";
 import { getCarrier } from "@/lib/logistics/data/carriers";
 import { SERVICE_LABELS, SHIPMENT_STATUSES, STATUS_LABELS } from "@/lib/logistics/types";
 import { formatCurrency, formatDateLong } from "@/lib/logistics/format";
-import { LOGISTICS_EMAIL_STATUS_COPY, getShipmentEmailSubject } from "@/lib/logistics/email-templates";
+import { renderShipmentStatusEmail } from "@/lib/logistics/email-templates";
 import { TRACKING_EVENT_DESCRIPTION_TEMPLATES } from "@/lib/logistics/tracking-event-templates";
-import type { Shipment, ShipmentMessage, ShipmentStatus, TrackingEvent } from "@/lib/logistics/types";
+import type { Shipment, ShipmentEmailNotification, ShipmentMessage, ShipmentStatus, TrackingEvent } from "@/lib/logistics/types";
 
 interface EventFormValues {
   status: ShipmentStatus;
@@ -142,28 +142,106 @@ function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: T
   const [eventId, setEventId] = useState(sortedEvents[0]?.id ?? "current");
   const [confirmed, setConfirmed] = useState(false);
   const [sending, setSending] = useState(false);
+  const [emailConfigured, setEmailConfigured] = useState<boolean | null>(null);
+  const [notifications, setNotifications] = useState<ShipmentEmailNotification[]>([]);
+  const [historyError, setHistoryError] = useState("");
+  const [uncertainSend, setUncertainSend] = useState(false);
+  const pendingRequest = useRef<{ recipientEmail: string; eventId?: string; requestId: string; recipientConfirmed: true } | null>(null);
   const selectedEvent = sortedEvents.find((event) => event.id === eventId);
-  const selectedStatus = selectedEvent?.status ?? shipment.status;
-  const template = LOGISTICS_EMAIL_STATUS_COPY[selectedStatus];
+  const previewEvent: TrackingEvent = selectedEvent ?? {
+    id: `current_${shipment.id}`,
+    shipmentId: shipment.id,
+    status: shipment.status,
+    location: shipment.receiver.city ? `${shipment.receiver.city}, ${shipment.receiver.country}` : shipment.receiver.country,
+    description: `Shipment status updated to ${shipment.status.replaceAll("_", " ")}.`,
+    timestamp: shipment.updatedAt,
+  };
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://eazytool.app").replace(/\/$/, "");
+  const preview = renderShipmentStatusEmail({
+    shipment,
+    event: previewEvent,
+    trackingUrl: `${appUrl}/track-shipment/${encodeURIComponent(shipment.trackingNumber)}`,
+  });
+
+  const refreshEmailHistory = useCallback(async () => {
+    const result = await getShipmentEmailNotifications(shipment.id);
+    setNotifications(result.notifications);
+    setEmailConfigured(result.emailConfigured);
+    setHistoryError("");
+    return result.notifications;
+  }, [shipment.id]);
+
+  useEffect(() => {
+    setRecipientEmail(shipment.receiver.email);
+    setConfirmed(false);
+    setUncertainSend(false);
+    pendingRequest.current = null;
+  }, [shipment.id, shipment.receiver.email]);
+
+  useEffect(() => {
+    refreshEmailHistory().catch(() => {
+      setEmailConfigured(null);
+      setHistoryError("Email setup and history could not be checked. Try refreshing this section.");
+    });
+  }, [refreshEmailHistory]);
 
   useEffect(() => {
     if (sortedEvents[0] && !sortedEvents.some((event) => event.id === eventId)) setEventId(sortedEvents[0].id);
   }, [eventId, sortedEvents]);
 
   async function handleSend() {
-    if (sending || !recipientEmail.trim() || !confirmed) return;
+    if (sending || !recipientEmail.trim() || !confirmed || emailConfigured !== true) return;
+    if (recipientEmail.trim().length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail.trim())) {
+      toast.error("Enter a valid recipient email address.");
+      return;
+    }
+    const request = pendingRequest.current ?? {
+      recipientEmail: recipientEmail.trim(),
+      eventId: selectedEvent?.id,
+      requestId: createEmailRequestId(),
+      recipientConfirmed: true as const,
+    };
+    pendingRequest.current = request;
     setSending(true);
     try {
-      await sendShipmentStatusEmail(shipment.id, {
-        recipientEmail: recipientEmail.trim(),
-        eventId: selectedEvent?.id,
-        requestId: createEmailRequestId(),
-        recipientConfirmed: true,
-      });
-      toast.success(`Shipment update sent to ${recipientEmail.trim()}.`);
-      setConfirmed(false);
+      const result = await sendShipmentStatusEmail(shipment.id, request);
+      if (result.notification.status === "failed") {
+        pendingRequest.current = null;
+        setUncertainSend(false);
+        toast.error("The email was not accepted. Check the recipient and try a new send.");
+      } else if (result.notification.status === "pending") {
+        setUncertainSend(true);
+        toast.message("The email request is still being processed. Retrying will check the same request.");
+      } else {
+        pendingRequest.current = null;
+        setUncertainSend(false);
+        setConfirmed(false);
+        toast.success(`Email accepted for delivery to ${request.recipientEmail}.`);
+      }
+      await refreshEmailHistory().catch(() => setHistoryError("Email history could not be refreshed."));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "The shipment email could not be sent.");
+      const message = error instanceof Error ? error.message : "";
+      if (["Enter a valid recipient email address.", "The selected tracking update was not found."].includes(message)) {
+        pendingRequest.current = null;
+        setUncertainSend(false);
+        toast.error(message);
+        return;
+      }
+      setUncertainSend(true);
+      const latest = await refreshEmailHistory().catch(() => [] as ShipmentEmailNotification[]);
+      const record = latest.find((item) => item.id === request.requestId);
+      if (record?.status === "failed") {
+        pendingRequest.current = null;
+        setUncertainSend(false);
+        toast.error("The email was not accepted. Please try a new send.");
+      } else if (record && record.status !== "pending") {
+        pendingRequest.current = null;
+        setUncertainSend(false);
+        setConfirmed(false);
+        toast.success(`Email accepted for delivery to ${request.recipientEmail}.`);
+      } else {
+        toast.error("We could not confirm this email request. Retry checks the same request to avoid sending it twice.");
+      }
     } finally {
       setSending(false);
     }
@@ -175,19 +253,22 @@ function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: T
         <CardTitle className="flex items-center gap-2">
           <Mail size={17} /> Email a shipment update
         </CardTitle>
-        <p className="text-sm text-foreground/55">Choose a tracking event and send its matching status template to the recipient.</p>
+        <p className="text-sm text-foreground/55">Choose a tracking update, review the exact email, then send it to the recipient.</p>
       </CardHeader>
       <CardContent>
+        {emailConfigured === false && <p className="mb-4 rounded-xl border border-amber-300/50 bg-amber-50 p-3 text-sm text-amber-900">Email sending is not configured yet. You can preview the message, but sending is unavailable.</p>}
+        {emailConfigured === null && <p className="mb-4 rounded-xl border border-foreground/10 p-3 text-sm text-foreground/60">Checking email setup…</p>}
+        {historyError && <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-amber-300/50 bg-amber-50 p-3 text-sm text-amber-900"><span>{historyError}</span><Button type="button" size="sm" variant="outline" onClick={() => void refreshEmailHistory().catch(() => setHistoryError("Email setup and history could not be checked."))}>Try again</Button></div>}
         <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="space-y-4">
             <div>
-              <Label>Recipient email</Label>
-              <Input type="email" value={recipientEmail} onChange={(event) => setRecipientEmail(event.target.value)} placeholder="customer@example.com" autoComplete="email" />
+              <Label htmlFor={`recipient-email-${shipment.id}`}>Recipient email</Label>
+              <Input id={`recipient-email-${shipment.id}`} type="email" value={recipientEmail} onChange={(event) => setRecipientEmail(event.target.value)} placeholder="customer@example.com" autoComplete="email" disabled={uncertainSend} />
               <p className="mt-1.5 text-xs text-foreground/45">The receiver&apos;s email is filled in automatically, but you can change it.</p>
             </div>
             <div>
-              <Label>Tracking update</Label>
-              <Select value={eventId} onChange={(event) => setEventId(event.target.value)}>
+              <Label htmlFor={`tracking-update-${shipment.id}`}>Tracking update</Label>
+              <Select id={`tracking-update-${shipment.id}`} value={eventId} onChange={(event) => setEventId(event.target.value)} disabled={uncertainSend}>
                 {sortedEvents.length === 0 ? (
                   <option value="current">Current status — {STATUS_LABELS[shipment.status]}</option>
                 ) : (
@@ -199,29 +280,33 @@ function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: T
               <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-0.5 size-4 accent-[var(--carrier-primary)]" />
               <span className="text-xs leading-5 text-foreground/65">I confirm this recipient is connected to the shipment and can receive its status updates.</span>
             </label>
-            <Button type="button" variant="carrier" className="w-full sm:w-auto" disabled={sending || !confirmed || !recipientEmail.trim()} onClick={handleSend}>
-              {sending ? <><span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> Sending…</> : <><Send size={15} /> Send status email</>}
+            {uncertainSend && <p className="text-xs leading-5 text-amber-700">The last request has not been confirmed. Checking it again uses the same request so it cannot send a duplicate email.</p>}
+            <Button type="button" variant="carrier" className="w-full sm:w-auto" disabled={sending || !confirmed || !recipientEmail.trim() || emailConfigured !== true} onClick={handleSend}>
+              {sending ? <><span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> Checking…</> : <><Send size={15} /> {uncertainSend ? "Check the same email request" : "Send status email"}</>}
             </Button>
+            <p className="text-xs leading-5 text-foreground/50">An accepted email is handed to the email provider. This does not confirm that it reached the inbox.</p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-foreground/10 bg-white text-slate-900 shadow-sm">
-            <div className="h-1.5" style={{ backgroundColor: template.color }} />
-            <div className="p-5 sm:p-6">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-extrabold">TrackNova</span>
-                <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: `${template.color}16`, color: template.color }}>{template.eyebrow}</span>
-              </div>
-              <p className="mt-6 text-xs font-bold uppercase tracking-[0.14em]" style={{ color: template.color }}>Email preview</p>
-              <h3 className="mt-2 text-xl font-bold leading-tight sm:text-2xl">{template.heading}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">Hello {shipment.receiver.name || "Customer"}, {template.message}</p>
-              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs">
-                <div className="flex justify-between gap-3"><span className="text-slate-500">Tracking number</span><span className="font-mono font-bold">{shipment.trackingNumber}</span></div>
-                <div className="mt-3 flex justify-between gap-3 border-t border-slate-200 pt-3"><span className="text-slate-500">Status</span><span className="font-bold" style={{ color: template.color }}>{STATUS_LABELS[selectedStatus]}</span></div>
-                <div className="mt-3 flex justify-between gap-3 border-t border-slate-200 pt-3"><span className="text-slate-500">Location</span><span className="text-right font-semibold">{selectedEvent?.location || `${shipment.receiver.city}, ${shipment.receiver.country}`}</span></div>
-              </div>
-              <div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><CheckCircle2 size={14} style={{ color: template.color }} /><span>Subject: {getShipmentEmailSubject(shipment, selectedStatus)}</span></div>
-            </div>
+          <div className="min-w-0 overflow-hidden rounded-2xl border border-foreground/10 bg-white text-slate-900 shadow-sm">
+            <div className="border-b border-slate-200 px-4 py-3 text-xs text-slate-600"><span className="font-semibold">Email preview</span><span className="mt-1 block break-words">Subject: {preview.subject}</span></div>
+            <iframe title="Shipment status email preview" srcDoc={preview.html} sandbox="" referrerPolicy="no-referrer" className="h-[650px] w-full bg-white" />
           </div>
+        </div>
+        <div className="mt-6 border-t border-foreground/10 pt-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold">Recent email requests</h3>
+            <Button type="button" size="sm" variant="outline" onClick={() => void refreshEmailHistory().catch(() => setHistoryError("Email history could not be refreshed."))}><RefreshCw size={14} /> Refresh</Button>
+          </div>
+          {notifications.length === 0 ? <p className="mt-3 text-sm text-foreground/50">No shipment emails have been requested yet.</p> : (
+            <ul className="mt-3 space-y-2">
+              {notifications.slice(0, 10).map((notification) => (
+                <li key={notification.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-foreground/10 p-3 text-xs">
+                  <div className="min-w-0"><p className="break-all font-medium">{notification.recipientEmail}</p><p className="mt-1 text-foreground/50">{new Date(notification.createdAt).toLocaleString()} · {STATUS_LABELS[notification.shipmentStatus]}</p></div>
+                  <span className="rounded-full bg-black/5 px-2.5 py-1 font-semibold dark:bg-white/10">{notification.status === "pending" ? "Processing" : notification.status === "failed" ? "Failed" : "Accepted for delivery"}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </CardContent>
     </Card>

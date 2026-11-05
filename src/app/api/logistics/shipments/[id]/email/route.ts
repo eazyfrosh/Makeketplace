@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { isEmailConfigured, sendEmail } from "@/lib/email/send";
+import { isShipmentEmailConfigured, submitShipmentEmail } from "@/lib/logistics/email-service";
 import { renderShipmentStatusEmail } from "@/lib/logistics/email-templates";
 import {
-  claimShipmentEmailSend,
   getShipmentById,
-  getShipmentEmailNotification,
   getShipmentEmails,
   getTrackingEventsForShipment,
-  updateShipmentEmailNotification,
+  isLogisticsBackendDurable,
 } from "@/lib/logistics/store";
 import type { ShipmentEmailNotification, TrackingEvent } from "@/lib/logistics/types";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
@@ -39,7 +37,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const shipment = await getShipmentById(id);
   if (!shipment || (shipment.userId !== caller.uid && caller.role !== "admin")) return NextResponse.json({ error: "Shipment not found." }, { status: 404 });
-  return NextResponse.json({ notifications: await getShipmentEmails(id, shipment.userId), emailConfigured: isEmailConfigured });
+  if (!isLogisticsBackendDurable) return NextResponse.json({ error: "Shipment email history is temporarily unavailable." }, { status: 503 });
+  return NextResponse.json({ notifications: await getShipmentEmails(id, shipment.userId), emailConfigured: isShipmentEmailConfigured() });
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -49,10 +48,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   const shipment = await getShipmentById(id);
   if (!shipment || (shipment.userId !== caller.uid && caller.role !== "admin")) return NextResponse.json({ error: "Shipment not found." }, { status: 404 });
+  if (!isLogisticsBackendDurable) return NextResponse.json({ error: "Shipment email delivery is temporarily unavailable." }, { status: 503 });
 
   const parsed = sendSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid email details." }, { status: 400 });
-  if (!isEmailConfigured) return NextResponse.json({ error: "Shipment email delivery is not configured yet." }, { status: 503 });
+  if (!isShipmentEmailConfigured()) return NextResponse.json({ error: "Shipment email delivery is not configured yet." }, { status: 503 });
 
   const events = await getTrackingEventsForShipment(id);
   const sortedEvents = events.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
@@ -73,35 +73,22 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     recipientEmail: parsed.data.recipientEmail.trim().toLowerCase(),
     subject: rendered.subject,
     provider: "resend",
+    source: "shipment_owner",
     status: "pending",
+    lastAttemptAt: now,
     createdAt: now,
     updatedAt: now,
   };
 
   try {
-    const claim = await claimShipmentEmailSend(notification);
-    if (claim === "duplicate") {
-      const existing = await getShipmentEmailNotification(notification.id);
-      if (existing?.userId !== shipment.userId || existing.shipmentId !== id) return NextResponse.json({ error: "This request reference is unavailable." }, { status: 409 });
-      return NextResponse.json({ notification: existing, duplicate: true });
-    }
-
-    const result = await sendEmail({
-      to: notification.recipientEmail,
-      subject: rendered.subject,
-      html: rendered.html,
-      text: rendered.text,
-      idempotencyKey: notification.id,
-      from: process.env.LOGISTICS_EMAIL_FROM ?? process.env.EMAIL_FROM,
-    });
-    const completed: ShipmentEmailNotification = { ...notification, providerMessageId: result.id, status: "sent", updatedAt: new Date().toISOString() };
-    await updateShipmentEmailNotification(completed);
-    return NextResponse.json({ notification: completed }, { status: 201 });
+    const result = await submitShipmentEmail(notification, rendered);
+    if (result.notification.status === "failed") return NextResponse.json({ error: "The email provider could not accept this message.", notification: result.notification }, { status: 502 });
+    return NextResponse.json(result, { status: result.notification.status === "pending" ? 202 : result.duplicate ? 200 : 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Email could not be sent.";
     if (message === "LOGISTICS_EMAIL_RATE_LIMITED") return NextResponse.json({ error: "Too many shipment emails were sent. Please wait a few minutes and try again." }, { status: 429 });
-    await updateShipmentEmailNotification({ ...notification, status: "failed", errorMessage: "Email delivery failed.", updatedAt: new Date().toISOString() }).catch(() => undefined);
-    console.error("[logistics-email] send failed", error);
-    return NextResponse.json({ error: "The shipment email could not be sent. Please try again." }, { status: 502 });
+    if (message === "LOGISTICS_EMAIL_REFERENCE_CONFLICT") return NextResponse.json({ error: "This email request is unavailable." }, { status: 409 });
+    console.error("[logistics-email] send could not start", { notificationId: notification.id, reason: error instanceof Error ? error.name : "unknown" });
+    return NextResponse.json({ error: "The shipment email could not be started. Please try again later." }, { status: 503 });
   }
 }

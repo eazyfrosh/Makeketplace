@@ -124,7 +124,7 @@ export interface ShipmentMessage {
   createdAt: string;
 }
 
-export type ShipmentEmailStatus = "pending" | "sent" | "failed";
+export type ShipmentEmailStatus = "pending" | "accepted" | "sent" | "failed";
 
 export interface ShipmentEmailNotification {
   id: string;
@@ -136,9 +136,12 @@ export interface ShipmentEmailNotification {
   recipientEmail: string;
   subject: string;
   provider: "resend";
+  payloadFingerprint?: string;
+  source?: "shipment_owner" | "public_tracking";
   providerMessageId?: string;
   status: ShipmentEmailStatus;
   errorMessage?: string;
+  lastAttemptAt?: string;
   createdAt: string;
   updatedAt: string;
 }

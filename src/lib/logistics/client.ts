@@ -54,7 +54,7 @@ export function addTrackingEvent(
 
 export function trackPublic(
   trackingNumber: string
-): Promise<{ shipment: Pick<Shipment, "trackingNumber" | "carrierCode" | "status" | "serviceType" | "estimatedDeliveryDate" | "createdAt"> & { sender: { city: string; country: string }; receiver: { city: string; country: string } }; events: TrackingEvent[] }> {
+): Promise<{ shipment: Pick<Shipment, "trackingNumber" | "carrierCode" | "status" | "serviceType" | "estimatedDeliveryDate" | "createdAt" | "updatedAt"> & { sender: { city: string; country: string }; receiver: { city: string; country: string } }; events: TrackingEvent[] }> {
   return api(`/api/logistics/track?trackingNumber=${encodeURIComponent(trackingNumber)}`);
 }
 

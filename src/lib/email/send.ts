@@ -5,6 +5,13 @@ export const isEmailConfigured = Boolean(process.env.RESEND_API_KEY);
 const resend = isEmailConfigured ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM = process.env.EMAIL_FROM ?? "Nexova <onboarding@resend.dev>";
 
+export class EmailProviderRejectedError extends Error {
+  constructor(message = "Email provider rejected the message.") {
+    super(message);
+    this.name = "EmailProviderRejectedError";
+  }
+}
+
 export interface SentEmailRecord {
   id: string;
   to: string;
@@ -38,7 +45,8 @@ export async function sendEmail(params: { to: string; subject: string; html: str
       { from: params.from ?? FROM, to: params.to, subject: params.subject, html: params.html, text: params.text, attachments: params.attachments },
       params.idempotencyKey ? { idempotencyKey: params.idempotencyKey } : undefined,
     );
-    if (result.error || !result.data?.id) throw new Error(result.error?.message ?? "Email provider rejected the message.");
+    if (result.error) throw new EmailProviderRejectedError(result.error.message);
+    if (!result.data?.id) throw new Error("Email provider did not confirm the message.");
     return { id: result.data.id, provider: "resend" };
   }
 

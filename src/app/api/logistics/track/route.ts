@@ -28,6 +28,7 @@ export async function GET(request: Request) {
       serviceType: shipment.serviceType,
       estimatedDeliveryDate: shipment.estimatedDeliveryDate,
       createdAt: shipment.createdAt,
+      updatedAt: shipment.updatedAt,
       sender: { city: shipment.sender.city, country: shipment.sender.country },
       receiver: { city: shipment.receiver.city, country: shipment.receiver.country },
     },
