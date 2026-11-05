@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
-import { ExternalLink, Eye, Loader2, Pencil, Settings } from "lucide-react";
+import { ExternalLink, Eye, Loader2, Monitor, Pencil, Settings, Smartphone, Tablet } from "lucide-react";
 import { getAuthHeaders } from "@/lib/licensing/client-auth";
 import { trackServiceUsage } from "@/lib/analytics/ga4";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const templates = [
   { id: "elite-broker", name: "ELITE BROKER", url: "https://premium-broker-platform.vercel.app", accent: "text-emerald-400", description: "A premium dark investment-dashboard design with customer-specific branding and private owner controls.", workspaceReady: true },
@@ -12,10 +13,13 @@ const templates = [
   { id: "tradeflow", name: "TradeFlow", url: "https://trading-platform-phi-hazel.vercel.app", accent: "text-amber-300", description: "A premium glassmorphic trading-platform design with a private customer website, live branding editor, isolated owner's admin, demo-user management, and simulated balance controls.", workspaceReady: true },
 ] as const;
 type Destination = "admin" | "editor" | "preview";
+type PreviewMode = "desktop" | "tablet" | "mobile";
 
 export function PremiumTemplateCatalog() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
   async function openProtected(templateId: string, destination: Destination) {
     const key = `${templateId}-${destination}`; setBusy(key); setError("");
     try {
@@ -25,9 +29,16 @@ export function PremiumTemplateCatalog() {
       const data = await response.json();
       if (!response.ok || !data.redirectUrl) throw new Error(data.error || "Unable to open the template.");
       trackServiceUsage("premium-templates");
-      window.location.assign(data.redirectUrl);
+      if (destination === "preview") {
+        setPreviewMode("desktop");
+        setPreviewUrl(data.redirectUrl);
+        setBusy(null);
+      } else {
+        window.location.assign(data.redirectUrl);
+      }
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to open the template."); setBusy(null); }
   }
+  const previewWidth = previewMode === "mobile" ? "w-[390px] max-w-full" : previewMode === "tablet" ? "w-[820px] max-w-full" : "w-full";
   return <section id="templates" className="scroll-mt-20 border-y border-white/10 bg-slate-950 px-4 py-16 text-white sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl">
     <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-400">Website Builder</p><h2 className="mt-3 text-3xl font-semibold sm:text-4xl">Choose the website you want to build</h2><p className="mt-4 max-w-3xl text-slate-300">Every ready-to-use design includes your own private editor and owner dashboard. Preview a website first, then personalize its name, logo, colors and content.</p>
     {error && <p className="mt-5 rounded-xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-200">{error}</p>}
@@ -40,5 +51,23 @@ export function PremiumTemplateCatalog() {
           {template.workspaceReady && <button onClick={() => openProtected(template.id, "admin")} disabled={Boolean(busy)} className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-4 py-2.5 text-sm font-semibold text-emerald-200 hover:bg-emerald-400/20 disabled:opacity-60">{busy === `${template.id}-admin` ? <Loader2 className="size-4 animate-spin" /> : <Settings className="size-4" />}Generate / Open Admin</button>}
         </div><a href={template.url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white">{"repositoryOnly" in template ? "Open source repository" : "Open demo website"} <ExternalLink className="size-3" /></a>
       </div></article>)}</div>
-  </div></section>;
+    </div>
+    <Dialog open={Boolean(previewUrl)} onOpenChange={(open) => { if (!open) setPreviewUrl(null); }}>
+      <DialogContent className="flex h-[min(94vh,960px)] max-w-[min(96vw,1440px)] flex-col gap-0 overflow-hidden border-white/10 bg-slate-950 p-0 text-white">
+        <DialogHeader className="shrink-0 border-b border-white/10 bg-slate-950/95 px-4 py-3 pr-12 backdrop-blur sm:px-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0"><DialogTitle className="truncate text-base sm:text-lg">My Website</DialogTitle><DialogDescription className="mt-1 truncate text-slate-400">Full website preview — {previewMode} view</DialogDescription></div>
+            <div className="flex shrink-0 gap-1 rounded-xl border border-white/10 bg-white/5 p-1" aria-label="Preview device size">
+              {(["desktop", "tablet", "mobile"] as const).map((value) => { const Icon = value === "desktop" ? Monitor : value === "tablet" ? Tablet : Smartphone; return <button key={value} type="button" onClick={() => setPreviewMode(value)} aria-label={`${value} preview`} aria-pressed={previewMode === value} className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold capitalize transition-colors sm:px-3 ${previewMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-400 hover:text-white"}`}><Icon className="size-3.5" />{value}</button>; })}
+            </div>
+          </div>
+        </DialogHeader>
+        <div className="min-h-0 flex-1 overflow-auto bg-slate-900 p-2 sm:p-4">
+          <div className={`mx-auto h-full min-h-[70vh] overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-white/10 transition-[width] duration-200 ${previewWidth}`}>
+            {previewUrl && <iframe src={previewUrl} title="My Website full preview" className="size-full min-h-[70vh] border-0" />}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  </section>;
 }
