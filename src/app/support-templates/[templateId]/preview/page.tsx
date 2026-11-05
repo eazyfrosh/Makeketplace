@@ -43,11 +43,11 @@ export default function TemplatePreviewPage() {
   const widths = { desktop: "max-w-none", tablet: "max-w-[820px]", mobile: "max-w-[390px]" };
   const previewSite = savedSite ?? createSupportSite(templateId, "preview", template ? [template] : undefined);
 
-  return <div className="min-h-screen bg-muted/50">
-    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-background px-4">
-      <div><p className="font-semibold">{siteId ? savedSite?.name : template?.name}</p><p className="text-xs text-muted-foreground">{siteId ? "Saved website preview" : "Interactive template preview"}</p></div>
-      <div className="flex gap-1 rounded-xl border p-1">{([['desktop',Monitor],['tablet',Tablet],['mobile',Smartphone]] as const).map(([id,Icon])=><Button key={id} size="icon" variant={mode===id?"default":"ghost"} onClick={()=>setMode(id)} aria-label={`${id} preview`}><Icon className="size-4" /></Button>)}</div>
-      {canCustomize ? <Button asChild><Link href={`/support-templates/${templateId}/editor${siteId && savedSite ? `?site=${encodeURIComponent(savedSite.id)}` : ""}`}>{siteId ? "Edit Website" : "Customize Template"}</Link></Button> : <Button variant="outline" asChild><Link href="/pricing"><LockKeyhole className="size-4" /> Subscribe to customize</Link></Button>}
+  return <div className="min-h-screen overflow-x-hidden bg-muted/50">
+    <header className="sticky top-0 z-50 flex min-h-16 flex-wrap items-center justify-between gap-2 border-b bg-background px-3 py-2 sm:px-4">
+      <div className="min-w-0 flex-1"><p className="truncate font-semibold">{siteId ? savedSite?.name : template?.name}</p><p className="truncate text-xs text-muted-foreground">{siteId ? "Saved website preview" : "Interactive template preview"}</p></div>
+      <div className="flex shrink-0 gap-1 rounded-xl border p-1">{([['desktop',Monitor],['tablet',Tablet],['mobile',Smartphone]] as const).map(([id,Icon])=><Button key={id} size="icon" variant={mode===id?"default":"ghost"} onClick={()=>setMode(id)} aria-label={`${id} preview`}><Icon className="size-4" /></Button>)}</div>
+      {canCustomize ? <Button className="hidden shrink-0 sm:inline-flex" asChild><Link href={`/support-templates/${templateId}/editor${siteId && savedSite ? `?site=${encodeURIComponent(savedSite.id)}` : ""}`}>{siteId ? "Edit Website" : "Customize Template"}</Link></Button> : <Button className="hidden shrink-0 sm:inline-flex" variant="outline" asChild><Link href="/pricing"><LockKeyhole className="size-4" /> Subscribe to customize</Link></Button>}
     </header>
     <div className={`mx-auto min-h-[calc(100vh-4rem)] bg-background shadow-xl transition-all ${widths[mode]}`}><SupportSitePreview site={previewSite} /></div>
   </div>;
