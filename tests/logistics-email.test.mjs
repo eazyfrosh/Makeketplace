@@ -40,6 +40,9 @@ test("the shipment email preview renders valid dates and legacy statuses without
   });
   assert.match(rendered.html, /UTC/);
   assert.match(rendered.html, /DEMO-123/);
+  assert.match(rendered.html, /https:\/\/www\.eazytool\.app\/services\/logistics\/tracknova-email-logo\.png/);
+  assert.match(rendered.html, /alt="TrackNova"/);
+  assert.deepEqual([...readFileSync(new URL("../public/services/logistics/tracknova-email-logo.png", import.meta.url)).subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
   assert.match(rendered.text, /In transit/);
   const legacy = module.exports.renderShipmentStatusEmail({
     shipment: { trackingNumber: "DEMO-123", estimatedDeliveryDate: "", receiver: {} },

@@ -2,6 +2,7 @@ import { STATUS_LABELS, type ShipmentStatus, type TrackingEvent } from "@/lib/lo
 
 type EmailShipment = { trackingNumber: string; estimatedDeliveryDate: string; receiver: { name?: string } };
 type EmailEvent = Pick<TrackingEvent, "status" | "location" | "description" | "timestamp" | "notes">;
+const TRACKNOVA_EMAIL_LOGO_URL = "https://www.eazytool.app/services/logistics/tracknova-email-logo.png";
 
 interface StatusCopy {
   eyebrow: string;
@@ -69,11 +70,8 @@ export function renderShipmentStatusEmail(input: {
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #e2e8f0">
       <tr><td style="height:7px;background:${copy.color}"></td></tr>
       <tr><td style="padding:30px 30px 16px">
-        <table role="presentation" cellspacing="0" cellpadding="0"><tr>
-          <td style="width:38px;height:38px;border-radius:10px;background:#0f172a;color:#ffffff;text-align:center;font-size:21px;font-weight:800">T</td>
-          <td style="padding-left:10px;font-size:20px;font-weight:800;letter-spacing:-.02em">Track<span style="color:#ea580c">Nova</span><div style="font-size:10px;font-weight:600;letter-spacing:.12em;color:#64748b;text-transform:uppercase">Shipment updates</div></td>
-        </tr></table>
-        <div style="margin-top:28px;color:${copy.color};font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(copy.eyebrow)}</div>
+        <img src="${TRACKNOVA_EMAIL_LOGO_URL}" width="360" alt="TrackNova" style="display:block;width:100%;max-width:360px;height:auto;border:0" />
+        <div style="margin-top:4px;color:${copy.color};font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(copy.eyebrow)}</div>
         <h1 style="margin:10px 0 12px;font-size:28px;line-height:1.2;letter-spacing:-.03em">${escapeHtml(copy.heading)}</h1>
         <p style="margin:0;color:#475569;font-size:15px;line-height:1.7">Hello ${safe.recipient}, ${escapeHtml(copy.message)}</p>
       </td></tr>
