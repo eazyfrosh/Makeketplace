@@ -184,8 +184,11 @@ export default function WebsiteBuilderPage() {
             <span className="text-muted-foreground ml-2 text-xs sm:ml-3">Live preview</span>
             <Button type="button" size="sm" variant="secondary" className="ml-auto" onClick={() => { setPreviewMode("desktop"); setPreviewOpen(true); }}><Eye className="size-4" /> <span className="hidden sm:inline">Preview full website</span><span className="sm:hidden">Preview</span></Button>
           </div>
-          <div className="max-h-[75vh] overflow-y-auto">
+          <div className="group relative max-h-[75vh] overflow-y-auto">
             <Template config={config} />
+            <button type="button" onClick={() => { setPreviewMode("desktop"); setPreviewOpen(true); }} className="absolute inset-0 z-10 flex items-center justify-center bg-transparent transition-colors hover:bg-black/5 focus-visible:bg-black/10 focus-visible:outline-none" aria-label="Open full website preview">
+              <span className="rounded-full bg-background/95 px-4 py-2 text-sm font-semibold text-foreground opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">Open full preview</span>
+            </button>
           </div>
         </div>
       </div>
