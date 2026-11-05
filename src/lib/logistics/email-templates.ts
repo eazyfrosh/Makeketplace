@@ -30,7 +30,7 @@ function escapeHtml(value: string) {
 
 function displayDate(value: string) {
   const date = new Date(value);
-  return Number.isFinite(date.getTime()) ? new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC", timeZoneName: "short" }).format(date) : "To be confirmed";
+  return Number.isFinite(date.getTime()) ? `${new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(date)} UTC` : "To be confirmed";
 }
 
 function displayEstimatedDelivery(value: string) {
@@ -39,7 +39,7 @@ function displayEstimatedDelivery(value: string) {
 }
 
 export function getShipmentEmailSubject(shipment: EmailShipment, status: ShipmentStatus) {
-  return `${STATUS_LABELS[status]} — shipment ${shipment.trackingNumber}`;
+  return `${STATUS_LABELS[status] ?? "Shipment update"} — shipment ${shipment.trackingNumber}`;
 }
 
 export function renderShipmentStatusEmail(input: {
@@ -48,12 +48,12 @@ export function renderShipmentStatusEmail(input: {
   trackingUrl: string;
 }) {
   const { shipment, event, trackingUrl } = input;
-  const copy = LOGISTICS_EMAIL_STATUS_COPY[event.status];
+  const copy = LOGISTICS_EMAIL_STATUS_COPY[event.status] ?? LOGISTICS_EMAIL_STATUS_COPY.pending;
   const subject = getShipmentEmailSubject(shipment, event.status);
   const safe = {
     recipient: escapeHtml(shipment.receiver.name || "Customer"),
     trackingNumber: escapeHtml(shipment.trackingNumber),
-    status: escapeHtml(STATUS_LABELS[event.status]),
+    status: escapeHtml(STATUS_LABELS[event.status] ?? "Shipment update"),
     location: escapeHtml(event.location || "Not provided"),
     description: escapeHtml(event.description || copy.message),
     notes: event.notes ? escapeHtml(event.notes) : "",
@@ -96,7 +96,7 @@ export function renderShipmentStatusEmail(input: {
   </td></tr></table>
 </body></html>`;
 
-  const text = `${copy.heading}\n\nHello ${shipment.receiver.name || "Customer"},\n${copy.message}\n\nTracking number: ${shipment.trackingNumber}\nStatus: ${STATUS_LABELS[event.status]}\nLocation: ${event.location || "Not provided"}\nUpdate: ${event.description || copy.message}\nEstimated delivery: ${displayEstimatedDelivery(shipment.estimatedDeliveryDate)}${event.notes ? `\nNotes: ${event.notes}` : ""}\n\nTrack shipment: ${trackingUrl}`;
+  const text = `${copy.heading}\n\nHello ${shipment.receiver.name || "Customer"},\n${copy.message}\n\nTracking number: ${shipment.trackingNumber}\nStatus: ${STATUS_LABELS[event.status] ?? "Shipment update"}\nLocation: ${event.location || "Not provided"}\nUpdate: ${event.description || copy.message}\nEstimated delivery: ${displayEstimatedDelivery(shipment.estimatedDeliveryDate)}${event.notes ? `\nNotes: ${event.notes}` : ""}\n\nTrack shipment: ${trackingUrl}`;
 
   return { subject, html, text, copy };
 }

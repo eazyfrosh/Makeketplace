@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { runInNewContext } from "node:vm";
+import ts from "typescript";
 
 const templates = readFileSync(new URL("../src/lib/logistics/email-templates.ts", import.meta.url), "utf8");
 const route = readFileSync(new URL("../src/app/api/logistics/shipments/[id]/email/route.ts", import.meta.url), "utf8");
@@ -17,6 +19,35 @@ test("every shipment status has a dedicated email template", () => {
   assert.match(templates, /escapeHtml/);
   assert.match(templates, /View live tracking/);
   assert.match(templates, /text = `/);
+});
+
+test("the shipment email preview renders valid dates and legacy statuses without throwing", () => {
+  const javascript = ts.transpileModule(templates, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const module = { exports: {} };
+  runInNewContext(javascript, {
+    module,
+    exports: module.exports,
+    require: () => ({ STATUS_LABELS: Object.fromEntries(statuses.map((status) => [status, status.replaceAll("_", " ")])) }),
+    Intl,
+    Date,
+  });
+  const rendered = module.exports.renderShipmentStatusEmail({
+    shipment: { trackingNumber: "DEMO-123", estimatedDeliveryDate: "2026-11-10T12:00:00.000Z", receiver: {} },
+    event: { status: "in_transit", location: "Lagos", description: "In transit", timestamp: "2026-11-05T12:00:00.000Z" },
+    trackingUrl: "https://eazytool.app/track-shipment/DEMO-123",
+  });
+  assert.match(rendered.html, /UTC/);
+  assert.match(rendered.html, /DEMO-123/);
+  assert.match(rendered.text, /In transit/);
+  const legacy = module.exports.renderShipmentStatusEmail({
+    shipment: { trackingNumber: "DEMO-123", estimatedDeliveryDate: "", receiver: {} },
+    event: { status: "legacy_status", location: "", description: "", timestamp: "" },
+    trackingUrl: "https://eazytool.app/track-shipment/DEMO-123",
+  });
+  assert.match(legacy.html, /Shipment update/);
+  assert.match(legacy.html, /To be confirmed/);
 });
 
 test("shipment email API authenticates and enforces shipment ownership", () => {
