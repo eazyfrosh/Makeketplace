@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 112" role="img" aria-labelledby="title desc">
+  <title id="title">Wells Fargo</title>
+  <desc id="desc">Wells Fargo wordmark</desc>
+  <g fill="none" stroke="#ffcd00" stroke-width="6" stroke-linecap="round">
+    <path d="M28 16v80M8 36h40M8 76h40"/>
+    <path d="M8 16h40M8 96h40"/>
+  </g>
+  <text x="72" y="76" fill="#fff" font-family="Georgia, Times New Roman, serif" font-size="61" font-weight="700" letter-spacing="-2">WELLS FARGO</text>
+</svg>

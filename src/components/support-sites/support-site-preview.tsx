@@ -13,11 +13,12 @@ const companyLogoPaths: Record<string, string> = {
   "aura-fintech": "/support-templates/logos/apple.svg",
   "orbit-crypto-saas": "/support-templates/logos/binance.svg",
   cartwise: "/support-templates/logos/bitcoin.svg",
-  routecare: "/support-templates/logos/byd.webp",
-  "clarity-docs": "/support-templates/logos/bitso-custom.png",
-  "summit-corporate": "/support-templates/logos/changelly.png",
+  routecare: "/support-templates/logos/byd.svg",
+  "clarity-docs": "/support-templates/logos/bitso.svg",
+  "summit-corporate": "/support-templates/logos/changelly.svg",
   plainhelp: "/support-templates/logos/cashapp.svg",
-  nightshift: "/support-templates/logos/blockchain.png",
+  nightshift: "/support-templates/logos/blockchain.svg",
+  "wells-fargo-help": "/support-templates/logos/wells-fargo.svg",
 };
 
 function Header({ site, dark = false, corporate = false, apple = false, binance = false }: { site: SupportSite; dark?: boolean; corporate?: boolean; apple?: boolean; binance?: boolean }) {
@@ -80,7 +81,7 @@ function WellsFargoLayout({ site }: { site: SupportSite }) {
   ] as const;
   return <div className="bg-white text-[#2d2d2d]">
     <header className="border-t-4 border-[#5d1735] border-b-4 border-[#ffcd00] bg-[#d71920] text-white">
-      <div className="mx-auto flex min-h-20 max-w-[1500px] items-center justify-between gap-5 px-5 py-3 sm:px-8 lg:px-10"><a href="#home" aria-label="Wells Fargo home" className="flex shrink-0 items-center border border-dashed border-white/80 px-2 py-1"><span className="font-serif text-[1.1rem] font-bold tracking-[-0.04em] xs:text-[1.35rem] sm:text-[2rem]">WELLS FARGO</span></a><nav className="flex items-center gap-4 text-sm sm:gap-7 sm:text-base"><a href="#locations" className="hidden hover:underline sm:inline">ATMs/Locations</a><a href="#help" className="hover:underline">Help</a><a href="#espanol" className="hidden hover:underline sm:inline">Español</a><a href="#search" aria-label="Search" className="inline-flex size-9 items-center justify-center text-2xl leading-none hover:bg-white/10"><Search className="size-6" /></a><a href="#sign-on" className="rounded-full bg-white px-3 py-2 text-xs font-medium text-[#333] shadow-sm hover:bg-[#f4f4f4] sm:px-5 sm:py-2.5 sm:text-base">Sign On</a></nav></div>
+      <div className="mx-auto flex min-h-20 max-w-[1500px] items-center justify-between gap-5 px-5 py-3 sm:px-8 lg:px-10"><a href="#home" aria-label="Wells Fargo home" className="flex min-w-0 shrink-0 items-center px-1 py-1"><img src="/support-templates/logos/wells-fargo.svg" alt="Wells Fargo" className="h-7 w-auto max-w-[11rem] object-contain object-left sm:h-10 sm:max-w-[16rem]" /></a><nav className="flex items-center gap-4 text-sm sm:gap-7 sm:text-base"><a href="#locations" className="hidden hover:underline sm:inline">ATMs/Locations</a><a href="#help" className="hover:underline">Help</a><a href="#espanol" className="hidden hover:underline sm:inline">Español</a><a href="#search" aria-label="Search" className="inline-flex size-9 items-center justify-center text-2xl leading-none hover:bg-white/10"><Search className="size-6" /></a><a href="#sign-on" className="rounded-full bg-white px-3 py-2 text-xs font-medium text-[#333] shadow-sm hover:bg-[#f4f4f4] sm:px-5 sm:py-2.5 sm:text-base">Sign On</a></nav></div>
     </header>
     <main>
       <section className="border-b border-[#dedede] bg-[#f5f5f5] px-5 py-12 sm:px-8 sm:py-16 lg:py-20"><div className="mx-auto max-w-7xl"><p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#8c1d40]">Customer support</p><h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#333] sm:text-5xl">{site.heroTitle}</h1><p className="mt-4 text-xl text-[#555]">{site.heroSubtitle}</p><div className="mt-7 max-w-2xl"><SearchBox site={site} query={query} setQuery={setQuery} /></div></div></section>
@@ -89,7 +90,7 @@ function WellsFargoLayout({ site }: { site: SupportSite }) {
       <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-16"><h2 className="text-2xl font-semibold text-[#333] sm:text-3xl">Other ways to connect with us</h2><div className="mt-8 grid gap-5 md:grid-cols-3">{connectionCards.map(([Icon, title, description, action]) => <a key={title} href="#contact" className="group border-t-4 border-[#c41230] bg-[#fafafa] p-6 transition hover:bg-[#f4f4f4]"><Icon className="size-7 text-[#8c1d40]" /><h3 className="mt-5 text-lg font-semibold text-[#333]">{title}</h3><p className="mt-3 min-h-12 text-sm leading-6 text-[#666]">{description}</p><span className="mt-5 inline-block text-sm font-semibold text-[#8c1d40] group-hover:underline">{action}</span></a>)}</div></section>
       <section className="border-t border-[#dedede] px-5 py-9 text-xs leading-5 text-[#666] sm:px-8"><div className="mx-auto max-w-7xl"><p>Investment and Insurance Products are:</p><ul className="mt-2 list-disc space-y-1 pl-5"><li>Not Insured by the FDIC or Any Federal Government Agency</li><li>Not a Deposit or Other Obligation of, or Guaranteed by, the Bank or Any Bank Affiliate</li><li>Subject to Investment Risks, Including Possible Loss of the Principal Amount Invested</li></ul><p className="mt-5 max-w-5xl">Deposit products offered by Wells Fargo Bank, N.A. Member FDIC. Availability may be affected by your mobile carrier’s coverage area. Your mobile carrier’s message and data rates may apply.</p></div></section>
     </main>
-    <footer className="bg-[#8c1d40] px-5 py-9 text-sm text-white sm:px-8"><div className="mx-auto flex max-w-7xl flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><span className="font-semibold">WELLS FARGO</span><div className="flex flex-wrap gap-x-6 gap-y-2 text-white/80"><a href="#privacy" className="hover:text-white">Privacy, Cookies, Security &amp; Legal</a><a href="#feedback" className="hover:text-white">How was your experience?</a><span>© 1999–2026 Wells Fargo</span></div></div></footer>
+    <footer className="bg-[#8c1d40] px-5 py-9 text-sm text-white sm:px-8"><div className="mx-auto flex max-w-7xl flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><img src="/support-templates/logos/wells-fargo.svg" alt="Wells Fargo" className="h-7 w-auto max-w-[12rem] object-contain object-left" /><div className="flex flex-wrap gap-x-6 gap-y-2 text-white/80"><a href="#privacy" className="hover:text-white">Privacy, Cookies, Security &amp; Legal</a><a href="#feedback" className="hover:text-white">How was your experience?</a><span>© 1999–2026 Wells Fargo</span></div></div></footer>
   </div>;
 }
 
