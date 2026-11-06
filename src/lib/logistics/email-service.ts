@@ -9,7 +9,22 @@ import {
   updateShipmentEmailNotification,
 } from "@/lib/logistics/store";
 import type { ShipmentEmailNotification } from "@/lib/logistics/types";
-import type { renderShipmentStatusEmail } from "@/lib/logistics/email-templates";
+import { TRACKNOVA_EMAIL_LOGO_URL, type renderShipmentStatusEmail } from "@/lib/logistics/email-templates";
+
+const TRACKNOVA_EMAIL_LOGO_CID = "tracknova-email-logo";
+
+export function prepareShipmentEmailForDelivery(html: string) {
+  if (!html.includes(TRACKNOVA_EMAIL_LOGO_URL)) return { html, attachments: [] };
+  return {
+    html: html.replaceAll(TRACKNOVA_EMAIL_LOGO_URL, `cid:${TRACKNOVA_EMAIL_LOGO_CID}`),
+    attachments: [{
+      path: TRACKNOVA_EMAIL_LOGO_URL,
+      filename: "tracknova-logo.png",
+      contentId: TRACKNOVA_EMAIL_LOGO_CID,
+      contentType: "image/png",
+    }],
+  };
+}
 
 export function shipmentEmailSender() {
   return process.env.LOGISTICS_EMAIL_FROM?.trim() || process.env.EMAIL_FROM?.trim() || null;
@@ -27,8 +42,9 @@ export async function submitShipmentEmail(
   options?: { limitKey?: string; maximum?: number },
 ): Promise<{ notification: ShipmentEmailNotification; duplicate: boolean }> {
   const from = shipmentEmailSender();
+  const delivery = prepareShipmentEmailForDelivery(rendered.html);
   const payloadFingerprint = createHash("sha256")
-    .update(JSON.stringify({ from, to: notification.recipientEmail, subject: rendered.subject, html: rendered.html, text: rendered.text }))
+    .update(JSON.stringify({ from, to: notification.recipientEmail, subject: rendered.subject, html: delivery.html, text: rendered.text, attachments: delivery.attachments }))
     .digest("hex");
   const prepared = { ...notification, payloadFingerprint };
   const claim = await claimShipmentEmailSend(prepared, options);
@@ -54,8 +70,9 @@ export async function submitShipmentEmail(
     result = await sendEmail({
       to: current.recipientEmail,
       subject: rendered.subject,
-      html: rendered.html,
+      html: delivery.html,
       text: rendered.text,
+      attachments: delivery.attachments,
       idempotencyKey: current.id,
       from: from ?? undefined,
     });

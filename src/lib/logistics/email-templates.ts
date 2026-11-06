@@ -2,7 +2,7 @@ import { STATUS_LABELS, type ShipmentStatus, type TrackingEvent } from "@/lib/lo
 
 type EmailShipment = { trackingNumber: string; estimatedDeliveryDate: string; receiver: { name?: string } };
 type EmailEvent = Pick<TrackingEvent, "status" | "location" | "description" | "timestamp" | "notes">;
-const TRACKNOVA_EMAIL_LOGO_URL = "https://www.eazytool.app/services/logistics/tracknova-email-logo.png";
+export const TRACKNOVA_EMAIL_LOGO_URL = "https://www.eazytool.app/services/logistics/tracknova-email-logo.png";
 
 interface StatusCopy {
   eyebrow: string;

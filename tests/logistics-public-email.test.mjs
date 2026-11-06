@@ -143,6 +143,9 @@ function emailService({ claim, retry = async () => false, existing = null, send,
       isEmailConfigured: true,
       sendEmail: async (input) => { sendCount++; return send(input); },
     },
+    "@/lib/logistics/email-templates": {
+      TRACKNOVA_EMAIL_LOGO_URL: "https://www.eazytool.app/services/logistics/tracknova-email-logo.png",
+    },
     "@/lib/logistics/store": {
       claimShipmentEmailSend: claim,
       claimPendingShipmentEmailRetry: retry,
@@ -158,6 +161,23 @@ const notification = {
   eventId: event.id, recipientEmail: shipment.receiver.email, status: "pending",
 };
 const rendered = { subject: "Shipment update", html: "<p>Update</p>", text: "Update" };
+
+test("shipment email embeds the TrackNova logo while the browser preview keeps the public URL", async () => {
+  const logoUrl = "https://www.eazytool.app/services/logistics/tracknova-email-logo.png";
+  let sent = null;
+  const { service } = emailService({
+    claim: async () => "claimed",
+    send: async (input) => { sent = input; return { id: "provider-message-1" }; },
+  });
+  const preview = { ...rendered, html: `<img src="${logoUrl}" alt="TrackNova">` };
+  await service.submitShipmentEmail(notification, preview);
+  assert.match(preview.html, new RegExp(logoUrl.replaceAll(".", "\\.")));
+  assert.match(sent.html, /src="cid:tracknova-email-logo"/);
+  assert.equal(sent.attachments.length, 1);
+  assert.equal(sent.attachments[0].path, logoUrl);
+  assert.equal(sent.attachments[0].contentId, "tracknova-email-logo");
+  assert.equal(sent.attachments[0].contentType, "image/png");
+});
 
 test("provider acceptance followed by a failed status save remains pending and cannot resend on duplicate", async () => {
   let claimed = false;
