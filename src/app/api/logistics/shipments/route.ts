@@ -6,6 +6,7 @@ import { createShipmentRecord, createTrackingEvent, getShipmentsForUser, getTrac
 import { generateShipmentNumber, generateTrackingNumber } from "@/lib/logistics/data/tracking-number";
 import { getCarrier } from "@/lib/logistics/data/carriers";
 import { syncShipmentToTrackNova } from "@/lib/logistics/tracknova-sync";
+import { getTrackNovaTrackingUrl } from "@/lib/logistics/tracking-url";
 import { TRACKING_EVENT_DESCRIPTION_TEMPLATES } from "@/lib/logistics/tracking-event-templates";
 import { shipmentSchema } from "@/lib/logistics/validation";
 import type { Shipment, TrackingEvent } from "@/lib/logistics/types";
@@ -126,7 +127,7 @@ export async function POST(request: Request) {
   return NextResponse.json(
     {
       shipment,
-      trackingUrl: `https://www.tracknova.app/track?q=${encodeURIComponent(shipment.trackingNumber)}`,
+      trackingUrl: getTrackNovaTrackingUrl(shipment.trackingNumber),
       trackingSync: syncResult.synced ? "synced" : "pending",
     },
     { status: 201 }

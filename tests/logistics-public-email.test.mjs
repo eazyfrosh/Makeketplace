@@ -62,6 +62,9 @@ function publicRoute({ found = shipment, configured = true, durable = true, allo
     "@/lib/logistics/email-templates": {
       renderShipmentStatusEmail: (input) => { renderedInputs.push(input); return { subject: "Shipment update", html: "<p>Update</p>", text: "Update" }; },
     },
+    "@/lib/logistics/tracking-url": {
+      getTrackNovaTrackingUrl: (number) => `https://www.tracknova.app/track?q=${encodeURIComponent(number)}`,
+    },
     "@/lib/logistics/store": {
       isLogisticsBackendDurable: durable,
       getShipmentByTrackingNumber: async () => found,
@@ -92,6 +95,7 @@ test("matching request sends only to the stored recipient and keeps a stable ret
   assert.equal(sent[0].id, sent[1].id, "the shared service can deduplicate repeated taps");
   assert.equal(renderedInputs[0].shipment.receiver.name, undefined);
   assert.equal(renderedInputs[0].event.notes, undefined);
+  assert.equal(renderedInputs[0].trackingUrl, "https://www.tracknova.app/track?q=TRK-123456");
 });
 
 test("public send requires recipient permission confirmation", async () => {

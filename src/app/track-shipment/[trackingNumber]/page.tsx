@@ -19,6 +19,7 @@ import { getCarrier } from "@/lib/logistics/data/carriers";
 import { SERVICE_LABELS } from "@/lib/logistics/types";
 import { formatDateLong } from "@/lib/logistics/format";
 import { renderShipmentStatusEmail } from "@/lib/logistics/email-templates";
+import { getTrackNovaTrackingUrl } from "@/lib/logistics/tracking-url";
 import "@/app/platform/platform-themes.css";
 
 type PublicShipment = Awaited<ReturnType<typeof trackPublic>>["shipment"];
@@ -37,11 +38,10 @@ function TrackingEmailCard({ shipment, events }: { shipment: PublicShipment; eve
     description: `Shipment status updated to ${shipment.status.replaceAll("_", " ")}.`,
     timestamp: shipment.updatedAt,
   };
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://eazytool.app").replace(/\/$/, "");
   const preview = renderShipmentStatusEmail({
     shipment: { trackingNumber: shipment.trackingNumber, estimatedDeliveryDate: shipment.estimatedDeliveryDate, receiver: {} },
     event,
-    trackingUrl: `${appUrl}/track-shipment/${encodeURIComponent(shipment.trackingNumber)}`,
+    trackingUrl: getTrackNovaTrackingUrl(shipment.trackingNumber),
   });
 
   async function handleSend(event: FormEvent<HTMLFormElement>) {

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { isShipmentEmailConfigured, submitShipmentEmail } from "@/lib/logistics/email-service";
 import { renderShipmentStatusEmail } from "@/lib/logistics/email-templates";
+import { getTrackNovaTrackingUrl } from "@/lib/logistics/tracking-url";
 import {
   getShipmentById,
   getShipmentEmails,
@@ -59,8 +60,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const event = parsed.data.eventId ? sortedEvents.find((item) => item.id === parsed.data.eventId) : sortedEvents[0] ?? syntheticEvent(id, shipment);
   if (!event) return NextResponse.json({ error: "The selected tracking update was not found." }, { status: 404 });
 
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? "https://eazytool.app").replace(/\/$/, "");
-  const trackingUrl = `${appUrl}/track-shipment/${encodeURIComponent(shipment.trackingNumber)}`;
+  const trackingUrl = getTrackNovaTrackingUrl(shipment.trackingNumber);
   const rendered = renderShipmentStatusEmail({ shipment, event, trackingUrl });
   const now = new Date().toISOString();
   const notification: ShipmentEmailNotification = {

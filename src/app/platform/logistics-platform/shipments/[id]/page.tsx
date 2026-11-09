@@ -22,6 +22,7 @@ import { getCarrier } from "@/lib/logistics/data/carriers";
 import { SERVICE_LABELS, SHIPMENT_STATUSES, STATUS_LABELS } from "@/lib/logistics/types";
 import { formatCurrency, formatDateLong } from "@/lib/logistics/format";
 import { renderShipmentStatusEmail } from "@/lib/logistics/email-templates";
+import { getTrackNovaTrackingUrl } from "@/lib/logistics/tracking-url";
 import { TRACKING_EVENT_DESCRIPTION_TEMPLATES } from "@/lib/logistics/tracking-event-templates";
 import type { Shipment, ShipmentEmailNotification, ShipmentMessage, ShipmentStatus, TrackingEvent } from "@/lib/logistics/types";
 
@@ -156,11 +157,10 @@ function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: T
     description: `Shipment status updated to ${shipment.status.replaceAll("_", " ")}.`,
     timestamp: shipment.updatedAt,
   };
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://eazytool.app").replace(/\/$/, "");
   const preview = renderShipmentStatusEmail({
     shipment,
     event: previewEvent,
-    trackingUrl: `${appUrl}/track-shipment/${encodeURIComponent(shipment.trackingNumber)}`,
+    trackingUrl: getTrackNovaTrackingUrl(shipment.trackingNumber),
   });
 
   const refreshEmailHistory = useCallback(async () => {

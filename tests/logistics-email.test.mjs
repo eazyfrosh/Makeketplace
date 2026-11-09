@@ -11,6 +11,7 @@ const store = readFileSync(new URL("../src/lib/logistics/store.ts", import.meta.
 const page = readFileSync(new URL("../src/app/platform/logistics-platform/shipments/[id]/page.tsx", import.meta.url), "utf8");
 const publicPage = readFileSync(new URL("../src/app/track-shipment/[trackingNumber]/page.tsx", import.meta.url), "utf8");
 const publicRoute = readFileSync(new URL("../src/app/api/logistics/track/email/route.ts", import.meta.url), "utf8");
+const trackingUrlSource = readFileSync(new URL("../src/lib/logistics/tracking-url.ts", import.meta.url), "utf8");
 
 const statuses = ["pending", "processing", "picked_up", "in_transit", "arrived_at_hub", "customs_clearance", "out_for_delivery", "delivered", "failed_delivery", "returned", "cancelled"];
 
@@ -19,6 +20,19 @@ test("every shipment status has a dedicated email template", () => {
   assert.match(templates, /escapeHtml/);
   assert.match(templates, /View live tracking/);
   assert.match(templates, /text = `/);
+});
+
+test("shipment emails and both previews use TrackNova's public tracking lookup", () => {
+  const javascript = ts.transpileModule(trackingUrlSource, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const module = { exports: {} };
+  runInNewContext(javascript, { module, exports: module.exports, encodeURIComponent });
+  assert.equal(module.exports.getTrackNovaTrackingUrl("SSC-123/45"), "https://www.tracknova.app/track?q=SSC-123%2F45");
+  for (const source of [route, publicRoute, page, publicPage]) {
+    assert.match(source, /getTrackNovaTrackingUrl\(shipment\.trackingNumber\)/);
+    assert.doesNotMatch(source, /\/track-shipment\/\$\{encodeURIComponent\(shipment\.trackingNumber\)\}/);
+  }
 });
 
 test("the shipment email preview renders valid dates and legacy statuses without throwing", () => {

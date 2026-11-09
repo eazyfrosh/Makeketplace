@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { isShipmentEmailConfigured, submitShipmentEmail } from "@/lib/logistics/email-service";
 import { renderShipmentStatusEmail } from "@/lib/logistics/email-templates";
+import { getTrackNovaTrackingUrl } from "@/lib/logistics/tracking-url";
 import {
   claimPublicTrackingEmailAttempt,
   getShipmentByTrackingNumber,
@@ -56,8 +57,7 @@ export async function POST(request: Request) {
       description: `Shipment status updated to ${shipment.status.replaceAll("_", " ")}.`,
       timestamp: shipment.updatedAt,
     };
-    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? "https://eazytool.app").replace(/\/$/, "");
-    const trackingUrl = `${appUrl}/track-shipment/${encodeURIComponent(shipment.trackingNumber)}`;
+    const trackingUrl = getTrackNovaTrackingUrl(shipment.trackingNumber);
     // Match the public preview exactly and keep private contact details and
     // internal notes out of emails requested from an anonymous tracking page.
     const rendered = renderShipmentStatusEmail({
