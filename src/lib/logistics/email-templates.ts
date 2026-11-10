@@ -64,32 +64,41 @@ export function renderShipmentStatusEmail(input: {
   };
 
   const html = `<!doctype html>
-<html><body style="margin:0;background:#f1f5f9;font-family:Inter,Arial,sans-serif;color:#0f172a">
-  <div style="display:none;max-height:0;overflow:hidden">${escapeHtml(copy.message)}</div>
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f1f5f9;padding:28px 12px"><tr><td align="center">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #e2e8f0">
-      <tr><td style="height:7px;background:${copy.color}"></td></tr>
-      <tr><td style="padding:30px 30px 16px">
-        <img src="${TRACKNOVA_EMAIL_LOGO_URL}" width="360" alt="TrackNova" style="display:block;width:100%;max-width:360px;height:auto;border:0" />
-        <div style="margin-top:4px;color:${copy.color};font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(copy.eyebrow)}</div>
-        <h1 style="margin:10px 0 12px;font-size:28px;line-height:1.2;letter-spacing:-.03em">${escapeHtml(copy.heading)}</h1>
-        <p style="margin:0;color:#475569;font-size:15px;line-height:1.7">Hello ${safe.recipient}, ${escapeHtml(copy.message)}</p>
+<html lang="en"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#edf4ff;font-family:Arial,Helvetica,sans-serif;color:#10254a">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(copy.message)}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#edf4ff"><tr><td align="center" style="padding:28px 12px">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border:1px solid #d8e6fa;border-radius:16px;overflow:hidden">
+      <tr><td style="padding:14px 28px 12px;background:#ffffff;border-bottom:1px solid #e5edfa">
+        <img src="${TRACKNOVA_EMAIL_LOGO_URL}" width="260" alt="TrackNova" style="display:block;width:260px;max-width:100%;height:auto;border:0" />
       </td></tr>
-      <tr><td style="padding:10px 30px 26px">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:8px 18px">
-          <tr><td style="padding:12px 0;color:#64748b;font-size:13px">Tracking number</td><td align="right" style="padding:12px 0;font-family:ui-monospace,monospace;font-size:13px;font-weight:700">${safe.trackingNumber}</td></tr>
-          <tr><td style="padding:12px 0;border-top:1px solid #e2e8f0;color:#64748b;font-size:13px">Status</td><td align="right" style="padding:12px 0;border-top:1px solid #e2e8f0;color:${copy.color};font-size:13px;font-weight:800">${safe.status}</td></tr>
-          <tr><td style="padding:12px 0;border-top:1px solid #e2e8f0;color:#64748b;font-size:13px">Location</td><td align="right" style="padding:12px 0;border-top:1px solid #e2e8f0;font-size:13px;font-weight:600">${safe.location}</td></tr>
-          <tr><td style="padding:12px 0;border-top:1px solid #e2e8f0;color:#64748b;font-size:13px">Estimated delivery</td><td align="right" style="padding:12px 0;border-top:1px solid #e2e8f0;font-size:13px;font-weight:600">${safe.estimatedDelivery}</td></tr>
+      <tr><td style="padding:28px;background:#082b67;color:#ffffff">
+        <div style="color:#a8d8ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Shipment update</div>
+        <h1 style="margin:10px 0 12px;color:#ffffff;font-size:26px;line-height:1.25;font-weight:700">${escapeHtml(copy.heading)}</h1>
+        <div style="color:#e1efff;font-size:14px;line-height:1.5">Tracking number: <strong style="color:#ffffff">${safe.trackingNumber}</strong></div>
+      </td></tr>
+      <tr><td style="padding:28px 28px 12px">
+        <p style="margin:0;color:#263b5e;font-size:15px;line-height:1.7">Hello ${safe.recipient},</p>
+        <p style="margin:12px 0 0;color:#263b5e;font-size:15px;line-height:1.7">${escapeHtml(copy.message)}</p>
+      </td></tr>
+      <tr><td style="padding:8px 28px 26px">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f8ff;border:1px solid #d9e9ff;border-radius:12px">
+          <tr><td colspan="2" style="padding:16px 18px 12px;border-left:4px solid ${copy.color}">
+            <div style="color:#28538c;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase">Current status</div>
+            <div style="margin-top:5px;color:#082b67;font-size:18px;font-weight:700">${safe.status}</div>
+          </td></tr>
+          <tr><td style="padding:12px 8px 12px 18px;border-top:1px solid #d9e9ff;color:#526987;font-size:13px">Location</td><td align="right" style="padding:12px 18px 12px 8px;border-top:1px solid #d9e9ff;color:#10254a;font-size:13px;font-weight:700;overflow-wrap:anywhere">${safe.location}</td></tr>
+          <tr><td style="padding:12px 8px 12px 18px;border-top:1px solid #d9e9ff;color:#526987;font-size:13px">Estimated delivery</td><td align="right" style="padding:12px 18px 12px 8px;border-top:1px solid #d9e9ff;color:#10254a;font-size:13px;font-weight:700">${safe.estimatedDelivery}</td></tr>
         </table>
-        <div style="margin-top:18px;padding:16px 18px;border-left:4px solid ${copy.color};background:#f8fafc;border-radius:4px 12px 12px 4px">
-          <div style="font-size:14px;font-weight:700">${safe.description}</div>
-          <div style="margin-top:5px;color:#64748b;font-size:12px">${safe.eventTime}</div>
-          ${safe.notes ? `<div style="margin-top:9px;color:#475569;font-size:13px;line-height:1.6">${safe.notes}</div>` : ""}
+        <div style="padding:20px 0 0">
+          <div style="color:#28538c;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase">Latest update</div>
+          <p style="margin:8px 0 0;color:#10254a;font-size:14px;font-weight:700;line-height:1.6">${safe.description}</p>
+          <p style="margin:5px 0 0;color:#526987;font-size:12px;line-height:1.5">${safe.eventTime}</p>
+          ${safe.notes ? `<p style="margin:12px 0 0;color:#526987;font-size:13px;line-height:1.6">${safe.notes}</p>` : ""}
         </div>
-        <div style="margin-top:24px;text-align:center"><a href="${safe.trackingUrl}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 22px;border-radius:10px">View live tracking</a></div>
+        <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:24px"><tr><td style="background:#0866e8;border-radius:9px"><a href="${safe.trackingUrl}" style="display:inline-block;padding:14px 22px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700">View live tracking</a></td></tr></table>
       </td></tr>
-      <tr><td style="border-top:1px solid #e2e8f0;padding:20px 30px;color:#64748b;font-size:12px;line-height:1.6">This is a shipment-status notification sent through EazyTool. Use the tracking number above when contacting support.</td></tr>
+      <tr><td style="padding:18px 28px;background:#f3f8ff;border-top:1px solid #d9e9ff;color:#526987;font-size:12px;line-height:1.6">TrackNova shipment update sent through EazyTool. Keep your tracking number for support enquiries.</td></tr>
     </table>
   </td></tr></table>
 </body></html>`;
