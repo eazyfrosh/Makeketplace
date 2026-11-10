@@ -3,6 +3,7 @@ import { STATUS_LABELS, type ShipmentStatus, type TrackingEvent } from "@/lib/lo
 type EmailShipment = { trackingNumber: string; estimatedDeliveryDate: string; receiver: { name?: string } };
 type EmailEvent = Pick<TrackingEvent, "status" | "location" | "description" | "timestamp" | "notes">;
 export const TRACKNOVA_EMAIL_LOGO_URL = "https://www.eazytool.app/services/logistics/tracknova-email-logo.png";
+export const TRACKNOVA_EMAIL_DARK_LOGO_URL = "https://www.eazytool.app/services/logistics/tracknova-email-logo-dark.png";
 
 interface StatusCopy {
   eyebrow: string;
@@ -74,7 +75,8 @@ export function renderShipmentStatusEmail(input: {
       .email-body { background: #020617 !important; }
       .email-card { background: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
       .logo-header { background: #0b1f3a !important; border-color: #334155 !important; }
-      .email-logo { filter: brightness(0) invert(1) !important; }
+      .email-logo-light { display: none !important; }
+      .email-logo-dark { display: block !important; }
       .email-copy { color: #dbeafe !important; }
       .email-panel { background: #111c2f !important; border-color: #334155 !important; }
       .email-heading { color: #f8fafc !important; }
@@ -84,7 +86,8 @@ export function renderShipmentStatusEmail(input: {
     [data-ogsc] .email-body { background: #020617 !important; }
     [data-ogsc] .email-card { background: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
     [data-ogsc] .logo-header { background: #0b1f3a !important; border-color: #334155 !important; }
-    [data-ogsc] .email-logo { filter: brightness(0) invert(1) !important; }
+    [data-ogsc] .email-logo-light { display: none !important; }
+    [data-ogsc] .email-logo-dark { display: block !important; }
     [data-ogsc] .email-copy { color: #dbeafe !important; }
     [data-ogsc] .email-panel { background: #111c2f !important; border-color: #334155 !important; }
     [data-ogsc] .email-heading { color: #f8fafc !important; }
@@ -97,7 +100,8 @@ export function renderShipmentStatusEmail(input: {
   <table class="email-body" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#edf4ff"><tr><td align="center" style="padding:28px 12px">
     <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border:1px solid #d8e6fa;border-radius:16px;overflow:hidden;color:#10254a">
       <tr><td class="logo-header" style="padding:14px 28px 12px;background:#ffffff;border-bottom:1px solid #e5edfa">
-        <img class="email-logo" src="${TRACKNOVA_EMAIL_LOGO_URL}" width="260" alt="TrackNova" style="display:block;width:260px;max-width:100%;height:auto;border:0" />
+        <img class="email-logo-light" src="${TRACKNOVA_EMAIL_LOGO_URL}" width="260" alt="TrackNova" style="display:block;width:260px;max-width:100%;height:auto;border:0" />
+        <img class="email-logo-dark" src="${TRACKNOVA_EMAIL_DARK_LOGO_URL}" width="260" alt="TrackNova" style="display:none;width:260px;max-width:100%;height:auto;border:0" />
       </td></tr>
       <tr><td style="padding:28px;background:#082b67;color:#ffffff">
         <div style="color:#a8d8ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Shipment update</div>
