@@ -105,26 +105,26 @@ export function renderShipmentStatusEmail(input: {
   <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(copy.message)}</div>
   <table class="email-body" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#edf4ff"><tr><td align="center" style="padding:28px 12px">
     <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border:1px solid #d8e6fa;border-radius:16px;overflow:hidden;color:#10254a">
-      <tr><td class="logo-header" bgcolor="#0b1f3a" style="padding:14px 28px 12px;background:#0b1f3a;background-color:#0b1f3a;border-bottom:1px solid #334155">
+      <tr><td class="logo-header" bgcolor="#0b1f3a" style="padding:18px 28px;background:#0b1f3a;background-color:#0b1f3a;border-bottom:1px solid #17345b">
         <img class="email-logo-dark" src="${TRACKNOVA_EMAIL_DARK_LOGO_URL}" width="260" alt="TrackNova" style="display:block;width:260px;max-width:100%;height:auto;border:0" />
       </td></tr>
-      <tr><td class="email-hero" bgcolor="#082b67" style="padding:28px;background:#082b67;background-color:#082b67;color:#ffffff">
-        <div class="email-hero-label" style="color:#a8d8ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Shipment update</div>
+      <tr><td class="email-hero" bgcolor="#123b70" style="padding:26px 28px;background:#123b70;background-color:#123b70;color:#ffffff">
+        <div class="email-hero-label" style="color:#8bdcff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Shipment update</div>
         <h1 style="margin:10px 0 12px;color:#ffffff;font-size:26px;line-height:1.25;font-weight:700">${escapeHtml(copy.heading)}</h1>
-        <div class="email-hero-copy" style="color:#e1efff;font-size:14px;line-height:1.5">Tracking number: <strong style="color:#ffffff">${safe.trackingNumber}</strong></div>
+        <div class="email-hero-copy" style="color:#d6eaff;font-size:14px;line-height:1.5">Tracking number: <strong style="color:#ffffff">${safe.trackingNumber}</strong></div>
       </td></tr>
       <tr><td style="padding:28px 28px 12px">
         <p class="email-copy" style="margin:0;color:#263b5e;font-size:15px;line-height:1.7">Hello ${safe.recipient},</p>
         <p class="email-copy" style="margin:12px 0 0;color:#263b5e;font-size:15px;line-height:1.7">${escapeHtml(copy.message)}</p>
       </td></tr>
       <tr><td style="padding:8px 28px 26px">
-        <table class="email-panel" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f8ff;border:1px solid #d9e9ff;border-radius:12px">
+        <table class="email-panel" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f8fd;border:1px solid #dce6f2;border-radius:12px">
           <tr><td colspan="2" style="padding:16px 18px 12px;border-left:4px solid ${copy.color}">
-            <div class="email-muted" style="color:#28538c;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase">Current status</div>
-            <div class="email-heading" style="margin-top:5px;color:#082b67;font-size:18px;font-weight:700">${safe.status}</div>
+            <div class="email-muted" style="color:#49627f;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase">Current status</div>
+            <div class="email-heading" style="margin-top:5px;color:#142b48;font-size:18px;font-weight:700">${safe.status}</div>
           </td></tr>
-          <tr><td class="email-muted email-divider" style="padding:12px 8px 12px 18px;border-top:1px solid #d9e9ff;color:#526987;font-size:13px">Location</td><td class="email-heading email-divider" align="right" style="padding:12px 18px 12px 8px;border-top:1px solid #d9e9ff;color:#10254a;font-size:13px;font-weight:700;overflow-wrap:anywhere">${safe.location}</td></tr>
-          <tr><td class="email-muted email-divider" style="padding:12px 8px 12px 18px;border-top:1px solid #d9e9ff;color:#526987;font-size:13px">Estimated delivery</td><td class="email-heading email-divider" align="right" style="padding:12px 18px 12px 8px;border-top:1px solid #d9e9ff;color:#10254a;font-size:13px;font-weight:700">${safe.estimatedDelivery}</td></tr>
+          <tr><td class="email-muted email-divider" style="padding:12px 8px 12px 18px;border-top:1px solid #dce6f2;color:#49627f;font-size:13px">Location</td><td class="email-heading email-divider" align="right" style="padding:12px 18px 12px 8px;border-top:1px solid #dce6f2;color:#142b48;font-size:13px;font-weight:700;overflow-wrap:anywhere">${safe.location}</td></tr>
+          <tr><td class="email-muted email-divider" style="padding:12px 8px 12px 18px;border-top:1px solid #dce6f2;color:#49627f;font-size:13px">Estimated delivery</td><td class="email-heading email-divider" align="right" style="padding:12px 18px 12px 8px;border-top:1px solid #dce6f2;color:#142b48;font-size:13px;font-weight:700">${safe.estimatedDelivery}</td></tr>
         </table>
         <div style="padding:20px 0 0">
           <div class="email-muted" style="color:#28538c;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase">Latest update</div>
