@@ -105,9 +105,8 @@ export function renderShipmentStatusEmail(input: {
   <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(copy.message)}</div>
   <table class="email-body" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#edf4ff"><tr><td align="center" style="padding:28px 12px">
     <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border:1px solid #d8e6fa;border-radius:16px;overflow:hidden;color:#10254a">
-      <tr><td class="logo-header" style="padding:14px 28px 12px;background:#ffffff;border-bottom:1px solid #e5edfa">
-        <img class="email-logo-light" src="${TRACKNOVA_EMAIL_LOGO_URL}" width="260" alt="TrackNova" style="display:block;width:260px;max-width:100%;height:auto;border:0" />
-        <img class="email-logo-dark" src="${TRACKNOVA_EMAIL_DARK_LOGO_URL}" width="260" alt="TrackNova" style="display:none;width:260px;max-width:100%;height:auto;border:0" />
+      <tr><td class="logo-header" bgcolor="#0b1f3a" style="padding:14px 28px 12px;background:#0b1f3a;background-color:#0b1f3a;border-bottom:1px solid #334155">
+        <img class="email-logo-dark" src="${TRACKNOVA_EMAIL_DARK_LOGO_URL}" width="260" alt="TrackNova" style="display:block;width:260px;max-width:100%;height:auto;border:0" />
       </td></tr>
       <tr><td class="email-hero" bgcolor="#082b67" style="padding:28px;background:#082b67;background-color:#082b67;color:#ffffff">
         <div class="email-hero-label" style="color:#a8d8ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Shipment update</div>
