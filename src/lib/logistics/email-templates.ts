@@ -78,9 +78,9 @@ export function renderShipmentStatusEmail(input: {
       .email-logo-light { display: none !important; }
       .email-logo-dark { display: block !important; }
       .email-copy { color: #dbeafe !important; }
-      .email-hero { background: #082b67 !important; background-color: #082b67 !important; }
-      .email-hero-label { color: #a8d8ff !important; }
-      .email-hero-copy { color: #e1efff !important; }
+      .email-hero { background: #123b70 !important; background-color: #123b70 !important; }
+      .email-hero-label { color: #8bdcff !important; }
+      .email-hero-copy { color: #d6eaff !important; }
       .email-panel { background: #111c2f !important; border-color: #334155 !important; }
       .email-heading { color: #f8fafc !important; }
       .email-muted { color: #cbd5e1 !important; }
@@ -92,9 +92,9 @@ export function renderShipmentStatusEmail(input: {
     [data-ogsc] .email-logo-light { display: none !important; }
     [data-ogsc] .email-logo-dark { display: block !important; }
     [data-ogsc] .email-copy { color: #dbeafe !important; }
-    [data-ogsc] .email-hero { background: #082b67 !important; background-color: #082b67 !important; }
-    [data-ogsc] .email-hero-label { color: #a8d8ff !important; }
-    [data-ogsc] .email-hero-copy { color: #e1efff !important; }
+    [data-ogsc] .email-hero { background: #123b70 !important; background-color: #123b70 !important; }
+    [data-ogsc] .email-hero-label { color: #8bdcff !important; }
+    [data-ogsc] .email-hero-copy { color: #d6eaff !important; }
     [data-ogsc] .email-panel { background: #111c2f !important; border-color: #334155 !important; }
     [data-ogsc] .email-heading { color: #f8fafc !important; }
     [data-ogsc] .email-muted { color: #cbd5e1 !important; }
@@ -105,7 +105,7 @@ export function renderShipmentStatusEmail(input: {
   <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(copy.message)}</div>
   <table class="email-body" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#edf4ff"><tr><td align="center" style="padding:28px 12px">
     <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border:1px solid #d8e6fa;border-radius:16px;overflow:hidden;color:#10254a">
-      <tr><td class="logo-header" bgcolor="#0b1f3a" style="padding:18px 28px;background:#0b1f3a;background-color:#0b1f3a;border-bottom:1px solid #17345b">
+      <tr><td class="logo-header" bgcolor="#071a33" style="padding:18px 28px;background:#071a33;background-color:#071a33;border-bottom:1px solid #17345b">
         <img class="email-logo-dark" src="${TRACKNOVA_EMAIL_DARK_LOGO_URL}" width="260" alt="TrackNova" style="display:block;width:260px;max-width:100%;height:auto;border:0" />
       </td></tr>
       <tr><td class="email-hero" bgcolor="#123b70" style="padding:26px 28px;background:#123b70;background-color:#123b70;color:#ffffff">
