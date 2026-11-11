@@ -72,23 +72,29 @@ export function renderShipmentStatusEmail(input: {
   <style>
     :root { color-scheme: light dark; supported-color-schemes: light dark; }
     @media (prefers-color-scheme: dark) {
-      .email-body { background: #020617 !important; }
+      .email-body { background: #020617 !important; background-color: #020617 !important; }
       .email-card { background: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
       .logo-header { background: #0b1f3a !important; border-color: #334155 !important; }
       .email-logo-light { display: none !important; }
       .email-logo-dark { display: block !important; }
       .email-copy { color: #dbeafe !important; }
+      .email-hero { background: #082b67 !important; background-color: #082b67 !important; }
+      .email-hero-label { color: #a8d8ff !important; }
+      .email-hero-copy { color: #e1efff !important; }
       .email-panel { background: #111c2f !important; border-color: #334155 !important; }
       .email-heading { color: #f8fafc !important; }
       .email-muted { color: #cbd5e1 !important; }
       .email-divider { border-color: #334155 !important; }
     }
-    [data-ogsc] .email-body { background: #020617 !important; }
+    [data-ogsc] .email-body { background: #020617 !important; background-color: #020617 !important; }
     [data-ogsc] .email-card { background: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
     [data-ogsc] .logo-header { background: #0b1f3a !important; border-color: #334155 !important; }
     [data-ogsc] .email-logo-light { display: none !important; }
     [data-ogsc] .email-logo-dark { display: block !important; }
     [data-ogsc] .email-copy { color: #dbeafe !important; }
+    [data-ogsc] .email-hero { background: #082b67 !important; background-color: #082b67 !important; }
+    [data-ogsc] .email-hero-label { color: #a8d8ff !important; }
+    [data-ogsc] .email-hero-copy { color: #e1efff !important; }
     [data-ogsc] .email-panel { background: #111c2f !important; border-color: #334155 !important; }
     [data-ogsc] .email-heading { color: #f8fafc !important; }
     [data-ogsc] .email-muted { color: #cbd5e1 !important; }
@@ -103,10 +109,10 @@ export function renderShipmentStatusEmail(input: {
         <img class="email-logo-light" src="${TRACKNOVA_EMAIL_LOGO_URL}" width="260" alt="TrackNova" style="display:block;width:260px;max-width:100%;height:auto;border:0" />
         <img class="email-logo-dark" src="${TRACKNOVA_EMAIL_DARK_LOGO_URL}" width="260" alt="TrackNova" style="display:none;width:260px;max-width:100%;height:auto;border:0" />
       </td></tr>
-      <tr><td style="padding:28px;background:#082b67;color:#ffffff">
-        <div style="color:#a8d8ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Shipment update</div>
+      <tr><td class="email-hero" bgcolor="#082b67" style="padding:28px;background:#082b67;background-color:#082b67;color:#ffffff">
+        <div class="email-hero-label" style="color:#a8d8ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Shipment update</div>
         <h1 style="margin:10px 0 12px;color:#ffffff;font-size:26px;line-height:1.25;font-weight:700">${escapeHtml(copy.heading)}</h1>
-        <div style="color:#e1efff;font-size:14px;line-height:1.5">Tracking number: <strong style="color:#ffffff">${safe.trackingNumber}</strong></div>
+        <div class="email-hero-copy" style="color:#e1efff;font-size:14px;line-height:1.5">Tracking number: <strong style="color:#ffffff">${safe.trackingNumber}</strong></div>
       </td></tr>
       <tr><td style="padding:28px 28px 12px">
         <p class="email-copy" style="margin:0;color:#263b5e;font-size:15px;line-height:1.7">Hello ${safe.recipient},</p>
