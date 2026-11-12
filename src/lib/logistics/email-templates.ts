@@ -48,16 +48,19 @@ export function renderShipmentStatusEmail(input: {
   shipment: EmailShipment;
   event: EmailEvent;
   trackingUrl: string;
+  recipientName?: string;
+  message?: string;
 }) {
   const { shipment, event, trackingUrl } = input;
   const copy = LOGISTICS_EMAIL_STATUS_COPY[event.status] ?? LOGISTICS_EMAIL_STATUS_COPY.pending;
+  const message = input.message?.trim() || event.description || copy.message;
   const subject = getShipmentEmailSubject(shipment, event.status);
   const safe = {
-    recipient: escapeHtml(shipment.receiver.name || "Customer"),
+    recipient: escapeHtml(input.recipientName?.trim() || shipment.receiver.name || "Customer"),
     trackingNumber: escapeHtml(shipment.trackingNumber),
     status: escapeHtml(STATUS_LABELS[event.status] ?? "Shipment update"),
     location: escapeHtml(event.location || "Not provided"),
-    description: escapeHtml(event.description || copy.message),
+    description: escapeHtml(message),
     notes: event.notes ? escapeHtml(event.notes) : "",
     estimatedDelivery: escapeHtml(displayEstimatedDelivery(shipment.estimatedDeliveryDate)),
     eventTime: escapeHtml(displayDate(event.timestamp)),
@@ -102,7 +105,7 @@ export function renderShipmentStatusEmail(input: {
   </style>
 </head>
 <body class="email-body" style="margin:0;padding:0;background:#edf4ff;font-family:Arial,Helvetica,sans-serif;color:#10254a">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(copy.message)}</div>
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(message)}</div>
   <table class="email-body" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#edf4ff"><tr><td align="center" style="padding:28px 12px">
     <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border:1px solid #d8e6fa;border-radius:16px;overflow:hidden;color:#10254a">
       <tr><td class="logo-header" bgcolor="#071a33" style="padding:18px 28px;background:#071a33;background-color:#071a33;border-bottom:1px solid #17345b">
@@ -115,7 +118,7 @@ export function renderShipmentStatusEmail(input: {
       </td></tr>
       <tr><td style="padding:28px 28px 12px">
         <p class="email-copy" style="margin:0;color:#263b5e;font-size:15px;line-height:1.7">Hello ${safe.recipient},</p>
-        <p class="email-copy" style="margin:12px 0 0;color:#263b5e;font-size:15px;line-height:1.7">${escapeHtml(copy.message)}</p>
+        <p class="email-copy" style="margin:12px 0 0;color:#263b5e;font-size:15px;line-height:1.7">${escapeHtml(message)}</p>
       </td></tr>
       <tr><td style="padding:8px 28px 26px">
         <table class="email-panel" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f8fd;border:1px solid #dce6f2;border-radius:12px">
@@ -138,7 +141,7 @@ export function renderShipmentStatusEmail(input: {
   </td></tr></table>
 </body></html>`;
 
-  const text = `${copy.heading}\n\nHello ${shipment.receiver.name || "Customer"},\n${copy.message}\n\nTracking number: ${shipment.trackingNumber}\nStatus: ${STATUS_LABELS[event.status] ?? "Shipment update"}\nLocation: ${event.location || "Not provided"}\nUpdate: ${event.description || copy.message}\nEstimated delivery: ${displayEstimatedDelivery(shipment.estimatedDeliveryDate)}${event.notes ? `\nNotes: ${event.notes}` : ""}\n\nTrack shipment: ${trackingUrl}`;
+  const text = `${copy.heading}\n\nHello ${input.recipientName?.trim() || shipment.receiver.name || "Customer"},\n${message}\n\nTracking number: ${shipment.trackingNumber}\nStatus: ${STATUS_LABELS[event.status] ?? "Shipment update"}\nLocation: ${event.location || "Not provided"}\nUpdate: ${message}\nEstimated delivery: ${displayEstimatedDelivery(shipment.estimatedDeliveryDate)}${event.notes ? `\nNotes: ${event.notes}` : ""}\n\nTrack shipment: ${trackingUrl}`;
 
   return { subject, html, text, copy };
 }

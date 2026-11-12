@@ -15,6 +15,8 @@ import { verifyCaller } from "@/lib/licensing/verify-auth";
 
 const sendSchema = z.object({
   recipientEmail: z.email("Enter a valid recipient email address.").max(254),
+  recipientName: z.string().trim().min(1).max(120),
+  message: z.string().trim().min(1).max(2000),
   eventId: z.string().min(1).max(160).optional(),
   requestId: z.string().regex(/^logemail_[A-Za-z0-9_-]{12,120}$/),
   recipientConfirmed: z.literal(true),
@@ -61,7 +63,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!event) return NextResponse.json({ error: "The selected tracking update was not found." }, { status: 404 });
 
   const trackingUrl = getTrackNovaTrackingUrl(shipment.trackingNumber);
-  const rendered = renderShipmentStatusEmail({ shipment, event, trackingUrl });
+  const rendered = renderShipmentStatusEmail({ shipment, event, trackingUrl, recipientName: parsed.data.recipientName, message: parsed.data.message });
   const now = new Date().toISOString();
   const notification: ShipmentEmailNotification = {
     id: parsed.data.requestId,

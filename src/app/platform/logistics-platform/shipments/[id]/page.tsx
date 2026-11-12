@@ -140,7 +140,9 @@ function createEmailRequestId() {
 function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: TrackingEvent[] }) {
   const sortedEvents = [...events].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   const [recipientEmail, setRecipientEmail] = useState(shipment.receiver.email);
+  const [recipientName, setRecipientName] = useState(shipment.receiver.name);
   const [eventId, setEventId] = useState(sortedEvents[0]?.id ?? "current");
+  const [emailMessage, setEmailMessage] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [sending, setSending] = useState(false);
   const [emailConfigured, setEmailConfigured] = useState<boolean | null>(null);
@@ -157,10 +159,14 @@ function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: T
     description: `Shipment status updated to ${shipment.status.replaceAll("_", " ")}.`,
     timestamp: shipment.updatedAt,
   };
+  const defaultEmailMessage = selectedEvent?.description || previewEvent.description || "";
+  const effectiveEmailMessage = emailMessage || defaultEmailMessage;
   const preview = renderShipmentStatusEmail({
     shipment,
     event: previewEvent,
     trackingUrl: getTrackNovaTrackingUrl(shipment.trackingNumber),
+    recipientName,
+    message: effectiveEmailMessage,
   });
 
   const refreshEmailHistory = useCallback(async () => {
@@ -197,6 +203,8 @@ function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: T
     }
     const request = pendingRequest.current ?? {
       recipientEmail: recipientEmail.trim(),
+      recipientName: recipientName.trim(),
+      message: effectiveEmailMessage.trim(),
       eventId: selectedEvent?.id,
       requestId: createEmailRequestId(),
       recipientConfirmed: true as const,
@@ -267,6 +275,10 @@ function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: T
               <p className="mt-1.5 text-xs text-foreground/45">The receiver&apos;s email is filled in automatically, but you can change it.</p>
             </div>
             <div>
+              <Label htmlFor={`recipient-name-${shipment.id}`}>Recipient name</Label>
+              <Input id={`recipient-name-${shipment.id}`} value={recipientName} onChange={(event) => setRecipientName(event.target.value)} placeholder="Customer name" maxLength={120} disabled={uncertainSend} />
+            </div>
+            <div>
               <Label htmlFor={`tracking-update-${shipment.id}`}>Tracking update</Label>
               <Select id={`tracking-update-${shipment.id}`} value={eventId} onChange={(event) => setEventId(event.target.value)} disabled={uncertainSend}>
                 {sortedEvents.length === 0 ? (
@@ -275,6 +287,11 @@ function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: T
                   sortedEvents.map((event) => <option key={event.id} value={event.id}>{STATUS_LABELS[event.status]} — {event.location}</option>)
                 )}
               </Select>
+            </div>
+            <div>
+              <Label htmlFor={`email-message-${shipment.id}`}>Email message</Label>
+              <Textarea id={`email-message-${shipment.id}`} rows={4} value={effectiveEmailMessage} onChange={(event) => setEmailMessage(event.target.value)} maxLength={2000} disabled={uncertainSend} />
+              <p className="mt-1 text-xs text-foreground/45">This message appears in the email and its preview.</p>
             </div>
             <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-foreground/10 bg-black/[0.02] p-3.5 dark:bg-white/[0.03]">
               <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-0.5 size-4 accent-[var(--carrier-primary)]" />

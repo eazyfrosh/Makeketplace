@@ -68,7 +68,7 @@ export function sendShipmentMessage(id: string, text: string): Promise<{ message
 
 export function sendShipmentStatusEmail(
   id: string,
-  input: { recipientEmail: string; eventId?: string; requestId: string; recipientConfirmed: true },
+  input: { recipientEmail: string; recipientName: string; message: string; eventId?: string; requestId: string; recipientConfirmed: true },
 ): Promise<{ notification: ShipmentEmailNotification; duplicate?: boolean }> {
   return api(`/api/logistics/shipments/${id}/email`, { method: "POST", body: JSON.stringify(input) });
 }
