@@ -149,7 +149,7 @@ function ShipmentEmailCard({ shipment, events }: { shipment: Shipment; events: T
   const [notifications, setNotifications] = useState<ShipmentEmailNotification[]>([]);
   const [historyError, setHistoryError] = useState("");
   const [uncertainSend, setUncertainSend] = useState(false);
-  const pendingRequest = useRef<{ recipientEmail: string; eventId?: string; requestId: string; recipientConfirmed: true } | null>(null);
+  const pendingRequest = useRef<{ recipientEmail: string; recipientName: string; message: string; eventId?: string; requestId: string; recipientConfirmed: true } | null>(null);
   const selectedEvent = sortedEvents.find((event) => event.id === eventId);
   const previewEvent: TrackingEvent = selectedEvent ?? {
     id: `current_${shipment.id}`,
