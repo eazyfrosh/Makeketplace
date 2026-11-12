@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Check, FileCheck2, Globe2, LockKeyhole, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, FileCheck2, Globe2, LockKeyhole, Sparkles, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -30,26 +30,26 @@ export function CTA() {
   return (
     <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
       <div className="home-cta-surface relative overflow-hidden rounded-[2rem] border border-white/15 px-7 py-12 shadow-[0_35px_100px_-45px_rgba(9,20,38,0.9)] sm:px-12 sm:py-16 lg:px-16 lg:py-20">
-        <div className="absolute inset-0 opacity-15 [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:32px_32px]" />
-        <div className="absolute -right-24 -top-28 size-80 rounded-full bg-cyan-300/15 blur-3xl" />
+        <div className="absolute inset-0 opacity-10 [background-image:radial-gradient(white_1px,transparent_1px)] [background-size:22px_22px]" />
+        <div className="absolute -right-24 -top-28 size-80 rounded-full bg-cyan-300/20 blur-3xl" />
 
         <div className="relative grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-20">
           <div>
             <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
-              <Sparkles className="size-4" /> Everything in one place
+              <Sparkles className="size-4" /> Make your next task easier
             </span>
             <h2 className="mt-4 max-w-xl text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
-              Start with one simple task
+              One workspace. Real work, made simpler.
             </h2>
             <p className="mt-5 max-w-xl text-base leading-7 text-white/80">
-              Choose a tool, follow the clear instructions, and check your work before you finish.
+              From your first draft to the finished details, EazyTool gives you practical tools to get it done.
             </p>
             <p className="mt-3 max-w-xl text-sm leading-6 text-white/65">
-              EazyTool brings websites, email design, domains, business platforms, and everyday digital tools into one familiar workspace.
+              Build a website, prepare an email, find a domain, or explore a business tool—all from one place.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button size="lg" variant="secondary" className="bg-white text-black hover:bg-white/90" asChild>
-                <Link href="/services">Explore the marketplace <ArrowRight className="size-4" /></Link>
+              <Button size="lg" variant="secondary" className="bg-white text-slate-950 hover:bg-white/90" asChild>
+                <Link href="/services">Find your tool <ArrowRight className="size-4" /></Link>
               </Button>
               <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10" asChild>
                 <Link href="/contact">Talk to our team</Link>
@@ -58,14 +58,14 @@ export function CTA() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            {FEATURES.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="rounded-2xl border border-white/15 bg-black/15 p-5 backdrop-blur-sm">
-                <div className="flex items-center gap-3 text-white">
-                  <span className="flex size-9 items-center justify-center rounded-xl bg-white/15"><Icon className="size-4" /></span>
-                  <h3 className="text-sm font-semibold">{title}</h3>
+            {FEATURES.map(({ icon: Icon, title, description }, index) => (
+              <div key={title} className="group rounded-2xl border border-white/15 bg-slate-950/25 p-5 backdrop-blur-sm transition hover:border-cyan-200/40 hover:bg-slate-950/35">
+                <div className="flex items-center justify-between">
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-cyan-200/10 text-cyan-100"><Icon className="size-5" /></span>
+                  <span className="font-mono text-xs text-white/35">0{index + 1}</span>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-white/65">{description}</p>
-                <div className="mt-4 flex items-center gap-1.5 text-[11px] font-medium text-white/70"><Check className="size-3.5 text-cyan-200" /> Included with every tool</div>
+                <h3 className="mt-5 text-base font-semibold text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/65">{description}</p>
               </div>
             ))}
           </div>
