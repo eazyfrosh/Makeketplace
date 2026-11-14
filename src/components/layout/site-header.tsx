@@ -3,13 +3,12 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Globe2, HandCoins, LayoutDashboard, LayoutTemplate, Mail, Menu, Search, WalletCards, X } from "lucide-react";
+import { Globe2, HandCoins, LayoutDashboard, LayoutTemplate, Mail, Menu, WalletCards, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useAuth } from "@/context/auth-context";
 import {
@@ -44,23 +43,12 @@ function isActive(pathname: string, href: string) {
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const router = useRouter();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [searchOpen, setSearchOpen] = React.useState(false);
-  const [query, setQuery] = React.useState("");
   const { user, logout } = useAuth();
 
   React.useEffect(() => {
     setMobileOpen(false);
-    setSearchOpen(false);
   }, [pathname]);
-
-  function submitSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
-    router.push(`/services?q=${encodeURIComponent(query.trim())}`);
-    setSearchOpen(false);
-  }
 
   return (
     <header className="sticky top-0 z-[80] w-full">
@@ -78,18 +66,10 @@ export function SiteHeader() {
             })}
           </nav>
 
-          <div className="hidden max-w-sm flex-1 md:flex">
-            <form onSubmit={submitSearch} className="relative w-full" role="search">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="What do you want to do?" aria-label="Search tools and services" className="h-10 pl-9" />
-            </form>
-          </div>
-
           <div className="flex items-center gap-1">
             {user && <div className="hidden xl:block"><WalletNavLink /></div>}
             {user && <Button variant="secondary" size="sm" className="hidden md:inline-flex" asChild><Link href="/dashboard"><LayoutDashboard className="size-4" />My dashboard</Link></Button>}
             <BeginnerGuide />
-            <Button variant="ghost" size="icon" className="md:hidden" aria-label="Search" aria-expanded={searchOpen} onClick={() => setSearchOpen((value) => !value)}><Search className="size-4" /></Button>
             <ThemeToggle />
             <div className="hidden sm:block">
               {user ? <DropdownMenu>
@@ -108,7 +88,6 @@ export function SiteHeader() {
           </div>
         </div>
 
-        {searchOpen && <div className="border-t border-white/10 p-3 md:hidden"><form onSubmit={submitSearch} className="relative" role="search"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="What do you want to do?" aria-label="Search tools and services" className="h-11 pl-9" /></form><p className="mt-2 px-1 text-xs text-muted-foreground">Try “website”, “email”, “receipt”, or “domain”.</p></div>}
       </div>
 
       {mobileOpen && <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-border bg-background/98 shadow-2xl backdrop-blur-2xl lg:hidden"><nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4 sm:px-6" aria-label="Mobile navigation">
