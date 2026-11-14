@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Globe2, HelpCircle, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Globe2, HelpCircle, Pause, Play, Search, Sparkles } from "lucide-react";
 
 import { services, categories } from "@/lib/data/services";
 import type { ServiceCategory } from "@/types";
@@ -15,12 +15,31 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
+const HERO_SLIDES = [
+  { image: "/service-previews/website-builder-showcase.png", eyebrow: "Website tools", title: "Build something you are proud to share.", description: "Start with a clear brief, follow the guided steps, and preview your website before it goes live.", benefit: "Beginner-friendly from the first click", alt: "EazyTool website builder showcase" },
+  { image: "/service-previews/email-flashing-showcase.png", eyebrow: "Email and communication", title: "Make every message look ready to send.", description: "Design clean emails and everyday digital messages without needing technical skills or complicated software.", benefit: "Professional results without the guesswork", alt: "EazyTool email design showcase" },
+  { image: "/service-previews/flight-itinerary-showcase.png", eyebrow: "Travel and documents", title: "Turn details into a polished result.", description: "Prepare clear travel documents and useful files with simple steps that keep important information organized.", benefit: "Preview your work before you finish", alt: "EazyTool travel document showcase" },
+  { image: "/services/logistics/logistics-website-showcase-branded.png", eyebrow: "Business platforms", title: "Keep everyday business work moving.", description: "Track shipments, manage useful workflows, and bring repeat tasks into one familiar workspace.", benefit: "One place for the work you repeat", alt: "EazyTool business platform showcase" },
+];
+
 export function ServicesClient() {
   const searchParams = useSearchParams();
   const [query, setQuery] = React.useState(searchParams.get("q") ?? "");
   const [activeCategory, setActiveCategory] = React.useState<ServiceCategory | "all">(
     (searchParams.get("category") as ServiceCategory) ?? "all",
   );
+  const [activeSlide, setActiveSlide] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+
+  React.useEffect(() => {
+    if (paused) return;
+    const timer = window.setInterval(() => setActiveSlide((current) => (current + 1) % HERO_SLIDES.length), 5000);
+    return () => window.clearInterval(timer);
+  }, [paused]);
+
+  const slide = HERO_SLIDES[activeSlide];
+  const previousSlide = () => setActiveSlide((current) => (current - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  const nextSlide = () => setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
 
   const filtered = services.filter((service) => {
     const matchesCategory = activeCategory === "all" || service.category === activeCategory;
@@ -34,39 +53,21 @@ export function ServicesClient() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <section className="relative overflow-hidden rounded-[2rem] border bg-[#071126] text-white shadow-[0_35px_110px_-55px_rgba(37,99,235,.9)]">
-        <div className="pointer-events-none absolute -left-20 top-0 size-72 rounded-full bg-blue-500/30 blur-[90px]" />
-        <div className="pointer-events-none absolute bottom-0 right-1/3 size-64 rounded-full bg-violet-500/20 blur-[90px]" />
-        <div className="relative grid gap-10 p-6 sm:p-9 lg:grid-cols-[.88fr_1.12fr] lg:items-center lg:p-12">
-          <div className="max-w-xl">
-            <span className="inline-flex rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.17em] text-cyan-200">Choose what you want to create</span>
-            <h1 className="mt-5 text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-5xl lg:text-6xl">
-              Powerful tools that feel easy
-            </h1>
-            <p className="mt-5 max-w-lg text-base leading-7 text-blue-100/75 sm:text-lg">
-              Build a website, create a travel document, track a shipment, design an email, and more—with clear steps anyone can follow.
-            </p>
-            <Button className="mt-7 bg-white text-slate-950 hover:bg-blue-50" asChild>
-              <Link href="#all-services">Explore every service</Link>
-            </Button>
+      <section className="relative isolate min-h-[34rem] overflow-hidden rounded-[2rem] border border-white/15 bg-[#071126] text-white shadow-[0_35px_110px_-55px_rgba(37,99,235,.9)]" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+        {HERO_SLIDES.map((item, index) => <Image key={item.image} src={item.image} alt={item.alt} fill priority={index === 0} sizes="(min-width: 1024px) 85vw, 100vw" className={`object-cover object-center transition-opacity duration-700 ${index === activeSlide ? "opacity-100" : "opacity-0"}`} />)}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050b1b]/95 via-[#071126]/75 to-[#071126]/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050b1b]/80 via-transparent to-transparent" />
+        <div className="relative flex min-h-[34rem] flex-col justify-between p-6 sm:p-10 lg:p-14">
+          <div className="max-w-xl" aria-live="polite">
+            <span className="inline-flex rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.17em] text-cyan-200">{slide.eyebrow}</span>
+            <h1 className="mt-5 text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-5xl lg:text-6xl">{slide.title}</h1>
+            <p className="mt-5 max-w-lg text-base leading-7 text-blue-100/80 sm:text-lg">{slide.description}</p>
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-2 text-sm text-white/85"><Sparkles className="size-4 text-cyan-200" />{slide.benefit}</div>
+            <div className="mt-7"><Button className="bg-white text-slate-950 hover:bg-blue-50" asChild><Link href="#all-services">Explore every service <ArrowRight className="size-4" /></Link></Button></div>
           </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:gap-4" aria-label="Examples of EazyTool services">
-            <div className="relative col-span-2 aspect-[2/1] overflow-hidden rounded-2xl border border-white/15 shadow-2xl">
-              <Image src="/service-previews/website-builder-showcase.png" alt="EazyTool Website Builder design showcase" fill priority sizes="(min-width: 1024px) 52vw, 100vw" className="object-cover object-top" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              <p className="absolute bottom-3 left-4 text-sm font-semibold sm:text-base">Create your own website</p>
-            </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/15 shadow-xl">
-              <Image src="/service-previews/flight-itinerary-showcase.png" alt="Sample Lagos-to-London flight itinerary showcase" fill sizes="(min-width: 1024px) 26vw, 50vw" className="object-cover object-top" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
-              <p className="absolute bottom-3 left-3 text-xs font-semibold sm:text-sm">Plan and preview trips</p>
-            </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/15 shadow-xl">
-              <Image src="/services/logistics/logistics-website-showcase-branded.png" alt="Unofficial EazyTool logistics website design showcase" fill sizes="(min-width: 1024px) 26vw, 50vw" className="object-cover object-top" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
-              <p className="absolute bottom-3 left-3 text-xs font-semibold sm:text-sm">Track every shipment</p>
-            </div>
+          <div className="flex items-end justify-between gap-4 pt-10">
+            <div className="flex items-center gap-2" aria-label="Services hero slides">{HERO_SLIDES.map((item, index) => <button key={item.image} type="button" onClick={() => setActiveSlide(index)} aria-label={`Show ${item.eyebrow} slide`} aria-current={index === activeSlide} className={`h-1.5 rounded-full transition-all ${index === activeSlide ? "w-9 bg-cyan-200" : "w-2 bg-white/40 hover:bg-white/75"}`} />)}</div>
+            <div className="flex items-center gap-1"><button type="button" onClick={previousSlide} aria-label="Previous service slide" className="grid size-9 place-items-center rounded-full border border-white/20 bg-black/20 text-white/80 hover:bg-white/15 hover:text-white"><ArrowLeft className="size-4" /></button><button type="button" onClick={() => setPaused((value) => !value)} aria-label={paused ? "Play service slides" : "Pause service slides"} className="grid size-9 place-items-center rounded-full border border-white/20 bg-black/20 text-white/80 hover:bg-white/15 hover:text-white">{paused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}</button><button type="button" onClick={nextSlide} aria-label="Next service slide" className="grid size-9 place-items-center rounded-full border border-white/20 bg-black/20 text-white/80 hover:bg-white/15 hover:text-white"><ArrowRight className="size-4" /></button></div>
           </div>
         </div>
       </section>
