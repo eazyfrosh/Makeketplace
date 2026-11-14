@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowRight, Globe2, HelpCircle, MousePointerClick, Search, Sparkles } from "lucide-react";
+import { ArrowRight, FileCheck2, Globe2, HelpCircle, Mail, MousePointerClick, PackageCheck, Search, Sparkles } from "lucide-react";
 
 import { services, categories } from "@/lib/data/services";
 import type { ServiceCategory } from "@/types";
@@ -17,9 +17,9 @@ import { Button } from "@/components/ui/button";
 
 const HERO_SLIDES = [
   { image: "/service-previews/website-builder-showcase.png", title: "Build something you are proud to share.", description: "Start with a clear brief, follow the guided steps, and preview your website before it goes live.", benefit: "Beginner-friendly from the first click", benefitIcon: MousePointerClick, alt: "EazyTool website builder showcase" },
-  { image: "/service-previews/email-flashing-showcase.png", title: "Make every message look ready to send.", description: "Design clean emails and everyday digital messages without needing technical skills or complicated software.", benefit: "Professional results without the guesswork", benefitIcon: Sparkles, alt: "EazyTool email design showcase" },
-  { image: "/service-previews/flight-itinerary-showcase.png", title: "Turn details into a polished result.", description: "Prepare clear travel documents and useful files with simple steps that keep important information organized.", benefit: "Preview your work before you finish", benefitIcon: Sparkles, alt: "EazyTool travel document showcase" },
-  { image: "/services/logistics/logistics-website-showcase-branded.png", title: "Keep everyday business work moving.", description: "Track shipments, manage useful workflows, and bring repeat tasks into one familiar workspace.", benefit: "One place for the work you repeat", benefitIcon: Sparkles, alt: "EazyTool business platform showcase" },
+  { image: "/service-previews/email-flashing-showcase.png", title: "Make every message look ready to send.", description: "Design clean emails and everyday digital messages without needing technical skills or complicated software.", benefit: "Professional results without the guesswork", benefitIcon: Mail, alt: "EazyTool email design showcase" },
+  { image: "/service-previews/flight-itinerary-showcase.png", title: "Turn details into a polished result.", description: "Prepare clear travel documents and useful files with simple steps that keep important information organized.", benefit: "Preview your work before you finish", benefitIcon: FileCheck2, alt: "EazyTool travel document showcase" },
+  { image: "/services/logistics/logistics-website-showcase-branded.png", title: "Keep everyday business work moving.", description: "Track shipments, manage useful workflows, and bring repeat tasks into one familiar workspace.", benefit: "One place for the work you repeat", benefitIcon: PackageCheck, alt: "EazyTool business platform showcase" },
 ];
 
 export function ServicesClient() {

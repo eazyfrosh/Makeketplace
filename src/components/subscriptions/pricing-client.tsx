@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, Clock3, Loader2, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,11 @@ const serviceBenefits: Record<string, string> = {
 };
 
 const includedServices = services.filter((service) => !service.comingSoon && service.slug !== "sms-messaging");
+const billingOptions: Array<{ cycle: SubscriptionBillingCycle; label: string; access: string; note: string }> = [
+  { cycle: "monthly", label: "Monthly", access: "1 month of access", note: "Most flexible" },
+  { cycle: "six_months", label: "6 months", access: "6 months of access", note: "Less to renew" },
+  { cycle: "yearly", label: "Yearly", access: "12 months of access", note: "Best value" },
+];
 
 export function PricingClient() {
   const router = useRouter();
@@ -73,58 +78,54 @@ export function PricingClient() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-      <div className="mx-auto max-w-3xl text-center">
-        <Badge variant="soft"><Sparkles className="mr-1 size-3" /> EazyTool All Access</Badge>
-        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">Simple Pricing. One Subscription. All Your Tools.</h1>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">One subscription gives you access to the available EazyTool tools and templates listed below.</p>
-      </div>
+    <main className="min-h-screen bg-gradient-to-b from-primary/[0.04] via-background to-background px-4 py-12 sm:px-6 lg:px-8 lg:py-20">
+      <div className="mx-auto max-w-7xl">
+        <section className="mx-auto max-w-4xl text-center">
+          <Badge variant="soft"><Sparkles className="mr-1 size-3" /> EazyTool All Access</Badge>
+          <h1 className="mt-5 text-balance text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">One simple plan for all your important tools.</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">Choose how long you want access, pay once, and use the available EazyTool tools and templates in one familiar workspace.</p>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground"><span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-4 text-emerald-500" /> One subscription</span><span className="inline-flex items-center gap-1.5"><Clock3 className="size-4 text-primary" /> No automatic renewal</span><span className="inline-flex items-center gap-1.5"><ShieldCheck className="size-4 text-primary" /> Secure checkout</span></div>
+        </section>
 
-      {loading ? <div className="flex justify-center py-20"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div> : (
-        <div className="mx-auto mt-14 grid max-w-5xl gap-5">
-          {plans.map((plan) => {
-            return (
-              <article key={plan.id} className={`relative flex flex-col rounded-3xl border p-6 sm:p-8 ${plan.popular ? "border-primary bg-primary/[0.07] shadow-[0_25px_80px_-40px_rgba(99,102,241,0.75)]" : "border-border bg-card/60"}`}>
-                {plan.popular && <div className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary-foreground">Most popular</div>}
-                <div className="grid gap-8 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-10">
-                  <div className="flex flex-col">
-                    <h2 className="text-xl font-semibold">{plan.name}</h2>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{plan.description}</p>
-                    <div className="mt-7 grid gap-3">
-                      {(["monthly", "six_months", "yearly"] as const).map((cycle) => {
+        {loading ? <div className="flex justify-center py-24"><Loader2 className="size-7 animate-spin text-muted-foreground" /></div> : (
+          <div className="mx-auto mt-12 max-w-6xl space-y-6 sm:mt-16">
+            {plans.map((plan) => (
+              <article key={plan.id} className="overflow-hidden rounded-[2rem] border border-primary/25 bg-card shadow-[0_30px_90px_-50px_rgba(79,70,229,0.7)]">
+                <div className="border-b border-border/70 bg-gradient-to-br from-primary/[0.12] via-card to-cyan-500/[0.06] p-6 sm:p-9">
+                  <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
+                    <div><Badge variant="outline" className="border-primary/30 bg-background/70 text-primary">All tools and templates</Badge><h2 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">{plan.name}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{plan.description} Choose the access period that fits your work.</p></div>
+                    <div className="flex items-center gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300"><WalletCards className="size-4" /> Pay once, use your tools</div>
+                  </div>
+                </div>
+
+                <div className="grid gap-8 p-6 sm:p-9 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
+                  <div>
+                    <div className="flex items-end justify-between gap-4"><div><p className="text-sm font-medium text-primary">Choose your access period</p><h3 className="mt-1 text-xl font-semibold">How long do you need EazyTool?</h3></div><span className="hidden text-xs text-muted-foreground sm:block">You can choose again later</span></div>
+                    <div className="mt-5 grid gap-3">
+                      {billingOptions.map(({ cycle, label, access, note }) => {
                         const price = cycle === "yearly" ? plan.yearlyPriceCents : cycle === "six_months" ? plan.sixMonthPriceCents : plan.monthlyPriceCents;
                         const isStarting = starting === `${plan.id}:${cycle}`;
-                        return <div key={cycle} className="rounded-2xl border bg-background/60 p-4">
-                          <div className="flex flex-wrap items-start justify-between gap-2">
-                            <div><h3 className="font-semibold">{cycle === "yearly" ? "Yearly" : cycle === "six_months" ? "6 months" : "Monthly"}</h3><p className="mt-1 text-xs text-muted-foreground">{cycle === "yearly" ? "12 months of access" : cycle === "six_months" ? "6 months of access" : "1 month of access"}</p></div>
-                            {cycle === "yearly" && <Badge variant="soft">12 months</Badge>}
-                          </div>
-                          <p className="mt-4 text-3xl font-semibold tracking-tight">{formatPrice(price)}<span className="ml-1 text-sm font-normal text-muted-foreground">/{cycle === "yearly" ? "year" : cycle === "six_months" ? "6 months" : "month"}</span></p>
-                          <Button className="mt-4 w-full" variant={cycle === "yearly" ? "default" : "secondary"} disabled={authLoading || Boolean(starting)} aria-label={`Subscribe for ${cycle === "yearly" ? "12 months" : cycle === "six_months" ? "6 months" : "1 month"} at ${formatPrice(price)}`} onClick={() => subscribe(plan, cycle)}>
-                            {isStarting ? <Loader2 className="size-4 animate-spin" /> : "Subscribe"}
-                          </Button>
+                        const isRecommended = cycle === "yearly";
+                        return <div key={cycle} className={`relative rounded-2xl border p-4 transition-colors sm:p-5 ${isRecommended ? "border-primary bg-primary/[0.06] shadow-sm" : "border-border bg-background/60 hover:border-primary/30"}`}>
+                          {isRecommended && <span className="absolute -top-3 right-4 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-primary-foreground">Best value</span>}
+                          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h4 className="font-semibold">{label}</h4><Badge variant="outline" className="text-[11px]">{note}</Badge></div><p className="mt-1 text-sm text-muted-foreground">{access}</p></div><div className="flex items-center justify-between gap-4 sm:justify-end"><p className="text-2xl font-semibold tracking-tight">{formatPrice(price)}<span className="ml-1 text-xs font-normal text-muted-foreground">total</span></p><Button className="shrink-0" variant={isRecommended ? "default" : "secondary"} disabled={authLoading || Boolean(starting)} aria-label={`Subscribe for ${access} at ${formatPrice(price)}`} onClick={() => subscribe(plan, cycle)}>{isStarting ? <Loader2 className="size-4 animate-spin" /> : <>Choose {label} <ArrowRight className="size-4" /></>}</Button></div></div>
                         </div>;
                       })}
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-muted-foreground">Pay once for the period you choose. Access does not renew automatically.</p>
-                    {!user && !authLoading && <p className="mt-3 text-center text-xs text-muted-foreground">You&apos;ll be asked to log in before subscribing.</p>}
+                    <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-muted-foreground"><CheckCircle2 className="mt-1 size-4 shrink-0 text-emerald-500" />Access remains active for the period you pay for. It does not renew automatically.</p>
+                    {!user && !authLoading && <p className="mt-3 rounded-xl bg-muted/60 px-3 py-2 text-center text-xs text-muted-foreground">You’ll be asked to log in before payment so your access is connected to your EazyTool account.</p>}
                   </div>
-                  <div className="rounded-2xl bg-muted/50 p-5 sm:p-6">
-                    <h3 className="font-semibold">What your subscription gives you</h3>
-                    <ul className="mt-4 space-y-3">{plan.features.map((feature) => <li key={feature} className="flex gap-2 text-sm leading-6"><Check className="mt-1 size-4 shrink-0 text-emerald-500" />{feature}</li>)}</ul>
-                  </div>
+
+                  <div className="rounded-2xl border border-border/70 bg-muted/45 p-5 sm:p-6"><h3 className="text-lg font-semibold">Everything included</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">One subscription unlocks the available tools below.</p><ul className="mt-5 space-y-3">{plan.features.map((feature) => <li key={feature} className="flex gap-2 text-sm leading-6"><Check className="mt-1 size-4 shrink-0 text-emerald-500" />{feature}</li>)}</ul><div className="mt-6 rounded-xl border border-primary/15 bg-background/70 p-4 text-sm leading-6"><p className="font-medium">Need a domain?</p><p className="mt-1 text-muted-foreground">Domain registration and wallet top-ups are separate pay-as-you-go purchases.</p><Link href="/domains" className="mt-3 inline-flex items-center gap-1 font-medium text-primary hover:underline">Search domains <ArrowRight className="size-3.5" /></Link></div></div>
                 </div>
-                <div className="mt-8 border-t border-border/70 pt-7">
-                  <h3 className="text-lg font-semibold">Services included</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">Explore each tool and choose what you want to create.</p>
-                  <ul className="mt-5 grid gap-3 sm:grid-cols-2">{includedServices.map((service) => <li key={service.slug} className="rounded-2xl border bg-background/60 p-4"><Link href={`/services/${service.slug}`} className="font-semibold text-foreground hover:text-primary hover:underline">{service.name}</Link><p className="mt-1 text-sm leading-6 text-muted-foreground">{serviceBenefits[service.slug] ?? service.tagline}</p></li>)}</ul>
-                </div>
-                <p className="mt-6 text-sm leading-6 text-muted-foreground">Domain registration and wallet top-ups are separate pay-as-you-go purchases. Sending email also requires a verified sender domain.</p>
+
+                <div className="border-t border-border/70 bg-muted/20 p-6 sm:p-9"><div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end"><div><h3 className="text-xl font-semibold">Explore what’s included</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">Open any tool to see what you can create before choosing a plan.</p></div><p className="text-sm font-medium text-primary">{includedServices.length} available tools</p></div><ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{includedServices.map((service) => <li key={service.slug} className="rounded-2xl border border-border/70 bg-background/75 p-4 transition hover:border-primary/35 hover:shadow-sm"><Link href={`/services/${service.slug}`} className="flex items-start justify-between gap-3 font-semibold text-foreground hover:text-primary"><span>{service.name}</span><ArrowRight className="mt-0.5 size-4 shrink-0" /></Link><p className="mt-2 text-sm leading-6 text-muted-foreground">{serviceBenefits[service.slug] ?? service.tagline}</p></li>)}</ul></div>
+                <p className="px-6 pb-6 pt-5 text-center text-xs leading-5 text-muted-foreground sm:px-9">Email sending also requires a verified sender domain. Subscription access applies to currently available tools and templates.</p>
               </article>
-            );
-          })}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </main>
   );
 }
