@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, Globe2, HelpCircle, Pause, Play, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Globe2, HelpCircle, MousePointerClick, Pause, Play, Search, Sparkles } from "lucide-react";
 
 import { services, categories } from "@/lib/data/services";
 import type { ServiceCategory } from "@/types";
@@ -16,10 +16,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const HERO_SLIDES = [
-  { image: "/service-previews/website-builder-showcase.png", eyebrow: "", title: "Build something you are proud to share.", description: "Start with a clear brief, follow the guided steps, and preview your website before it goes live.", benefit: "Beginner-friendly from the first click", alt: "EazyTool website builder showcase" },
-  { image: "/service-previews/email-flashing-showcase.png", eyebrow: "Email and communication", title: "Make every message look ready to send.", description: "Design clean emails and everyday digital messages without needing technical skills or complicated software.", benefit: "Professional results without the guesswork", alt: "EazyTool email design showcase" },
-  { image: "/service-previews/flight-itinerary-showcase.png", eyebrow: "Travel and documents", title: "Turn details into a polished result.", description: "Prepare clear travel documents and useful files with simple steps that keep important information organized.", benefit: "Preview your work before you finish", alt: "EazyTool travel document showcase" },
-  { image: "/services/logistics/logistics-website-showcase-branded.png", eyebrow: "Business platforms", title: "Keep everyday business work moving.", description: "Track shipments, manage useful workflows, and bring repeat tasks into one familiar workspace.", benefit: "One place for the work you repeat", alt: "EazyTool business platform showcase" },
+  { image: "/service-previews/website-builder-showcase.png", eyebrow: "", title: "Build something you are proud to share.", description: "Start with a clear brief, follow the guided steps, and preview your website before it goes live.", benefit: "Beginner-friendly from the first click", benefitIcon: MousePointerClick, alt: "EazyTool website builder showcase" },
+  { image: "/service-previews/email-flashing-showcase.png", eyebrow: "Email and communication", title: "Make every message look ready to send.", description: "Design clean emails and everyday digital messages without needing technical skills or complicated software.", benefit: "Professional results without the guesswork", benefitIcon: Sparkles, alt: "EazyTool email design showcase" },
+  { image: "/service-previews/flight-itinerary-showcase.png", eyebrow: "", title: "Turn details into a polished result.", description: "Prepare clear travel documents and useful files with simple steps that keep important information organized.", benefit: "Preview your work before you finish", benefitIcon: Sparkles, alt: "EazyTool travel document showcase" },
+  { image: "/services/logistics/logistics-website-showcase-branded.png", eyebrow: "Business platforms", title: "Keep everyday business work moving.", description: "Track shipments, manage useful workflows, and bring repeat tasks into one familiar workspace.", benefit: "One place for the work you repeat", benefitIcon: Sparkles, alt: "EazyTool business platform showcase" },
 ];
 
 export function ServicesClient() {
@@ -38,6 +38,7 @@ export function ServicesClient() {
   }, [paused]);
 
   const slide = HERO_SLIDES[activeSlide];
+  const BenefitIcon = slide.benefitIcon;
   const previousSlide = () => setActiveSlide((current) => (current - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
   const nextSlide = () => setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
 
@@ -62,7 +63,7 @@ export function ServicesClient() {
             {slide.eyebrow && <span className="inline-flex rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.17em] text-cyan-200">{slide.eyebrow}</span>}
             <h1 className="mt-5 text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-5xl lg:text-6xl">{slide.title}</h1>
             <p className="mt-5 max-w-lg text-base leading-7 text-blue-100/80 sm:text-lg">{slide.description}</p>
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-2 text-sm text-white/85"><Sparkles className="size-4 text-cyan-200" />{slide.benefit}</div>
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-2 text-sm text-white/85"><BenefitIcon className="size-4 text-cyan-200" />{slide.benefit}</div>
             <div className="mt-7"><Button className="bg-white text-slate-950 hover:bg-blue-50" asChild><Link href="#all-services">Explore every service <ArrowRight className="size-4" /></Link></Button></div>
           </div>
           <div className="flex items-end justify-between gap-4 pt-10">
