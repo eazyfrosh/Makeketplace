@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, CircleHelp, Globe2, LayoutTemplate, Mail, WalletCards } from "lucide-react";
+import { BookOpen, CircleHelp, Globe2, LayoutTemplate, Mail, PlayCircle, WalletCards } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +43,12 @@ const STARTING_POINTS = [
     icon: WalletCards,
     title: "Use your wallet",
     description: "Add money for eligible pay-as-you-go services such as domains.",
+  },
+  {
+    href: "/contact#tutorials",
+    icon: PlayCircle,
+    title: "Watch tutorials",
+    description: "Follow simple video guides for EazyTool and each service.",
   },
 ];
 

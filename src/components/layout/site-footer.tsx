@@ -94,7 +94,7 @@ export function SiteFooter() {
               Tell us what you want to create, and we will point you in the right direction.
             </p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row"><Button variant="secondary" asChild><Link href="/#tutorials">Browse tutorials</Link></Button><Button asChild><Link href="/contact">Contact support<ArrowRight className="size-4" /></Link></Button></div>
+          <div className="flex flex-col gap-2 sm:flex-row"><Button variant="secondary" asChild><Link href="/contact#tutorials">Browse tutorials</Link></Button><Button asChild><Link href="/contact">Contact support<ArrowRight className="size-4" /></Link></Button></div>
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm text-muted-foreground sm:flex-row">

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Tutorials } from "@/components/home/tutorials";
 
 export default function ContactPage() {
   const [submitting, setSubmitting] = React.useState(false);
@@ -23,7 +24,9 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+    <>
+      <Tutorials />
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="max-w-2xl">
         <span className="text-sm font-medium text-primary">Contact</span>
         <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">Let&apos;s talk</h1>
@@ -89,6 +92,7 @@ export default function ContactPage() {
           </Button>
         </form>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

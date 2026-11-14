@@ -25,7 +25,6 @@ import { BeginnerGuide } from "@/components/layout/beginner-guide";
 
 const NAV_LINKS = [
   { href: "/services", label: "Services" },
-  { href: "/#tutorials", label: "Tutorials" },
   { href: "/domains", label: "Domains" },
   { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
