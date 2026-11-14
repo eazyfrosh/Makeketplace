@@ -61,18 +61,18 @@ export function ServicesClient() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <section className="relative isolate min-h-[34rem] overflow-hidden rounded-[2rem] border border-white/15 bg-[#071126] text-white shadow-[0_35px_110px_-55px_rgba(37,99,235,.9)]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <section className="relative isolate min-h-[38rem] overflow-hidden rounded-[2rem] border border-white/15 bg-[#071126] text-white shadow-[0_35px_110px_-55px_rgba(37,99,235,.9)] sm:min-h-[34rem]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {HERO_SLIDES.map((item, index) => <Image key={item.image} src={item.image} alt={item.alt} fill priority={index === 0} sizes="(min-width: 1024px) 85vw, 100vw" className={`object-cover object-center transition-opacity duration-700 ${index === activeSlide ? "opacity-100" : "opacity-0"}`} />)}
         <div className="absolute inset-0 bg-gradient-to-r from-[#050b1b]/[.98] via-[#071126]/[.84] to-[#071126]/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#050b1b]/80 via-transparent to-transparent" />
-        <div className="relative flex min-h-[34rem] flex-col justify-between p-6 sm:p-10 lg:p-14">
+        <div className="relative flex min-h-[38rem] flex-col justify-between p-5 sm:min-h-[34rem] sm:p-10 lg:p-14">
           <div className="max-w-xl" aria-live="polite">
-            <h1 className="max-w-2xl text-balance text-4xl font-semibold leading-[1.06] tracking-[-0.045em] text-white [text-shadow:0_3px_14px_rgba(0,0,0,0.9),0_1px_3px_rgba(0,0,0,0.95)] [-webkit-text-stroke:0.35px_rgba(255,255,255,0.3)] sm:text-5xl lg:text-6xl">{slide.title}</h1>
-            <p className="mt-5 max-w-lg text-base leading-7 text-blue-100/80 sm:text-lg">{slide.description}</p>
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-2 text-sm text-white/85"><BenefitIcon className="size-4 text-cyan-200" />{slide.benefit}</div>
-            <div className="mt-7"><Button className="bg-white text-slate-950 hover:bg-blue-50" asChild><Link href="#all-services">Explore every service <ArrowRight className="size-4" /></Link></Button></div>
+            <h1 className="max-w-2xl text-balance text-3xl font-semibold leading-[1.1] tracking-[-0.04em] text-white [text-shadow:0_3px_14px_rgba(0,0,0,0.9),0_1px_3px_rgba(0,0,0,0.95)] [-webkit-text-stroke:0.35px_rgba(255,255,255,0.3)] sm:text-5xl sm:leading-[1.06] sm:tracking-[-0.045em] lg:text-6xl">{slide.title}</h1>
+            <p className="mt-4 max-w-lg text-sm leading-6 text-blue-100/85 sm:mt-5 sm:text-lg sm:leading-7">{slide.description}</p>
+            <div className="mt-4 inline-flex max-w-full items-start gap-2 rounded-2xl border border-white/15 bg-black/20 px-3 py-2 text-xs leading-5 text-white/85 sm:mt-5 sm:items-center sm:rounded-full sm:text-sm"><BenefitIcon className="mt-0.5 size-4 shrink-0 text-cyan-200 sm:mt-0" /><span>{slide.benefit}</span></div>
+            <div className="mt-6 sm:mt-7"><Button className="w-full bg-white text-slate-950 hover:bg-blue-50 sm:w-auto" asChild><Link href="#all-services">Explore every service <ArrowRight className="size-4" /></Link></Button></div>
           </div>
-          <div className="flex items-end justify-start gap-4 pt-10">
+          <div className="flex items-end justify-start gap-4 pt-8 sm:pt-10">
             <div className="flex items-center gap-2" aria-label="Services hero slides">{HERO_SLIDES.map((item, index) => <button key={item.image} type="button" onClick={() => setActiveSlide(index)} aria-label={`Show slide ${index + 1}: ${item.title}`} aria-current={index === activeSlide} className={`h-1.5 rounded-full transition-all ${index === activeSlide ? "w-9 bg-cyan-200" : "w-2 bg-white/40 hover:bg-white/75"}`} />)}</div>
           </div>
         </div>
