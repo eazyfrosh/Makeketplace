@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const HERO_SLIDES = [
-  { image: "/service-previews/website-builder-showcase.png", eyebrow: "Website tools", title: "Build something you are proud to share.", description: "Start with a clear brief, follow the guided steps, and preview your website before it goes live.", benefit: "Beginner-friendly from the first click", alt: "EazyTool website builder showcase" },
+  { image: "/service-previews/website-builder-showcase.png", eyebrow: "", title: "Build something you are proud to share.", description: "Start with a clear brief, follow the guided steps, and preview your website before it goes live.", benefit: "Beginner-friendly from the first click", alt: "EazyTool website builder showcase" },
   { image: "/service-previews/email-flashing-showcase.png", eyebrow: "Email and communication", title: "Make every message look ready to send.", description: "Design clean emails and everyday digital messages without needing technical skills or complicated software.", benefit: "Professional results without the guesswork", alt: "EazyTool email design showcase" },
   { image: "/service-previews/flight-itinerary-showcase.png", eyebrow: "Travel and documents", title: "Turn details into a polished result.", description: "Prepare clear travel documents and useful files with simple steps that keep important information organized.", benefit: "Preview your work before you finish", alt: "EazyTool travel document showcase" },
   { image: "/services/logistics/logistics-website-showcase-branded.png", eyebrow: "Business platforms", title: "Keep everyday business work moving.", description: "Track shipments, manage useful workflows, and bring repeat tasks into one familiar workspace.", benefit: "One place for the work you repeat", alt: "EazyTool business platform showcase" },
@@ -59,7 +59,7 @@ export function ServicesClient() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#050b1b]/80 via-transparent to-transparent" />
         <div className="relative flex min-h-[34rem] flex-col justify-between p-6 sm:p-10 lg:p-14">
           <div className="max-w-xl" aria-live="polite">
-            <span className="inline-flex rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.17em] text-cyan-200">{slide.eyebrow}</span>
+            {slide.eyebrow && <span className="inline-flex rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.17em] text-cyan-200">{slide.eyebrow}</span>}
             <h1 className="mt-5 text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-5xl lg:text-6xl">{slide.title}</h1>
             <p className="mt-5 max-w-lg text-base leading-7 text-blue-100/80 sm:text-lg">{slide.description}</p>
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-2 text-sm text-white/85"><Sparkles className="size-4 text-cyan-200" />{slide.benefit}</div>
