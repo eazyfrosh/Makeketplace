@@ -27,7 +27,7 @@ const NAV_LINKS = [
   { href: "/domains", label: "Domains" },
   { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "Support" },
+  { href: "/contact", label: "Tutorials & Support" },
 ];
 
 const MOBILE_TASKS = [
