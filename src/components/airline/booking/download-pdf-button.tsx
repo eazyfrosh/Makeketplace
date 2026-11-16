@@ -5,7 +5,7 @@ import { Download, Loader2 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/airline/ui/button";
-import { downloadItineraryPdf } from "./itinerary-pdf";
+import { downloadBoardingPassPdf, downloadItineraryPdf } from "./itinerary-pdf";
 import type { Booking } from "@/lib/airline/types";
 
 interface DownloadPdfButtonProps {
@@ -13,6 +13,7 @@ interface DownloadPdfButtonProps {
   targetSelector?: string;
   filename?: string;
   booking?: Booking;
+  boardingPass?: { booking: Booking; legIndex: number };
 }
 
 interface PdfImageOverlay {
@@ -202,11 +203,24 @@ export function DownloadPdfButton({
   targetSelector = ".printable-itinerary",
   filename = "skybook-itinerary.pdf",
   booking,
+  boardingPass,
 }: DownloadPdfButtonProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
   async function downloadPdf() {
     if (isDownloading) return;
+    if (boardingPass) {
+      setIsDownloading(true);
+      try {
+        await downloadBoardingPassPdf(boardingPass.booking, boardingPass.legIndex, filename);
+      } catch (error) {
+        console.error("Unable to download boarding pass PDF", error);
+        window.alert("The boarding pass PDF could not be downloaded. Please try again.");
+      } finally {
+        setIsDownloading(false);
+      }
+      return;
+    }
     if (booking) {
       setIsDownloading(true);
       try {

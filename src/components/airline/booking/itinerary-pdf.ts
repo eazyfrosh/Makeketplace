@@ -395,3 +395,179 @@ export async function downloadItineraryPdf(booking: Booking, filename: string) {
 
   pdf.save(filename);
 }
+
+function boardingGateFor(flightId: string) {
+  const letters = "ABCDEFGHJK";
+  const sum = flightId.split("").reduce((total, character) => total + character.charCodeAt(0), 0);
+  return `${letters[sum % letters.length]}${(sum % 30) + 1}`;
+}
+
+function boardingTerminalFor(flightId: string) {
+  const sum = flightId.split("").reduce((total, character) => total + character.charCodeAt(0), 0);
+  return String(1 + (sum % 5));
+}
+
+function boardingGroupFor(flightId: string) {
+  const sum = flightId.split("").reduce((total, character) => total + character.charCodeAt(0), 0);
+  return `${"ABC"[sum % 3]}${(sum % 6) + 1}`;
+}
+
+function drawBoardingBarcode(pdf: jsPDF, seed: string, x: number, y: number, width: number, height: number) {
+  const sum = seed.split("").reduce((total, character) => total + character.charCodeAt(0), 0);
+  const bars = Array.from({ length: 42 }, (_, index) => (((sum * (index + 11)) % 5) + 1));
+  const gap = 0.65;
+  const totalBarWidth = width - gap * (bars.length - 1);
+  const unit = totalBarWidth / bars.reduce((total, value) => total + value, 0);
+  let cursor = x;
+  pdf.setFillColor(...TEXT);
+  for (const value of bars) {
+    const barWidth = value * unit;
+    pdf.rect(cursor, y, barWidth, height, "F");
+    cursor += barWidth + gap;
+  }
+}
+
+export async function downloadBoardingPassPdf(booking: Booking, legIndex: number, filename: string) {
+  const flight = booking.flights[legIndex] ?? booking.flights[0];
+  if (!flight?.segments.length) throw new Error("Booking has no flight segments");
+
+  const first = flight.segments[0];
+  const last = flight.segments[flight.segments.length - 1];
+  const airline = findAirline(first.airline.id) ?? first.airline;
+  const logo = await loadAirlineLogo(airline);
+  const qrDataUrl = await QRCode.toDataURL(getVerificationUrl(booking.bookingReference, booking.verificationToken), {
+    width: 420,
+    margin: 1,
+    color: { dark: "#0b1220", light: "#ffffff" },
+  });
+
+  const pageWidth = 297;
+  const pageHeight = 210;
+  const cardX = 18;
+  const cardY = 24;
+  const cardWidth = pageWidth - cardX * 2;
+  const cardHeight = 150;
+  const qrColumnWidth = 55;
+  const dividerX = cardX + cardWidth - qrColumnWidth;
+  const accent = colorTuple(airline.logoColor);
+  const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4", compress: true });
+
+  pdf.setDisplayMode("fullpage", "single", null);
+  pdf.setProperties({
+    title: `SkyBook boarding pass ${booking.bookingReference}`,
+    subject: "Boarding pass",
+    author: "SkyBook",
+    creator: "SkyBook",
+  });
+  pdf.setFillColor(248, 250, 252);
+  pdf.rect(0, 0, pageWidth, pageHeight, "F");
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(15);
+  pdf.setTextColor(...TEXT);
+  pdf.text("SkyBook", cardX, 14);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7);
+  pdf.setTextColor(...MUTED);
+  pdf.text("MOBILE BOARDING PASS", cardX + 24, 14, { charSpace: 1.2 });
+  pdf.text(`FLIGHT ${legIndex + 1} OF ${booking.flights.length}`, pageWidth - cardX, 14, { align: "right", charSpace: 0.8 });
+
+  pdf.setDrawColor(...accent);
+  pdf.setLineWidth(1);
+  pdf.line(cardX, 18, pageWidth - cardX, 18);
+  pdf.setDrawColor(...LIGHT);
+  pdf.setLineWidth(0.35);
+  pdf.roundedRect(cardX, cardY, cardWidth, cardHeight, 4, 4, "S");
+
+  pdf.setFillColor(...accent);
+  pdf.roundedRect(cardX, cardY, cardWidth, 30, 4, 4, "F");
+  pdf.rect(cardX, cardY + 26, cardWidth, 4, "F");
+  drawLogoBadge(pdf, airline, logo, cardX + 9, cardY + 6, 18);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(12);
+  pdf.setTextColor(255, 255, 255);
+  pdf.text(fitText(pdf, airline.name, 105), cardX + 33, cardY + 14);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7.2);
+  pdf.text(`${first.flightNumber}  ·  ${cabinLabel(flight.cabin)}`, cardX + 33, cardY + 22);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9);
+  pdf.text("BOARDING PASS", dividerX - 8, cardY + 12, { align: "right", charSpace: 1.1 });
+  pdf.setFontSize(7);
+  pdf.text(booking.bookingReference, dividerX - 8, cardY + 22, { align: "right", charSpace: 1.5 });
+
+  const left = cardX + 12;
+  const right = dividerX - 12;
+  const center = (left + right) / 2;
+  const routeY = cardY + 61;
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(25);
+  pdf.setTextColor(...TEXT);
+  pdf.text(first.originCode, left, routeY);
+  pdf.text(last.destinationCode, right, routeY, { align: "right" });
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8);
+  pdf.setTextColor(...MUTED);
+  pdf.text(formatTime(first.departureTime), left, routeY + 7);
+  pdf.text(formatTime(last.arrivalTime), right, routeY + 7, { align: "right" });
+  pdf.setFontSize(6.8);
+  pdf.text(formatDateLong(first.departureTime), left, routeY + 12);
+  pdf.text(formatDateLong(last.arrivalTime), right, routeY + 12, { align: "right" });
+  pdf.setFontSize(7);
+  pdf.text(formatDuration(flight.totalDurationMinutes), center, routeY - 12, { align: "center" });
+  pdf.setDrawColor(170, 178, 190);
+  pdf.setLineDashPattern([1.4, 1.2], 0);
+  pdf.line(left + 27, routeY - 8, right - 27, routeY - 8);
+  pdf.setLineDashPattern([], 0);
+  pdf.text(flight.stops === 0 ? "Non-stop" : `${flight.stops} stop${flight.stops > 1 ? "s" : ""}`, center, routeY + 3, { align: "center" });
+
+  const infoY = cardY + 92;
+  const info = [
+    ["PASSENGER", `${booking.passengers[0]?.firstName ?? ""} ${booking.passengers[0]?.lastName ?? ""}`],
+    ["SEAT", booking.seatAssignment ?? "—"],
+    ["GROUP / ZONE", boardingGroupFor(flight.id)],
+    ["GATE", booking.gate ?? boardingGateFor(flight.id)],
+    ["TERMINAL", booking.terminal ?? boardingTerminalFor(flight.id)],
+  ];
+  const infoWidth = (right - left) / info.length;
+  info.forEach(([label, value], index) => {
+    const x = left + infoWidth * index;
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(6.1);
+    pdf.setTextColor(...MUTED);
+    pdf.text(label, x, infoY);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(8.2);
+    pdf.setTextColor(...TEXT);
+    pdf.text(fitText(pdf, value.trim(), infoWidth - 4), x, infoY + 8);
+  });
+
+  pdf.setDrawColor(...LIGHT);
+  pdf.setLineWidth(0.25);
+  pdf.line(left, cardY + 112, right, cardY + 112);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7);
+  pdf.setTextColor(...MUTED);
+  pdf.text(`Boarding ${booking.boardingTime ?? formatTime(new Date(new Date(first.departureTime).getTime() - 45 * 60000).toISOString())}`, left, cardY + 124);
+  pdf.text(`Departure ${formatDateLong(first.departureTime)} · ${formatTime(first.departureTime)}`, left, cardY + 133);
+
+  pdf.setDrawColor(...LIGHT);
+  pdf.setLineDashPattern([1.4, 1.1], 0);
+  pdf.line(dividerX, cardY, dividerX, cardY + cardHeight);
+  pdf.setLineDashPattern([], 0);
+  pdf.addImage(qrDataUrl, "PNG", dividerX + 17.5, cardY + 43, 20, 20, undefined, "FAST");
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7);
+  pdf.setTextColor(...TEXT);
+  pdf.text(booking.bookingReference, dividerX + qrColumnWidth / 2, cardY + 72, { align: "center", charSpace: 0.8 });
+  drawBoardingBarcode(pdf, `${booking.bookingReference}-${flight.id}`, dividerX + 9, cardY + 88, 37, 25);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(5.5);
+  pdf.setTextColor(...MUTED);
+  pdf.text("SCAN AT GATE", dividerX + qrColumnWidth / 2, cardY + 118, { align: "center", charSpace: 0.8 });
+
+  pdf.setFontSize(6.2);
+  pdf.text("Please arrive at the airport early and carry valid travel documents.", cardX, pageHeight - 15);
+  pdf.text(`Generated ${formatDateLong(new Date().toISOString())}`, pageWidth - cardX, pageHeight - 15, { align: "right" });
+  pdf.save(filename);
+}

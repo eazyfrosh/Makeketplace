@@ -166,7 +166,7 @@ export default function BoardingPassPage() {
       </div>
 
       <div className="no-print mt-6 flex justify-center">
-        <DownloadPdfButton label="Download boarding pass (PDF)" targetSelector=".boarding-pass-card" filename="skybook-boarding-pass.pdf" />
+        <DownloadPdfButton label="Download boarding pass (PDF)" filename="skybook-boarding-pass.pdf" boardingPass={{ booking, legIndex }} />
       </div>
     </div>
   );
