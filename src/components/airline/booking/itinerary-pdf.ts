@@ -152,13 +152,10 @@ export async function downloadItineraryPdf(booking: Booking, filename: string) {
   pdf.text("TRAVEL ITINERARY", MARGIN_X + 12.5, y + 9.2, { charSpace: 1.2 });
   const referenceBoxWidth = 52;
   const referenceCenterX = PAGE_WIDTH - MARGIN_X - referenceBoxWidth / 2;
-  pdf.setDrawColor(...LIGHT);
-  pdf.setLineWidth(0.25);
-  pdf.roundedRect(PAGE_WIDTH - MARGIN_X - referenceBoxWidth, y - 1.5, referenceBoxWidth, 14, 2, 2, "S");
   pdf.setFontSize(6.2);
-  pdf.text("BOOKING REFERENCE", referenceCenterX, y + 1.8, { align: "center", charSpace: 0.8 });
+  pdf.text("BOOKING REFERENCE", referenceCenterX, y + 1.8, { align: "center" });
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(14.5);
+  pdf.setFontSize(14);
   pdf.setTextColor(...TEXT);
   pdf.text(fitText(pdf, booking.bookingReference, referenceBoxWidth - 6), referenceCenterX, y + 8.5, { align: "center" });
   pdf.setDrawColor(...accent);
