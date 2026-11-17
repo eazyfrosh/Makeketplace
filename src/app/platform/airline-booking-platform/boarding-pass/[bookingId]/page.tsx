@@ -6,6 +6,7 @@ import { Plane } from "lucide-react";
 import { getBooking } from "@/lib/airline/services/bookings";
 import { QRCodeImage } from "@/components/airline/booking/qr-code";
 import { DownloadPdfButton } from "@/components/airline/booking/download-pdf-button";
+import { CopyBookingReferenceButton } from "@/components/airline/booking/copy-booking-reference-button";
 import { AirlineLogo } from "@/components/airline/ui/airline-logo";
 import { LoadingState } from "@/components/airline/ui/loading-state";
 import { getVerificationUrl } from "@/lib/airline/verification-url";
@@ -155,6 +156,9 @@ export default function BoardingPassPage() {
             <div>
               <p className="text-xs text-foreground/50">Booking reference</p>
               <p className="font-mono text-lg font-bold tracking-widest">{booking.bookingReference}</p>
+              <div className="mt-2">
+                <CopyBookingReferenceButton reference={booking.bookingReference} />
+              </div>
             </div>
             <QRCodeImage value={getVerificationUrl(booking.bookingReference, booking.verificationToken)} size={100} />
           </div>

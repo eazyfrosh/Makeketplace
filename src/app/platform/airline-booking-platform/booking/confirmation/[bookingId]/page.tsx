@@ -11,6 +11,7 @@ import { AirlineLogo } from "@/components/airline/ui/airline-logo";
 import { LoadingState } from "@/components/airline/ui/loading-state";
 import { QRCodeImage } from "@/components/airline/booking/qr-code";
 import { DownloadPdfButton } from "@/components/airline/booking/download-pdf-button";
+import { CopyBookingReferenceButton } from "@/components/airline/booking/copy-booking-reference-button";
 import { PrintableItinerary } from "@/components/airline/booking/printable-itinerary";
 import { getBooking } from "@/lib/airline/services/bookings";
 import { extrasLineItems } from "@/lib/airline/data/extras-pricing";
@@ -64,9 +65,12 @@ export default function ConfirmationPage() {
         <CardContent className="flex flex-col items-center gap-5 p-6 sm:flex-row sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-wide text-foreground/50">Booking reference</p>
-            <p className="text-3xl font-bold tracking-widest text-brand-700 dark:text-brand-400">
-              {booking.bookingReference}
-            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-3">
+              <p className="font-mono text-3xl font-bold tracking-widest text-brand-700 dark:text-brand-400">
+                {booking.bookingReference}
+              </p>
+              <CopyBookingReferenceButton reference={booking.bookingReference} />
+            </div>
             <div className="mt-2 flex items-center justify-center gap-2 sm:justify-start">
               <Badge tone={bookingStatusTone(booking.status)}>{bookingStatusLabel(booking.status)}</Badge>
               {booking.rebookedAt && <Badge tone="gold">Updated</Badge>}

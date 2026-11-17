@@ -7,6 +7,7 @@ import { Badge } from "@/components/airline/ui/badge";
 import { Button } from "@/components/airline/ui/button";
 import { Input, Label } from "@/components/airline/ui/input";
 import { AirlineLogo } from "@/components/airline/ui/airline-logo";
+import { CopyBookingReferenceButton } from "@/components/airline/booking/copy-booking-reference-button";
 import { findAirport } from "@/lib/airline/data/airports";
 import { bookingStatusLabel, bookingStatusTone } from "@/lib/airline/data/booking-status";
 import { findBookingStatusByReference } from "@/lib/airline/services/bookings";
@@ -86,7 +87,10 @@ export default function FlightStatusPage() {
             <CardContent className="flex flex-wrap items-center justify-between gap-3 p-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-foreground/45">Booking number</p>
-                <p className="font-mono text-2xl font-bold tracking-widest text-brand-700 dark:text-brand-300">{result.bookingReference}</p>
+                <div className="mt-1 flex flex-wrap items-center gap-3">
+                  <p className="font-mono text-2xl font-bold tracking-widest text-brand-700 dark:text-brand-300">{result.bookingReference}</p>
+                  <CopyBookingReferenceButton reference={result.bookingReference} />
+                </div>
               </div>
               <Badge tone={bookingStatusTone(result.status)} className="capitalize">{bookingStatusLabel(result.status)}</Badge>
             </CardContent>
