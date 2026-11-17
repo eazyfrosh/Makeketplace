@@ -13,6 +13,7 @@ import { Button } from "@/components/airline/ui/button";
 import { AirlineLogo } from "@/components/airline/ui/airline-logo";
 import { LoadingState } from "@/components/airline/ui/loading-state";
 import { DownloadPdfButton } from "@/components/airline/booking/download-pdf-button";
+import { CopyBookingReferenceButton } from "@/components/airline/booking/copy-booking-reference-button";
 import { PrintableItinerary } from "@/components/airline/booking/printable-itinerary";
 import { extrasLineItems } from "@/lib/airline/data/extras-pricing";
 import { startRebooking } from "@/lib/airline/rebooking";
@@ -79,7 +80,10 @@ export default function BookingDetailPage() {
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8 print:hidden">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Booking {booking.bookingReference}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">Booking {booking.bookingReference}</h1>
+            <CopyBookingReferenceButton reference={booking.bookingReference} compact />
+          </div>
           <Badge tone={bookingStatusTone(booking.status)} className="mt-1">
             {bookingStatusLabel(booking.status)}
           </Badge>

@@ -20,7 +20,7 @@ function copyWithFallback(value: string) {
   return copied ? Promise.resolve() : Promise.reject(new Error("Copy unavailable"));
 }
 
-export function CopyBookingReferenceButton({ reference }: { reference: string }) {
+export function CopyBookingReferenceButton({ reference, compact = false }: { reference: string; compact?: boolean }) {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -42,10 +42,10 @@ export function CopyBookingReferenceButton({ reference }: { reference: string })
       onClick={handleCopy}
       aria-label={copied ? "Booking code copied" : "Copy booking code"}
       title={copied ? "Copied" : "Copy booking code"}
-      className="shrink-0"
+      className={compact ? "size-9 !p-0" : "shrink-0"}
     >
       {copied ? <Check size={15} /> : <Copy size={15} />}
-      <span>{copied ? "Copied" : "Copy code"}</span>
+      {!compact && <span>{copied ? "Copied" : "Copy code"}</span>}
     </Button>
   );
 }
