@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-
 import { renderWelcomeEmail } from "@/lib/email/welcome-template";
+import { getEazyToolEmailFrom } from "@/lib/email/config";
 import { sendEmail } from "@/lib/email/send";
 import { verifyCaller } from "@/lib/licensing/verify-auth";
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   try {
     const result = await sendEmail({
       to: caller.email,
-      from: process.env.EMAIL_FROM ?? "EazyTool <onboarding@resend.dev>",
+      from: getEazyToolEmailFrom(),
       subject: email.subject,
       html: email.html,
       text: email.text,

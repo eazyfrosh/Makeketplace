@@ -1,9 +1,12 @@
 import { Resend, type Attachment } from "resend";
 
-export const isEmailConfigured = Boolean(process.env.RESEND_API_KEY);
+import { getEazyToolEmailFrom, getResendApiKey } from "@/lib/email/config";
 
-const resend = isEmailConfigured ? new Resend(process.env.RESEND_API_KEY) : null;
-const FROM = process.env.EMAIL_FROM ?? "Nexova <onboarding@resend.dev>";
+const resendApiKey = getResendApiKey();
+export const isEmailConfigured = Boolean(resendApiKey);
+
+const resend = isEmailConfigured ? new Resend(resendApiKey) : null;
+const FROM = getEazyToolEmailFrom();
 
 export class EmailProviderRejectedError extends Error {
   constructor(message = "Email provider rejected the message.") {
@@ -34,7 +37,7 @@ export function getRecentDemoEmails(limit = 20): SentEmailRecord[] {
 }
 
 /**
- * Sends an email via Resend when RESEND_API_KEY is configured. Otherwise logs
+ * Sends an email via Resend when EAZYTOOL_RESEND_API_KEY is configured. Otherwise logs
  * to the console and an in-memory demo log (visible in the admin console) so
  * the flow stays fully testable with zero email-provider setup, matching the
  * app's existing "demo mode" fallback pattern for payments.
@@ -51,7 +54,7 @@ export async function sendEmail(params: { to: string; subject: string; html: str
   }
 
   console.warn(
-    `[email:demo] RESEND_API_KEY not set — logging instead of sending. To: ${params.to} | Subject: ${params.subject}`,
+    `[email:demo] EAZYTOOL_RESEND_API_KEY not set — logging instead of sending. To: ${params.to} | Subject: ${params.subject}`,
   );
   const id = `email_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   demoLog().push({

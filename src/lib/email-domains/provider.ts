@@ -2,6 +2,7 @@ import "server-only";
 
 import { Resend } from "resend";
 import type { EmailProviderDomain, EmailProviderDnsRecord } from "@/lib/email-domains/types";
+import { getResendApiKey } from "@/lib/email/config";
 
 export class EmailDomainProviderError extends Error {
   constructor(public readonly code: "EMAIL_PROVIDER_NOT_CONFIGURED" | "EMAIL_PROVIDER_REJECTED", message: string) { super(message); this.name = "EmailDomainProviderError"; }
@@ -56,7 +57,7 @@ function mapRecords(records: ResendRecord[] = []): EmailProviderDnsRecord[] {
 
 export class ResendEmailDomainProvider implements EmailDomainProvider {
   readonly name = "resend";
-  private readonly client = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+  private readonly client = getResendApiKey() ? new Resend(getResendApiKey()) : null;
   // Domain provisioning and sending only require the Resend API key. The
   // webhook secret is validated separately when delivery events arrive.
   isConfigured() { return Boolean(this.client); }

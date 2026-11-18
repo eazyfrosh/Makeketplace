@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
 
+import { getEazyToolEmailFrom } from "@/lib/email/config";
 import { EmailProviderRejectedError, isEmailConfigured, sendEmail } from "@/lib/email/send";
 import {
   claimPendingShipmentEmailRetry,
@@ -27,7 +28,7 @@ export function prepareShipmentEmailForDelivery(html: string) {
 }
 
 export function shipmentEmailSender() {
-  return process.env.LOGISTICS_EMAIL_FROM?.trim() || process.env.EMAIL_FROM?.trim() || null;
+  return process.env.LOGISTICS_EMAIL_FROM?.trim() || getEazyToolEmailFrom().trim() || null;
 }
 
 export function isShipmentEmailConfigured() {

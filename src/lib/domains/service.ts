@@ -3,6 +3,7 @@ import { assertProfitable, getDomainPricing } from "@/lib/domain-pricing";
 import { defaultDomainProvider } from "@/lib/domains/registry";
 import { claimDomainRegistration, getDomainForUser, getDomainOrder, getDomainOrderByReference, saveDomain, saveDomainOrder } from "@/lib/domains/store";
 import { provisionEmailDomain } from "@/lib/email-domains/provisioning";
+import { getResendApiKey } from "@/lib/email/config";
 import { getTld, type DomainRecord, type Registrant } from "@/types/domains";
 
 export async function registerPaidDomain(reference: string, userId: string, registrant: Registrant) {
@@ -38,7 +39,7 @@ export async function registerPaidDomain(reference: string, userId: string, regi
     await saveDomain(domain);
     const done = { ...pending, provider: "domainnameapi" as const, wholesaleAmountMinor: quote.amountMinor, wholesaleCurrency: quote.currency, premium: false, registrationStatus: "registered" as const, registrarOrderId: providerReference, providerDomainId: response.providerDomainId, refundState: "not_required" as const, updatedAt: new Date().toISOString() };
     await saveDomainOrder(done);
-    if (process.env.RESEND_API_KEY) {
+    if (getResendApiKey()) {
       try { const emailDomain = await provisionEmailDomain(domain); await saveDomain({ ...domain, registrationStatus: "registered", dnsStatus: emailDomain.dnsConfiguredAt ? "configured" : "pending", emailVerificationStatus: emailDomain.status === "ready" ? "verified" : "pending", updatedAt: new Date().toISOString() }); }
       catch (error) { await saveDomain({ ...domain, dnsStatus: "failed", emailVerificationStatus: "failed", provisioningErrors: [{ code: "EMAIL_PROVISIONING_FAILED", message: error instanceof Error ? error.message : "Email setup failed.", occurredAt: new Date().toISOString() }], updatedAt: new Date().toISOString() }); }
     }
