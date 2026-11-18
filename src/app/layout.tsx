@@ -10,6 +10,7 @@ import { AuthProvider } from "@/context/auth-context";
 import { RefCapture } from "@/components/affiliate/ref-capture";
 import { TelegramLiveChat } from "@/components/support/telegram-live-chat";
 import { TelegramChannelInvite } from "@/components/support/telegram-channel-invite";
+import { SubscriptionInvite } from "@/components/support/subscription-invite";
 import { MobileTaskNav } from "@/components/layout/mobile-task-nav";
 import { AnalyticsConsent } from "@/components/analytics/analytics-consent";
 
@@ -96,6 +97,7 @@ export default function RootLayout({
             <MobileTaskNav />
             <TelegramLiveChat />
             <TelegramChannelInvite />
+            <SubscriptionInvite />
             <Suspense fallback={null}><AnalyticsConsent /></Suspense>
             <Toaster
               position="bottom-right"
