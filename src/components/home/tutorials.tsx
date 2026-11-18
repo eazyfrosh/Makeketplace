@@ -1,8 +1,19 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BookOpen, ExternalLink, PlayCircle, Video } from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowRight, BookOpen, PlayCircle, Video } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 // Add a YouTube URL to youtubeUrl when each tutorial is ready to publish.
 const TUTORIALS = [
@@ -16,14 +27,103 @@ const TUTORIALS = [
   { title: "QR Code Generator", description: "Create a QR code for a link or contact detail and download it when it is ready.", image: "/service-previews/qr-code-showcase.png", serviceHref: "/services/qr-code-generator", youtubeUrl: "" },
 ];
 
-function TutorialCard({ tutorial }: { tutorial: (typeof TUTORIALS)[number] }) {
-  const content = <><div className="relative aspect-[16/9] overflow-hidden bg-muted"><Image src={tutorial.image} alt={`${tutorial.title} tutorial preview`} fill sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="object-cover object-top transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent" /><span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm"><PlayCircle className="size-3.5" />{tutorial.youtubeUrl ? "Watch Tutorial" : "Video coming soon"}</span></div><div className="p-5"><div className="flex items-start justify-between gap-3"><h3 className="font-semibold leading-6">{tutorial.title}</h3>{tutorial.youtubeUrl && <Video className="size-5 shrink-0 text-red-500" />}</div><p className="mt-2 text-sm leading-6 text-muted-foreground">{tutorial.description}</p>{tutorial.serviceHref && <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">Watch Tutorial <ArrowRight className="size-3.5" /></span>}</div></>;
-  if (tutorial.youtubeUrl) return <a href={tutorial.youtubeUrl} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition hover:-translate-y-1 hover:border-primary/35 hover:shadow-lg">{content}</a>;
-  if (tutorial.serviceHref) return <Link href={tutorial.serviceHref} className="group overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition hover:-translate-y-1 hover:border-primary/35 hover:shadow-lg">{content}</Link>;
-  return <article className="group overflow-hidden rounded-2xl border border-dashed border-border/70 bg-card/70 shadow-sm">{content}</article>;
+type Tutorial = (typeof TUTORIALS)[number];
+
+function getYouTubeEmbedUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    const videoId = parsed.hostname.includes("youtu.be")
+      ? parsed.pathname.slice(1)
+      : parsed.searchParams.get("v") ?? parsed.pathname.split("/").pop();
+    return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : "";
+  } catch {
+    return "";
+  }
+}
+
+function TutorialViewer({ tutorial, children }: { tutorial: Tutorial; children: ReactNode }) {
+  const embedUrl = tutorial.youtubeUrl ? getYouTubeEmbedUrl(tutorial.youtubeUrl) : "";
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-h-[92vh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto p-0">
+        <div className="p-5 pb-0 sm:p-6 sm:pb-0">
+          <DialogHeader className="pr-8 text-left">
+            <DialogTitle>{tutorial.title}</DialogTitle>
+            <DialogDescription>{tutorial.description}</DialogDescription>
+          </DialogHeader>
+        </div>
+        <div className="mt-5 aspect-video w-full overflow-hidden bg-slate-950">
+          {embedUrl ? (
+            <iframe
+              className="h-full w-full"
+              src={embedUrl}
+              title={`${tutorial.title} video tutorial`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center px-6 text-center text-white">
+              <PlayCircle className="size-12 text-cyan-300" />
+              <p className="mt-4 text-lg font-semibold">This tutorial video is coming soon</p>
+              <p className="mt-2 max-w-md text-sm text-white/65">We are preparing a simple step-by-step guide for this service. Check back soon for the video.</p>
+            </div>
+          )}
+        </div>
+        {tutorial.serviceHref && (
+          <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <p className="text-sm text-muted-foreground">Want to try it now? Open the service in a new step.</p>
+            <Button asChild variant="outline" className="shrink-0">
+              <Link href={tutorial.serviceHref}>Open service <ArrowRight className="size-4" /></Link>
+            </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function TutorialCard({ tutorial }: { tutorial: Tutorial }) {
+  return (
+    <TutorialViewer tutorial={tutorial}>
+      <button type="button" className="group w-full overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-sm transition hover:-translate-y-1 hover:border-primary/35 hover:shadow-lg">
+        <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+          <Image src={tutorial.image} alt={`${tutorial.title} tutorial preview`} fill sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="object-cover object-top transition duration-500 group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent" />
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm"><PlayCircle className="size-3.5" />Watch Tutorial</span>
+        </div>
+        <div className="p-5">
+          <div className="flex items-start justify-between gap-3"><h3 className="font-semibold leading-6">{tutorial.title}</h3><Video className="size-5 shrink-0 text-primary" /></div>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{tutorial.description}</p>
+          <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">Watch Tutorial <ArrowRight className="size-3.5" /></span>
+        </div>
+      </button>
+    </TutorialViewer>
+  );
 }
 
 export function Tutorials() {
   const featured = TUTORIALS[0];
-  return <section id="tutorials" className="scroll-mt-24 border-y border-border/70 bg-background/45 py-20 sm:py-24"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary"><BookOpen className="size-4" /> Tutorials &amp; help</span><h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Learn EazyTool one step at a time.</h2></div><p className="max-w-md text-sm leading-6 text-muted-foreground">Watch a quick guide for the whole workspace or open a service tutorial when you need help with one specific task.</p></div><div className="mt-10 grid gap-5 lg:grid-cols-[1.05fr_1.95fr]"><article className="group overflow-hidden rounded-3xl border border-primary/25 bg-primary/[0.06] shadow-sm"><div className="relative aspect-[16/10] overflow-hidden"><Image src={featured.image} alt="EazyTool full website tutorial preview" fill sizes="(min-width: 1024px) 35vw, 100vw" className="object-cover object-top transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/10 to-transparent" /><span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-950">Start here</span><div className="absolute inset-x-5 bottom-5 text-white"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Full website guide</p><h3 className="mt-2 text-2xl font-semibold">{featured.title}</h3></div></div><div className="p-5"><p className="text-sm leading-6 text-muted-foreground">{featured.description}</p><Button className="mt-5 w-full" variant={featured.youtubeUrl ? "default" : "secondary"} asChild>{featured.youtubeUrl ? <a href={featured.youtubeUrl} target="_blank" rel="noreferrer">Watch Tutorial <ExternalLink className="size-4" /></a> : <Link href="/contact">Watch Tutorial <ArrowRight className="size-4" /></Link>}</Button></div></article><div className="grid gap-4 sm:grid-cols-2">{TUTORIALS.slice(1).map((tutorial) => <TutorialCard key={tutorial.title} tutorial={tutorial} />)}</div></div></div></section>;
+
+  return (
+    <section id="tutorials" className="scroll-mt-24 border-y border-border/70 bg-background/45 py-20 sm:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <div><span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary"><BookOpen className="size-4" /> Tutorials &amp; help</span><h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Learn EazyTool one step at a time.</h2></div>
+          <p className="max-w-md text-sm leading-6 text-muted-foreground">Watch a quick guide for the whole workspace or open a service tutorial when you need help with one specific task.</p>
+        </div>
+
+        <div className="mt-10 grid gap-5 lg:grid-cols-[1.05fr_1.95fr]">
+          <TutorialViewer tutorial={featured}>
+            <article className="group cursor-pointer overflow-hidden rounded-3xl border border-primary/25 bg-primary/[0.06] text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+              <div className="relative aspect-[16/10] overflow-hidden"><Image src={featured.image} alt="EazyTool full website tutorial preview" fill sizes="(min-width: 1024px) 35vw, 100vw" className="object-cover object-top transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/10 to-transparent" /><span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-950">Start here</span><div className="absolute inset-x-5 bottom-5 text-white"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Full website guide</p><h3 className="mt-2 text-2xl font-semibold">{featured.title}</h3></div></div>
+              <div className="p-5"><p className="text-sm leading-6 text-muted-foreground">{featured.description}</p><span className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-medium">Watch Tutorial <PlayCircle className="size-4" /></span></div>
+            </article>
+          </TutorialViewer>
+          <div className="grid gap-4 sm:grid-cols-2">{TUTORIALS.slice(1).map((tutorial) => <TutorialCard key={tutorial.title} tutorial={tutorial} />)}</div>
+        </div>
+      </div>
+    </section>
+  );
 }
