@@ -112,6 +112,22 @@ async function attributeReferralIfPresent() {
   }
 }
 
+async function sendWelcomeEmail(name: string) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch("/api/auth/welcome-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...headers },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) console.warn("[auth] Welcome email was not accepted by the server.");
+  } catch (error) {
+    // Email is a post-signup convenience. Never make a successfully created
+    // account look like it failed because the provider is temporarily down.
+    console.warn("[auth] Welcome email could not be requested.", error);
+  }
+}
+
 async function ensureDemoAdminSeed() {
   const users = readDemoUsers();
   if (users.some((u) => u.email === DEMO_ADMIN_EMAIL)) return;
@@ -215,6 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         window.sessionStorage.setItem(DEMO_SESSION_KEY, uid);
         setUser(profile);
         await attributeReferralIfPresent();
+        await sendWelcomeEmail(name);
         return;
       }
       if (!auth) throw new Error("Firebase is not configured.");
@@ -225,6 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await upsert(USERS_COLLECTION, profile);
       setUser(profile);
       await attributeReferralIfPresent();
+      await sendWelcomeEmail(name);
     },
     [isDemoMode],
   );
