@@ -20,6 +20,8 @@ export async function POST(request: Request) {
   const email = renderWelcomeEmail({
     name: cleanName(body?.name, caller.email),
     dashboardUrl: `${origin}/dashboard`,
+    pricingUrl: `${origin}/pricing`,
+    logoUrl: `${origin}/eazytools-logo-light.png`,
   });
 
   try {
