@@ -1,9 +1,10 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, BookOpen, PlayCircle, Video } from "lucide-react";
+import { ArrowRight, BookOpen, Laptop, PlayCircle, Smartphone, Video } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,18 +44,24 @@ function getYouTubeEmbedUrl(url: string) {
 
 function TutorialViewer({ tutorial, children }: { tutorial: Tutorial; children: ReactNode }) {
   const embedUrl = tutorial.youtubeUrl ? getYouTubeEmbedUrl(tutorial.youtubeUrl) : "";
+  const [deviceMode, setDeviceMode] = React.useState<"laptop" | "mobile">("laptop");
 
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-h-[92vh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto p-0">
+      <DialogContent className={`max-h-[92vh] w-[calc(100%-2rem)] overflow-y-auto p-0 ${deviceMode === "mobile" ? "max-w-lg" : "max-w-4xl"}`}>
         <div className="p-5 pb-0 sm:p-6 sm:pb-0">
           <DialogHeader className="pr-8 text-left">
             <DialogTitle>{tutorial.title}</DialogTitle>
             <DialogDescription>{tutorial.description}</DialogDescription>
           </DialogHeader>
+          <div className="mt-5 flex w-full rounded-xl border bg-muted/50 p-1" aria-label="Choose your device view">
+            <button type="button" onClick={() => setDeviceMode("laptop")} aria-pressed={deviceMode === "laptop"} className={`inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors ${deviceMode === "laptop" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}><Laptop className="size-4" /> Laptop / Desktop</button>
+            <button type="button" onClick={() => setDeviceMode("mobile")} aria-pressed={deviceMode === "mobile"} className={`inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors ${deviceMode === "mobile" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}><Smartphone className="size-4" /> Mobile phone</button>
+          </div>
         </div>
-        <div className="mt-5 aspect-video w-full overflow-hidden bg-slate-950">
+        <div className={`mt-5 flex w-full justify-center overflow-hidden bg-slate-950 ${deviceMode === "mobile" ? "px-5 py-5 sm:px-8" : "aspect-video"}`}>
+          <div className={`${deviceMode === "mobile" ? "aspect-[9/16] max-h-[62vh] w-full max-w-[21rem] overflow-hidden rounded-2xl ring-1 ring-white/10" : "h-full w-full"}`}>
           {embedUrl ? (
             <iframe
               className="h-full w-full"
@@ -70,6 +77,7 @@ function TutorialViewer({ tutorial, children }: { tutorial: Tutorial; children: 
               <p className="mt-2 max-w-md text-sm text-white/65">We are preparing a simple step-by-step guide for this service. Check back soon for the video.</p>
             </div>
           )}
+          </div>
         </div>
         {tutorial.serviceHref && (
           <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
