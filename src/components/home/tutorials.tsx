@@ -18,7 +18,7 @@ import {
 
 // Add a normal YouTube URL to youtubeUrl and a YouTube Shorts URL to youtubeShortsUrl when each tutorial is ready to publish.
 const TUTORIALS = [
-  { title: "EazyTool from start to finish", description: "Learn how to find a tool, create your work, preview the result, and manage everything from your account.", image: "/hero/showcase-launch.png", youtubeUrl: "", youtubeShortsUrl: "", featured: true },
+  { title: "EazyTool from start to finish", description: "Learn how to find a tool, create your work, preview the result, and manage everything from your account.", image: "/hero/showcase-launch.png", youtubeUrl: "", youtubeShortsUrl: "https://www.youtube.com/shorts/sQ0XASqiPXI", featured: true },
   { title: "Website Builder", description: "See how to choose a template, edit your website, and prepare it for publishing.", image: "/service-previews/website-builder-showcase.png", serviceHref: "/services/premium-templates", youtubeUrl: "", youtubeShortsUrl: "" },
   { title: "Email Designer", description: "Learn how to create a professional email, preview it, and prepare it for sending.", image: "/service-previews/email-designer-v3.png", serviceHref: "/services/email-designer", youtubeUrl: "", youtubeShortsUrl: "" },
   { title: "Flight Itinerary Booking", description: "Follow the steps for creating a clear itinerary and downloading the finished document.", image: "/service-previews/flight-itinerary-showcase.png", serviceHref: "/services/airline-booking-platform", youtubeUrl: "", youtubeShortsUrl: "" },
