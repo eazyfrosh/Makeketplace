@@ -49,37 +49,23 @@ export function SubscriptionInvite() {
   if (!publicPage || pathname === "/pricing" || !visible) return null;
 
   return (
-    <aside
-      aria-label="Subscribe to EazyTool All Access"
-      className="fixed inset-x-4 bottom-24 z-[59] mx-auto w-auto max-w-md overflow-hidden rounded-3xl border border-primary/25 bg-card text-card-foreground shadow-2xl shadow-primary/20 sm:right-6 sm:bottom-6 sm:left-auto"
-    >
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-cyan-600 px-5 pb-5 pt-6 text-primary-foreground sm:px-6">
-        <div className="pointer-events-none absolute -right-10 -top-12 size-36 rounded-full bg-white/15 blur-2xl" />
-        <button
-          type="button"
-          aria-label="Close subscription invitation"
-          onClick={dismiss}
-          className="absolute right-3 top-3 grid size-9 place-items-center rounded-full text-white/80 transition hover:bg-white/15 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          <X className="size-4" aria-hidden="true" />
-        </button>
-        <div className="relative flex items-center gap-3 pr-8">
-          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-white/15 ring-1 ring-white/20"><Crown className="size-5" aria-hidden="true" /></span>
-          <div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100">EazyTool All Access</p><h2 className="mt-1 text-xl font-semibold tracking-tight">Unlock every tool</h2></div>
+    <div className="fixed inset-0 z-[59] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm sm:p-8">
+      <aside aria-label="Subscribe to EazyTool All Access" aria-modal="true" role="dialog" className="relative grid max-h-[min(90vh,700px)] w-full max-w-4xl overflow-y-auto rounded-[2rem] border border-primary/25 bg-card text-card-foreground shadow-2xl shadow-primary/30 md:grid-cols-[.95fr_1.05fr]">
+        <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-cyan-600 px-6 py-8 text-primary-foreground sm:px-10 sm:py-10">
+          <div className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-white/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-16 size-56 rounded-full bg-cyan-950/25 blur-3xl" />
+          <div className="relative flex min-h-full flex-col justify-between gap-12">
+            <div><span className="grid size-16 place-items-center rounded-3xl bg-white/15 ring-1 ring-white/25 shadow-lg shadow-cyan-950/15"><Crown className="size-8" aria-hidden="true" /></span><p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">EazyTool All Access</p><h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Unlock your workspace.</h2><p className="mt-4 max-w-sm text-base leading-7 text-white/90">One subscription gives you a simpler way to access the tools and templates you need for everyday digital work.</p></div>
+            <p className="relative text-sm font-medium text-white/75">Choose the access period that works best for you.</p>
+          </div>
         </div>
-        <p className="relative mt-4 text-sm leading-6 text-white/85">Subscribe once and use available websites, email tools, domains, business platforms, and templates in one simple workspace.</p>
-      </div>
-      <div className="p-5 sm:p-6">
-        <ul className="grid gap-2 text-sm text-muted-foreground">
-          <li className="flex items-center gap-2"><Check className="size-4 shrink-0 text-emerald-500" />Access the available tools and templates</li>
-          <li className="flex items-center gap-2"><Check className="size-4 shrink-0 text-emerald-500" />Choose monthly, 6-month, or yearly access</li>
-          <li className="flex items-center gap-2"><Check className="size-4 shrink-0 text-emerald-500" />Pay once — no automatic renewal</li>
-        </ul>
-        <div className="mt-5 flex flex-col gap-2 sm:flex-row-reverse">
-          <Link href="/pricing" onClick={dismiss} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">View subscription plans <ArrowRight className="size-4" /></Link>
-          <button type="button" onClick={dismiss} className="min-h-11 rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">Maybe later</button>
+        <div className="relative flex flex-col justify-center p-6 sm:p-10">
+          <button type="button" aria-label="Close subscription invitation" onClick={dismiss} className="absolute right-4 top-4 grid size-10 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:right-6 sm:top-6"><X className="size-5" aria-hidden="true" /></button>
+          <div className="pr-8"><p className="text-sm font-semibold text-primary">Simple access for your work</p><h3 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Get more from EazyTool.</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">Compare the plans and choose the option that matches how often you use the platform.</p></div>
+          <ul className="mt-8 grid gap-4 text-sm text-muted-foreground"><li className="flex items-start gap-3"><span className="grid size-6 shrink-0 place-items-center rounded-full bg-emerald-500/12"><Check className="size-4 text-emerald-500" /></span><span><strong className="font-semibold text-foreground">Access useful tools and templates</strong><br />Work from one familiar EazyTool workspace.</span></li><li className="flex items-start gap-3"><span className="grid size-6 shrink-0 place-items-center rounded-full bg-emerald-500/12"><Check className="size-4 text-emerald-500" /></span><span><strong className="font-semibold text-foreground">Choose your access period</strong><br />Select monthly, 6-month, or yearly access.</span></li><li className="flex items-start gap-3"><span className="grid size-6 shrink-0 place-items-center rounded-full bg-emerald-500/12"><Check className="size-4 text-emerald-500" /></span><span><strong className="font-semibold text-foreground">No automatic renewal</strong><br />Pay once for the access period you choose.</span></li></ul>
+          <div className="mt-8 flex flex-col gap-3"><Link href="/pricing" onClick={dismiss} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">View subscription plans <ArrowRight className="size-4" /></Link><button type="button" onClick={dismiss} className="min-h-11 rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">Maybe later</button></div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </div>
   );
 }
