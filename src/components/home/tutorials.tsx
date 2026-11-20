@@ -16,16 +16,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-// Add a YouTube URL to youtubeUrl when each tutorial is ready to publish.
+// Add a normal YouTube URL to youtubeUrl and a YouTube Shorts URL to youtubeShortsUrl when each tutorial is ready to publish.
 const TUTORIALS = [
-  { title: "EazyTool from start to finish", description: "Learn how to find a tool, create your work, preview the result, and manage everything from your account.", image: "/hero/showcase-launch.png", youtubeUrl: "", featured: true },
-  { title: "Website Builder", description: "See how to choose a template, edit your website, and prepare it for publishing.", image: "/service-previews/website-builder-showcase.png", serviceHref: "/services/premium-templates", youtubeUrl: "" },
-  { title: "Email Designer", description: "Learn how to create a professional email, preview it, and prepare it for sending.", image: "/service-previews/email-designer-v3.png", serviceHref: "/services/email-designer", youtubeUrl: "" },
-  { title: "Flight Itinerary Booking", description: "Follow the steps for creating a clear itinerary and downloading the finished document.", image: "/service-previews/flight-itinerary-showcase.png", serviceHref: "/services/airline-booking-platform", youtubeUrl: "" },
-  { title: "Tracking Page", description: "Learn how to create shipments, share tracking details, and update delivery progress.", image: "/services/logistics/logistics-website-showcase-branded.png", serviceHref: "/services/logistics-platform", youtubeUrl: "" },
-  { title: "Receipt Generator", description: "See how to choose a template, edit the details, preview your receipt, and export it.", image: "/service-previews/receipt-generator-showcase.png", serviceHref: "/services/receipt-generator", youtubeUrl: "" },
-  { title: "Support Websites", description: "Learn how to customize a help website, add your branding, and publish it for customers.", image: "/service-previews/support-website-showcase.png", serviceHref: "/services/support-website-templates", youtubeUrl: "" },
-  { title: "QR Code Generator", description: "Create a QR code for a link or contact detail and download it when it is ready.", image: "/service-previews/qr-code-showcase.png", serviceHref: "/services/qr-code-generator", youtubeUrl: "" },
+  { title: "EazyTool from start to finish", description: "Learn how to find a tool, create your work, preview the result, and manage everything from your account.", image: "/hero/showcase-launch.png", youtubeUrl: "", youtubeShortsUrl: "", featured: true },
+  { title: "Website Builder", description: "See how to choose a template, edit your website, and prepare it for publishing.", image: "/service-previews/website-builder-showcase.png", serviceHref: "/services/premium-templates", youtubeUrl: "", youtubeShortsUrl: "" },
+  { title: "Email Designer", description: "Learn how to create a professional email, preview it, and prepare it for sending.", image: "/service-previews/email-designer-v3.png", serviceHref: "/services/email-designer", youtubeUrl: "", youtubeShortsUrl: "" },
+  { title: "Flight Itinerary Booking", description: "Follow the steps for creating a clear itinerary and downloading the finished document.", image: "/service-previews/flight-itinerary-showcase.png", serviceHref: "/services/airline-booking-platform", youtubeUrl: "", youtubeShortsUrl: "" },
+  { title: "Tracking Page", description: "Learn how to create shipments, share tracking details, and update delivery progress.", image: "/services/logistics/logistics-website-showcase-branded.png", serviceHref: "/services/logistics-platform", youtubeUrl: "", youtubeShortsUrl: "" },
+  { title: "Receipt Generator", description: "See how to choose a template, edit the details, preview your receipt, and export it.", image: "/service-previews/receipt-generator-showcase.png", serviceHref: "/services/receipt-generator", youtubeUrl: "", youtubeShortsUrl: "" },
+  { title: "Support Websites", description: "Learn how to customize a help website, add your branding, and publish it for customers.", image: "/service-previews/support-website-showcase.png", serviceHref: "/services/support-website-templates", youtubeUrl: "", youtubeShortsUrl: "" },
+  { title: "QR Code Generator", description: "Create a QR code for a link or contact detail and download it when it is ready.", image: "/service-previews/qr-code-showcase.png", serviceHref: "/services/qr-code-generator", youtubeUrl: "", youtubeShortsUrl: "" },
 ];
 
 type Tutorial = (typeof TUTORIALS)[number];
@@ -43,8 +43,9 @@ function getYouTubeEmbedUrl(url: string) {
 }
 
 function TutorialViewer({ tutorial, children }: { tutorial: Tutorial; children: ReactNode }) {
-  const embedUrl = tutorial.youtubeUrl ? getYouTubeEmbedUrl(tutorial.youtubeUrl) : "";
   const [deviceMode, setDeviceMode] = React.useState<"laptop" | "mobile">("laptop");
+  const selectedVideoUrl = deviceMode === "mobile" ? tutorial.youtubeShortsUrl : tutorial.youtubeUrl;
+  const embedUrl = selectedVideoUrl ? getYouTubeEmbedUrl(selectedVideoUrl) : "";
 
   return (
     <Dialog>
@@ -66,15 +67,15 @@ function TutorialViewer({ tutorial, children }: { tutorial: Tutorial; children: 
             <iframe
               className="h-full w-full"
               src={embedUrl}
-              title={`${tutorial.title} video tutorial`}
+              title={`${tutorial.title} ${deviceMode === "mobile" ? "Shorts" : "video"} tutorial`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center px-6 text-center text-white">
               <PlayCircle className="size-12 text-cyan-300" />
-              <p className="mt-4 text-lg font-semibold">This tutorial video is coming soon</p>
-              <p className="mt-2 max-w-md text-sm text-white/65">We are preparing a simple step-by-step guide for this service. Check back soon for the video.</p>
+              <p className="mt-4 text-lg font-semibold">This {deviceMode === "mobile" ? "Shorts" : "long-form"} tutorial is coming soon</p>
+              <p className="mt-2 max-w-md text-sm text-white/65">We are preparing the {deviceMode === "mobile" ? "short mobile guide" : "full step-by-step guide"} for this service. Check back soon for the video.</p>
             </div>
           )}
           </div>
