@@ -21,11 +21,11 @@ const previewLogoPaths: Record<string, string> = {
   "orbit-crypto-saas": "/support-templates/logos/binance.svg",
   cartwise: "/support-templates/logos/bitcoin.svg",
   routecare: "/support-templates/logos/byd-preview.png",
-  "wells-fargo-help": "/support-templates/logos/wells-fargo.svg",
+  "wells-fargo-help": "/support-templates/logos/wells-fargo-preview.png",
   "clarity-docs": "/support-templates/logos/bitso-preview.png",
-  "summit-corporate": "/support-templates/logos/changelly.svg",
+  "summit-corporate": "/support-templates/logos/changelly-preview.png",
   plainhelp: "/support-templates/logos/cashapp.svg",
-  nightshift: "/support-templates/logos/blockchain.svg",
+  nightshift: "/support-templates/logos/blockchain-preview.png",
 };
 
 type PreviewModalProps = {
