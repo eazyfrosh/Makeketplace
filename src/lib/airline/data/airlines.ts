@@ -206,6 +206,19 @@ export const airlines: Airline[] = [
     founded: 1951,
     hubAirport: "HND",
   },
+  {
+    id: "oz",
+    logoSrc: airlineLogo("oz"),
+    name: "Asiana Airlines",
+    code: "OZ",
+    logoColor: "#8A1738",
+    rating: 4.4,
+    baggageAllowance: { carryOn: "1 bag + 1 personal item", checked: "23kg included in most fares" },
+    aircraftTypes: ["Airbus A350-900", "Airbus A330-300", "Airbus A321neo"],
+    cabins: ["economy", "business", "first"],
+    founded: 1988,
+    hubAirport: "ICN",
+  },
 ];
 
 export function findAirline(id: string): Airline | undefined {
