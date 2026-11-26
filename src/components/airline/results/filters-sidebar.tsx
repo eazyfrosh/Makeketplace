@@ -129,7 +129,7 @@ export function FiltersSidebar({ flights, filters, onChange, priceCeiling }: Fil
               className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
                 filters.departureWindows.includes(w.id)
                   ? "bg-brand-600 text-white"
-                  : "bg-black/5 text-foreground/70 dark:bg-white/10"
+                  : "bg-black/5 text-foreground/80 dark:bg-white/10"
               }`}
               title={w.hint}
             >
@@ -149,7 +149,7 @@ export function FiltersSidebar({ flights, filters, onChange, priceCeiling }: Fil
               className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
                 filters.arrivalWindows.includes(w.id)
                   ? "bg-brand-600 text-white"
-                  : "bg-black/5 text-foreground/70 dark:bg-white/10"
+                  : "bg-black/5 text-foreground/80 dark:bg-white/10"
               }`}
               title={w.hint}
             >

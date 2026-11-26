@@ -70,7 +70,7 @@ export default function ManageBookingPage() {
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8 print:hidden">
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold">Manage your booking</h1>
-        <p className="mt-1 text-sm text-foreground/60">
+        <p className="mt-1 text-sm text-foreground/75">
           Enter your booking reference and last name to view, cancel, or rebook a trip.
         </p>
       </div>
@@ -108,7 +108,7 @@ export default function ManageBookingPage() {
           <Card>
             <CardContent className="flex flex-col items-center gap-5 p-6 sm:flex-row sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-wide text-foreground/50">Booking reference</p>
+                <p className="text-xs uppercase tracking-wide text-foreground/65">Booking reference</p>
                 <div className="mt-1 flex flex-wrap items-center gap-3">
                   <p className="font-mono text-2xl font-bold tracking-widest text-brand-700 dark:text-brand-400">
                     {booking.bookingReference}
@@ -134,7 +134,7 @@ export default function ManageBookingPage() {
                     <div className="flex items-center gap-2.5">
                       <AirlineLogo airline={first.airline} size={32} />
                       <p className="font-semibold">
-                        {first.airline.name} <span className="text-foreground/40">· {flight.segments.map((s) => s.flightNumber).join(", ")}</span>
+                        {first.airline.name} <span className="text-foreground/55">· {flight.segments.map((s) => s.flightNumber).join(", ")}</span>
                       </p>
                     </div>
                     <Badge tone="brand">{cabinLabel(flight.cabin)}</Badge>
@@ -142,12 +142,12 @@ export default function ManageBookingPage() {
                   <div className="flex items-center justify-between text-sm">
                     <div>
                       <p className="text-lg font-bold">{formatTime(first.departureTime)}</p>
-                      <p className="text-foreground/50">{first.originCode} · {formatDateLong(first.departureTime)}</p>
+                      <p className="text-foreground/65">{first.originCode} · {formatDateLong(first.departureTime)}</p>
                     </div>
-                    <div className="text-foreground/40">→</div>
+                    <div className="text-foreground/55">→</div>
                     <div className="text-right">
                       <p className="text-lg font-bold">{formatTime(last.arrivalTime)}</p>
-                      <p className="text-foreground/50">{last.destinationCode} · {formatDateLong(last.arrivalTime)}</p>
+                      <p className="text-foreground/65">{last.destinationCode} · {formatDateLong(last.arrivalTime)}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -158,13 +158,13 @@ export default function ManageBookingPage() {
           <Card>
             <CardContent className="p-5">
               <h3 className="mb-3 font-semibold">Passenger details</h3>
-              <ul className="space-y-1 text-sm text-foreground/70">
+              <ul className="space-y-1 text-sm text-foreground/80">
                 {booking.passengers.map((p) => (
-                  <li key={p.id}>{p.firstName} {p.lastName} <span className="text-foreground/40">· {p.type}</span></li>
+                  <li key={p.id}>{p.firstName} {p.lastName} <span className="text-foreground/55">· {p.type}</span></li>
                 ))}
               </ul>
               {booking.seatAssignment && (
-                <p className="mt-3 text-sm text-foreground/60">Seat number: <strong>{booking.seatAssignment}</strong></p>
+                <p className="mt-3 text-sm text-foreground/75">Seat number: <strong>{booking.seatAssignment}</strong></p>
               )}
             </CardContent>
           </Card>
@@ -173,9 +173,9 @@ export default function ManageBookingPage() {
             <CardContent className="p-5">
               <h3 className="mb-3 font-semibold">Extras</h3>
               {extraLineItems.length === 0 ? (
-                <p className="text-sm text-foreground/50">No extras selected.</p>
+                <p className="text-sm text-foreground/65">No extras selected.</p>
               ) : (
-                <ul className="space-y-1.5 text-sm text-foreground/70">
+                <ul className="space-y-1.5 text-sm text-foreground/80">
                   {extraLineItems.map((item) => (
                     <li key={item.label} className="flex justify-between">
                       <span>{item.label}</span>
@@ -185,7 +185,7 @@ export default function ManageBookingPage() {
                 </ul>
               )}
               <div className="mt-4 space-y-1.5 border-t border-black/8 pt-3 text-sm dark:border-white/10">
-                <div className="flex justify-between text-foreground/60">
+                <div className="flex justify-between text-foreground/75">
                   <span>Ticket price</span>
                   <span>{formatCurrency(booking.ticketPrice, booking.currency)}</span>
                 </div>

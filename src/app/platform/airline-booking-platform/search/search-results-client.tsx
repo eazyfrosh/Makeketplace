@@ -222,7 +222,7 @@ export function SearchResultsClient() {
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <AlertTriangle className="mx-auto mb-4 text-gold-500" size={36} />
         <h1 className="text-xl font-semibold">We couldn&apos;t read your search</h1>
-        <p className="mt-2 text-foreground/60">Please start a new search from the homepage.</p>
+        <p className="mt-2 text-foreground/75">Please start a new search from the homepage.</p>
         <Button className="mt-6" onClick={() => router.push("/platform/airline-booking-platform")}>Back to homepage</Button>
       </div>
     );
@@ -237,7 +237,7 @@ export function SearchResultsClient() {
           <ArrowRight className="inline" size={18} /> <span aria-hidden>{countryFlag(destinationAirport.country)}</span>{" "}
           {destinationAirport.city}
         </h1>
-        <p className="mt-1 text-sm text-foreground/60">
+        <p className="mt-1 text-sm text-foreground/75">
           {formatDateLong(`${currentLeg.date}T00:00:00`)} · {passengers.adults + passengers.children + passengers.infants} passenger
           {passengers.adults + passengers.children + passengers.infants !== 1 ? "s" : ""}
         </p>
@@ -249,22 +249,22 @@ export function SearchResultsClient() {
               </span>
             )}
             {customPrice !== undefined && (
-              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
+              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/80 dark:bg-white/10">
                 {formatCurrency(customPrice)} per passenger
               </span>
             )}
             {legDepartureTime && (
-              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
+              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/80 dark:bg-white/10">
                 Departs {legDepartureTime}
               </span>
             )}
             {legArrivalTime && (
-              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
+              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/80 dark:bg-white/10">
                 Arrives {legArrivalTime}
               </span>
             )}
             {legDurationMinutes && (
-              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/70 dark:bg-white/10">
+              <span className="rounded-full bg-black/5 px-2.5 py-1 text-foreground/80 dark:bg-white/10">
                 Duration {formatDuration(legDurationMinutes)}
               </span>
             )}
@@ -284,7 +284,7 @@ export function SearchResultsClient() {
                   : "border-black/10 dark:border-white/15"
               }`}
             >
-              <span className="text-xs font-medium text-foreground/50">{leg.label}</span>
+              <span className="text-xs font-medium text-foreground/65">{leg.label}</span>
               <span className="text-sm font-semibold">
                 {leg.from} → {leg.to}
                 {itinerary[i] && <span className="ml-2 text-brand-600 dark:text-brand-400">✓ {formatCurrency(itinerary[i].price)}</span>}
@@ -301,7 +301,7 @@ export function SearchResultsClient() {
 
         <div>
           <div className="mb-4 flex items-center justify-between gap-3">
-            <p className="text-sm text-foreground/60">
+            <p className="text-sm text-foreground/75">
               {loading ? "Searching…" : `${filteredFlights.length} flights found`}
             </p>
             <SortBar value={sortKey} onChange={setSortKey} />
@@ -348,7 +348,7 @@ export function SearchResultsClient() {
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black/10 bg-white/95 p-4 backdrop-blur dark:border-white/10 dark:bg-neutral-900/95">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
             <div>
-              <p className="text-xs text-foreground/50">Total for all passengers</p>
+              <p className="text-xs text-foreground/65">Total for all passengers</p>
               <p className="text-xl font-bold text-brand-700 dark:text-brand-400">{formatCurrency(totalPrice)}</p>
             </div>
             <Button size="lg" onClick={() => router.push("/platform/airline-booking-platform/booking/passengers")}>

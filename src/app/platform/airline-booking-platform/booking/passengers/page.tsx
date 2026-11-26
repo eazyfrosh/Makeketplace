@@ -84,7 +84,7 @@ function PassengersForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold">Passenger information</h1>
-            <p className="mt-1 text-sm text-foreground/60">
+            <p className="mt-1 text-sm text-foreground/75">
               Enter details exactly as they appear on each traveler&apos;s passport.
             </p>
           </div>
@@ -96,7 +96,7 @@ function PassengersForm() {
                   <User2 size={15} />
                 </span>
                 <h2 className="font-semibold capitalize">
-                  Passenger {index + 1} <span className="font-normal text-foreground/50">({field.type})</span>
+                  Passenger {index + 1} <span className="font-normal text-foreground/65">({field.type})</span>
                 </h2>
               </div>
 

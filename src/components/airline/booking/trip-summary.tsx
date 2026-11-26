@@ -28,28 +28,28 @@ export function TripSummary({ extrasTotal = 0 }: { extrasTotal?: number }) {
               <p className="font-medium">
                 {first.originCode} → {last.destinationCode}
               </p>
-              <p className="mt-0.5 text-xs text-foreground/60">
+              <p className="mt-0.5 text-xs text-foreground/75">
                 {formatDateShort(first.departureTime)} · {formatTime(first.departureTime)} – {formatTime(last.arrivalTime)}
               </p>
-              <p className="text-xs text-foreground/50">{formatDuration(flight.totalDurationMinutes)} · {first.airline.name}</p>
+              <p className="text-xs text-foreground/65">{formatDuration(flight.totalDurationMinutes)} · {first.airline.name}</p>
               <p className="mt-1 text-sm font-semibold text-brand-700 dark:text-brand-400">
-                {formatCurrency(flight.price)} <span className="text-xs font-normal text-foreground/50">/ passenger</span>
+                {formatCurrency(flight.price)} <span className="text-xs font-normal text-foreground/65">/ passenger</span>
               </p>
             </div>
           );
         })}
 
         <div className="space-y-1.5 border-t border-black/8 pt-3 text-sm dark:border-white/10">
-          <div className="flex justify-between text-foreground/60">
+          <div className="flex justify-between text-foreground/75">
             <span>Passengers</span>
             <span>{passengerCount}</span>
           </div>
-          <div className="flex justify-between text-foreground/60">
+          <div className="flex justify-between text-foreground/75">
             <span>Ticket price</span>
             <span>{formatCurrency(flightsTotal)}</span>
           </div>
           {extrasTotal > 0 && (
-            <div className="flex justify-between text-foreground/60">
+            <div className="flex justify-between text-foreground/75">
               <span>Extras</span>
               <span>{formatCurrency(extrasTotal)}</span>
             </div>

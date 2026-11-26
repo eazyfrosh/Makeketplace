@@ -33,7 +33,7 @@ export function RebookingBanner() {
           reset();
           router.push("/platform/airline-booking-platform/trips");
         }}
-        className="flex shrink-0 items-center gap-1 text-xs font-medium text-foreground/50 hover:text-foreground"
+        className="flex shrink-0 items-center gap-1 text-xs font-medium text-foreground/65 hover:text-foreground"
       >
         <X size={13} /> Cancel
       </button>

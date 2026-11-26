@@ -12,7 +12,7 @@ const options: { key: SortKey; label: string }[] = [
 export function SortBar({ value, onChange }: { value: SortKey; onChange: (key: SortKey) => void }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-black/8 bg-white p-1.5 dark:border-white/10 dark:bg-white/[0.03]">
-      <span className="pl-2 text-xs font-medium uppercase tracking-wide text-foreground/40">Sort</span>
+      <span className="pl-2 text-xs font-medium uppercase tracking-wide text-foreground/55">Sort</span>
       {options.map((opt) => (
         <button
           key={opt.key}
@@ -20,7 +20,7 @@ export function SortBar({ value, onChange }: { value: SortKey; onChange: (key: S
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
             value === opt.key
               ? "bg-brand-600 text-white"
-              : "text-foreground/70 hover:bg-black/5 dark:hover:bg-white/10"
+              : "text-foreground/80 hover:bg-black/5 dark:hover:bg-white/10"
           }`}
         >
           {opt.label}

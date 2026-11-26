@@ -126,7 +126,7 @@ export default function BookingDetailPage() {
                   <div className="flex items-center gap-2.5">
                     <AirlineLogo airline={first.airline} size={32} />
                     <p className="font-semibold">
-                      {first.airline.name} <span className="text-foreground/40">· {flight.segments.map((s) => s.flightNumber).join(", ")}</span>
+                      {first.airline.name} <span className="text-foreground/55">· {flight.segments.map((s) => s.flightNumber).join(", ")}</span>
                     </p>
                   </div>
                   <Badge tone="brand">{cabinLabel(flight.cabin)}</Badge>
@@ -134,12 +134,12 @@ export default function BookingDetailPage() {
                 <div className="flex items-center justify-between text-sm">
                   <div>
                     <p className="text-lg font-bold">{formatTime(first.departureTime)}</p>
-                    <p className="text-foreground/50">{first.originCode} · {formatDateLong(first.departureTime)}</p>
+                    <p className="text-foreground/65">{first.originCode} · {formatDateLong(first.departureTime)}</p>
                   </div>
-                  <div className="text-foreground/40">→</div>
+                  <div className="text-foreground/55">→</div>
                   <div className="text-right">
                     <p className="text-lg font-bold">{formatTime(last.arrivalTime)}</p>
-                    <p className="text-foreground/50">{last.destinationCode} · {formatDateLong(last.arrivalTime)}</p>
+                    <p className="text-foreground/65">{last.destinationCode} · {formatDateLong(last.arrivalTime)}</p>
                   </div>
                 </div>
               </CardContent>
@@ -150,13 +150,13 @@ export default function BookingDetailPage() {
         <Card>
           <CardContent className="p-5">
             <h3 className="mb-3 font-semibold">Passenger details</h3>
-            <ul className="space-y-1 text-sm text-foreground/70">
+            <ul className="space-y-1 text-sm text-foreground/80">
               {booking.passengers.map((p) => (
-                <li key={p.id}>{p.firstName} {p.lastName} <span className="text-foreground/40">· {p.type}</span></li>
+                <li key={p.id}>{p.firstName} {p.lastName} <span className="text-foreground/55">· {p.type}</span></li>
               ))}
             </ul>
             {booking.seatAssignment && (
-              <p className="mt-3 text-sm text-foreground/60">Seat number: <strong>{booking.seatAssignment}</strong></p>
+              <p className="mt-3 text-sm text-foreground/75">Seat number: <strong>{booking.seatAssignment}</strong></p>
             )}
           </CardContent>
         </Card>
@@ -165,9 +165,9 @@ export default function BookingDetailPage() {
           <CardContent className="p-5">
             <h3 className="mb-3 font-semibold">Extras</h3>
             {extraLineItems.length === 0 ? (
-              <p className="text-sm text-foreground/50">No extras selected.</p>
+              <p className="text-sm text-foreground/65">No extras selected.</p>
             ) : (
-              <ul className="space-y-1.5 text-sm text-foreground/70">
+              <ul className="space-y-1.5 text-sm text-foreground/80">
                 {extraLineItems.map((item) => (
                   <li key={item.label} className="flex justify-between">
                     <span>{item.label}</span>
@@ -177,7 +177,7 @@ export default function BookingDetailPage() {
               </ul>
             )}
             <div className="mt-4 space-y-1.5 border-t border-black/8 pt-3 text-sm dark:border-white/10">
-              <div className="flex justify-between text-foreground/60">
+              <div className="flex justify-between text-foreground/75">
                 <span>Ticket price</span>
                 <span>{formatCurrency(booking.ticketPrice, booking.currency)}</span>
               </div>

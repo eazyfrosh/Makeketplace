@@ -21,7 +21,7 @@ export function BookingSteps({ current }: { current: "passengers" | "extras" | "
                   ? "border-brand-600 bg-brand-600 text-white"
                   : idx === currentIdx
                   ? "border-brand-600 text-brand-600 dark:text-brand-400"
-                  : "border-black/15 text-foreground/30 dark:border-white/20"
+                  : "border-black/15 text-foreground/45 dark:border-white/20"
               )}
             >
               {idx < currentIdx ? <Check size={14} /> : idx + 1}
@@ -29,7 +29,7 @@ export function BookingSteps({ current }: { current: "passengers" | "extras" | "
             <span
               className={cn(
                 "hidden text-xs font-medium sm:block",
-                idx <= currentIdx ? "text-foreground" : "text-foreground/40"
+                idx <= currentIdx ? "text-foreground" : "text-foreground/55"
               )}
             >
               {step.label}

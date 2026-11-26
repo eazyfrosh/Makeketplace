@@ -46,7 +46,7 @@ export default function FlightStatusPage() {
           <PlaneTakeoff size={23} />
         </span>
         <h1 className="mt-3 text-2xl font-bold">Track your flight itinerary</h1>
-        <p className="mt-1 text-sm text-foreground/60">Paste your booking number to see its current status, route, date, and times.</p>
+        <p className="mt-1 text-sm text-foreground/75">Paste your booking number to see its current status, route, date, and times.</p>
       </div>
 
       <Card>
@@ -107,10 +107,10 @@ export default function FlightStatusPage() {
                       <AirlineLogo airline={first.airline} size={34} />
                       <div>
                         <p className="font-semibold">{flightIndex === 0 ? "Outbound itinerary" : flightIndex === 1 ? "Return itinerary" : `Flight ${flightIndex + 1}`}</p>
-                        <p className="text-xs text-foreground/50">{first.airline.name} · {cabinLabel(flight.cabin)}</p>
+                        <p className="text-xs text-foreground/65">{first.airline.name} · {cabinLabel(flight.cabin)}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 text-sm text-foreground/60">
+                    <div className="flex items-center gap-1.5 text-sm text-foreground/75">
                       <CalendarDays size={15} /> {formatDateLong(first.departureTime)}
                     </div>
                   </div>
@@ -121,7 +121,7 @@ export default function FlightStatusPage() {
                       const destination = findAirport(segment.destinationCode);
                       return (
                         <div key={segment.id} className="rounded-xl border border-black/8 p-4 dark:border-white/10">
-                          <div className="mb-4 flex items-center justify-between text-xs text-foreground/50">
+                          <div className="mb-4 flex items-center justify-between text-xs text-foreground/65">
                             <span>{segment.airline.name} {segment.flightNumber}</span>
                             <span>{segment.aircraft}</span>
                           </div>
@@ -129,9 +129,9 @@ export default function FlightStatusPage() {
                             <div>
                               <p className="text-2xl font-bold">{formatTime(segment.departureTime)}</p>
                               <p className="font-semibold text-brand-700 dark:text-brand-300">{segment.originCode}</p>
-                              <p className="text-xs text-foreground/50">{origin?.city ?? segment.originCode}</p>
+                              <p className="text-xs text-foreground/65">{origin?.city ?? segment.originCode}</p>
                             </div>
-                            <div className="flex items-center text-foreground/30">
+                            <div className="flex items-center text-foreground/45">
                               <span className="hidden h-px w-10 bg-current sm:block" />
                               <PlaneTakeoff className="mx-2" size={18} />
                               <span className="hidden h-px w-10 bg-current sm:block" />
@@ -139,14 +139,14 @@ export default function FlightStatusPage() {
                             <div className="text-right">
                               <p className="text-2xl font-bold">{formatTime(segment.arrivalTime)}</p>
                               <p className="font-semibold text-brand-700 dark:text-brand-300">{segment.destinationCode}</p>
-                              <p className="text-xs text-foreground/50">{destination?.city ?? segment.destinationCode}</p>
+                              <p className="text-xs text-foreground/65">{destination?.city ?? segment.destinationCode}</p>
                             </div>
                           </div>
                         </div>
                       );
                     })}
 
-                    <div className="flex flex-wrap gap-4 text-sm text-foreground/60">
+                    <div className="flex flex-wrap gap-4 text-sm text-foreground/75">
                       <span className="inline-flex items-center gap-1.5"><Clock3 size={14} /> Departs {formatTime(first.departureTime)} · Arrives {formatTime(last.arrivalTime)}</span>
                       {(result.terminal || result.gate) && (
                         <span className="inline-flex items-center gap-1.5"><MapPin size={14} /> {result.terminal ? `Terminal ${result.terminal}` : ""}{result.terminal && result.gate ? " · " : ""}{result.gate ? `Gate ${result.gate}` : ""}</span>

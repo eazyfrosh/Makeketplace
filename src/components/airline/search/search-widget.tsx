@@ -188,7 +188,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
               "rounded-full px-4 py-1.5 text-sm font-medium transition",
               tripType === t.value
                 ? "bg-brand-600 text-white shadow-md shadow-brand-600/25"
-                : "bg-black/5 text-foreground/70 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15"
+                : "bg-black/5 text-foreground/80 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15"
             )}
           >
             {t.label}
@@ -204,7 +204,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
             type="button"
             onClick={swap}
             aria-label="Swap airports"
-            className="mx-auto hidden h-10 w-10 items-center justify-center rounded-full border border-black/10 text-foreground/60 transition hover:bg-black/5 md:mb-1.5 md:flex dark:border-white/15 dark:hover:bg-white/10"
+            className="mx-auto hidden h-10 w-10 items-center justify-center rounded-full border border-black/10 text-foreground/75 transition hover:bg-black/5 md:mb-1.5 md:flex dark:border-white/15 dark:hover:bg-white/10"
           >
             <ArrowLeftRight size={16} />
           </button>
@@ -212,7 +212,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
           <AirportAutocomplete label="Destination" value={to} onChange={setTo} icon="to" />
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65">
               Departure
             </label>
             <input
@@ -226,7 +226,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
 
           {tripType === "round_trip" ? (
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65">
                 Return
               </label>
               <input
@@ -254,7 +254,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
               />
               <AirportAutocomplete label="To" value={seg.to} onChange={(v) => updateSegment(idx, { to: v })} icon="to" />
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65">
                   Date
                 </label>
                 <input
@@ -297,7 +297,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="preferred-airline">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65" htmlFor="preferred-airline">
             Enter airline
           </label>
           <input
@@ -317,11 +317,11 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
           </datalist>
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="custom-flight-price">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65" htmlFor="custom-flight-price">
             Flight price per passenger (USD)
           </label>
           <div className="relative">
-            <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm text-foreground/50">$</span>
+            <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm text-foreground/65">$</span>
             <input
               id="custom-flight-price"
               type="number"
@@ -337,7 +337,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="custom-departure-time">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65" htmlFor="custom-departure-time">
             {tripType === "round_trip" ? "Outbound departure time" : "Departure time"}
           </label>
           <input
@@ -349,7 +349,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="custom-arrival-time">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65" htmlFor="custom-arrival-time">
             {tripType === "round_trip" ? "Outbound arrival time" : "Arrival time"}
           </label>
           <input
@@ -367,7 +367,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65">
             {tripType === "round_trip" ? "Outbound duration" : "Flight duration"}
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -409,13 +409,13 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
             <h4 className="mb-3 text-sm font-semibold">Returning ticket</h4>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="return-departure-time">
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65" htmlFor="return-departure-time">
                   Return departure time
                 </label>
                 <input id="return-departure-time" type="time" value={returnDepartureTime} onChange={(event) => setReturnDepartureTime(event.target.value)} className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900" />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50" htmlFor="return-arrival-time">
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65" htmlFor="return-arrival-time">
                   Return arrival time
                 </label>
                 <input
@@ -433,7 +433,7 @@ export function SearchWidget({ compact = false }: { compact?: boolean }) {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">Return duration</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65">Return duration</label>
                 <div className="grid grid-cols-2 gap-2">
                   <input aria-label="Return flight duration hours" type="number" inputMode="numeric" min="0" max="72" step="1" value={returnDurationHours} onChange={(event) => { setReturnDurationHours(event.target.value); if (event.target.value) setReturnArrivalTime(""); }} placeholder="Hours" className="w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900" />
                   <input aria-label="Return flight duration minutes" type="number" inputMode="numeric" min="0" max="59" step="1" value={returnDurationMinutes} onChange={(event) => { setReturnDurationMinutes(event.target.value); if (event.target.value) setReturnArrivalTime(""); }} placeholder="Minutes" className="w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:border-brand-400 dark:border-white/15 dark:bg-neutral-900" />

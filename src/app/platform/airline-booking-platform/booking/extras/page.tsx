@@ -118,7 +118,7 @@ function ExtrasForm() {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold">Enhance your trip</h1>
-            <p className="mt-1 text-sm text-foreground/60">Optional extras, priced per trip.</p>
+            <p className="mt-1 text-sm text-foreground/75">Optional extras, priced per trip.</p>
           </div>
 
           <section className="rounded-2xl border border-black/8 bg-white p-5 dark:border-white/10 dark:bg-white/[0.03]">
@@ -158,7 +158,7 @@ function ExtrasForm() {
                 <Luggage size={18} className="text-brand-600 dark:text-brand-400" />
                 <span>
                   <span className="block text-sm font-medium">Extra checked baggage</span>
-                  <span className="block text-xs text-foreground/50">+23kg additional allowance</span>
+                  <span className="block text-xs text-foreground/65">+23kg additional allowance</span>
                 </span>
               </span>
               <span className="flex items-center gap-3">
@@ -177,7 +177,7 @@ function ExtrasForm() {
                 <Shield size={18} className="text-brand-600 dark:text-brand-400" />
                 <span>
                   <span className="block text-sm font-medium">Travel insurance</span>
-                  <span className="block text-xs text-foreground/50">Trip cancellation & medical coverage (mock)</span>
+                  <span className="block text-xs text-foreground/65">Trip cancellation & medical coverage (mock)</span>
                 </span>
               </span>
               <span className="flex items-center gap-3">
@@ -196,7 +196,7 @@ function ExtrasForm() {
                 <Sparkles size={18} className="text-brand-600 dark:text-brand-400" />
                 <span>
                   <span className="block text-sm font-medium">Priority boarding</span>
-                  <span className="block text-xs text-foreground/50">Board first, skip the line</span>
+                  <span className="block text-xs text-foreground/65">Board first, skip the line</span>
                 </span>
               </span>
               <span className="flex items-center gap-3">

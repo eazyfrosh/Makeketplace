@@ -30,7 +30,7 @@ export function SeatMap({
 
   return (
     <div className="rounded-xl border border-black/8 bg-black/[0.02] p-4 dark:border-white/10 dark:bg-white/5">
-      <div className="mb-3 flex items-center gap-4 text-xs text-foreground/60">
+      <div className="mb-3 flex items-center gap-4 text-xs text-foreground/75">
         <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-white border border-black/20 dark:bg-white/10 dark:border-white/20" /> Available</span>
         <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-gold-500/70" /> Extra legroom</span>
         <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-brand-600" /> Selected</span>
@@ -39,7 +39,7 @@ export function SeatMap({
       <div className="min-w-fit space-y-1.5 overflow-x-auto">
         <div className="flex items-center gap-1.5 pl-5">
           {COLUMNS.map((col, ci) => (
-            <span key={col} className={cn("w-7 text-center text-[10px] font-semibold text-foreground/40", ci === 3 && "ml-4")}>
+            <span key={col} className={cn("w-7 text-center text-[10px] font-semibold text-foreground/55", ci === 3 && "ml-4")}>
               {col}
             </span>
           ))}
@@ -48,7 +48,7 @@ export function SeatMap({
           const row = i + 1;
           return (
             <div key={row} className="flex items-center gap-1.5">
-              <span className="w-5 text-xs text-foreground/40">{row}</span>
+              <span className="w-5 text-xs text-foreground/55">{row}</span>
               {COLUMNS.map((col, ci) => {
                 const seat = `${row}${col}`;
                 const taken = unavailable.has(seat);
@@ -75,7 +75,7 @@ export function SeatMap({
                 );
               })}
               {row === 2 && (
-                <span className="ml-2 text-[10px] uppercase tracking-wide text-foreground/30">Exit row</span>
+                <span className="ml-2 text-[10px] uppercase tracking-wide text-foreground/45">Exit row</span>
               )}
             </div>
           );

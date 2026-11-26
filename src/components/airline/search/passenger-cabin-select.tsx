@@ -30,7 +30,7 @@ function Counter({
     <div className="flex items-center justify-between py-2.5">
       <div>
         <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-foreground/50">{hint}</p>
+        <p className="text-xs text-foreground/65">{hint}</p>
       </div>
       <div className="flex items-center gap-3">
         <button
@@ -69,7 +69,7 @@ export function PassengerCabinSelect({ passengers, cabin, onChange }: Props) {
 
   return (
     <div className="relative" ref={ref}>
-      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">
+      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65">
         Passengers &amp; Cabin
       </label>
       <button
@@ -84,7 +84,7 @@ export function PassengerCabinSelect({ passengers, cabin, onChange }: Props) {
           <span className="block truncate text-sm font-semibold">
             {total} Passenger{total !== 1 ? "s" : ""}
           </span>
-          <span className="block truncate text-xs text-foreground/50">{cabinLabel(cabin)}</span>
+          <span className="block truncate text-xs text-foreground/65">{cabinLabel(cabin)}</span>
         </span>
       </button>
 

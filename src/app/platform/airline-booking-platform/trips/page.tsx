@@ -94,7 +94,7 @@ export default function MyTripsPage() {
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">My Trips</h1>
-          <p className="mt-1 text-sm text-foreground/60">
+          <p className="mt-1 text-sm text-foreground/75">
             Welcome back, {user.name || "traveler"} — manage your bookings
           </p>
         </div>
@@ -120,7 +120,7 @@ export default function MyTripsPage() {
             className={`border-b-2 px-3 py-2.5 text-sm font-medium transition ${
               tab === t.key
                 ? "border-brand-600 text-brand-600 dark:text-brand-400"
-                : "border-transparent text-foreground/50 hover:text-foreground"
+                : "border-transparent text-foreground/65 hover:text-foreground"
             }`}
           >
             {t.label}

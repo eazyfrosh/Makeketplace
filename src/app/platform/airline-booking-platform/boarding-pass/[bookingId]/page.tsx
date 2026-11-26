@@ -57,7 +57,7 @@ export default function BoardingPassPage() {
     return <LoadingState label="Loading boarding pass…" />;
   }
   if (!booking) {
-    return <div className="mx-auto max-w-2xl px-4 py-24 text-center text-foreground/50">Boarding pass not found.</div>;
+    return <div className="mx-auto max-w-2xl px-4 py-24 text-center text-foreground/65">Boarding pass not found.</div>;
   }
 
   const flight = booking.flights[legIndex];
@@ -99,19 +99,19 @@ export default function BoardingPassPage() {
 
         <div className="grid grid-cols-2 gap-4 p-6 sm:grid-cols-4">
           <div>
-            <p className="text-xs text-foreground/50">Passenger</p>
+            <p className="text-xs text-foreground/65">Passenger</p>
             <p className="font-semibold">{passenger?.firstName} {passenger?.lastName}</p>
           </div>
           <div>
-            <p className="text-xs text-foreground/50">Flight</p>
+            <p className="text-xs text-foreground/65">Flight</p>
             <p className="font-semibold">{first.flightNumber}</p>
           </div>
           <div>
-            <p className="text-xs text-foreground/50">Seat</p>
+            <p className="text-xs text-foreground/65">Seat</p>
             <p className="font-semibold">{booking.seatAssignment ?? "—"}</p>
           </div>
           <div>
-            <p className="text-xs text-foreground/50">Group / Zone</p>
+            <p className="text-xs text-foreground/65">Group / Zone</p>
             <p className="font-semibold">{boardingGroupFor(flight.id)}</p>
           </div>
         </div>
@@ -119,12 +119,12 @@ export default function BoardingPassPage() {
         <div className="flex items-center justify-between px-6 pb-2">
           <div>
             <p className="text-2xl font-bold">{first.originCode}</p>
-            <p className="text-xs text-foreground/50">{formatTime(first.departureTime)}</p>
+            <p className="text-xs text-foreground/65">{formatTime(first.departureTime)}</p>
           </div>
-          <Plane size={16} className="rotate-90 text-foreground/30" />
+          <Plane size={16} className="rotate-90 text-foreground/45" />
           <div className="text-right">
             <p className="text-2xl font-bold">{last.destinationCode}</p>
-            <p className="text-xs text-foreground/50">{formatTime(last.arrivalTime)}</p>
+            <p className="text-xs text-foreground/65">{formatTime(last.arrivalTime)}</p>
           </div>
         </div>
 
@@ -133,19 +133,19 @@ export default function BoardingPassPage() {
           <span className="absolute right-0 top-1/2 h-6 w-6 -translate-y-1/2 translate-x-1/2 rounded-full bg-background" />
           <div className="grid grid-cols-2 gap-4 p-6 sm:grid-cols-4">
             <div>
-              <p className="text-xs text-foreground/50">Date</p>
+              <p className="text-xs text-foreground/65">Date</p>
               <p className="text-sm font-medium">{formatDateLong(first.departureTime)}</p>
             </div>
             <div>
-              <p className="text-xs text-foreground/50">Boarding</p>
+              <p className="text-xs text-foreground/65">Boarding</p>
               <p className="text-sm font-medium">{booking.boardingTime ?? defaultBoardingTime(first.departureTime)}</p>
             </div>
             <div>
-              <p className="text-xs text-foreground/50">Gate</p>
+              <p className="text-xs text-foreground/65">Gate</p>
               <p className="text-sm font-medium">{booking.gate ?? defaultGateFor(flight.id)}</p>
             </div>
             <div>
-              <p className="text-xs text-foreground/50">Terminal</p>
+              <p className="text-xs text-foreground/65">Terminal</p>
               <p className="text-sm font-medium">{booking.terminal ?? defaultTerminalFor(flight.id)}</p>
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function BoardingPassPage() {
         <div className="space-y-4 bg-black/[0.02] p-6 dark:bg-white/5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-foreground/50">Booking reference</p>
+              <p className="text-xs text-foreground/65">Booking reference</p>
               <p className="font-mono text-lg font-bold tracking-widest">{booking.bookingReference}</p>
               <div className="mt-2">
                 <CopyBookingReferenceButton reference={booking.bookingReference} />
@@ -164,7 +164,7 @@ export default function BoardingPassPage() {
           </div>
           <div>
             <BarcodeStrip seed={`${booking.bookingReference}-${flight.id}`} />
-            <p className="mt-1 text-center text-[10px] uppercase tracking-widest text-foreground/40">Scan at gate</p>
+            <p className="mt-1 text-center text-[10px] uppercase tracking-widest text-foreground/55">Scan at gate</p>
           </div>
         </div>
       </div>

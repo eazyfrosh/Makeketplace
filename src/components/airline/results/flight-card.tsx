@@ -35,7 +35,7 @@ export function FlightCard({ flight, selected, onSelect }: FlightCardProps) {
           <AirlineLogo airline={airline} size={36} />
           <div>
             <p className="text-sm font-semibold">{airline.name}</p>
-            <p className="text-xs text-foreground/50">
+            <p className="text-xs text-foreground/65">
               {flight.segments.map((s) => s.flightNumber).join(" · ")}
             </p>
           </div>
@@ -51,16 +51,16 @@ export function FlightCard({ flight, selected, onSelect }: FlightCardProps) {
         <div className="flex items-center gap-3 sm:gap-5">
           <div className="text-center">
             <p className="text-xl font-bold tabular-nums">{formatTime(first.departureTime)}</p>
-            <p className="text-xs font-medium text-foreground/50">
+            <p className="text-xs font-medium text-foreground/65">
               {originAirport && <span aria-hidden>{countryFlag(originAirport.country)} </span>}
               {first.originCode}
             </p>
           </div>
 
           <div className="flex-1">
-            <p className="text-center text-xs text-foreground/50">{formatDuration(flight.totalDurationMinutes)}</p>
+            <p className="text-center text-xs text-foreground/65">{formatDuration(flight.totalDurationMinutes)}</p>
             <div className="relative my-1.5 h-px bg-black/15 dark:bg-white/20">
-              <ArrowRight size={13} className="absolute -right-1 -top-[7px] text-foreground/40" />
+              <ArrowRight size={13} className="absolute -right-1 -top-[7px] text-foreground/55" />
               {flight.stops > 0 &&
                 flight.segments.slice(0, -1).map((s, i) => (
                   <span
@@ -70,7 +70,7 @@ export function FlightCard({ flight, selected, onSelect }: FlightCardProps) {
                   />
                 ))}
             </div>
-            <p className="text-center text-xs font-medium text-foreground/60">
+            <p className="text-center text-xs font-medium text-foreground/75">
               {flight.stops === 0
                 ? "Non-stop"
                 : `${flight.stops} stop${flight.stops > 1 ? "s" : ""} · ${flight.segments
@@ -82,7 +82,7 @@ export function FlightCard({ flight, selected, onSelect }: FlightCardProps) {
 
           <div className="text-center">
             <p className="text-xl font-bold tabular-nums">{formatTime(last.arrivalTime)}</p>
-            <p className="text-xs font-medium text-foreground/50">
+            <p className="text-xs font-medium text-foreground/65">
               {destinationAirport && <span aria-hidden>{countryFlag(destinationAirport.country)} </span>}
               {last.destinationCode}
             </p>
@@ -94,7 +94,7 @@ export function FlightCard({ flight, selected, onSelect }: FlightCardProps) {
             <p className="text-2xl font-bold text-brand-700 dark:text-brand-400">
               {formatCurrency(flight.price, flight.currency)}
             </p>
-            <p className="text-xs text-foreground/50">per passenger</p>
+            <p className="text-xs text-foreground/65">per passenger</p>
           </div>
           <Button onClick={() => onSelect(flight)} className="shrink-0">
             {selected ? (
@@ -108,7 +108,7 @@ export function FlightCard({ flight, selected, onSelect }: FlightCardProps) {
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 border-t border-black/8 pt-3 text-xs text-foreground/50 dark:border-white/10">
+      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 border-t border-black/8 pt-3 text-xs text-foreground/65 dark:border-white/10">
         <span className="inline-flex items-center gap-1">
           <Luggage size={13} /> {flight.baggageIncluded} checked bag
         </span>

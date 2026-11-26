@@ -30,7 +30,7 @@ export function BookingCard({ booking, onCancel, onEdit, onDelete }: BookingCard
               {first.originCode} → {last.destinationCode}
               {booking.flights.length > 1 && ` (+${booking.flights.length - 1} more)`}
             </p>
-            <p className="text-xs text-foreground/50">{formatDateLong(first.departureTime)} · {formatTime(first.departureTime)}</p>
+            <p className="text-xs text-foreground/65">{formatDateLong(first.departureTime)} · {formatTime(first.departureTime)}</p>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
@@ -43,7 +43,7 @@ export function BookingCard({ booking, onCancel, onEdit, onDelete }: BookingCard
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-black/8 pt-4 dark:border-white/10">
         <div>
           <p className="font-mono text-sm font-semibold tracking-wide">{booking.bookingReference}</p>
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/65">
             {booking.passengers.length} passenger{booking.passengers.length !== 1 ? "s" : ""} · {formatCurrency(booking.totalPrice, booking.currency)}
           </p>
         </div>

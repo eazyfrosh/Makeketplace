@@ -51,7 +51,7 @@ export function AirportAutocomplete({ label, value, onChange, icon = "from", pla
 
   return (
     <div className="relative" ref={containerRef}>
-      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/50">
+      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-foreground/65">
         {label}
       </label>
       <button
@@ -69,10 +69,10 @@ export function AirportAutocomplete({ label, value, onChange, icon = "from", pla
                 <span aria-hidden className="mr-1">{countryFlag(selected.country)}</span>
                 {selected.city} ({selected.code})
               </span>
-              <span className="block truncate text-xs text-foreground/50">{selected.name}</span>
+              <span className="block truncate text-xs text-foreground/65">{selected.name}</span>
             </>
           ) : (
-            <span className="text-sm text-foreground/40">{placeholder ?? "Select airport"}</span>
+            <span className="text-sm text-foreground/55">{placeholder ?? "Select airport"}</span>
           )}
         </span>
       </button>
@@ -89,7 +89,7 @@ export function AirportAutocomplete({ label, value, onChange, icon = "from", pla
           />
           <div className="flex flex-col">
             {results.length === 0 && (
-              <p className="px-3 py-4 text-center text-sm text-foreground/40">No airports found</p>
+              <p className="px-3 py-4 text-center text-sm text-foreground/55">No airports found</p>
             )}
             {results.map((airport) => (
               <button
@@ -110,7 +110,7 @@ export function AirportAutocomplete({ label, value, onChange, icon = "from", pla
                     <span aria-hidden className="mr-1">{countryFlag(airport.country)}</span>
                     {airport.city}, {airport.country}
                   </span>
-                  <span className="block truncate text-xs text-foreground/50">{airport.name}</span>
+                  <span className="block truncate text-xs text-foreground/65">{airport.name}</span>
                 </span>
                 <span className="shrink-0 rounded-md bg-black/5 px-2 py-0.5 font-mono text-xs font-semibold dark:bg-white/10">
                   {airport.code}
