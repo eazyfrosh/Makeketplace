@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity, MessageCircle, Ticket } from "lucide-react";
+import { Activity, ExternalLink, Ticket } from "lucide-react";
 import { SearchWidget } from "@/components/airline/search/search-widget";
 
 export default function AirlineBookingPlatformHome() {
@@ -21,7 +21,7 @@ export default function AirlineBookingPlatformHome() {
             <Ticket size={14} /> View my trips
           </Link>
           <Link href="/platform/airline-booking-platform/flight-status" className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white"><Activity size={14} /> Flight status</Link>
-          <Link href="/platform/airline-booking-platform/chat-widgets" className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white"><MessageCircle size={14} /> Edit chat widgets</Link>
+          <a href="https://skybookinc.app/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white"><ExternalLink size={14} /> Visit Website</a>
           </div>
         </div>
       </div>
